@@ -1,10 +1,15 @@
+"use client";
+
 import { useTypewriterSound } from "@/hooks/useTypewriterSound";
+import { useRouter } from "next/navigation";
+import GameButton from "../GameButton";
 export default function PrincipalMenu() {
   const playSound = useTypewriterSound();
+  const router = useRouter();
 
   return (
     <div
-      className="w-[480px] p-8 rounded-xl"
+      className="w-120 p-8 rounded-xl"
       style={{
         background: "rgba(42, 58, 74, 0.35)",
         backdropFilter: "blur(10px)",
@@ -24,59 +29,17 @@ export default function PrincipalMenu() {
 
       <div className="flex flex-col gap-4">
         {/* CONTINUAR */}
-        <button
-          onMouseEnter={playSound}
-          className="relative group w-full py-4 text-xl modern-button flex items-center justify-center"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(42,58,74,0.95), rgba(42,58,74,0.75))",
-            border: "1px solid rgba(69, 96, 117, 0.8)",
-            color: "#FFF3C7",
-            boxShadow: "inset 0 1px 0 rgba(69,96,117,0.6)",
-          }}
-        >
-          <span className="absolute left-4 opacity-0 translate-x-[-4px] transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0 icon-float">
-            🗺️
-          </span>
-
-          <span className="pointer-events-none">CONTINUAR</span>
-        </button>
+        <GameButton
+          icon="🗺️"
+          label="CONTINUAR"
+          onClick={() => router.push("/")}
+        />
 
         {/* NUEVA PARTIDA */}
-        <button
-          onMouseEnter={playSound}
-          className="relative group w-full py-4 text-xl modern-button flex items-center justify-center"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(42,58,74,0.95), rgba(42,58,74,0.75))",
-            border: "1px solid rgba(69, 96, 117, 0.8)",
-            color: "#FFF3C7",
-            boxShadow: "inset 0 1px 0 rgba(69,96,117,0.6)",
-          }}
-        >
-          <span className="absolute left-4 opacity-0 translate-x-[-4px] transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0 icon-float">
-            📁
-          </span>
-          <span className="pointer-events-none">NUEVA PARTIDA</span>
-        </button>
+        <GameButton icon="📁" label="NUEVA PARTIDA" />
 
         {/* OPCIONES */}
-        <button
-          onMouseEnter={playSound}
-          className="relative group w-full py-4 text-xl modern-button flex items-center justify-center"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(42,58,74,0.95), rgba(42,58,74,0.75))",
-            border: "1px solid rgba(69, 96, 117, 0.8)",
-            color: "#FFF3C7",
-            boxShadow: "inset 0 1px 0 rgba(69,96,117,0.6)",
-          }}
-        >
-          <span className="absolute left-4 opacity-0 translate-x-[-4px] transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0 icon-float">
-            ⚙️
-          </span>
-          <span className="pointer-events-none">OPCIONES</span>
-        </button>
+        <GameButton icon="⚙️" label="OPCIONES" />
       </div>
     </div>
   );
