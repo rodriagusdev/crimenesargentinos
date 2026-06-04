@@ -24,3 +24,38 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.icon-hover {
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: all 180ms ease;
+  display: inline-block;
+}
+
+.btn-hover-group:hover .icon-hover {
+  opacity: 1;
+  transform: translateX(2px);
+}
+
+.icon-float {
+  animation: iconFloat 1.8s ease-in-out infinite;
+}
+
+@keyframes iconFloat {
+  0% { transform: translateX(2px); }
+  50% { transform: translateX(5px); }
+  100% { transform: translateX(2px); }
+}
+
+.modern-button {
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+  will-change: transform;
+}
+
+.modern-button:hover {
+  transform: translateY(-2px);
+}
+
+.modern-button:active {
+  transform: translateY(0px) scale(0.98);
+}
