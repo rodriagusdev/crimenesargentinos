@@ -1,46 +1,25 @@
 "use client";
 
-import { useTypewriterSound } from "@/hooks/useTypewriterSound";
 import { useRouter } from "next/navigation";
-import GameButton from "../GameButton";
+import GameButton from "../buttons/GameButton";
 export default function PrincipalMenu() {
-  const playSound = useTypewriterSound();
-  const router = useRouter();
+	const router = useRouter();
 
-  return (
-    <div
-      className="w-120 p-8 rounded-xl"
-      style={{
-        background: "rgba(42, 58, 74, 0.35)",
-        backdropFilter: "blur(10px)",
-        border: "1px solid rgba(255, 243, 199, 0.15)",
-        boxShadow: "0 10px 40px rgba(0,0,0,0.4)",
-      }}
-    >
-      <h2
-        className="mb-8 text-center text-4xl tracking-widest"
-        style={{
-          color: "#E1C380",
-          textShadow: "0 2px 0 #1E2A36, 0 0 10px rgba(0,0,0,.8)",
-        }}
-      >
-        MENU PRINCIPAL
-      </h2>
+	return (
+		<div className="w-120 p-8 rounded-xl bg-[#2a3a4a]/35 backdrop-blur-[10px] border border-[#fff3c7]/15 shadow-[0_10px_40px_rgba(0,0,0,0.4)]">
+			<h2 className="mb-8 text-center text-4xl tracking-widest text-[#E1C380] [text-shadow:_0_2px_0_#1E2A36,_0_0_10px_rgba(0,0,0,0.8)]">
+				MENU PRINCIPAL
+			</h2>
 
-      <div className="flex flex-col gap-4">
-        {/* CONTINUAR */}
-        <GameButton
-          icon="🗺️"
-          label="CONTINUAR"
-          onClick={() => router.push("/")}
-        />
-
-        {/* NUEVA PARTIDA */}
-        <GameButton icon="📁" label="NUEVA PARTIDA" />
-
-        {/* OPCIONES */}
-        <GameButton icon="⚙️" label="OPCIONES" />
-      </div>
-    </div>
-  );
+			<div className="flex flex-col gap-4">
+				<GameButton
+					icon="🗺️"
+					label="CONTINUAR"
+					onClick={() => router.push("/")}
+				/>
+				<GameButton icon="📁" label="NUEVA PARTIDA" />
+				<GameButton icon="⚙️" label="OPCIONES" />
+			</div>
+		</div>
+	);
 }
