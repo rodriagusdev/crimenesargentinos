@@ -1,5 +1,4 @@
-import { useTypewriterSound } from "@/hooks/useTypewriterSound";
-import GameButton from "../GameButton";
+import GameButton from "../buttons/GameButton";
 
 type RegisterAndLoginProps = {
   setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -8,7 +7,6 @@ type RegisterAndLoginProps = {
 export default function RegisterAndLogin({
   setIsMenuOpen,
 }: RegisterAndLoginProps) {
-  const playSound = useTypewriterSound();
 
   const enterGame = () => {
     setIsMenuOpen(true);
