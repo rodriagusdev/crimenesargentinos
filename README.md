@@ -1,5 +1,7 @@
+Para creación rápida de componentes, copiar el fragmento de abajo a cualquier IA y esta creará un componente que matchee con el tema actual.
+
 # TEMA DEL JUEGO RETRO MODERNO 
-Fuente: Press_Start_2P
+Fuente: Press_Start_2P (NUNCA PONER EN EL ESTILO, YA PROVEIDO EN LAYOUT NEXTJS.)
 
 Colores:
 
@@ -52,5 +54,3 @@ box-shadow: inset 0 1px 0 rgba(69,96,117,0.6)
 linear-gradient(180deg, rgba(93,88,77,0.85), rgba(93,88,77,0.6))
 
 border: 1px solid rgba(61, 58, 53, 0.9)
-
-Para creación rápida de componentes, copiar el fragmento de arriba a cualquier IA y esta creará un componente que matchee con el tema actual.
