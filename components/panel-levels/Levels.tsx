@@ -1,28 +1,26 @@
 import LevelCard from "./LevelCard";
 
 export default function Levels() {
-  const levels = [
+const levels = [
     {
-      title: "Nivel 1",
-      description:
-        "Las praderas del reino. Un lugar tranquilo para comenzar la aventura.",
+      title: "Robo a las Estrellas",
+      description: "El trofeo mundial desapareció tras los festejos. Busca pistas en el Obelisco.",
     },
     {
-      title: "Nivel 2",
-      description: "Bosques antiguos llenos de senderos ocultos y secretos.",
+      title: "Los Desaparecidos del Interior",
+      description: "Trenes fantasmas y estaciones abandonadas. ¿A dónde fueron los pasajeros?",
     },
     {
-      title: "Nivel 3",
-      description: "Ruinas olvidadas donde permanecen reliquias del pasado.",
+      title: "Caso Patagonia",
+      description: "Una estación científica incomunicada oculta un secreto en el fin del mundo.",
     },
     {
-      title: "Nivel 4",
-      description:
-        "Montañas heladas que desafían incluso a los héroes más fuertes.",
+      title: "¿Qué pasó en la Ruta Nacional 40?",
+      description: "Tráfico de datos corruptos en una red que se extiende por todo el país.",
     },
     {
-      title: "Nivel 5",
-      description: "La fortaleza final donde aguarda el desafío definitivo.",
+      title: "El Asesino de las Provincias",
+      description: "Un rastro de crímenes que conecta las costumbres y regiones argentinas.",
     },
   ];
 
