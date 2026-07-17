@@ -1,4 +1,6 @@
+import { useState } from 'react'; // Asegúrate de añadir esto
 import GameButton from "../buttons/GameButton";
+import RegisterForm from './RegisterForm'; // Tu componente de registro
 
 type RegisterAndLoginProps = {
   setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -8,21 +10,24 @@ export default function RegisterAndLogin({
   setIsMenuOpen,
 }: RegisterAndLoginProps) {
 
+  const [showRegister, setShowRegister] = useState<boolean>(false);
   const enterGame = () => {
     setIsMenuOpen(true);
   };
 
   return (
+    
     <div
       className="w-[480px] p-8 rounded-xl"
-      style={{
-        background: "rgba(42, 58, 74, 0.35)",
-        backdropFilter: "blur(10px)",
-        border: "1px solid rgba(255, 243, 199, 0.15)",
-        boxShadow: "0 10px 40px rgba(0,0,0,0.4)",
-      }}
+      
     >
-      {/* TITULO */}
+      {showRegister ? (
+        // 4. Si el estado es true, mostramos tu nuevo formulario
+        <RegisterForm onBackClick={() => setShowRegister(false)} />
+      ) : (
+        // 5. Si es false, mostramos el formulario de login que ya tenías
+        <>
+          {/* TITULO */}
       <h2
         className="mb-8 text-center text-4xl tracking-widest"
         style={{
@@ -82,8 +87,13 @@ export default function RegisterAndLogin({
         <GameButton icon="🚪" label="ENTRAR" onClick={enterGame} />
 
         {/* REGISTER */}
-        <GameButton icon="📜" label="REGISTRAR" variant="secondary" />
+        <GameButton icon="📜" label="REGISTRAR" variant="secondary" onClick={() => setShowRegister(true)} />
       </div>
+        </>
+      )}
+
+      
+      
     </div>
   );
 }
