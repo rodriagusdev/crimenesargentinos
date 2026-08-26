@@ -1,11 +1,16 @@
+import { useRouter } from "next/navigation";
+
 type LevelCardProps = {
   title: string;
   description: string;
+  id: number;
 };
 
-export default function LevelCard({ title, description }: LevelCardProps) {
+export default function LevelCard({ title, description, id }: LevelCardProps) {
+  const router = useRouter();
   return (
     <div
+      onClick={() => router.push(`/level/${id}`)}
       className="
         overflow-hidden rounded-2xl
         bg-[rgba(42,58,74,0.35)]

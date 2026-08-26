@@ -3,22 +3,27 @@ import LevelCard from "./LevelCard";
 export default function Levels() {
 const levels = [
     {
+      id:1,
       title: "Robo a las Estrellas",
       description: "El trofeo mundial desapareció tras los festejos. Busca pistas en el Obelisco.",
     },
     {
+      id:2,
       title: "Los Desaparecidos del Interior",
       description: "Trenes fantasmas y estaciones abandonadas. ¿A dónde fueron los pasajeros?",
     },
     {
+      id:3,
       title: "Caso Patagonia",
       description: "Una estación científica incomunicada oculta un secreto en el fin del mundo.",
     },
     {
+      id:4,
       title: "¿Qué pasó en la Ruta Nacional 40?",
       description: "Tráfico de datos corruptos en una red que se extiende por todo el país.",
     },
     {
+      id:5,
       title: "El Asesino de las Provincias",
       description: "Un rastro de crímenes que conecta las costumbres y regiones argentinas.",
     },
@@ -49,6 +54,7 @@ const levels = [
         {levels.map((level) => (
           <LevelCard
             key={level.title}
+            id={level.id}
             title={level.title}
             description={level.description}
           />

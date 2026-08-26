@@ -1,4 +1,4 @@
-// MOCK USER DATA
+"use client";
 
 import InfoItem from "./UserInfoItem";
 

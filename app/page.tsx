@@ -12,13 +12,11 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    // Verificamos si ya se guardó que el usuario entró (testeo)
     const hasAccessed = localStorage.getItem("hasAccessedGame");
 
     if (!hasAccessed) {
-      // Primera vez → lo mandamos al login
-      localStorage.setItem("hasAccessedGame", "true"); // Guardamos que ya entró
-      router.push("/login"); // Redirigir al login
+      localStorage.setItem("hasAccessedGame", "true"); 
+      router.push("/login"); 
     }
   }, [router]);
 
