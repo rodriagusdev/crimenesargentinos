@@ -158,7 +158,7 @@ const dialogs: IDialog[] = [
     locationId: 1,
     npc: "Alberto",
     overlayBackgroundUrl: "/images/level1_buenosaires_kiosco.jpg",
-    portraitUrl: "/portraits/alberto.png",
+    portraitUrl: "/images/portrait_alberto.webp",
     introText: "¡Hola! Soy Alberto.",
     questions: [
       "¿Qué tenía puesto?",
@@ -175,7 +175,7 @@ const dialogs: IDialog[] = [
     provinceId: 1,
     locationId: 2,
     npc: "Verdulero",
-    portraitUrl: "/portraits/marta.png",
+    portraitUrl: "/images/portrait_bol.webp",
     overlayBackgroundUrl: "/images/level1_buenosaires_verduleria.jpg",
     introText:
       "¡Hola, paisano! ¿Qué andá buscando por estos pagos? Si es por los muchachos que pasaron corriendo, usté dirá, que yo vi todito desde mi puesto.",
@@ -194,7 +194,7 @@ const dialogs: IDialog[] = [
     provinceId: 1,
     locationId: 3,
     npc: "Policía Lucas",
-    portraitUrl: "/portraits/carlos.png",
+    portraitUrl: "/images/portrait_lucas.webp",
     overlayBackgroundUrl: "/images/level1_buenosaires_ezeiza.jpg",
     introText: "Buen día, ¿en qué lo puedo ayudar, señor?",
     questions: [
@@ -212,7 +212,7 @@ const dialogs: IDialog[] = [
     provinceId: 2,
     locationId: 1,
     npc: "Vendedor de medias Braian",
-    portraitUrl: "/portraits/carlos.png",
+    portraitUrl: "/images/portrait_braian.webp",
     overlayBackgroundUrl: "/images/level1_cordoba_plazasanmartin.jpg",
     introText:
       "Que paso compa, se le cayó la facha me parece, me compraría unas medias?, 3 pares por 10 mil pesitos, un oferton.",
@@ -231,7 +231,7 @@ const dialogs: IDialog[] = [
     provinceId: 2,
     locationId: 2,
     npc: "Camarero Tiziano",
-    portraitUrl: "/portraits/carlos.png",
+    portraitUrl: "/images/portrait_meserotiziano.webp",
     overlayBackgroundUrl: "/images/level1_cordoba_restoguemes.jpg",
     introText: "Buenos días señor, ¿tiene reserva?",
     questions: [
@@ -249,7 +249,7 @@ const dialogs: IDialog[] = [
     provinceId: 2,
     locationId: 3,
     npc: "Cura Antonio",
-    portraitUrl: "/portraits/carlos.png",
+    portraitUrl: "/images/portrait_curaantonio.webp",
     overlayBackgroundUrl: "/images/level1_cordoba_manzanajesuitica.jpg",
     introText: "¿Hola hermano mio, viene a recibir las bendiciones matutinas?",
     questions: [
@@ -267,7 +267,7 @@ const dialogs: IDialog[] = [
     provinceId: 3,
     locationId: 1,
     npc: "Jardinero Carlitos",
-    portraitUrl: "/portraits/carlos.png",
+    portraitUrl: "/images/portrait_jardinerocarlitos.webp",
     overlayBackgroundUrl: "/images/level1_misiones_jardinalbertoroth.jpg",
     introText:
       "¿Eh ura, venis a comprar algunas florcitas para su Kuñataĩ? Yo le puedo dar un buen precio, no se preocupe.",
@@ -286,7 +286,7 @@ const dialogs: IDialog[] = [
     provinceId: 3,
     locationId: 2,
     npc: "Pescador Don Juan",
-    portraitUrl: "/portraits/carlos.png",
+    portraitUrl: "/images/portrait_pescadordonjuan.webp",
     overlayBackgroundUrl: "/images/level1_misiones_costanera.jpg",
     introText: "¿No me distraiga ura, no ve que estoy pescando?",
     questions: [
@@ -304,7 +304,7 @@ const dialogs: IDialog[] = [
     provinceId: 3,
     locationId: 3,
     npc: "Salvavidas Fernando",
-    portraitUrl: "/portraits/carlos.png",
+    portraitUrl: "/images/portrait_salvavidasfernando.webp",
     overlayBackgroundUrl: "/images/level1_misiones_playaselbrete.jpg",
     introText:
       "Ahora no, ¿no ve que tengo que vigilar a estas hermosas gurisas que me tienen chapita?",
