@@ -2,8 +2,19 @@
 
 import { useRouter } from "next/navigation";
 import GameButton from "../buttons/GameButton";
+import { useAuth } from "@/hooks/useAuth";
+
 export default function PrincipalMenu() {
 	const router = useRouter();
+	const { isAuthenticated } = useAuth();
+
+	const handleContinuar = () => {
+		if (isAuthenticated) {
+			router.push("/");
+		} else {
+			router.push("/login");
+		}
+	};
 
 	return (
 		<div className="w-120 p-8 rounded-xl bg-[#2a3a4a]/35 backdrop-blur-[10px] border border-[#fff3c7]/15 shadow-[0_10px_40px_rgba(0,0,0,0.4)]">
@@ -15,7 +26,7 @@ export default function PrincipalMenu() {
 				<GameButton
 					icon="🗺️"
 					label="CONTINUAR"
-					onClick={() => router.push("/")}
+					onClick={handleContinuar}
 				/>
 				<GameButton icon="📁" label="NUEVA PARTIDA" />
 				<GameButton icon="⚙️" label="OPCIONES" />
