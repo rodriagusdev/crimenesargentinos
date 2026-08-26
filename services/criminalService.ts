@@ -1,4 +1,4 @@
-import { ICriminal } from "../models/criminal";
+import { ICriminal } from "../models/ICriminal";
 import { API_URL } from "../lib/api";
 
 export async function getCriminals(): Promise<ICriminal[]> {

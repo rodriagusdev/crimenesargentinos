@@ -11,7 +11,6 @@ interface Props {
 }
 
 export default function LevelProvinces({ locationId, provinceId }: Props) {
-  const [dialogs, setDialogs] = useState<IDialog[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,10 +25,9 @@ export default function LevelProvinces({ locationId, provinceId }: Props) {
         setError(null);
         const data = await getDialogs();
         if (!cancelled) {
-          setDialogs(data);
-
           const retrieveLocationDialog = data.find((dialog) => dialog.provinceId === provinceId && dialog.locationId === locationId);
           setLocationDialog(retrieveLocationDialog ?? null);
+          console.log("Retrieved location dialog:", retrieveLocationDialog);
         }
       } catch (err) {
         if (!cancelled) {

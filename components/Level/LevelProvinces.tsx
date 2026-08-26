@@ -66,7 +66,8 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
 
   return (
     <>
-      <div className="absolute inset-0 -z-10">
+      {/* Mapa de fondo comentado - usando representación de Argentina */}
+      {/* <div className="absolute inset-0 -z-10">
         <Image
           src={data.backgroundUrl}
           alt={`Fondo nivel ${levelId}`}
@@ -75,9 +76,9 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
           priority
         />
         <div className="absolute inset-0 " />
-      </div>
+      </div> */}
 
-      {/* Lugares del mapa */}
+      {/* Provincias del nivel */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-[70vh] gap-4 p-6">
         {data.provinces.map((province) => (
           <GameButton

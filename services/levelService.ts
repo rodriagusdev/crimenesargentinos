@@ -19,6 +19,7 @@ import IDialog from "@/models/IDialog";
 // JUST TEST NOT REAL CODE
 // NEED API
 
+// NIVELES CONFIGURADOS, cada {} es un nivel, con sus provincias y sus locaciones
 const levelDataConfig: ILevelDataProvinces[] = [
   {
     id: 1,
@@ -60,6 +61,7 @@ export async function getLevelProvinces(
   return data;
 }
 
+// REPRESENTA LAS LOCACIONES QUE HAY EN CADA NIVEL, CON SUS IMAGENES Y NOMBRES
 const levels: ILevelLocations[] = [
   {
     name: "Buenos Aires",
@@ -67,41 +69,63 @@ const levels: ILevelLocations[] = [
     backgroundUrl: "/images/IMPLEMENT.jpg",
     locations: [
       {
-        imageUrl: "/images/level1_kiosco.jpg",
+        imageUrl: "/images/IMPLEMENT.jpg",
         id: 1,
         name: "Kiosco de Alberto",
       },
       {
-        imageUrl: "/images/level1_kiosco.jpg",
+        imageUrl: "/images/IMPLEMENT.jpg",
         id: 2,
-        name: "Plaza",
+        name: "Verdulería",
       },
       {
-        imageUrl: "/images/level1_kiosco.jpg",
+        imageUrl: "/images/IMPLEMENT.jpg",
         id: 3,
-        name: "Estación",
+        name: "Estación de Ezeiza",
       },
     ],
   },
   {
-    name: "Buenos Aires2",
-    id: 1,
+    name: "Cordoba",
+    id: 2,
     backgroundUrl: "/images/IMPLEMENT.jpg",
     locations: [
       {
-        imageUrl: "/images/level1_kiosco.jpg",
+        imageUrl: "/images/IMPLEMENT.jpg",
         id: 1,
-        name: "Kiosco de Alberto",
+        name: "Plaza San Martin",
       },
       {
-        imageUrl: "/images/level1_kiosco.jpg",
+        imageUrl: "/images/IMPLEMENT.jpg",
         id: 2,
-        name: "Plaza",
+        name: "Guemes Resto",
       },
       {
-        imageUrl: "/images/level1_kiosco.jpg",
+        imageUrl: "/images/IMPLEMENT.jpg",
         id: 3,
-        name: "Estación",
+        name: "Manzana Jesuítica",
+      },
+    ],
+  },
+  {
+    name: "Misiones",
+    id: 3,
+    backgroundUrl: "/images/IMPLEMENT.jpg",
+    locations: [
+      {
+        imageUrl: "/images/IMPLEMENT.jpg",
+        id: 1,
+        name: "Jardin Botánico Alberto Roth",
+      },
+      {
+        imageUrl: "/images/IMPLEMENT.jpg",
+        id: 2,
+        name: "Costanera de Misiones",
+      },
+      {
+        imageUrl: "/images/IMPLEMENT.jpg",
+        id: 3,
+        name: "Playas el Brete y Costa Sur",
       },
     ],
   },
@@ -127,12 +151,13 @@ export async function getLevelLocations(
   return data;
 }
 
+// REPRESENTA LOS DIALOGOS DE LOS NIVELES, CON SUS PREGUNTAS Y RESPUESTAS
 const dialogs: IDialog[] = [
   {
     provinceId: 1,
     locationId: 1,
     npc: "Alberto",
-    overlayBackgroundUrl: "/images/level1_kiosco.jpg",
+    overlayBackgroundUrl: "/images/level1_buenosaires_kiosco.jpg",
     portraitUrl: "/portraits/alberto.png",
     introText: "¡Hola! Soy Alberto.",
     questions: [
@@ -151,6 +176,7 @@ const dialogs: IDialog[] = [
     locationId: 2,
     npc: "Verdulero",
     portraitUrl: "/portraits/marta.png",
+    overlayBackgroundUrl: "/images/level1_buenosaires_verduleria.jpg",
     introText:
       "¡Hola, paisano! ¿Qué andá buscando por estos pagos? Si es por los muchachos que pasaron corriendo, usté dirá, que yo vi todito desde mi puesto.",
     questions: [
@@ -169,6 +195,7 @@ const dialogs: IDialog[] = [
     locationId: 3,
     npc: "Policía Lucas",
     portraitUrl: "/portraits/carlos.png",
+    overlayBackgroundUrl: "/images/level1_buenosaires_ezeiza.jpg",
     introText: "Buen día, ¿en qué lo puedo ayudar, señor?",
     questions: [
       "¿Sabe qué vuelo tomó?",
@@ -181,12 +208,120 @@ const dialogs: IDialog[] = [
       "No sabría decirle.",
     ],
   },
+  {
+    provinceId: 2,
+    locationId: 1,
+    npc: "Vendedor de medias Braian",
+    portraitUrl: "/portraits/carlos.png",
+    overlayBackgroundUrl: "/images/level1_cordoba_plazasanmartin.jpg",
+    introText:
+      "Que paso compa, se le cayó la facha me parece, me compraría unas medias?, 3 pares por 10 mil pesitos, un oferton.",
+    questions: [
+      "¿Sabe si pasó una persona enana con panza?",
+      "¿Tenía algo encima?",
+      "¿Llevaba equipaje?",
+    ],
+    answers: [
+      "Si amigo, alto olor a fernet, de nada le sirvió ir tan elegante, la camisa toda manchada de grasa, alto asado se comió de seguro.",
+      "En silla de ruedas debería ir, pero nah.",
+      "Además de que casi se le revienta el lompa y se le salían los terribles rollos, también se le salian los fajos de dólares de los bolsillos a ese gato.",
+    ],
+  },
+  {
+    provinceId: 2,
+    locationId: 2,
+    npc: "Camarero Tiziano",
+    portraitUrl: "/portraits/carlos.png",
+    overlayBackgroundUrl: "/images/level1_cordoba_restoguemes.jpg",
+    introText: "Buenos días señor, ¿tiene reserva?",
+    questions: [
+      "¿El sospechoso comió acá, pudo notar que llevaba algo con él?",
+      "¿Algo que pudo destacar de él?",
+      "¿Sabe que comió?",
+    ],
+    answers: [
+      "Mmm no sabria decirle, su guardia de seguridad le andaba secando la nuca en todo tiempo.",
+      "Si, ese canoso hdp no me dejo nada de propina, debi escupirle en la comida, encima casi se olvida su valija aca, vaya uno a saber que cosas tiene en eso.",
+      "La pregunta sería ¿que no comió? Mamita, parece Kirby, todo de una se lo morfo, parece aspiradora sin tope. Mil pesos me dio de propina no más, esa bola avaro.",
+    ],
+  },
+  {
+    provinceId: 2,
+    locationId: 3,
+    npc: "Cura Antonio",
+    portraitUrl: "/portraits/carlos.png",
+    overlayBackgroundUrl: "/images/level1_cordoba_manzanajesuitica.jpg",
+    introText: "¿Hola hermano mio, viene a recibir las bendiciones matutinas?",
+    questions: [
+      "¿Usted vio a mi sospechoso?",
+      "¿Me informaron que lleva una valija consigo, es correcto eso?",
+      "¿Pudo entablar una conversación con el sospechoso?",
+    ],
+    answers: [
+      "Ay siii, como para no notarlo, esos pequeños ojos marrones café, me encandilaron como el cántico de un ángel.",
+      "Uffa, no pude notarlo, ese chiquito tan lindo, su belleza es como ver las montañas de las sierras por las mañanas, o poder presenciar la divinidad de un querubín en el.",
+      "Si, hablamos del mundial y su adoración hacia la copa del mundo y cómo le encantaría llevarsela a su casa para tenerla en su cama y dormir con ella.",
+    ],
+  },
+  {
+    provinceId: 3,
+    locationId: 1,
+    npc: "Jardinero Carlitos",
+    portraitUrl: "/portraits/carlos.png",
+    overlayBackgroundUrl: "/images/level1_misiones_jardinalbertoroth.jpg",
+    introText:
+      "¿Eh ura, venis a comprar algunas florcitas para su Kuñataĩ? Yo le puedo dar un buen precio, no se preocupe.",
+    questions: [
+      "¿Vio a alguien con una valija grande?",
+      "¿Vio a alguien de traje clásico?",
+      "¿Pudo notar a alguien gordo con olor a fernet?",
+    ],
+    answers: [
+      "¿Que pregunta de mierda chango, la cantidad de turistas que hay por aca, te pensas que me voy a acordar?",
+      "Cada croto me encuentro por aca gurisa.",
+      "¿Estás hablando de mi suegra acaso? Si la quiere arrestar no me quejo, me haría un gran favor?",
+    ],
+  },
+  {
+    provinceId: 3,
+    locationId: 2,
+    npc: "Pescador Don Juan",
+    portraitUrl: "/portraits/carlos.png",
+    overlayBackgroundUrl: "/images/level1_misiones_costanera.jpg",
+    introText: "¿No me distraiga ura, no ve que estoy pescando?",
+    questions: [
+      "¿Estoy buscando a un sospechoso, sabe hacia dónde pudo ir?",
+      "Necesito saber si tiene alguna característica del sospechoso.",
+      "¿Sabe si lo pudo ver tomando fernet o donde lo consiguió?",
+    ],
+    answers: [
+      "Justo ahora me venis a joder, la marea esta en su mejor punto, puedo sentir como se acercan los pescados, no me venga a romper las pelotas.",
+      "Ni idea chango, mis ojos solo están enfocados en capturar a un gran Surubi del Paraná, llego a tenerlo en mis manos y no sabes lo que voy a festejar jajaja.",
+      "Nahhh, que fernet? Aca se toma terere chango, no me interesan las bebidas de los porteños.",
+    ],
+  },
+  {
+    provinceId: 3,
+    locationId: 3,
+    npc: "Salvavidas Fernando",
+    portraitUrl: "/portraits/carlos.png",
+    overlayBackgroundUrl: "/images/level1_misiones_playaselbrete.jpg",
+    introText:
+      "Ahora no, ¿no ve que tengo que vigilar a estas hermosas gurisas que me tienen chapita?",
+    questions: [
+      "¿Tienen a alguien en la parte vip con una valija?",
+      "Mi sospechoso quizás alquilo una sombrilla acá, es un gordo algo enano, ¿vio alguien así?",
+      "¿A mi sospechoso le encanta el fernet y come mucho, tiene a alguien así?",
+    ],
+    answers: [
+      "Uhh mira como está esa gurisa... ehh, ¿dijiste algo chango?",
+      "Mmm… Che, vi a un karai gordito, con zunga… ¡Ñandejára! Mis ojos ya están pidiendo una buena lavada con lavandina, mba’e.",
+      "Ndaikuaái che, pero a un par de cuadras nomás hay un boliche bastante bueno. Hay unas minas re lindas por ahí. Si le interesa, mba’éichapa… le consigo un descuentito pa’ la entrada, ¿qué dice?",
+    ],
+  },
 ];
 
 export async function getDialogs(): Promise<IDialog[]> {
-  // SE NECESITA REGULARIZAR EL LEVELID PARA QUE SEA UN INDICE DEL ARRAY
-  // (EMPIEZA EN 0, PERO LOS NIVELES EMPIEZAN DESDE EL 1)
-
   // SIMULO PETICION
   await new Promise((resolve) => setTimeout(resolve, 300));
 
