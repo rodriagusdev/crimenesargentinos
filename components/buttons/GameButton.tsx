@@ -5,6 +5,7 @@ type GameButtonProps = {
 	label: string;
 	onClick?: () => void;
 	variant?: "primary" | "secondary";
+	disabled?: boolean;
 };
 
 export default function GameButton({
@@ -12,6 +13,7 @@ export default function GameButton({
 	label,
 	onClick,
 	variant = "primary",
+	disabled = false,
 }: GameButtonProps) {
 	const baseStyle =
 		variant === "primary"
@@ -21,18 +23,23 @@ export default function GameButton({
 					border: "1px solid rgba(69, 96, 117, 0.8)",
 					color: "#FFF3C7",
 					boxShadow: "inset 0 1px 0 rgba(69,96,117,0.6)",
+					opacity: disabled ? 0.5 : 1,
+					cursor: disabled ? "not-allowed" : "pointer",
 				}
 			: {
 					background:
 						"linear-gradient(180deg, rgba(93,88,77,0.85), rgba(93,88,77,0.6))",
 					border: "1px solid rgba(61, 58, 53, 0.9)",
 					color: "#FFF3C7",
+					opacity: disabled ? 0.5 : 1,
+					cursor: disabled ? "not-allowed" : "pointer",
 				};
 
 	return (
 		<button
 			onClick={onClick}
-			onMouseEnter={useTypewriterSound()}
+			onMouseEnter={!disabled ? useTypewriterSound() : undefined}
+			disabled={disabled}
 			className="relative group w-full py-4 text-xl modern-button flex items-center justify-center"
 			style={baseStyle}
 		>
