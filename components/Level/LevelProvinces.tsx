@@ -1,11 +1,10 @@
 "use client";
 
-import Image from "next/image";
-import GameButton from "../buttons/GameButton";
-import { getLevelProvinces } from "@/services/levelService";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { getLevelProvinces } from "@/services/levelService";
 import ILevelDataProvinces from "@/models/ILevelDataProvinces";
+import { ProvinceButton } from "../buttons/ProvinceButton";
 
 interface LevelDataProps {
   levelId: number;
@@ -13,7 +12,7 @@ interface LevelDataProps {
 
 export default function LevelProvinces({ levelId }: LevelDataProps) {
   const router = useRouter();
-  const [data, SetData] = useState<ILevelDataProvinces | null>(null);
+  const [data, setData] = useState<ILevelDataProvinces | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,25 +23,18 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
       try {
         setLoading(true);
         setError(null);
-        const data = await getLevelProvinces(levelId);
-        if (!cancelled) {
-          SetData(data);
-        }
+        const result = await getLevelProvinces(levelId);
+        if (!cancelled) setData(result);
       } catch (err) {
         if (!cancelled) {
-          setError(
-            err instanceof Error ? err.message : "Error al cargar el nivel",
-          );
+          setError(err instanceof Error ? err.message : "Error al cargar el nivel");
         }
       } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        if (!cancelled) setLoading(false);
       }
     }
 
     loadLevel();
-
     return () => {
       cancelled = true;
     };
@@ -50,7 +42,7 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-[#FFF3C7]">
+      <div className="absolute inset-0 z-20 flex items-center justify-center text-[#FFF3C7]">
         Cargando nivel {levelId}...
       </div>
     );
@@ -58,37 +50,23 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
 
   if (error || !data) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-red-400">
+      <div className="absolute inset-0 z-20 flex items-center justify-center text-red-400">
         {error ?? "Nivel no encontrado"}
       </div>
     );
   }
 
   return (
-    <>
-      {/* Mapa de fondo comentado - usando representación de Argentina */}
-      {/* <div className="absolute inset-0 -z-10">
-        <Image
-          src={data.backgroundUrl}
-          alt={`Fondo nivel ${levelId}`}
-          fill
-          className="object-cover"
-          priority
+    <div className="absolute inset-0 z-10">
+      {data.provinces.map((province) => (
+        <ProvinceButton
+          key={province.id}
+          label={province.name}
+          top={province.top}      
+          left={province.left}    
+          onClick={() => router.push(`/level/${levelId}/${province.id}`)}
         />
-        <div className="absolute inset-0 " />
-      </div> */}
-
-      {/* Provincias del nivel */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-[70vh] gap-4 p-6">
-        {data.provinces.map((province) => (
-          <GameButton
-            key={province.id}
-            icon={""}
-            label={province.name}
-            onClick={() => router.push(`/level/${levelId}/${province.id}`)}
-          />
-        ))}
-      </div>
-    </>
+      ))}
+    </div>
   );
 }

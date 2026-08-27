@@ -12,11 +12,18 @@ export default async function Level({ params }: Props) {
   const id = Number(levelId);
 
   return (
-    <main className="relative min-h-screen overflow-hidden">
-      <h1 className="relative z-10 p-6 text-[#FFF3C7] tracking-widest">
-        Level {id}
-      </h1>
+    <main className="relative min-h-screen overflow-hidden bg-black">
+      {/* Mapa de fondo - ocupa toda la pantalla */}
+      <Image
+        src="/images/test_map.jpg"
+        alt="Mapa de Argentina"
+        fill
+        priority
+        className="object-cover"
+        sizes="100vw"
+      />
 
+      {/* Botones encima del mapa */}
       <LevelProvinces levelId={id} />
     </main>
   );

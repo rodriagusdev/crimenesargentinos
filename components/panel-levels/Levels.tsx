@@ -1,31 +1,38 @@
+import { ICardLevelPreview } from "@/models/ICardLevelPreview";
 import LevelCard from "./LevelCard";
 
 export default function Levels() {
-const levels = [
+const levels: ICardLevelPreview[] = [
     {
       id:1,
       title: "Robo a las Estrellas",
       description: "El trofeo mundial desapareció tras los festejos. Busca pistas en el Obelisco.",
+      imageURL: "/images/levelcardspreview/level_1_preview.jpg",
+      videoURL: "/videos/intro_level_1.mp4"
     },
     {
       id:2,
       title: "Los Desaparecidos del Interior",
       description: "Trenes fantasmas y estaciones abandonadas. ¿A dónde fueron los pasajeros?",
+      imageURL: "/images/levelcardspreview/level_2_preview.jpg"
     },
     {
       id:3,
       title: "Caso Patagonia",
       description: "Una estación científica incomunicada oculta un secreto en el fin del mundo.",
+      imageURL: "/images/levelcardspreview/level_3_preview.jpg"
     },
     {
       id:4,
       title: "¿Qué pasó en la Ruta Nacional 40?",
       description: "Tráfico de datos corruptos en una red que se extiende por todo el país.",
+      imageURL: "/images/levelcardspreview/level_4_preview.jpg"
     },
     {
       id:5,
       title: "El Asesino de las Provincias",
       description: "Un rastro de crímenes que conecta las costumbres y regiones argentinas.",
+      imageURL: "/images/levelcardspreview/level_5_preview.jpg"
     },
   ];
 
@@ -54,9 +61,8 @@ const levels = [
         {levels.map((level) => (
           <LevelCard
             key={level.title}
-            id={level.id}
-            title={level.title}
-            description={level.description}
+            preview={level}
+  
           />
         ))}
       </div>

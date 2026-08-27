@@ -1,16 +1,21 @@
-import { useRouter } from "next/navigation";
+import { ICardLevelPreview } from "@/models/ICardLevelPreview";
+import Image from "next/image";
+import GameButton from "../buttons/GameButton";
+import { usePreviewVideoHandler } from "@/hooks/usePreviewVideoHandler";
+import { OverlayVideo } from "../overlays/OverlayVideo";
 
 type LevelCardProps = {
-  title: string;
-  description: string;
-  id: number;
+  preview: ICardLevelPreview;
 };
 
-export default function LevelCard({ title, description, id }: LevelCardProps) {
-  const router = useRouter();
+export default function LevelCard({ preview }: LevelCardProps) {
+  const { handleShowVideo, showVideo, goToLevel } = usePreviewVideoHandler(
+    preview.id,
+  );
+
   return (
     <div
-      onClick={() => router.push(`/level/${id}`)}
+      onClick={handleShowVideo}
       className="
         overflow-hidden rounded-2xl
         bg-[rgba(42,58,74,0.35)]
@@ -20,46 +25,48 @@ export default function LevelCard({ title, description, id }: LevelCardProps) {
         transition-all duration-300
         hover:-translate-y-1
         hover:border-[#E1C380]/30
+        cursor-pointer
       "
     >
-      {/* Imagen Placeholder */}
       <div
         className="
-          h-40
-          flex items-center justify-center
-          border-b border-[#fff3c7]/15
-          bg-gradient-to-b
-          from-[#2A3A4A]
-          to-[#1E2A36]
-        "
+    relative
+    h-40
+    border-b border-[#fff3c7]/15
+    bg-gradient-to-b
+    from-[#2A3A4A]
+    to-[#1E2A36]
+    overflow-hidden
+  "
       >
-        <span
-          className="
-            font-['Press_Start_2P']
-            text-[#E1C380]
-            text-xs
-            tracking-widest
-          "
-        >
-          PREVIEW
-        </span>
+        <Image
+          src={preview.imageURL}
+          alt="Preview"
+          fill
+          className="object-contain p-2"
+          sizes="100vw"
+        />
       </div>
-
       <div className="p-5">
         <h3
           className="
             mb-3
-            font-['Press_Start_2P']
             text-[#E1C380]
             text-xs
             tracking-widest
           "
         >
-          {title}
+          {preview.title}
         </h3>
 
-        <p className="text-xs text-[#FFF3C7] line-clamp-3">{description}</p>
+        <p className="text-xs text-[#FFF3C7] line-clamp-3">
+          {preview.description}
+        </p>
       </div>
+
+      {showVideo && (
+        <OverlayVideo videoURL={preview.videoURL} onSkip={goToLevel} />
+      )}
     </div>
   );
 }

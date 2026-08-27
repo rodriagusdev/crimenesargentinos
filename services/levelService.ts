@@ -23,20 +23,18 @@ import IDialog from "@/models/IDialog";
 const levelDataConfig: ILevelDataProvinces[] = [
   {
     id: 1,
-    backgroundUrl: "/images/mapa.jpg",
     provinces: [
-      { id: 1, name: "Buenos Aires" },
-      { id: 2, name: "Cordoba" },
-      { id: 3, name: "Misiones" },
+      { id: 1, name: "Buenos Aires", top: "44%", left: "58%" },
+      { id: 2, name: "Cordoba", top: "32%", left: "48%" },
+      { id: 3, name: "Misiones", top: "25%", left: "58%"},
     ],
   },
   {
     id: 2,
-    backgroundUrl: "/images/mapa.jpg",
     provinces: [
-      { id: 41, name: "Sevilla" },
-      { id: 29, name: "Málaga" },
-      { id: 11, name: "Cádiz" },
+      { id: 1, name: "Jujuy", top: "44%", left: "58%" },
+      { id: 2, name: "Cordoba", top: "32%", left: "48%" },
+      { id: 3, name: "Misiones", top: "25%", left: "58%"},
     ],
   },
 ];
@@ -49,8 +47,6 @@ export async function getLevelProvinces(
   const regularize = levelId - 1;
 
   console.log(regularize);
-
-  await new Promise((resolve) => setTimeout(resolve, 300));
 
   const data = levelDataConfig[regularize];
 
@@ -138,9 +134,6 @@ export async function getLevelLocations(
   // (EMPIEZA EN 0, PERO LOS NIVELES EMPIEZAN DESDE EL 1)
 
   const regularize = levelId - 1;
-
-  // SIMULO PETICION
-  await new Promise((resolve) => setTimeout(resolve, 300));
 
   const data = levels[regularize];
 
@@ -323,7 +316,6 @@ const dialogs: IDialog[] = [
 
 export async function getDialogs(): Promise<IDialog[]> {
   // SIMULO PETICION
-  await new Promise((resolve) => setTimeout(resolve, 300));
 
   const data = dialogs;
 
