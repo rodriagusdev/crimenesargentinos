@@ -24,9 +24,9 @@ const levelDataConfig: ILevelDataProvinces[] = [
   {
     id: 1,
     provinces: [
-      { id: 1, name: "Buenos Aires", top: "44%", left: "58%" },
-      { id: 2, name: "Cordoba", top: "32%", left: "48%" },
-      { id: 3, name: "Misiones", top: "25%", left: "58%"},
+      { id: 1, name: "Buenos Aires", top: "44%", left: "58%", icon:"/images/locations/icono_buenosaires.webp" },
+      { id: 2, name: "Cordoba", top: "32%", left: "48%", icon:"/images/locations/icono_cordoba.webp"},
+      { id: 3, name: "Misiones", top: "8%", left: "65%", icon:"/images/locations/icono_misiones.webp"},
     ],
   },
   {

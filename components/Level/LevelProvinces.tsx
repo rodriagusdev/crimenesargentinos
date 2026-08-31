@@ -64,6 +64,7 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
           label={province.name}
           top={province.top}      
           left={province.left}    
+          icon={province.icon}
           onClick={() => router.push(`/level/${levelId}/${province.id}`)}
         />
       ))}

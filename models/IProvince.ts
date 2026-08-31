@@ -3,4 +3,5 @@ export default interface IProvince {
   name: string;
   top: string;
   left: string;
+  icon: string;
 }
