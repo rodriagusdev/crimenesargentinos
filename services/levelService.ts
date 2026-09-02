@@ -32,9 +32,9 @@ const levelDataConfig: ILevelDataProvinces[] = [
   {
     id: 2,
     provinces: [
-      { id: 1, name: "Jujuy", top: "44%", left: "58%" },
-      { id: 2, name: "Cordoba", top: "32%", left: "48%" },
-      { id: 3, name: "Misiones", top: "25%", left: "58%"},
+      { id: 1, name: "Tierra del fuego", top: "90%", left: "46%" },
+      { id: 2, name: "Corrientes", top: "28%", left: "58%" },
+      { id: 3, name: "Chaco", top: "10%", left: "53%"},
     ],
   },
 ];
@@ -62,29 +62,29 @@ const levels: ILevelLocations[] = [
   {
     name: "Buenos Aires",
     id: 1,
-    backgroundUrl: "/images/IMPLEMENT.jpg",
+    backgroundUrl: "/images/provinces/province_buenosaires.jfif",
     locations: [
       {
         imageUrl: "/images/IMPLEMENT.jpg",
         id: 1,
-        name: "Kiosco de Alberto",
+        name: "El Obelisco",
       },
       {
         imageUrl: "/images/IMPLEMENT.jpg",
         id: 2,
-        name: "Verdulería",
+        name: "Mercado Avellaneda",
       },
       {
         imageUrl: "/images/IMPLEMENT.jpg",
         id: 3,
-        name: "Estación de Ezeiza",
+        name: "Aeropuerto Ezeiza",
       },
     ],
   },
   {
     name: "Cordoba",
     id: 2,
-    backgroundUrl: "/images/IMPLEMENT.jpg",
+    backgroundUrl: "/images/provinces/province_cordoba.jfif",
     locations: [
       {
         imageUrl: "/images/IMPLEMENT.jpg",
@@ -106,7 +106,7 @@ const levels: ILevelLocations[] = [
   {
     name: "Misiones",
     id: 3,
-    backgroundUrl: "/images/IMPLEMENT.jpg",
+    backgroundUrl: "/images/provinces/province_misiones.jfif",
     locations: [
       {
         imageUrl: "/images/IMPLEMENT.jpg",

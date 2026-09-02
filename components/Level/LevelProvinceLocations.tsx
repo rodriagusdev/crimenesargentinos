@@ -71,7 +71,7 @@ export default function LevelProvinceLocations({ levelId,provinceId }: LevelData
     <>
       <div className="absolute inset-0 -z-10">
         <Image
-          src={""}
+          src={data.backgroundUrl}
           alt={`Fondo nivel ${provinceId}`}
           fill
           className="object-cover"
@@ -95,28 +95,3 @@ export default function LevelProvinceLocations({ levelId,provinceId }: LevelData
     </>
   );
 }
-
-
-/*
-{insideLocation && (
-        <div className="fixed inset-0 z-50">
-          <div className="absolute inset-0">
-            <Image
-              src={data.locations[idLocation].backgroundUrl}
-              alt="Location background"
-              fill
-              className="object-cover"
-              priority
-            />
-            <div className="absolute inset-0" />
-          </div>
-          <DialogBox
-            introText={data.locations[idLocation]?.dialog.introText}
-            portraitUrl={data.locations[idLocation]?.dialog.portraitUrl || ""}
-            characterName={data.locations[idLocation]?.dialog.npc || ""}
-            questions={data.locations[idLocation]?.dialog.questions || ""}
-            answers={data.locations[idLocation]?.dialog.answers || ""}
-            onClose={onExitLocation}
-          />
-        </div>
-      )}*/
