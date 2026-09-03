@@ -1,4 +1,5 @@
 import LevelProvinces from "@/components/Level/LevelProvinces";
+import LevelMenu from "@/components/Level/LevelMenu";
 import Image from "next/image";
 
 interface Props {
@@ -25,6 +26,9 @@ export default async function Level({ params }: Props) {
 
       {/* Botones encima del mapa */}
       <LevelProvinces levelId={id} />
+
+      {/* Menú lateral de investigación */}
+      <LevelMenu levelId={id} />
     </main>
   );
 }

@@ -40,7 +40,7 @@ export default function GameButton({
 			onClick={onClick}
 			onMouseEnter={!disabled ? useTypewriterSound() : undefined}
 			disabled={disabled}
-			className="relative group w-full py-4 text-xl modern-button flex items-center justify-center"
+			className="relative group w-full py-4 text-sm modern-button flex items-center justify-center"
 			style={baseStyle}
 		>
 			<span className="absolute left-4 opacity-0 translate-x-[-4px] transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0 icon-float">

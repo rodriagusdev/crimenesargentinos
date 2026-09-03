@@ -1,19 +1,24 @@
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export function usePreviewVideoHandler(previewId: number) {
   const router = useRouter();
 
   const [showVideo, setShowVideo] = useState(false);
 
+  useEffect(() => {
+    if (showVideo) {
+      router.prefetch(`/level/${previewId}`);
+    }
+  }, [showVideo, previewId, router]);
+
   const goToLevel = () => {
-    handleShowVideo();
     router.push(`/level/${previewId}`);
   };
 
   const handleShowVideo = () => {
-    setShowVideo(!showVideo);
-  }
-  
-  return {showVideo, handleShowVideo, goToLevel}
+    setShowVideo((prev) => !prev);
+  };
+
+  return { showVideo, handleShowVideo, goToLevel };
 }

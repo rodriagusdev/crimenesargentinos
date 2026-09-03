@@ -21,7 +21,10 @@ export function OverlayVideo({ videoURL, onSkip }: Props) {
   }, []);
 
   return createPortal(
-    <div className="fixed inset-0 z-9999 bg-black">
+    <div
+      className="fixed inset-0 z-[9999] bg-black"
+      onClick={(e) => e.stopPropagation()}
+    >
       <video
         ref={videoRef}
         src={videoURL}

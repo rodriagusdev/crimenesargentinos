@@ -1,20 +1,27 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import IDialog from "@/models/IDialog";
 import { getDialogs } from "@/services/levelService";
 import { useEffect, useState } from "react";
 import DialogBox from "../dialog/DialogBox";
 
 interface Props {
+  levelId: number;
   locationId: number;
   provinceId: number;
 }
 
-export default function LevelProvinces({ locationId, provinceId }: Props) {
+export default function LevelLocation({ levelId, locationId, provinceId }: Props) {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [locationDialog, setLocationDialog] = useState<IDialog | null>(null);
+
+  const onCloseDialog = () => {
+    router.push(`/level/${levelId}/${provinceId}`);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -65,5 +72,5 @@ export default function LevelProvinces({ locationId, provinceId }: Props) {
     );
   }
 
-  return <DialogBox dialog={locationDialog} />;
+  return <DialogBox dialog={locationDialog} onClose={onCloseDialog} />;
 }

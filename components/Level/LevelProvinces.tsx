@@ -25,9 +25,12 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
         setError(null);
         const result = await getLevelProvinces(levelId);
         if (!cancelled) setData(result);
+        console.log("Data for:", data);
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Error al cargar el nivel");
+          setError(
+            err instanceof Error ? err.message : "Error al cargar el nivel",
+          );
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -39,6 +42,10 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
       cancelled = true;
     };
   }, [levelId]);
+
+  useEffect(() => {
+    console.log("Data for:", data);
+  }, [data]);
 
   if (loading) {
     return (
@@ -62,8 +69,8 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
         <ProvinceButton
           key={province.id}
           label={province.name}
-          top={province.top}      
-          left={province.left}    
+          top={province.top}
+          left={province.left}
           icon={province.icon}
           onClick={() => router.push(`/level/${levelId}/${province.id}`)}
         />

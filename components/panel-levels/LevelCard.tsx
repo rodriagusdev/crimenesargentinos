@@ -1,6 +1,5 @@
 import { ICardLevelPreview } from "@/models/ICardLevelPreview";
 import Image from "next/image";
-import GameButton from "../buttons/GameButton";
 import { usePreviewVideoHandler } from "@/hooks/usePreviewVideoHandler";
 import { OverlayVideo } from "../overlays/OverlayVideo";
 
@@ -13,9 +12,17 @@ export default function LevelCard({ preview }: LevelCardProps) {
     preview.id,
   );
 
+  const handleCardClick = () => {
+    if (preview.videoURL) {
+      handleShowVideo();
+    } else {
+      goToLevel();
+    }
+  };
+
   return (
     <div
-      onClick={handleShowVideo}
+      onClick={handleCardClick}
       className="
         overflow-hidden rounded-2xl
         bg-[rgba(42,58,74,0.35)]

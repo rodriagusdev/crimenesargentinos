@@ -16,10 +16,12 @@ export default function Home() {
     );
   }
 
- /* if (!isAuthenticated) {
+  /*
+  if (!isAuthenticated) {
     return null; // El hook useAuth redirige automáticamente a /login
-  }*/
-
+  }
+  */
+ 
   return (
     <div className="min-h-screen bg-zinc-950 p-4 md:p-6 xl:p-8">
       <div className="mx-auto grid gap-6 grid-cols-1 xl:grid-cols-[300px_minmax(0,1fr)_320px]">

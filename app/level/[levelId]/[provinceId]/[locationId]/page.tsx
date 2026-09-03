@@ -21,7 +21,7 @@ export default async function ProvinceLocation({ params }: Props) {
         Location {locationIdNum}
       </h1>
 
-      <LevelLocation locationId={locationIdNum} provinceId={provinceIdNum} />
+      <LevelLocation levelId={levelIdNum} locationId={locationIdNum} provinceId={provinceIdNum} />
     </main>
   );
 }
