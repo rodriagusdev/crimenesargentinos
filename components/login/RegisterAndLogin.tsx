@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import GameButton from "../buttons/GameButton";
 import RegisterForm from "./RegisterForm";
 import { login } from "@/services/authService";
@@ -12,6 +13,7 @@ type RegisterAndLoginProps = {
 export default function RegisterAndLogin({
   setIsMenuOpen,
 }: RegisterAndLoginProps) {
+  const router = useRouter();
   const [showRegister, setShowRegister] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -31,7 +33,7 @@ export default function RegisterAndLogin({
       const token = await login({ email, password });
       if (token.token) {
         localStorage.setItem("auth_token", token.token);
-        setIsMenuOpen(true);
+        router.push("/principal");
       }
     } catch (err) {
       setError(
