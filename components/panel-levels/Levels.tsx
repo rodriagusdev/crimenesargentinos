@@ -1,45 +1,96 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { ICardLevelPreview } from "@/models/ICardLevelPreview";
+import { getLevelsByUserId, LevelResponse } from "@/lib/api";
+import { useUserId } from "@/hooks/useUserId";
 import LevelCard from "./LevelCard";
 
 export default function Levels() {
-const levels: ICardLevelPreview[] = [
-    {
-      id:1,
-      title: "Robo a las Estrellas",
-      description: "El trofeo mundial desapareció tras los festejos. Busca pistas en el Obelisco.",
-      imageURL: "/images/levelcardspreview/level_1_preview.jpg",
-      videoURL: "/videos/intro_level_1.mp4",
-      canPlay:true
-    },
-    {
-      id:2,
-      title: "Los Desaparecidos del Interior",
-      description: "Trenes fantasmas y estaciones abandonadas. ¿A dónde fueron los pasajeros?",
-        imageURL: "/images/levelcardspreview/level_2_preview.jpg",
-        canPlay:false
-    },
-    {
-      id:3,
-      title: "Caso Patagonia",
-      description: "Una estación científica incomunicada oculta un secreto en el fin del mundo.",
-      imageURL: "/images/levelcardspreview/level_3_preview.jpg",
-      canPlay:false
-    },
-    {
-      id:4,
-      title: "¿Qué pasó en la Ruta Nacional 40?",
-      description: "Tráfico de datos corruptos en una red que se extiende por todo el país.",
-      imageURL: "/images/levelcardspreview/level_4_preview.jpg",
-      canPlay:false
-    },
-    {
-      id:5,
-      title: "El Asesino de las Provincias",
-      description: "Un rastro de crímenes que conecta las costumbres y regiones argentinas.",
-      imageURL: "/images/levelcardspreview/level_5_preview.jpg",
-      canPlay:false
-    },
-  ];
+  const { userId, loading: userIdLoading, error: userIdError } = useUserId();
+  const [levels, setLevels] = useState<ICardLevelPreview[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (userIdLoading || !userId) {
+      return;
+    }
+
+    const fetchLevels = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Llamar al API para obtener los niveles
+        const apiLevels = await getLevelsByUserId(userId);
+
+        // Mapear la respuesta a ICardLevelPreview
+        const mappedLevels: ICardLevelPreview[] = apiLevels.map(
+          (level: LevelResponse) => ({
+            id: level.caseId,
+            title: level.title,
+            description: level.description,
+            imageURL: level.imageUrl,
+            videoURL: level.videoUrl,
+            canPlay: level.canPlay,
+          })
+        );
+
+        setLevels(mappedLevels);
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Error desconocido";
+        console.error("Error fetching levels:", errorMessage);
+        setError(errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLevels();
+  }, [userId, userIdLoading]);
+
+  const isLoading = userIdLoading || loading;
+  const displayError = userIdError || error;
+
+  if (isLoading) {
+    return (
+      <section className="w-full">
+        <h2
+          className="
+            mb-8 text-center
+            font-['Press_Start_2P']
+            text-[#E1C380]
+            text-sm sm:text-base
+            tracking-widest
+          "
+        >
+          NIVELES
+        </h2>
+        <div className="text-center text-white">Cargando niveles...</div>
+      </section>
+    );
+  }
+
+  if (displayError) {
+    return (
+      <section className="w-full">
+        <h2
+          className="
+            mb-8 text-center
+            font-['Press_Start_2P']
+            text-[#E1C380]
+            text-sm sm:text-base
+            tracking-widest
+          "
+        >
+          NIVELES
+        </h2>
+        <div className="text-center text-red-500">Error: {displayError}</div>
+      </section>
+    );
+  }
 
   return (
     <section className="w-full">
