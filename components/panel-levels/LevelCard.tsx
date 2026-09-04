@@ -13,6 +13,8 @@ export default function LevelCard({ preview }: LevelCardProps) {
   );
 
   const handleCardClick = () => {
+    if (!preview.canPlay) return; // No permitir click si no puede jugar
+    
     if (preview.videoURL) {
       handleShowVideo();
     } else {
@@ -23,17 +25,18 @@ export default function LevelCard({ preview }: LevelCardProps) {
   return (
     <div
       onClick={handleCardClick}
-      className="
+      className={`
         overflow-hidden rounded-2xl
         bg-[rgba(42,58,74,0.35)]
         backdrop-blur-[10px]
         border border-[#fff3c7]/15
         shadow-[0_10px_40px_rgba(0,0,0,0.4)]
         transition-all duration-300
-        hover:-translate-y-1
-        hover:border-[#E1C380]/30
-        cursor-pointer
-      "
+        ${preview.canPlay 
+          ? "hover:-translate-y-1 hover:border-[#E1C380]/30 cursor-pointer" 
+          : "opacity-50 cursor-not-allowed"
+        }
+      `}
     >
       <div
         className="
@@ -53,20 +56,26 @@ export default function LevelCard({ preview }: LevelCardProps) {
           className="object-contain p-2"
           sizes="100vw"
         />
+        {!preview.canPlay && (
+          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+            <span className="text-4xl">🔒</span>
+          </div>
+        )}
       </div>
       <div className="p-5">
         <h3
-          className="
+          className={`
             mb-3
-            text-[#E1C380]
             text-xs
             tracking-widest
-          "
+            ${preview.canPlay ? "text-[#E1C380]" : "text-[#999999]"}
+          `}
         >
           {preview.title}
+          {!preview.canPlay && " [BLOQUEADO]"}
         </h3>
 
-        <p className="text-xs text-[#FFF3C7] line-clamp-3">
+        <p className={`text-xs line-clamp-3 ${preview.canPlay ? "text-[#FFF3C7]" : "text-[#888888]"}`}>
           {preview.description}
         </p>
       </div>

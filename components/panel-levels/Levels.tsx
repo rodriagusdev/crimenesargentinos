@@ -8,31 +8,36 @@ const levels: ICardLevelPreview[] = [
       title: "Robo a las Estrellas",
       description: "El trofeo mundial desapareció tras los festejos. Busca pistas en el Obelisco.",
       imageURL: "/images/levelcardspreview/level_1_preview.jpg",
-      videoURL: "/videos/intro_level_1.mp4"
+      videoURL: "/videos/intro_level_1.mp4",
+      canPlay:true
     },
     {
       id:2,
       title: "Los Desaparecidos del Interior",
       description: "Trenes fantasmas y estaciones abandonadas. ¿A dónde fueron los pasajeros?",
-      imageURL: "/images/levelcardspreview/level_2_preview.jpg"
+        imageURL: "/images/levelcardspreview/level_2_preview.jpg",
+        canPlay:false
     },
     {
       id:3,
       title: "Caso Patagonia",
       description: "Una estación científica incomunicada oculta un secreto en el fin del mundo.",
-      imageURL: "/images/levelcardspreview/level_3_preview.jpg"
+      imageURL: "/images/levelcardspreview/level_3_preview.jpg",
+      canPlay:false
     },
     {
       id:4,
       title: "¿Qué pasó en la Ruta Nacional 40?",
       description: "Tráfico de datos corruptos en una red que se extiende por todo el país.",
-      imageURL: "/images/levelcardspreview/level_4_preview.jpg"
+      imageURL: "/images/levelcardspreview/level_4_preview.jpg",
+      canPlay:false
     },
     {
       id:5,
       title: "El Asesino de las Provincias",
       description: "Un rastro de crímenes que conecta las costumbres y regiones argentinas.",
-      imageURL: "/images/levelcardspreview/level_5_preview.jpg"
+      imageURL: "/images/levelcardspreview/level_5_preview.jpg",
+      canPlay:false
     },
   ];
 

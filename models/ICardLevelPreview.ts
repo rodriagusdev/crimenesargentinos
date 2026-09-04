@@ -4,4 +4,5 @@ export interface ICardLevelPreview {
   description: string;
   imageURL: string;
   videoURL?: string;
+  canPlay: boolean;
 }
