@@ -15,6 +15,8 @@ export interface AuthResponse {
   token?: string;
   message?: string;
   success?: boolean;
+  id?: string;
+  email?: string;
 }
 
 export async function login(credentials: LoginRequest): Promise<AuthResponse> {
@@ -23,20 +25,22 @@ export async function login(credentials: LoginRequest): Promise<AuthResponse> {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Accept: "text/plain",
+        Accept: "application/json",
       },
       body: JSON.stringify(credentials),
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || "Error al iniciar sesión");
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || "Error al iniciar sesión");
     }
 
-    const data = await response.text();
+    const data = await response.json();
     return {
-      token: data,
+      token: data.token,
       success: true,
+      id: data.id,
+      email: data.email,
     };
   } catch (error) {
     throw error instanceof Error ? error : new Error("Error desconocido");

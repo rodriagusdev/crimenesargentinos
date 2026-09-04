@@ -23,6 +23,31 @@ export default function RegisterForm({ onBackClick }: RegisterFormProps) {
       return;
     }
 
+    // Validar email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Por favor ingresa un email válido");
+      return;
+    }
+
+    // Validar userName
+    if (userName.length < 3) {
+      setError("El nombre de usuario debe tener al menos 3 caracteres");
+      return;
+    }
+
+    if (userName.length > 50) {
+      setError("El nombre de usuario no puede exceder 50 caracteres");
+      return;
+    }
+
+    const userNameRegex = /^[a-zA-Z0-9_-]+$/;
+    if (!userNameRegex.test(userName)) {
+      setError("El nombre de usuario solo puede contener letras, números, guiones y guiones bajos");
+      return;
+    }
+
+    // Validar password
     if (password.length < 8) {
       setError("La contraseña debe tener al menos 8 caracteres");
       return;

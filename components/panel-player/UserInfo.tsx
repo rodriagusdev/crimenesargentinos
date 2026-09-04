@@ -1,16 +1,65 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import InfoItem from "./UserInfoItem";
 
-const user = {
-  username: "RamiSansi",
-  level: 12,
-  points: 15420,
-  gamesPlayed: 87,
-  highScore: 3210,
-};
+interface UserData {
+  username: string;
+  level: number;
+  points: number;
+  gamesPlayed: number;
+  highScore: number;
+}
 
 export default function UserInfo() {
+  const [user, setUser] = useState<UserData>({
+    username: "Cargando...",
+    level: 0,
+    points: 0,
+    gamesPlayed: 0,
+    highScore: 0,
+  });
+
+  useEffect(() => {
+    // Decodificar JWT para obtener el username
+    const token = localStorage.getItem("auth_token");
+    if (token) {
+      try {
+        // El JWT tiene formato: header.payload.signature
+        const parts = token.split(".");
+        if (parts.length !== 3) {
+          throw new Error("Token JWT inválido");
+        }
+
+        // Agregar padding si es necesario para base64
+        let payloadBase64 = parts[1];
+        const padding = 4 - (payloadBase64.length % 4);
+        if (padding !== 4) {
+          payloadBase64 += "=".repeat(padding);
+        }
+
+        const decodedPayload = JSON.parse(atob(payloadBase64));
+
+        // El username está en el claim ClaimTypes.Name de .NET
+        const username =
+          decodedPayload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] ||
+          decodedPayload.unique_name ||
+          decodedPayload.sub ||
+          "Usuario";
+
+        setUser((prevUser) => ({
+          ...prevUser,
+          username: username,
+        }));
+      } catch (error) {
+        console.error("Error decodificando token:", error);
+        setUser((prevUser) => ({
+          ...prevUser,
+          username: "Usuario",
+        }));
+      }
+    }
+  }, []);
   return (
     <section
       className="
@@ -48,7 +97,13 @@ export default function UserInfo() {
               border border-[#FFF3C7]/15
             "
           >
-            <span className="text-[#E1C380] text-lg">RS</span>
+            <span className="text-[#E1C380] text-lg">
+              {user.username
+                .split(" ")
+                .map((word) => word.charAt(0).toUpperCase())
+                .join("")
+                .slice(0, 2)}
+            </span>
           </div>
 
           <h3 className="text-[#FFF3C7] text-xs tracking-widest">
