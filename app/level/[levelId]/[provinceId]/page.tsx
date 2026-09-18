@@ -1,4 +1,5 @@
 import LevelProvinceLocations from "@/components/Level/LevelProvinceLocations";
+import LevelMenu from "@/components/Level/LevelMenu";
 
 interface Props {
   params: Promise<{
@@ -15,6 +16,7 @@ export default async function Province({ params }: Props) {
   return (
     <main className="relative min-h-screen overflow-hidden">
       <LevelProvinceLocations levelId={levelIdNum} provinceId={provinceIdNum} />
+      <LevelMenu levelId={levelIdNum} />
     </main>
   );
 }

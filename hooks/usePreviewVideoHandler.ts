@@ -6,17 +6,30 @@ export function usePreviewVideoHandler(previewId: number) {
 
   const [showVideo, setShowVideo] = useState(false);
 
+  const targetRoute =
+    previewId === 1 ? "/level/1/1/1" : `/level/${previewId}`;
+
   useEffect(() => {
     if (showVideo) {
-      router.prefetch(`/level/${previewId}`);
+      router.prefetch(targetRoute);
     }
-  }, [showVideo, previewId, router]);
+  }, [showVideo, targetRoute, router]);
 
   const goToLevel = () => {
-    router.push(`/level/${previewId}`);
+    try {
+      sessionStorage.removeItem(`level_${previewId}_briefing_seen`);
+    } catch {
+      // Ignorar errores en SSR
+    }
+    router.push(targetRoute);
   };
 
   const handleShowVideo = () => {
+    try {
+      sessionStorage.removeItem(`level_${previewId}_briefing_seen`);
+    } catch {
+      // Ignorar errores en SSR
+    }
     setShowVideo((prev) => !prev);
   };
 

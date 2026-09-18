@@ -1,9 +1,9 @@
 "use client";
 
 import IDialog from "@/models/IDialog";
-import GameButton from "../../components/buttons/GameButton";
+import GameButton from "../buttons/GameButton";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface DialogProps {
   dialog: IDialog;
@@ -11,88 +11,187 @@ interface DialogProps {
 }
 
 export default function DialogBox({ dialog, onClose }: DialogProps) {
-  const [textBox, setTextbox] = useState<string | null>(null);
+  const [log, setLog] = useState<{ question: string; answer: string }[]>([]);
+  const [askedIndices, setAskedIndices] = useState<Set<number>>(new Set());
+  const logEndRef = useRef<HTMLDivElement>(null);
   const limitedQuestions = dialog.questions.slice(0, 3);
 
   const onQuestionClicked = (i: number) => {
-    setTextbox(dialog.answers[i] ?? null);
-  }
+    const answer = dialog.answers[i];
+    if (!answer || askedIndices.has(i)) return;
+    setLog((prev) => [...prev, { question: limitedQuestions[i], answer }]);
+    setAskedIndices((prev) => new Set(prev).add(i));
+  };
+
+  // Auto-scroll log para cuando se agrega a la conversacion
+  useEffect(() => {
+    logEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [log]);
 
   const background =
-    dialog.overlayBackgroundUrl ?? "/images/default-dialog-overlay.jpg";
+    dialog.npcCompleteUrl ?? "/images/default-dialog-overlay.jpg";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-end p-4">
-      {/* Background */}
-      <Image src={background} alt="" fill priority className="object-cover" />
+    <div className="fixed inset-0 z-50 flex flex-col bg-[#080e18] select-none">
+      {/* ── Top Bar ── */}
+      <div className="relative z-20 p-6 flex items-center justify-between">
+        {onClose ? (
+          <div className="flex flex-row gap-4">
+            <GameButton
+              icon=""
+              label="VOLVER"
+              onClick={onClose}
+              variant="secondary"
+            />
 
-      {/* Dark overlay */}
-      <div className="absolute inset-0 " />
-
-      {/* Main container */}
-      <div
-        className="
-          relative z-10 w-full max-w-3xl
-          bg-[rgba(42,58,74,0.35)]
-          backdrop-blur-[10px]
-          border border-[rgba(255,243,199,0.15)]
-          shadow-[0_10px_40px_rgba(0,0,0,0.4)]
-          rounded-2xl
-          overflow-hidden
-          text-[#FFF3C7]
-        "
-      >
-        {/* Botón cerrar */}
-        <GameButton onClick={onClose} icon="" label="CERRAR" />
-
-        <div className="flex flex-col md:flex-row">
-          {/* Portrait */}
-          <div className="md:w-56 shrink-0 p-5 flex flex-col items-center">
-            <div
-              className="
-                relative w-40 h-40 md:w-48 md:h-48
-                rounded-xl overflow-hidden
-                border-2 border-[#E1C380]/60
-                shadow-[0_8px_24px_rgba(0,0,0,0.5)]
-              "
-            >
-              <Image
-                src={dialog.portraitUrl}
-                alt={dialog.npc}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 160px, 192px"
-                priority
-              />
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(20,30,42,0.7)] backdrop-blur-md border border-[rgba(255,243,199,0.12)]">
+              <span className="size-2 rounded-full bg-amber-400 animate-pulse" />
+              <span className="text-xs uppercase tracking-widest text-[#E1C380]">
+                Interrogatorio
+              </span>
             </div>
-
-            <p className="mt-3 text-center tracking-widest text-[#E1C380] font-medium uppercase text-sm">
-              {dialog.npc}
-            </p>
           </div>
+        ) : (
+          <div />
+        )}
 
-          {/* Contenido */}
-          <div className="flex-1 p-6 pt-4 md:pt-6 flex flex-col">
-            <div
-              className="
-                mb-6
-                p-4
-                rounded-xl
-                bg-[rgba(255,243,199,0.08)]
-                border border-[rgba(255,243,199,0.12)]
-              "
-            >
-              <p className="text-[#FFF3C7] leading-relaxed tracking-wide text-[15px]">
-                {textBox ?? dialog.introText}
-              </p>
-            </div>
 
-            {/* Preguntas */}
-            <div className="space-y-3 mt-auto">
-              {limitedQuestions.map((question, index) => (
-                <GameButton key={index} icon="" label={question} onClick={() => onQuestionClicked(index)} />
-              ))}
+      </div>
+
+      {/* ── Content area (Dialog panel + Background Scene) ── */}
+      <div className="flex-1 flex flex-row-reverse min-h-0 px-6 pb-6 gap-6">
+        {/* Right: Dialog panel */}
+        <div className="flex-1 flex items-center justify-center">
+          <div
+            className="
+              relative z-10 w-full max-w-2xl h-full flex flex-col
+              bg-[rgba(20,30,42,0.82)]
+              backdrop-blur-[14px]
+              border border-[rgba(255,243,199,0.12)]
+              shadow-[0_24px_60px_rgba(0,0,0,0.6)]
+              rounded-2xl
+              overflow-hidden
+              text-[#FFF3C7]
+            "
+          >
+            {/* Body: portrait + content */}
+            <div className="flex flex-1 min-h-0">
+              {/* Portrait column */}
+              <div className="w-44 shrink-0 flex flex-col items-center pt-6 pb-4 px-4 border-r border-[rgba(255,243,199,0.08)]">
+                <div
+                  className="
+                    relative w-32 h-32
+                    rounded-xl overflow-hidden
+                    border-2 border-[#E1C380]/40
+                    shadow-[0_8px_24px_rgba(0,0,0,0.6)]
+                  "
+                >
+                  <Image
+                    src={dialog.portraitUrl}
+                    alt={dialog.npc}
+                    fill
+                    className="object-cover"
+                    sizes="128px"
+                    priority
+                  />
+                </div>
+
+                {/* NPC name */}
+                <p className="mt-4 text-center tracking-widest text-[#E1C380] font-semibold uppercase text-sm">
+                  {dialog.npc}
+                </p>
+
+                {/* Decorative divider + label */}
+                <div className="mt-3 w-10 h-px bg-[#E1C380]/30" />
+                <p className="mt-2 text-[10px] text-[#FFF3C7]/30 uppercase tracking-widest font-mono">
+                  Testigo
+                </p>
+              </div>
+
+              {/* Right column: log + questions */}
+              <div className="flex-1 flex flex-col min-h-0">
+                {/* Conversation log — scrollable, grows to fill space */}
+                <div className="flex-1 overflow-y-auto px-5 pt-5 pb-3 flex flex-col gap-4">
+                  {/* Intro bubble — NPC, left-aligned */}
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] uppercase tracking-widest text-[#E1C380]/50 font-mono">
+                      {dialog.npc}
+                    </span>
+                    <div className="bg-[rgba(255,243,199,0.07)] border border-[rgba(255,243,199,0.10)] rounded-xl rounded-tl-none px-4 py-3">
+                      <p className="text-[#FFF3C7] text-xs leading-relaxed whitespace-pre-line">
+                        {dialog.introText}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Dynamic log entries */}
+                  {log.map((entry, i) => (
+                    <div key={i} className="flex flex-col gap-3">
+                      {/* Player question — right-aligned */}
+                      <div className="flex flex-col items-end gap-1">
+                        <span className="text-[8px] uppercase tracking-widest text-[#FFF3C7]/30 font-mono">
+                          Tú
+                        </span>
+                        <div className="bg-[rgba(225,195,128,0.10)] border border-[#E1C380]/15 rounded-xl rounded-tr-none px-4 py-2.5 max-w-[85%]">
+                          <p className="text-[#E1C380]/90 text-xs leading-relaxed">
+                            {entry.question}
+                          </p>
+                        </div>
+                      </div>
+                      {/* NPC answer — left-aligned */}
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[8px] uppercase tracking-widest text-[#E1C380]/50 font-mono">
+                          {dialog.npc}
+                        </span>
+                        <div className="bg-[rgba(255,243,199,0.07)] border border-[rgba(255,243,199,0.10)] rounded-xl rounded-tl-none px-4 py-3 max-w-[90%]">
+                          <p className="text-[#FFF3C7] text-xs leading-relaxed whitespace-pre-line">
+                            {entry.answer}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Anchor for auto-scroll */}
+                  <div ref={logEndRef} />
+                </div>
+
+                {/* Divider */}
+                <div className="h-px bg-[rgba(255,243,199,0.08)] mx-5" />
+
+                {/* Questions — pinned to bottom */}
+                <div className="px-5 py-4 flex flex-col gap-2">
+                  {limitedQuestions.map((question, index) => (
+                    <GameButton
+                      key={index}
+                      icon=""
+                      label={question}
+                      onClick={() => onQuestionClicked(index)}
+                      disabled={askedIndices.has(index)}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
+          </div>
+        </div>
+
+        {/* Left: Background image box */}
+        <div className="flex-[2] p-6 bg-[rgba(20,30,42,0.82)] flex items-center justify-center border border-[rgba(255,243,199,0.12)] rounded-2xl">
+          <div className="relative w-full h-full rounded-2xl overflow-hidden border border-[rgba(255,243,199,0.08)] shadow-[0_24px_60px_rgba(0,0,0,0.5)]">
+            <Image
+              src={background}
+              alt="Escena"
+              fill
+              priority
+              sizes="(max-width: 1200px) 100vw, 60vw"
+              className="object-cover object-center"
+            />
+            {/* subtle inner vignette */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#080e18]/40 via-transparent to-transparent" />
+            {/* bottom fade for text legibility */}
+            <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-[#080e18]/90 via-[#080e18]/50 to-transparent" />
+
           </div>
         </div>
       </div>

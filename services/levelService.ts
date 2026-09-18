@@ -1,34 +1,26 @@
 import ILevelDataProvinces from "@/models/ILevelDataProvinces";
 import ILevelLocations from "@/models/ILevelLocations";
 import IDialog from "@/models/IDialog";
+import IInfoPerLevel from "@/models/IInfoPerLevel";
 import { levelDataConfig } from "@/data/levelDataConfig";
 import { levels } from "@/data/levelLocations";
 import { dialogs } from "@/data/dialogs";
+import { infoPerLevel } from "@/data/infoPerLevel";
 
-/*
-import { API_URL } from "../lib/api";
+export async function getInfoPerLevel(levelId: number): Promise<IInfoPerLevel> {
+  const data = infoPerLevel.find((item) => item.id === levelId) ?? infoPerLevel[levelId - 1];
 
-export async function getLevel(levelId: number): Promise<ILevel> {
-  const res = await fetch(`${API_URL}/level/${levelId}/dialog`);
-
-  if (!res.ok) {
-    throw new Error("Failed to fetch level data");
+  if (!data) {
+    throw new Error(`Data for level ${levelId} not found`);
   }
 
-  return res.json();
+  return data;
 }
-*/
 
 export async function getLevelProvinces(
   levelId: number,
 ): Promise<ILevelDataProvinces> {
-  // SE NECESITA REGULARIZAR EL LEVELID PARA QUE SEA UN INDICE DEL ARRAY
-  // (EMPIEZA EN 0, PERO LOS NIVELES EMPIEZAN DESDE EL 1)
-  const regularize = levelId - 1;
-
-  console.log(regularize);
-
-  const data = levelDataConfig[regularize];
+  const data = levelDataConfig.find((item) => item.id === levelId) ?? levelDataConfig[levelId - 1];
 
   if (!data) {
     throw new Error(`Data for level ${levelId} not found`);
@@ -38,23 +30,18 @@ export async function getLevelProvinces(
 }
 
 export async function getLevelLocations(
-  levelId: number,
+  provinceId: number,
 ): Promise<ILevelLocations> {
-  // SE NECESITA REGULARIZAR EL LEVELID PARA QUE SEA UN INDICE DEL ARRAY
-  // (EMPIEZA EN 0, PERO LOS NIVELES EMPIEZAN DESDE EL 1)
-  const regularize = levelId - 1;
-
-  const data = levels[regularize];
+  const data = levels.find((item) => item.id === provinceId) ?? levels[provinceId - 1];
 
   if (!data) {
-    throw new Error(`Data for level ${levelId} not found`);
+    throw new Error(`Data for province ${provinceId} not found`);
   }
 
   return data;
 }
 
 export async function getDialogs(): Promise<IDialog[]> {
-  // SIMULO PETICION
   const data = dialogs;
 
   if (!data) {

@@ -70,12 +70,7 @@ export default function RegisterForm({ onBackClick }: RegisterFormProps) {
   };
 
   return (
-    <div
-      className="flex flex-col gap-4"
-      style={{
-        background: "rgba(42, 58, 74, 0.35)",
-      }}
-    >
+    <div className="flex flex-col gap-4">
       <h2
         className="text-center text-4xl tracking-widest"
         style={{

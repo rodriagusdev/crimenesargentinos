@@ -2,13 +2,19 @@ import IDialog from "@/models/IDialog";
 
 // REPRESENTA LOS DIALOGOS DE LOS NIVELES, CON SUS PREGUNTAS Y RESPUESTAS
 export const dialogs: IDialog[] = [
+  // ── NIVEL 1 ─────────────────────────────────────────────────────────────
+  // Buenos Aires (provinceId: 1)
   {
     provinceId: 1,
     locationId: 1,
     npc: "Alberto",
-    overlayBackgroundUrl: "/images/level1_buenosaires_kiosco.jpg",
-    portraitUrl: "/images/portrait_alberto.webp",
-    introText: "¡Hola! Soy Alberto.",
+    overlayBackgroundUrl: "/images/loadingscreens/level1/province_buenosaires/obelisco.jpg",
+    npcCompleteUrl: "/images/dialogbackground/level1/dialogo_buenosaires_kiosco.jpg",
+    infoBackground:
+      "El Obelisco de Buenos Aires, ubicado en la intersección de las avenidas 9 de Julio y Corrientes, es uno de los monumentos más emblemáticos y representativos de la ciudad. Erigido en 1936 para conmemorar el cuarto centenario de la primera fundación de la capital, esta imponente estructura de 67,5 metros de altura se ha consolidado como el punto de encuentro por excelencia para festejar hitos deportivos, culturales y sociales.",
+    portraitUrl: "/images/portraits/level1/portrait_alberto.webp",
+    introText:
+      "— Disculpe, ¿vio pasar a un sospechoso con estas características?\n\n* Abrís el expediente con las características * \n\n— ¡Uhh, jefe, llegás justito! Recién se me acaba de pasar por al lado un tipo corriendo...",
     questions: [
       "¿Qué tenía puesto?",
       "¿Estaba comiendo algo?",
@@ -24,8 +30,11 @@ export const dialogs: IDialog[] = [
     provinceId: 1,
     locationId: 2,
     npc: "Verdulero",
-    portraitUrl: "/images/portrait_bol.webp",
-    overlayBackgroundUrl: "/images/level1_buenosaires_verduleria.jpg",
+    portraitUrl: "/images/portraits/level1/portrait_bol.webp",
+    overlayBackgroundUrl: "/images/dialogbackground/level1/dialogo_buenosaires_verduleria.jpg",
+    npcCompleteUrl: "/images/dialogbackground/level1/dialogo_buenosaires_verduleria.jpg",
+    infoBackground:
+      "El Mercado de Avellaneda es un centro neurálgico de compras, comercio y vida cotidiana popular en la zona sur del Gran Buenos Aires, conocido por su intenso movimiento de puesteros, comerciantes y transeúntes a lo largo de toda la semana.",
     introText:
       "¡Hola, paisano! ¿Qué andá buscando por estos pagos? Si es por los muchachos que pasaron corriendo, usté dirá, que yo vi todito desde mi puesto.",
     questions: [
@@ -43,8 +52,11 @@ export const dialogs: IDialog[] = [
     provinceId: 1,
     locationId: 3,
     npc: "Policía Lucas",
-    portraitUrl: "/images/portrait_lucas.webp",
-    overlayBackgroundUrl: "/images/level1_buenosaires_ezeiza.jpg",
+    portraitUrl: "/images/portraits/level1/portrait_lucas.webp",
+    overlayBackgroundUrl: "/images/dialogbackground/level1/dialogo_buenosaires_ezeiza.jpg",
+    npcCompleteUrl: "/images/dialogbackground/level1/dialogo_buenosaires_ezeiza.jpg",
+    infoBackground:
+      "El Aeropuerto Internacional Ministro Pistarini (Ezeiza) es la principal terminal aérea internacional de Argentina, situado a 35 kilómetros al sudoeste de la Ciudad Autónoma de Buenos Aires, conectando al país con todo el mundo.",
     introText: "Buen día, ¿en qué lo puedo ayudar, señor?",
     questions: [
       "¿Sabe qué vuelo tomó?",
@@ -57,12 +69,17 @@ export const dialogs: IDialog[] = [
       "No sabría decirle.",
     ],
   },
+
+  // Córdoba (provinceId: 2)
   {
     provinceId: 2,
     locationId: 1,
     npc: "Vendedor de medias Braian",
-    portraitUrl: "/images/portrait_braian.webp",
-    overlayBackgroundUrl: "/images/level1_cordoba_plazasanmartin.jpg",
+    portraitUrl: "/images/portraits/level1/portrait_braian.webp",
+    overlayBackgroundUrl: "/images/dialogbackground/level1/dialogo_cordoba_plazasanmartin.jpg",
+    npcCompleteUrl: "/images/dialogbackground/level1/dialogo_cordoba_plazasanmartin.jpg",
+    infoBackground:
+      "La Plaza San Martín es el corazón histórico y cívico de la ciudad de Córdoba. Rodeada por la Catedral y el Cabildo Histórico, es el punto de encuentro tradicional de peatones, artistas y vendedores.",
     introText:
       "Que paso compa, se le cayó la facha me parece, me compraría unas medias?, 3 pares por 10 mil pesitos, un oferton.",
     questions: [
@@ -80,8 +97,11 @@ export const dialogs: IDialog[] = [
     provinceId: 2,
     locationId: 2,
     npc: "Camarero Tiziano",
-    portraitUrl: "/images/portrait_meserotiziano.webp",
-    overlayBackgroundUrl: "/images/level1_cordoba_restoguemes.jpg",
+    portraitUrl: "/images/portraits/level1/portrait_meserotiziano.webp",
+    overlayBackgroundUrl: "/images/dialogbackground/level1/dialogo_cordoba_restoguemes.jpg",
+    npcCompleteUrl: "/images/dialogbackground/level1/dialogo_cordoba_restoguemes.jpg",
+    infoBackground:
+      "El barrio Güemes de Córdoba es famoso por su polo gastronómico, sus casas de diseño y sus bares bohemios, donde locales y turistas se reúnen para disfrutar de tragos de autor, platos tradicionales y ferias de artesanías.",
     introText: "Buenos días señor, ¿tiene reserva?",
     questions: [
       "¿El sospechoso comió acá, pudo notar que llevaba algo con él?",
@@ -98,8 +118,11 @@ export const dialogs: IDialog[] = [
     provinceId: 2,
     locationId: 3,
     npc: "Cura Antonio",
-    portraitUrl: "/images/portrait_curaantonio.webp",
-    overlayBackgroundUrl: "/images/level1_cordoba_manzanajesuitica.jpg",
+    portraitUrl: "/images/portraits/level1/portrait_curaantonio.webp",
+    overlayBackgroundUrl: "/images/dialogbackground/level1/dialogo_cordoba_manzanajesuitica.jpg",
+    npcCompleteUrl: "/images/dialogbackground/level1/dialogo_cordoba_manzanajesuitica.jpg",
+    infoBackground:
+      "La Manzana Jesuítica de Córdoba, declarada Patrimonio de la Humanidad por la UNESCO, alberga la Universidad Nacional de Córdoba, el Colegio Nacional de Monserrat y la Iglesia de la Compañía de Jesús, testimonio histórico del siglo XVII.",
     introText: "¿Hola hermano mio, viene a recibir las bendiciones matutinas?",
     questions: [
       "¿Usted vio a mi sospechoso?",
@@ -112,12 +135,17 @@ export const dialogs: IDialog[] = [
       "Si, hablamos del mundial y su adoración hacia la copa del mundo y cómo le encantaría llevarsela a su casa para tenerla en su cama y dormir con ella.",
     ],
   },
+
+  // Misiones (provinceId: 3)
   {
     provinceId: 3,
     locationId: 1,
     npc: "Jardinero Carlitos",
-    portraitUrl: "/images/portrait_jardinerocarlitos.webp",
-    overlayBackgroundUrl: "/images/level1_misiones_jardinalbertoroth.jpg",
+    portraitUrl: "/images/portraits/level1/portrait_jardinerocarlitos.webp",
+    overlayBackgroundUrl: "/images/dialogbackground/level1/dialogo_misiones_jardinalbertoroth.jpg",
+    npcCompleteUrl: "/images/dialogbackground/level1/dialogo_misiones_jardinalbertoroth.jpg",
+    infoBackground:
+      "El Jardín Botánico Alberto Roth de Posadas es un oasis natural de conservación vegetal y recreación ecológica, con senderos rodeados de árboles autóctonos de la selva misionera y una rica biodiversidad.",
     introText:
       "¿Eh ura, venis a comprar algunas florcitas para su Kuñataĩ? Yo le puedo dar un buen precio, no se preocupe.",
     questions: [
@@ -135,8 +163,11 @@ export const dialogs: IDialog[] = [
     provinceId: 3,
     locationId: 2,
     npc: "Pescador Don Juan",
-    portraitUrl: "/images/portrait_pescadordonjuan.webp",
-    overlayBackgroundUrl: "/images/level1_misiones_costanera.jpg",
+    portraitUrl: "/images/portraits/level1/portrait_pescadordonjuan.webp",
+    overlayBackgroundUrl: "/images/dialogbackground/level1/dialogo_misiones_costanera.jpg",
+    npcCompleteUrl: "/images/dialogbackground/level1/dialogo_misiones_costanera.jpg",
+    infoBackground:
+      "La Costanera de Posadas bordea el imponente Río Paraná, ofreciendo kilómetros de paseo peatonal, miradores, monumentos y vistas privilegiadas de la ribera fluvial hacia la vecina Encarnación.",
     introText: "¿No me distraiga ura, no ve que estoy pescando?",
     questions: [
       "¿Estoy buscando a un sospechoso, sabe hacia dónde pudo ir?",
@@ -153,8 +184,11 @@ export const dialogs: IDialog[] = [
     provinceId: 3,
     locationId: 3,
     npc: "Salvavidas Fernando",
-    portraitUrl: "/images/portrait_salvavidasfernando.webp",
-    overlayBackgroundUrl: "/images/level1_misiones_playaselbrete.jpg",
+    portraitUrl: "/images/portraits/level1/portrait_salvavidasfernando.webp",
+    overlayBackgroundUrl: "/images/dialogbackground/level1/dialogo_misiones_playaselbrete.jpg",
+    npcCompleteUrl: "/images/dialogbackground/level1/dialogo_misiones_playaselbrete.jpg",
+    infoBackground:
+      "Las Playas El Brete y Costa Sur son los principales balnearios y centros de recreación veraniega a orillas del río Paraná en Misiones, con amplias áreas de arena, deportes acuáticos y paradores.",
     introText:
       "Ahora no, ¿no ve que tengo que vigilar a estas hermosas gurisas que me tienen chapita?",
     questions: [
@@ -168,23 +202,209 @@ export const dialogs: IDialog[] = [
       "Ndaikuaái che, pero a un par de cuadras nomás hay un boliche bastante bueno. Hay unas minas re lindas por ahí. Si le interesa, mba’éichapa… le consigo un descuentito pa’ la entrada, ¿qué dice?",
     ],
   },
+
+  // ── NIVEL 2 ─────────────────────────────────────────────────────────────
+  // Chaco (provinceId: 4)
   {
     provinceId: 4,
     locationId: 1,
-    npc: "NPC FOR 1",
-    portraitUrl: "/images/portrait_salvavidasfernando.webp",
-    overlayBackgroundUrl: "/images/level1_misiones_playaselbrete.jpg",
+    npc: "Gaucho Chaqueño",
+    portraitUrl: "/images/portraits/level2/cara_gaucho.webp",
+    overlayBackgroundUrl: "/images/dialogbackground/level2/Dialogo_gaucho.webp",
+    npcCompleteUrl: "/images/dialogbackground/level2/Dialogo_gaucho.webp",
+    infoBackground:
+      "El Parque Nacional El Impenetrable resguarda la mayor biodiversidad del monte chaqueño, tierra agreste de quebrachales y fauna autóctona protegida.",
     introText:
-      "No tengo texto para este NPC, es solo un ejemplo de cómo se vería un NPC en otra provincia.",
+      "Buenas tardes forastero. Por estos montes cerrados la huella se borra rápido, pero el ojo gaucho nunca olvida.",
     questions: [
-      "¿Tienen a alguien en la parte vip con una valija?",
-      "Mi sospechoso quizás alquilo una sombrilla acá, es un gordo algo enano, ¿vio alguien así?",
-      "¿A mi sospechoso le encanta el fernet y come mucho, tiene a alguien así?",
+      "¿Vio pasar a alguien sospechoso por esta zona?",
+      "¿Notó alguna pista en el camino?",
+      "¿Hacia qué dirección iba?",
     ],
     answers: [
-      "Uhh mira como está esa gurisa... ehh, ¿dijiste algo chango?",
-      "Mmm… Che, vi a un karai gordito, con zunga… ¡Ñandejára! Mis ojos ya están pidiendo una buena lavada con lavandina, mba’e.",
-      "Ndaikuaái che, pero a un par de cuadras nomás hay un boliche bastante bueno. Hay unas minas re lindas por ahí. Si le interesa, mba’éichapa… le consigo un descuentito pa’ la entrada, ¿qué dice?",
+      "Vi a un tipo apurado esquivando las espinas del monte.",
+      "Dejó caer un papel doblado cerca del sendero principal.",
+      "Agarró para el lado de las aguadas antes del anochecer.",
+    ],
+  },
+  {
+    provinceId: 4,
+    locationId: 2,
+    npc: "Niña de Campo",
+    portraitUrl: "/images/portraits/level2/cara_nena_chaco.webp",
+    overlayBackgroundUrl: "/images/dialogbackground/level2/Dialogo_nena_indigente.webp",
+    npcCompleteUrl: "/images/dialogbackground/level2/Dialogo_nena_indigente.webp",
+    infoBackground:
+      "Campo del Cielo es una región de valor cósmico y arqueológico donde impactó una lluvia meteórica hace miles de años, rodeada de leyendas locales.",
+    introText:
+      "Hola señor detective... acá vienen muchos curiosos a mirar las piedras del cielo, pero hubo uno muy raro hoy.",
+    questions: [
+      "¿Qué tenía de raro esa persona?",
+      "¿Llevaba algo en las manos?",
+      "¿Preguntó por alguien?",
+    ],
+    answers: [
+      "Miraba para todos lados como esperando que nadie lo viera.",
+      "Tenía un bolso oscuro bien apretado contra el pecho.",
+      "Preguntó cómo cruzar rápido hacia la frontera.",
+    ],
+  },
+  {
+    provinceId: 4,
+    locationId: 3,
+    npc: "Poblador Isleño",
+    portraitUrl: "/images/portraits/level2/cara_mapuche.webp",
+    overlayBackgroundUrl: "/images/dialogbackground/level2/Dialogo_mapuche.webp",
+    npcCompleteUrl: "/images/dialogbackground/level2/Dialogo_mapuche.webp",
+    infoBackground:
+      "La Isla del Cerrito se alza en la confluencia de los ríos Paraná y Paraguay, un enclave estratégico de frondosa naturaleza e historia.",
+    introText:
+      "El río hoy está tranquilo, pero las aguas traen novedades extrañas. ¿Qué busca por estas orillas?",
+    questions: [
+      "¿Vio embarcaciones salir con prisa?",
+      "¿Reconoció a algún foráneo?",
+      "¿Escuchó alguna conversación sospechosa?",
+    ],
+    answers: [
+      "Una lancha a motor partió apenas aclaró el día.",
+      "Subió un hombre con abrigo pesado que no es de por aquí.",
+      "Mencionó que debía hacer escala en Corrientes cuanto antes.",
+    ],
+  },
+
+  // Corrientes (provinceId: 5)
+  {
+    provinceId: 5,
+    locationId: 1,
+    npc: "Grafitero Urbano",
+    portraitUrl: "/images/portraits/level2/cara_grafitero.webp",
+    overlayBackgroundUrl: "/images/dialogbackground/level2/Dialogo_grafitero.webp",
+    npcCompleteUrl: "/images/dialogbackground/level2/Dialogo_grafitero.webp",
+    infoBackground:
+      "El Paseo de los Murales en Corrientes expone una impresionante galería a cielo abierto de arte público que relata la historia y raíces guaraníes.",
+    introText:
+      "¡Ey! Pintando acá en el muro vi de todo. Si andás buscando data fresca, estás en el lugar correcto.",
+    questions: [
+      "¿Viste a alguien sospechoso merodeando?",
+      "¿Qué vestimenta llevaba?",
+      "¿Tomó algún transporte?",
+    ],
+    answers: [
+      "Sí, pasó un tipo nervioso mirando su reloj cada dos segundos.",
+      "Llevaba una campera oscura y una gorra tapándole media cara.",
+      "Se subió a un taxi apurado en la esquina.",
+    ],
+  },
+  {
+    provinceId: 5,
+    locationId: 2,
+    npc: "Boletera del Teatro",
+    portraitUrl: "/images/portraits/level2/Cara_ticketera1.webp",
+    overlayBackgroundUrl: "/images/dialogbackground/level2/Dialogo_ticketera.webp",
+    npcCompleteUrl: "/images/dialogbackground/level2/Dialogo_ticketera.webp",
+    infoBackground:
+      "El Teatro Oficial Juan de Vera es el templo lírico y cultural de Corrientes, reconocido por su majestuosa acústica y cúpula corrediza.",
+    introText:
+      "Buenas tardes. La función comienza más tarde, pero si investiga el incidente, puedo darle algunos detalles.",
+    questions: [
+      "¿Compró alguna entrada el sospechoso?",
+      "¿Dejó algún objeto olvidado?",
+      "¿Habló con alguien en la boletería?",
+    ],
+    answers: [
+      "Pidió información pero no compró boleto, parecía querer ocultarse.",
+      "Consultó horarios para viajar hacia el sur del país.",
+      "Estaba hablando por teléfono con tono bastante tenso.",
+    ],
+  },
+  {
+    provinceId: 5,
+    locationId: 3,
+    npc: "Guía de Fauna",
+    portraitUrl: "/images/portraits/level2/cara_carpincho.webp",
+    overlayBackgroundUrl: "/images/dialogbackground/level2/Dialogo_carpincho.webp",
+    npcCompleteUrl: "/images/dialogbackground/level2/Dialogo_carpincho.webp",
+    infoBackground:
+      "El Parque Nacional Mburucuyá protege esteros, cañadas y sabanas con una riquísima fauna nativa de carpinchos, ciervos y aves acuáticas.",
+    introText:
+      "¡Bienvenidos al parque! Cuiden a los carpinchos. Aunque hoy uno de los visitantes causó bastante alboroto...",
+    questions: [
+      "¿Qué alboroto causó ese visitante?",
+      "¿Hacia qué sendero se dirigió?",
+      "¿Logró ver alguna identificación?",
+    ],
+    answers: [
+      "Salió corriendo espantando a las aves en la laguna.",
+      "Tomó el sendero que lleva a la salida sur del parque.",
+      "Se le cayó una tarjeta con destino a la Patagonia.",
+    ],
+  },
+
+  // Tierra del Fuego (provinceId: 6)
+  {
+    provinceId: 6,
+    locationId: 1,
+    npc: "Ex-Recluso Guía",
+    portraitUrl: "/images/portraits/level2/cara_preso.webp",
+    overlayBackgroundUrl: "/images/dialogbackground/level2/Dialogo_preso.webp",
+    npcCompleteUrl: "/images/dialogbackground/level2/Dialogo_preso.webp",
+    infoBackground:
+      "El histórico Presidio de Ushuaia funcionó en el confín del mundo albergando a célebres presidiarios, y hoy es museo y memoria austral.",
+    introText:
+      "En estos pabellones fríos los ecos no mienten. ¿Qué delito lo trae a la ciudad más austral del planeta?",
+    questions: [
+      "¿Alguien intentó esconderse en el presidio?",
+      "¿Notó alguna conducta sospechosa?",
+      "¿Hacia dónde cree que huyó?",
+    ],
+    answers: [
+      "Alguien anduvo merodeando las celdas antiguas fuera del horario de visita.",
+      "Tenía marcas de frío y un apuro tremendo por no ser visto.",
+      "Preguntaba con insistencia sobre las salidas del tren austral.",
+    ],
+  },
+  {
+    provinceId: 6,
+    locationId: 2,
+    npc: "Maquinista del Tren",
+    portraitUrl: "/images/portraits/level2/cara_conductora_tren.webp",
+    overlayBackgroundUrl: "/images/dialogbackground/level2/Dialogo_maquinista.webp",
+    npcCompleteUrl: "/images/dialogbackground/level2/Dialogo_maquinista.webp",
+    infoBackground:
+      "El Tren del Fin del Mundo revive la histórica travesía de los reclusos hacia los bosques del Parque Nacional Tierra del Fuego.",
+    introText:
+      "¡Atención pasajeros! El tren está listo para partir hacia las laderas del Monte Susana. ¿Usted viene por el pasajero de última hora?",
+    questions: [
+      "¿Quién abordó a última hora?",
+      "¿Dónde descendió del tren?",
+      "¿Llevaba equipaje consigo?",
+    ],
+    answers: [
+      "Un hombre agitado que compró boleto justo antes de que sonara el silbato.",
+      "Se bajó en la parada intermedia antes del final del recorrido.",
+      "Cargaba un maletín pesado que no soltó en ningún momento.",
+    ],
+  },
+  {
+    provinceId: 6,
+    locationId: 3,
+    npc: "Bióloga en Pingüinera",
+    portraitUrl: "/images/portraits/level2/cara_pinguino.webp",
+    overlayBackgroundUrl: "/images/dialogbackground/level2/Dialogo_disfraz_pinguino.webp",
+    npcCompleteUrl: "/images/dialogbackground/level2/Dialogo_disfraz_pinguino.webp",
+    infoBackground:
+      "La Isla Martillo en las aguas del Canal Beagle es el hábitat natural donde anidan colonias de pingüinos de Magallanes y Papúa.",
+    introText:
+      "Por favor no perturben a los pingüinos... ya tuvimos suficiente con un intruso que cruzó la zona restringida.",
+    questions: [
+      "¿Qué hacía el intruso en la isla?",
+      "¿Logró encontrar la evidencia?",
+      "¿Cómo escapó de la zona?",
+    ],
+    answers: [
+      "Intentaba ocultar algo cerca de las piedras de la orilla.",
+      "Dejó un rastro inconfundible antes de abordar una lancha rápida.",
+      "Navegó con rumbo este adentrándose en el Canal Beagle.",
     ],
   },
 ];

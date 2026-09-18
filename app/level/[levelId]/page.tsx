@@ -1,5 +1,6 @@
 import LevelProvinces from "@/components/Level/LevelProvinces";
 import LevelMenu from "@/components/Level/LevelMenu";
+import BackToPrincipalButton from "@/components/Level/BackToPrincipalButton";
 import Image from "next/image";
 
 interface Props {
@@ -23,6 +24,9 @@ export default async function Level({ params }: Props) {
         className="object-cover"
         sizes="100vw"
       />
+
+      {/* Botón Volver a la pantalla principal */}
+      <BackToPrincipalButton />
 
       {/* Botones encima del mapa */}
       <LevelProvinces levelId={id} />
