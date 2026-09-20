@@ -6,33 +6,33 @@ export default function Leaderboard() {
         w-full mx-auto
         rounded-2xl
         overflow-hidden
-        bg-[rgba(42,58,74,0.35)]
-        backdrop-blur-[10px]
-        border border-[#fff3c7]/15
-        shadow-[0_10px_40px_rgba(0,0,0,0.4)]
+        backdrop-blur-xs
+        border border-[rgba(255,243,199,0.18)]
+        shadow-[0_20px_50px_rgba(0,0,0,0.6)]
+        text-[#FFF3C7]
       "
     >
-      <div className="border-b border-[#fff3c7]/15 p-5 text-center">
+      <div className="border-b border-[rgba(255,243,199,0.12)] p-5 text-center">
         <h2
           className="
-            font-['Press_Start_2P']
             text-[#E1C380]
             text-xs sm:text-sm
+            font-semibold
             tracking-widest
           "
         >
-          TOP PLAYERS
+          TOP 10
         </h2>
       </div>
 
-      <div className="divide-y divide-[#fff3c7]/10">
+      <div className="divide-y divide-[rgba(255,243,199,0.08)]">
         {users.map((user, index) => (
           <div
             key={user.username}
             className="
               flex items-center justify-between
               px-4 sm:px-6 py-4
-              hover:bg-[#FFF3C7]/5
+              hover:bg-[rgba(255,243,199,0.06)]
               transition-colors
             "
           >
@@ -41,9 +41,10 @@ export default function Leaderboard() {
                 className="
                   w-8 h-8
                   flex items-center justify-center
-                  rounded-lg
-                  bg-[#FFF3C7]/10
-                  border border-[#FFF3C7]/15
+                  rounded-xl
+                  bg-[rgba(20,30,42,0.6)]
+                  border border-[rgba(255,243,199,0.18)]
+                  shadow-[0_4px_12px_rgba(0,0,0,0.4)]
                   text-[#E1C380]
                   font-['Press_Start_2P']
                   text-[10px]
@@ -84,14 +85,14 @@ export default function Leaderboard() {
 }
 // MOCK USERS - EN UN FUTURO ESTO SE OBTENDRÁ DE UNA API O BASE DE DATOS
 const users = [
-    { username: "ShadowWolf", points: 15420 },
-    { username: "PixelKnight", points: 14980 },
-    { username: "DragonByte", points: 13750 },
-    { username: "RetroMage", points: 13100 },
-    { username: "IronGoblin", points: 12640 },
-    { username: "NeonRogue", points: 11890 },
-    { username: "CrystalFox", points: 11230 },
-    { username: "StormRider", points: 10750 },
-    { username: "VoidHunter", points: 10120 },
-    { username: "GoldenSlime", points: 9630 },
-  ];
+  { username: "ShadowWolf", points: 15420 },
+  { username: "PixelKnight", points: 14980 },
+  { username: "DragonByte", points: 13750 },
+  { username: "RetroMage", points: 13100 },
+  { username: "IronGoblin", points: 12640 },
+  { username: "NeonRogue", points: 11890 },
+  { username: "CrystalFox", points: 11230 },
+  { username: "StormRider", points: 10750 },
+  { username: "VoidHunter", points: 10120 },
+  { username: "GoldenSlime", points: 9630 },
+];

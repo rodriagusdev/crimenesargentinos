@@ -46,25 +46,13 @@ export default function LocationIntro({
           sizes="100vw"
           className="object-cover object-center"
         />
-        {/* Left vignette for text legibility, leaving center and right open */}
         <div className="absolute inset-0 bg-gradient-to-r from-[#080e18]/90 via-[#080e18]/40 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#080e18]/50 via-transparent to-[#080e18]/60" />
       </div>
 
       {/* ── Top Bar: GameButtons (Top Left) ── */}
-      <div className="relative z-40 p-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          {/* Botón Principal: Avanzar */}
-
-          <GameButton
-            icon=""
-            label="AVANZAR"
-            onClick={onAdvance}
-            variant="primary"
-          />
-
-
-          {/* Botón secundario: Volver */}
+      <div className="relative z-40 p-6 flex items-center justify-between flex-row-reverse">
+        <div className="flex items-center gap-2">
           {onBack && (
 
             <GameButton
@@ -73,20 +61,26 @@ export default function LocationIntro({
               onClick={onBack}
               variant="secondary"
             />
-
           )}
+
+          <GameButton
+            icon=""
+            label="AVANZAR"
+            onClick={onAdvance}
+            variant="primary"
+          />
         </div>
 
-        {/* Badge superior derecho */}
-        <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(20,30,42,0.7)] backdrop-blur-md border border-[rgba(255,243,199,0.12)]">
+        {/* Badge Escena del Crimen */}
+        <div className="hidden sm:flex absolute top-28 left-6 items-center gap-2 p-4 rounded-2xl backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] text-[#FFF3C7]">
           <span className="size-2 rounded-full bg-emerald-400 animate-ping" />
-          <span className="text-xs uppercase tracking-widest text-[#E1C380] font-mono font-semibold">
+          <span className="text-xs uppercase tracking-widest text-[#E1C380] font-semibold">
             Escena del Crimen
           </span>
         </div>
       </div>
 
-      {/* ── Left Description Card ── */}
+      {/* ── Bottom Description Card ── */}
       <div className="relative z-40 p-6 md:p-8 w-full">
         <div
           className="

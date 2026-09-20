@@ -35,18 +35,30 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
     fetchData();
   }, [levelId]);
 
+  useEffect(() => {
+    const handleClose = () => {
+      setIsOpen(false);
+      setActiveModal(null);
+    };
+
+    window.addEventListener("close-investigation-menu", handleClose);
+    return () => {
+      window.removeEventListener("close-investigation-menu", handleClose);
+    };
+  }, []);
+
   return (
     <>
-      <aside className="mt-4 mr-6 rounded-2xl z-100 absolute right-0 top-0 w-80 bg-[rgba(20,30,42,0.92)] backdrop-blur-[14px] border-l border-[rgba(255,243,199,0.12)] z-20 text-[#FFF3C7] overflow-hidden">
+      <aside className="mt-6 ml-6 rounded-2xl z-100 absolute left-0 top-0 w-[450px] backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] z-20 text-[#FFF3C7] overflow-hidden">
         <button
           onClick={() => setIsOpen((prev) => !prev)}
-          className="w-full flex items-center justify-between px-6 py-4 border-b border-[rgba(255,243,199,0.12)] hover:bg-[rgba(255,243,199,0.04)] transition-colors duration-200 cursor-pointer"
+          className="w-full flex items-center justify-between px-6 py-4 border-b border-[rgba(255,243,199,0.12)] hover:bg-[rgba(255,243,199,0.06)] transition-colors duration-200 cursor-pointer"
         >
           <div>
-            <h1 className="text-md font-bold text-[#FFF3C7] text-left">Investigación</h1>
-            <p className="text-xs text-[#E1C380]/80 font-mono tracking-wider mt-0.5">
+            <h1 className="text-sm font-bold text-[#FFF3C7] text-left">Investigación <span className="text-xs text-[#E1C380]/80 font-mono tracking-wider mt-0.5">
               NIVEL #{levelId.toString().padStart(2, "00")}
-            </p>
+            </span></h1>
+
           </div>
 
           <svg
@@ -72,7 +84,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
             </h2>
 
             {/* Informe del caso */}
-            <div className="rounded-xl border border-[#E1C380]/20 bg-[rgba(255,243,199,0.05)] p-4 shadow-inner">
+            <div className="rounded-2xl border border-[rgba(255,243,199,0.18)] bg-[rgba(20,30,42,0.6)] backdrop-blur-xs p-4 shadow-[0_10px_30px_rgba(0,0,0,0.4)]">
               <div className="flex items-center gap-2 mb-2">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -112,9 +124,9 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
                   key={action.id}
                   onClick={() => setActiveModal(action)}
                   onMouseEnter={playTypewriter}
-                  className="w-16 p-1 rounded-xl bg-[rgba(255,243,199,0.07)] hover:bg-[rgba(255,243,199,0.12)] border border-[rgba(255,243,199,0.12)] hover:border-[#E1C380]/50 transition-all duration-200 flex items-center group shadow-sm hover:shadow-md cursor-pointer"
+                  className="w-16 p-1 rounded-2xl bg-[rgba(20,30,42,0.6)] hover:bg-[rgba(28,42,58,0.85)] border border-[rgba(255,243,199,0.18)] hover:border-[#E1C380]/40 backdrop-blur-xs shadow-[0_10px_30px_rgba(0,0,0,0.4)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.6)] transition-all duration-200 flex items-center group cursor-pointer"
                 >
-                  <div className="relative w-14 h-14 rounded-lg overflow-hidden border border-[rgba(255,243,199,0.15)] bg-black/40 shrink-0">
+                  <div className="relative w-14 h-14 rounded-xl overflow-hidden border border-[rgba(255,243,199,0.12)] bg-black/40 shrink-0">
                     <Image
                       src={action.icon}
                       alt={action.title}
@@ -130,11 +142,11 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
         </div>
       </aside>
 
-      {/* Modal interactivo al pulsar una acción PLACEHOLDER*/}
+      {/* Modal interactivo al pulsar una acción */}
       {activeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="relative w-full max-w-md bg-[rgba(20,30,42,0.95)] border border-[rgba(255,243,199,0.15)] rounded-2xl shadow-2xl p-6 flex flex-col items-center text-center text-[#FFF3C7]">
-            <div className="relative w-28 h-28 rounded-xl overflow-hidden border-2 border-[#E1C380]/40 mb-4 shadow-lg bg-black/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in select-none">
+          <div className="relative w-full max-w-md backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] rounded-2xl p-6 flex flex-col items-center text-center text-[#FFF3C7]">
+            <div className="relative w-28 h-28 rounded-2xl overflow-hidden border-2 border-[rgba(255,243,199,0.25)] mb-4 shadow-[0_12px_30px_rgba(0,0,0,0.7)] bg-black/50">
               <Image
                 src={activeModal.icon}
                 alt={activeModal.title}
@@ -150,7 +162,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
               CASO #{levelId.toString().padStart(2, "0")}
             </p>
 
-            <p className="text-sm text-[#FFF3C7]/90 leading-relaxed mb-6 bg-[rgba(255,243,199,0.05)] p-4 rounded-xl border border-[rgba(255,243,199,0.1)]">
+            <p className="text-sm text-[#FFF3C7]/90 leading-relaxed mb-6 bg-[rgba(10,15,25,0.5)] p-4 rounded-2xl border border-[rgba(255,243,199,0.12)] shadow-inner">
               {activeModal.detail}
             </p>
 

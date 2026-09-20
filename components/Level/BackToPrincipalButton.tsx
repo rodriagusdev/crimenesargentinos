@@ -21,7 +21,7 @@ export default function BackToPrincipalButton() {
   };
 
   return (
-    <div className="absolute top-4 left-6 z-30 w-72">
+    <div className="absolute top-6 right-6 z-30 w-100">
       <GameButton
         icon=""
         label="VOLVER AL MENU PRINCIPAL"

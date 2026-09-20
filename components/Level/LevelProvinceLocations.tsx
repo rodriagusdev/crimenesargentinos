@@ -86,27 +86,27 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
         <div className="absolute inset-0 bg-black/40" />
       </div>
 
-      {/* Barra de menú lateral que ocupa todo el alto */}
-      <aside className="absolute left-0 top-0 bottom-0 w-80 bg-[#0f172a]/80 backdrop-blur-sm border-l border-[#1e293b] p-6 flex flex-col z-20">
+      {/* Barra de menú lateral con glassmorfismo */}
+      <aside className="mt-4 mr-6 rounded-2xl absolute right-0 top-0 bottom-4 w-80 backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] p-6 flex flex-col z-20 text-[#FFF3C7] overflow-hidden">
 
         {/* Título del menú/provincia */}
-        <div className="flex items-center justify-between mb-8 border-b border-[#334155] pb-4">
+        <div className="flex items-center justify-between mb-6 border-b border-[rgba(255,243,199,0.12)] pb-4">
           <div>
-            <h1 className="text-xl font-bold text-slate-100">
+            <h1 className="text-xl font-bold text-[#FFF3C7]">
               {data.name}
             </h1>
-            <p className="text-xs text-amber-300/80 font-mono tracking-wider mt-0.5">
+            <p className="text-xs text-[#E1C380]/80 font-mono tracking-wider mt-0.5">
               PROVINCIA #{provinceId.toString().padStart(2, "0")}
             </p>
           </div>
         </div>
 
-        <h2 className="text-xs uppercase tracking-wider text-slate-400 mb-4 font-semibold">
+        <h2 className="text-xs uppercase tracking-wider text-[#FFF3C7]/60 mb-4 font-semibold">
           Lugares de Interés
         </h2>
 
         {/* Lista de botones de ubicaciones */}
-        <div className="flex-grow flex flex-col gap-3 overflow-y-auto pr-1">
+        <div className="flex-grow flex flex-col gap-3 overflow-y-auto pt-4">
           {data.locations.map((location) => (
             <GameButton
               key={location.id}

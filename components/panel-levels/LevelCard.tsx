@@ -27,27 +27,26 @@ export default function LevelCard({ preview }: LevelCardProps) {
       onClick={handleCardClick}
       className={`
         overflow-hidden rounded-2xl
-        bg-[rgba(42,58,74,0.35)]
-        backdrop-blur-[10px]
-        border border-[#fff3c7]/15
-        shadow-[0_10px_40px_rgba(0,0,0,0.4)]
+        backdrop-blur-xs
+        border border-[rgba(255,243,199,0.18)]
+        shadow-[0_20px_50px_rgba(0,0,0,0.6)]
         transition-all duration-300
         ${preview.canPlay 
-          ? "hover:-translate-y-1 hover:border-[#E1C380]/30 cursor-pointer" 
+          ? "hover:-translate-y-1 hover:border-[#E1C380]/60 hover:shadow-[0_25px_60px_rgba(0,0,0,0.75),0_0_20px_rgba(225,195,128,0.15)] cursor-pointer" 
           : "opacity-50 cursor-not-allowed"
         }
       `}
     >
       <div
         className="
-    relative
-    h-40
-    border-b border-[#fff3c7]/15
-    bg-gradient-to-b
-    from-[#2A3A4A]
-    to-[#1E2A36]
-    overflow-hidden
-  "
+          relative
+          h-40
+          border-b border-[rgba(255,243,199,0.12)]
+          bg-gradient-to-b
+          from-[rgba(28,42,58,0.8)]
+          to-[rgba(16,24,36,0.8)]
+          overflow-hidden
+        "
       >
         <Image
           src={preview.imageURL}

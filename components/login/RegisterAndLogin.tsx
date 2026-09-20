@@ -15,7 +15,7 @@ export default function RegisterAndLogin({
 
   return (
     <div
-      className="w-[480px] p-8 rounded-xl"
+      className="w-[480px] p-6 rounded-2xl"
       style={{
         background: "rgba(42, 58, 74, 0.35)",
         backdropFilter: "blur(10px)",

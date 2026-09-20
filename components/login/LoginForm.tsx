@@ -44,13 +44,13 @@ export default function LoginForm({ onRegisterClick }: LoginFormProps) {
     <div className="flex flex-col gap-4">
       {/* TÍTULO */}
       <h2
-        className="mb-4 text-center text-4xl tracking-widest"
+        className="mb-4 text-center text-2xl tracking-widest"
         style={{
           color: "#E1C380",
           textShadow: "0 2px 0 #1E2A36, 0 0 10px rgba(0,0,0,.8)",
         }}
       >
-        🔐 ACCESO
+        LOGIN
       </h2>
 
       {error && (
@@ -69,7 +69,7 @@ export default function LoginForm({ onRegisterClick }: LoginFormProps) {
       {/* EMAIL */}
       <div className="flex flex-col gap-2">
         <label
-          className="text-lg flex items-center gap-2"
+          className="text-md flex items-center gap-2"
           style={{ color: "#FFF3C7" }}
         >
           <span>✉️</span>
@@ -81,7 +81,7 @@ export default function LoginForm({ onRegisterClick }: LoginFormProps) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           disabled={loading}
-          className="px-4 py-3 rounded-[50px]"
+          className="px-4 py-3 rounded-2xl text-sm"
           style={{
             background: "rgba(255, 243, 199, 0.85)",
             border: "1px solid #5D584D",
@@ -94,7 +94,7 @@ export default function LoginForm({ onRegisterClick }: LoginFormProps) {
       {/* CONTRASEÑA */}
       <div className="flex flex-col gap-2">
         <label
-          className="text-lg flex items-center gap-2"
+          className="text-md flex items-center gap-2"
           style={{ color: "#FFF3C7" }}
         >
           <span>🔑</span>
@@ -106,7 +106,7 @@ export default function LoginForm({ onRegisterClick }: LoginFormProps) {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           disabled={loading}
-          className="px-4 py-3 rounded-[50px]"
+          className="px-4 py-3 rounded-2xl text-sm"
           style={{
             background: "rgba(255, 243, 199, 0.85)",
             border: "1px solid #5D584D",
@@ -127,7 +127,7 @@ export default function LoginForm({ onRegisterClick }: LoginFormProps) {
       <GameButton
         icon="📜"
         label="REGISTRAR"
-        variant="secondary"
+        variant="primary"
         onClick={onRegisterClick}
         disabled={loading}
       />

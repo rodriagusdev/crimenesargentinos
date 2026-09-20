@@ -66,22 +66,23 @@ export default function UserInfo() {
         w-full mx-auto
         rounded-2xl
         overflow-hidden
-        bg-[rgba(42,58,74,0.35)]
-        backdrop-blur-[10px]
-        border border-[#fff3c7]/15
-        shadow-[0_10px_40px_rgba(0,0,0,0.4)]
+        backdrop-blur-xs
+        border border-[rgba(255,243,199,0.18)]
+        shadow-[0_20px_50px_rgba(0,0,0,0.6)]
+        text-[#FFF3C7]
       "
     >
-      <div className="p-5 border-b border-[#fff3c7]/15">
+      <div className="p-5 border-b border-[rgba(255,243,199,0.12)]">
         <h2
           className="
             text-center
             text-[#E1C380]
             text-xs sm:text-sm
+            font-semibold
             tracking-widest
           "
         >
-          PLAYER INFO
+          JUGADOR
         </h2>
       </div>
 
@@ -91,13 +92,15 @@ export default function UserInfo() {
             className="
               mx-auto mb-4
               w-20 h-20
-              rounded-xl
+              rounded-2xl
               flex items-center justify-center
-              bg-[#FFF3C7]/10
-              border border-[#FFF3C7]/15
+              bg-[rgba(20,30,42,0.6)]
+              backdrop-blur-xs
+              border border-[rgba(255,243,199,0.18)]
+              shadow-[0_10px_25px_rgba(0,0,0,0.5)]
             "
           >
-            <span className="text-[#E1C380] text-lg">
+            <span className="text-[#E1C380] font-bold text-xl tracking-wider">
               {user.username
                 .split(" ")
                 .map((word) => word.charAt(0).toUpperCase())
@@ -106,17 +109,17 @@ export default function UserInfo() {
             </span>
           </div>
 
-          <h3 className="text-[#FFF3C7] text-xs tracking-widest">
+          <h3 className="text-[#FFF3C7] text-xs font-semibold tracking-widest uppercase">
             {user.username}
           </h3>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <InfoItem label="LEVEL" value={user.level} />
-          <InfoItem label="POINTS" value={user.points.toLocaleString()} />
-          <InfoItem label="GAMES" value={user.gamesPlayed} />
+          <InfoItem label="NIVEL" value={user.level} />
+          <InfoItem label="PUNTOS" value={user.points.toLocaleString()} />
+          <InfoItem label="JUEGOS" value={user.gamesPlayed} />
           <InfoItem
-            label="BEST SCORE"
+            label="MEJOR PUNTUACION"
             value={user.highScore.toLocaleString()}
           />
         </div>
