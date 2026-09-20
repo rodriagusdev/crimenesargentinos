@@ -1,9 +1,10 @@
 "use client";
 
-import IDialog from "@/models/IDialog";
+import IDialog, { IDialogQuestion } from "@/models/IDialog";
 import GameButton from "../buttons/GameButton";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { useFlagStore } from "@/stores/useFlagStore";
 
 interface DialogProps {
   dialog: IDialog;
@@ -12,20 +13,33 @@ interface DialogProps {
 
 export default function DialogBox({ dialog, onClose }: DialogProps) {
   const [log, setLog] = useState<{ question: string; answer: string }[]>([]);
-  const [askedIndices, setAskedIndices] = useState<Set<number>>(new Set());
+  const [askedIds, setAskedIds] = useState<Set<string>>(new Set());
   const logEndRef = useRef<HTMLDivElement>(null);
-  const limitedQuestions = dialog.questions.slice(0, 3);
 
-  const onQuestionClicked = (i: number) => {
-    const answer = dialog.answers[i];
-    if (!answer || askedIndices.has(i)) return;
+  const flags = useFlagStore((state) => state.flags);
+  const addFlag = useFlagStore((state) => state.addFlag);
+
+  // Filtra las preguntas: solo muestra las que no tienen requiredFlag o si todos los flags requeridos ya fueron desbloqueados
+  const availableQuestions = dialog.questions.filter((q) => {
+    if (!q.requiredFlag) return true;
+    const required = Array.isArray(q.requiredFlag) ? q.requiredFlag : [q.requiredFlag];
+    return required.every((flag) => flags.includes(flag));
+  });
+
+  const onQuestionClicked = (q: IDialogQuestion) => {
+    if (!q.answer || askedIds.has(q.id)) return;
 
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("close-investigation-menu"));
     }
 
-    setLog((prev) => [...prev, { question: limitedQuestions[i], answer }]);
-    setAskedIndices((prev) => new Set(prev).add(i));
+    // Desbloquear flag(s) si la pregunta lo otorga
+    if (q.unlocksFlag) {
+      addFlag(q.unlocksFlag);
+    }
+
+    setLog((prev) => [...prev, { question: q.text, answer: q.answer }]);
+    setAskedIds((prev) => new Set(prev).add(q.id));
   };
 
   // Auto-scroll log para cuando se agrega a la conversacion
@@ -44,7 +58,7 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
           <div className="flex flex-row gap-4 flex-row-reverse">
             <GameButton
               icon=""
-              label="VOLVER"
+              label="VOLVER AL MAPA DE LA PROVINCIA"
               onClick={onClose}
               variant="secondary"
             />
@@ -117,25 +131,56 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
               <div className="flex-1 flex flex-col min-h-0">
                 {/* Conversation log — scrollable, grows to fill space */}
                 <div className="flex-1 overflow-y-auto px-5 pt-5 pb-3 flex flex-col gap-4">
-                  {/* Intro bubble — NPC, left-aligned */}
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[10px] uppercase tracking-widest text-[#E1C380]/70 font-mono font-semibold">
-                      {dialog.npc}
-                    </span>
-                    <div className="bg-[rgba(20,30,42,0.6)] backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_10px_30px_rgba(0,0,0,0.4)] rounded-2xl rounded-tl-none px-4 py-3">
-                      <p className="text-[#FFF3C7] text-xs leading-relaxed whitespace-pre-line">
-                        {dialog.introText}
-                      </p>
-                    </div>
-                  </div>
+                  {/* Structured Intro messages */}
+                  {dialog.intro?.map((msg, idx) => {
+                    if (msg.speaker === "narrator") {
+                      return (
+                        <div key={`intro-${idx}`} className="flex justify-center my-1">
+                          <div className="px-3.5 py-1.5 rounded-xl bg-[rgba(225,195,128,0.08)] border border-[rgba(225,195,128,0.18)] backdrop-blur-xs shadow-sm">
+                            <p className="text-[11px] italic text-[#E1C380]/90 tracking-wide text-center">
+                              * {msg.text} *
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    if (msg.speaker === "player") {
+                      return (
+                        <div key={`intro-${idx}`} className="flex flex-col items-end gap-1">
+                          <span className="text-[8px] tracking-widest text-[#FFF3C7]/50">
+                            Vos
+                          </span>
+                          <div className="bg-[rgba(28,42,58,0.7)] backdrop-blur-xs border border-[rgba(255,243,199,0.22)] shadow-[0_10px_30px_rgba(0,0,0,0.4)] rounded-2xl rounded-tr-none px-4 py-2.5 max-w-[85%]">
+                            <p className="text-[#E1C380]/90 text-xs leading-relaxed">
+                              {msg.text}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div key={`intro-${idx}`} className="flex flex-col gap-1">
+                        <span className="text-[10px] tracking-widest text-[#E1C380]/70 font-mono font-semibold">
+                          {dialog.npc}
+                        </span>
+                        <div className="bg-[rgba(20,30,42,0.6)] backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_10px_30px_rgba(0,0,0,0.4)] rounded-2xl rounded-tl-none px-4 py-3 max-w-[90%]">
+                          <p className="text-[#FFF3C7] text-xs leading-relaxed whitespace-pre-line">
+                            {msg.text}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
 
                   {/* Dynamic log entries */}
                   {log.map((entry, i) => (
                     <div key={i} className="flex flex-col gap-3">
                       {/* Player question — right-aligned */}
                       <div className="flex flex-col items-end gap-1">
-                        <span className="text-[8px] uppercase tracking-widest text-[#FFF3C7]/50 font-mono">
-                          Tú
+                        <span className="text-[8px] tracking-widest text-[#FFF3C7]/50 ">
+                          Vos
                         </span>
                         <div className="bg-[rgba(28,42,58,0.7)] backdrop-blur-xs border border-[rgba(255,243,199,0.22)] shadow-[0_10px_30px_rgba(0,0,0,0.4)] rounded-2xl rounded-tr-none px-4 py-2.5 max-w-[85%]">
                           <p className="text-[#E1C380]/90 text-xs leading-relaxed">
@@ -145,7 +190,7 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
                       </div>
                       {/* NPC answer — left-aligned */}
                       <div className="flex flex-col gap-1">
-                        <span className="text-[8px] uppercase tracking-widest text-[#E1C380]/70 font-mono font-semibold">
+                        <span className="text-[8px]  tracking-widest text-[#E1C380]/70 font-semibold">
                           {dialog.npc}
                         </span>
                         <div className="bg-[rgba(20,30,42,0.6)] backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_10px_30px_rgba(0,0,0,0.4)] rounded-2xl rounded-tl-none px-4 py-3 max-w-[90%]">
@@ -166,13 +211,13 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
 
                 {/* Questions — pinned to bottom */}
                 <div className="px-5 py-4 flex flex-col gap-2">
-                  {limitedQuestions.map((question, index) => (
+                  {availableQuestions.map((q) => (
                     <GameButton
-                      key={index}
+                      key={q.id}
                       icon=""
-                      label={question}
-                      onClick={() => onQuestionClicked(index)}
-                      disabled={askedIndices.has(index)}
+                      label={q.text}
+                      onClick={() => onQuestionClicked(q)}
+                      disabled={askedIds.has(q.id)}
                     />
                   ))}
                 </div>

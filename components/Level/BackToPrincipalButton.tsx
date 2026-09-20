@@ -2,13 +2,16 @@
 
 import { useRouter } from "next/navigation";
 import GameButton from "../buttons/GameButton";
+import { useFlagStore } from "@/stores/useFlagStore";
 
 export default function BackToPrincipalButton() {
   const router = useRouter();
+  const clearFlags = useFlagStore((state) => state.clearFlags);
 
   // Esto es para controlar si se abrio el modal donde se muestra la info del caso al iniciar un nivel
   const handleBack = () => {
     try {
+      clearFlags();
       Object.keys(sessionStorage).forEach((key) => {
         if (key.endsWith("_briefing_seen")) {
           sessionStorage.removeItem(key);

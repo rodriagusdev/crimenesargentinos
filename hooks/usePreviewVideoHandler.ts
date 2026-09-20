@@ -1,13 +1,14 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { infoPerLevel } from "@/data/infoPerLevel";
 
 export function usePreviewVideoHandler(previewId: number) {
   const router = useRouter();
 
   const [showVideo, setShowVideo] = useState(false);
 
-  const targetRoute =
-    previewId === 1 ? "/level/1/1/1" : `/level/${previewId}`;
+  const levelInfo = infoPerLevel.find((item) => item.id === previewId);
+  const targetRoute = levelInfo?.initialRoute ?? `/level/${previewId}`;
 
   useEffect(() => {
     if (showVideo) {
