@@ -144,7 +144,7 @@ export const dialogs: IDialog[] = [
       {
         id: "cba_plaza_q1",
         text: "¿Sabe si pasó una persona que cumpla con estas características?",
-        answer: "Si amigo, tenía la camisa toda manchada de grasa, alto asado se comió de seguro. Le quise vender y me re descansó, me dijo que tenia un puestito pedorro y que no se qué, al final me dijo si iba a las cataratas de no se donde me compraba.",
+        answer: "Si amigo, tenía la camisa toda manchada de grasa, alto asado se comió de seguro. Le quise vender y me re descansó, me dijo que tenia un puestito pedorro y que no se qué, al final me dijo que si me daba para un viaje a las cataratas de no se donde me compraba.",
         unlocksFlag: "KNOWS_GREASY_SHIRT",
       },
       {
