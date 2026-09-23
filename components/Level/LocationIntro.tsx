@@ -65,7 +65,7 @@ export default function LocationIntro({
 
           <GameButton
             icon=""
-            label="AVANZAR"
+            label="AVANZAR AL INTERROGATORIO"
             onClick={onAdvance}
             variant="primary"
           />

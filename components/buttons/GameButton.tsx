@@ -25,7 +25,7 @@ export default function GameButton({
 			onMouseEnter={!disabled ? useTypewriterSound() : undefined}
 			disabled={disabled}
 			className={`
-				relative group w-full p-4 text-xs modern-button flex items-center justify-center rounded-2xl
+				relative group w-auto p-4 text-xs modern-button flex items-center justify-center rounded-2xl
 				backdrop-blur-xs shadow-[0_20px_50px_rgba(0,0,0,0.6)]
 				tracking-wider font-semibold
 				transition-all duration-200 select-none

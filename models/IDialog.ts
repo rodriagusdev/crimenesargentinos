@@ -1,3 +1,16 @@
+export interface IDialogMessage {
+  speaker: "npc" | "player" | "narrator";
+  text: string;
+}
+
+export interface IDialogQuestion {
+  id: string;
+  text: string;
+  answer: string;
+  requiredFlag?: string | string[];
+  unlocksFlag?: string | string[];
+}
+
 export default interface IDialog {
   provinceId: number;
   locationId: number;
@@ -6,7 +19,6 @@ export default interface IDialog {
   npcCompleteUrl: string;
   portraitUrl: string;
   infoBackground: string;
-  introText: string;
-  questions: string[];
-  answers: string[];
+  intro: IDialogMessage[];
+  questions: IDialogQuestion[];
 }

@@ -120,7 +120,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
         <div className="mt-auto w-full">
           <GameButton
             icon="🗺️"
-            label="VOLVER AL MAPA"
+            label="VOLVER AL MAPA DE ARGENTINA"
             variant="secondary"
             onClick={() => router.push(`/level/${levelId}`)}
           />

@@ -4,7 +4,8 @@ import IInfoPerLevel from "@/models/IInfoPerLevel";
 export const infoPerLevel: IInfoPerLevel[] = [
     {
         id: 1,
-        info: "El sospechoso es un hombre avistado por última vez en el Obelisco en la ciudad de Buenos Aires. Los testigos lo describen como un hombre gordo."
+        info: "El sospechoso es un hombre avistado por última vez en el Obelisco en la ciudad de Buenos Aires. Los testigos lo describen como un hombre gordo.",
+        initialRoute: "/level/1/1/1"
     },
     {
         id: 2,
