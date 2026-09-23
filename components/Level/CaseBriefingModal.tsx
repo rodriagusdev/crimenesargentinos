@@ -3,7 +3,7 @@
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState, useCallback } from "react";
 import GameButton from "../buttons/GameButton";
-import { getInfoPerLevel } from "@/services/levelService";
+import { getGameData } from "@/services/levelService";
 
 interface CaseBriefingModalProps {
   levelId: number;
@@ -46,12 +46,12 @@ export default function CaseBriefingModal({
     let cancelled = false;
     async function loadInfo() {
       try {
-        const data = await getInfoPerLevel(levelId);
+        const data = await getGameData(levelId);
         if (!cancelled && data?.info) {
           setFullText(data.info);
         }
       } catch (err) {
-        console.error("Error al cargar infoPerLevel:", err);
+        console.error("Error al cargar gameData:", err);
       }
     }
     loadInfo();

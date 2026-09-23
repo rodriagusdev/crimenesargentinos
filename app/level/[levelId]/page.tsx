@@ -1,6 +1,7 @@
 import LevelProvinces from "@/components/Level/LevelProvinces";
 import LevelMenu from "@/components/Level/LevelMenu";
 import BackToPrincipalButton from "@/components/Level/BackToPrincipalButton";
+import LevelTimer from "@/components/Level/LevelTimer";
 import Image from "next/image";
 
 interface Props {
@@ -27,6 +28,9 @@ export default async function Level({ params }: Props) {
 
       {/* Botón Volver a la pantalla principal */}
       <BackToPrincipalButton />
+
+      {/* Temporizador central superior */}
+      <LevelTimer levelId={id} />
 
       {/* Botones encima del mapa */}
       <LevelProvinces levelId={id} />

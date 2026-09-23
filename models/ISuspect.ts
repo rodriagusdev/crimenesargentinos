@@ -1,3 +1,4 @@
+//todo: integrar con backend
 export interface ISuspect {
     id: number;
     name: string;

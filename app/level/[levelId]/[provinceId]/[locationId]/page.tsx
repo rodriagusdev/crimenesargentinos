@@ -1,5 +1,6 @@
 import LevelLocation from "@/components/Level/LevelLocation";
 import LevelMenu from "@/components/Level/LevelMenu";
+import LevelTimer from "@/components/Level/LevelTimer";
 
 interface Props {
   params: Promise<{
@@ -18,8 +19,9 @@ export default async function ProvinceLocation({ params }: Props) {
 
   return (
     <main className="relative min-h-screen overflow-hidden">
+      <LevelTimer levelId={levelIdNum} />
       <LevelLocation levelId={levelIdNum} locationId={locationIdNum} provinceId={provinceIdNum} />
       <LevelMenu levelId={levelIdNum} />
     </main>
   );
-}
+}

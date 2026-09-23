@@ -5,19 +5,36 @@ import GameButton from "../buttons/GameButton";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useFlagStore } from "@/stores/useFlagStore";
+import { useGameSessionStore } from "@/stores/useGameSessionStore";
+import { gameData } from "@/data/gameData";
+import CostFeedbackToast from "../Level/CostFeedbackToast";
 
 interface DialogProps {
   dialog: IDialog;
+  levelId?: number;
   onClose?: () => void;
 }
 
-export default function DialogBox({ dialog, onClose }: DialogProps) {
+export default function DialogBox({ dialog, levelId = 1, onClose }: DialogProps) {
   const [log, setLog] = useState<{ question: string; answer: string }[]>([]);
   const [askedIds, setAskedIds] = useState<Set<string>>(new Set());
+  const [costToast, setCostToast] = useState<{ time: number; pi: number } | null>(null);
+  const [clueToast, setClueToast] = useState<string | null>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
+  const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const flags = useFlagStore((state) => state.flags);
   const addFlag = useFlagStore((state) => state.addFlag);
+  const consumeAskQuestion = useGameSessionStore(
+    (state) => state.consumeAskQuestion
+  );
+  const addClue = useGameSessionStore((state) => state.addClue);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    };
+  }, []);
 
   // Filtra las preguntas: solo muestra las que no tienen requiredFlag o si todos los flags requeridos ya fueron desbloqueados
   const availableQuestions = dialog.questions.filter((q) => {
@@ -32,6 +49,25 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("close-investigation-menu"));
     }
+
+    // Descontar costo de hacer una pregunta
+    consumeAskQuestion(levelId);
+
+    // Si la pregunta otorga una pista, registrarla en el expediente
+    if (q.unlocksClue) {
+      addClue(q.unlocksClue);
+      setClueToast(q.unlocksClue);
+    }
+
+    // Mostrar feedback visual de costo
+    const askCost = gameData.find((g) => g.levelId === levelId)?.costs.askQuestion ?? { time: 1, pi: 5 };
+    setCostToast(askCost);
+
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    toastTimeoutRef.current = setTimeout(() => {
+      setCostToast(null);
+      setClueToast(null);
+    }, 3000);
 
     // Desbloquear flag(s) si la pregunta lo otorga
     if (q.unlocksFlag) {
@@ -52,6 +88,8 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-[#080e18] select-none">
+      {/* Toast de Feedback de Costo y Pista Desbloqueada */}
+      <CostFeedbackToast cost={costToast} unlockedClue={clueToast} />
       {/* ── Top Bar ── */}
       <div className="relative z-20 p-6 flex items-center justify-end">
         {onClose ? (

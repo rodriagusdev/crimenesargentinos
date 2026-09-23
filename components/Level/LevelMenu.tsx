@@ -6,8 +6,9 @@ import { useEffect, useState } from "react";
 import { useTypewriterSound } from "@/hooks/useTypewriterSound";
 import IMenuAction from "@/models/IMenuAction";
 import { MENU_ACTIONS } from "@/data/menuActions";
-import IInfoPerLevel from "@/models/IInfoPerLevel";
-import { getInfoPerLevel } from "@/services/levelService";
+import { IGameData } from "@/models/IGameData";
+import { getGameData } from "@/services/levelService";
+import { useGameSessionStore } from "@/stores/useGameSessionStore";
 
 import GameButton from "../buttons/GameButton";
 
@@ -19,13 +20,14 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
   const router = useRouter();
   const playTypewriter = useTypewriterSound();
   const [activeModal, setActiveModal] = useState<IMenuAction | null>(null);
-  const [info, setInfo] = useState<IInfoPerLevel | null>(null);
+  const [info, setInfo] = useState<IGameData | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const discoveredClues = useGameSessionStore((state) => state.discoveredClues);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const infoData = await getInfoPerLevel(levelId);
+        const infoData = await getGameData(levelId);
         setInfo(infoData);
       } catch (error) {
         console.error("Error fetching level data:", error);
@@ -162,9 +164,91 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
               CASO #{levelId.toString().padStart(2, "0")}
             </p>
 
-            <p className="text-sm text-[#FFF3C7]/90 leading-relaxed mb-6 bg-[rgba(10,15,25,0.5)] p-4 rounded-2xl border border-[rgba(255,243,199,0.12)] shadow-inner">
-              {activeModal.detail}
-            </p>
+            {activeModal.id === "clues" ? (
+              <div className="w-full flex flex-col gap-3 mb-6">
+                <p className="text-xs text-[#FFF3C7]/80 leading-relaxed bg-[rgba(10,15,25,0.5)] p-3 rounded-xl border border-[rgba(255,243,199,0.12)]">
+                  {activeModal.detail}
+                </p>
+
+                <div className="flex flex-col gap-2 text-left">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="size-3.5 text-[#E1C380]"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        />
+                      </svg>
+                      <span className="text-[11px] uppercase tracking-wider text-[#E1C380]/90 font-mono font-semibold">
+                        Pistas en el Expediente
+                      </span>
+                    </div>
+
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-300 font-bold">
+                      {(info?.initialClues?.length ?? 0) + discoveredClues.length} PISTAS
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col gap-2 p-3.5 rounded-xl bg-[rgba(10,15,25,0.6)] border border-[rgba(255,243,199,0.12)] shadow-inner max-h-56 overflow-y-auto">
+                    {/* Pistas iniciales */}
+                    {info?.initialClues && info.initialClues.length > 0 && (
+                      <div className="flex flex-col gap-1.5 mb-1">
+                        <span className="text-[9px] uppercase font-mono tracking-widest text-[#E1C380]/60 font-semibold">
+                          Pistas del Informe Inicial:
+                        </span>
+                        {info.initialClues.map((clue, idx) => (
+                          <div
+                            key={`initial-${idx}`}
+                            className="flex items-start gap-2 text-xs font-mono text-[#FFF3C7]/90 leading-relaxed bg-[rgba(20,30,42,0.4)] p-2 rounded-lg border border-[rgba(255,243,199,0.06)]"
+                          >
+                            <span className="text-[#E1C380] font-bold shrink-0">›</span>
+                            <span>{clue}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Pistas descubiertas en interrogatorios */}
+                    {discoveredClues.length > 0 && (
+                      <div className="flex flex-col gap-1.5 mt-1">
+                        <span className="text-[9px] uppercase font-mono tracking-widest text-emerald-400/80 font-semibold flex items-center gap-1">
+                          <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          Evidencias Obtenidas de Testigos:
+                        </span>
+                        {discoveredClues.map((clue, idx) => (
+                          <div
+                            key={`disc-${idx}`}
+                            className="flex items-start gap-2 text-xs font-mono text-emerald-200/95 leading-relaxed bg-[rgba(10,35,25,0.5)] p-2 rounded-lg border border-emerald-500/25"
+                          >
+                            <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                            <span>{clue}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {(!info?.initialClues || info.initialClues.length === 0) &&
+                      discoveredClues.length === 0 && (
+                        <p className="text-xs font-mono text-[#FFF3C7]/50 italic text-center py-2">
+                          No hay pistas registradas todavía.
+                        </p>
+                      )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-[#FFF3C7]/90 leading-relaxed mb-6 bg-[rgba(10,15,25,0.5)] p-4 rounded-2xl border border-[rgba(255,243,199,0.12)] shadow-inner">
+                {activeModal.detail}
+              </p>
+            )}
 
             <div className="w-full">
               <GameButton

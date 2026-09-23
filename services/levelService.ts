@@ -2,10 +2,22 @@ import ILevelDataProvinces from "@/models/ILevelDataProvinces";
 import ILevelLocations from "@/models/ILevelLocations";
 import IDialog from "@/models/IDialog";
 import IInfoPerLevel from "@/models/IInfoPerLevel";
+import { IGameData } from "@/models/IGameData";
 import { levelDataConfig } from "@/data/levelDataConfig";
 import { levels } from "@/data/levelLocations";
 import { dialogs } from "@/data/dialogs";
 import { infoPerLevel } from "@/data/infoPerLevel";
+import { gameData } from "@/data/gameData";
+
+export async function getGameData(levelId: number): Promise<IGameData> {
+  const data = gameData.find((game) => game.levelId === levelId) ?? gameData[levelId - 1];
+
+  if (!data) {
+    throw new Error(`Game data for level ${levelId} not found`);
+  }
+
+  return data;
+}
 
 export async function getInfoPerLevel(levelId: number): Promise<IInfoPerLevel> {
   const data = infoPerLevel.find((item) => item.id === levelId) ?? infoPerLevel[levelId - 1];

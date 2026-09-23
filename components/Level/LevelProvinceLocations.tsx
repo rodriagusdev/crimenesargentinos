@@ -6,6 +6,10 @@ import { getLevelLocations } from "@/services/levelService";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ILevelLocations from "@/models/ILevelLocations";
+import ILocation from "@/models/ILocation";
+import { useGameSessionStore } from "@/stores/useGameSessionStore";
+import { gameData } from "@/data/gameData";
+import TravelConfirmModal from "./TravelConfirmModal";
 
 interface LevelDataProps {
   levelId: number;
@@ -14,11 +18,18 @@ interface LevelDataProps {
 
 export default function LevelProvinceLocations({ levelId, provinceId }: LevelDataProps) {
   const router = useRouter();
+  const consumeTravelLocation = useGameSessionStore(
+    (state) => state.consumeTravelLocation
+  );
+  const currentTime = useGameSessionStore((state) => state.currentTime);
+  const currentPI = useGameSessionStore((state) => state.currentPI);
 
   const [data, SetData] = useState<ILevelLocations | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<ILocation | null>(null);
 
+  const locationCost = gameData.find((g) => g.levelId === levelId)?.costs.travelLocation ?? { time: 3, pi: 3 };
 
   useEffect(() => {
     let cancelled = false;
@@ -51,10 +62,6 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
     };
   }, [provinceId]);
 
-  useEffect(() => {
-    console.log("Data for:", data);
-  }, [data]);
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen text-[#FFF3C7]">
@@ -70,6 +77,14 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
       </div>
     );
   }
+
+  const handleConfirmLocation = () => {
+    if (!selectedLocation) return;
+    consumeTravelLocation(levelId);
+    const targetId = selectedLocation.id;
+    setSelectedLocation(null);
+    router.push(`/level/${levelId}/${provinceId}/${targetId}`);
+  };
 
   return (
     <>
@@ -112,7 +127,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
               key={location.id}
               icon={""}
               label={location.name}
-              onClick={() => router.push(`/level/${levelId}/${provinceId}/${location.id}`)}
+              onClick={() => setSelectedLocation(location)}
             />
           ))}
         </div>
@@ -126,6 +141,17 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
           />
         </div>
       </aside>
+
+      {/* Modal de confirmación para investigar una locación */}
+      <TravelConfirmModal
+        isOpen={Boolean(selectedLocation)}
+        title="¿Inspeccionar Locación?"
+        destinationName={selectedLocation?.name ?? ""}
+        cost={locationCost}
+        currentResources={{ time: currentTime, pi: currentPI }}
+        onConfirm={handleConfirmLocation}
+        onCancel={() => setSelectedLocation(null)}
+      />
     </>
   );
 }

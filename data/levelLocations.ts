@@ -39,7 +39,7 @@ export const levels: ILevelLocations[] = [
       {
         imageUrl: "/images/dialogbackground/level1/dialogo_cordoba_restoguemes.jpg",
         id: 2,
-        name: "El Nuevo Güemes",
+        name: "El Nuevo Güemes - Restaurante",
       },
       {
         imageUrl: "/images/dialogbackground/level1/dialogo_cordoba_manzanajesuitica.jpg",

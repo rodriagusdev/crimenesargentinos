@@ -1,3 +1,4 @@
+//Creo que ya integrado
 export interface ICardLevelPreview {
   id: number;
   title: string;

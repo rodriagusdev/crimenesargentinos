@@ -1,3 +1,5 @@
+
+//todo: integrar con backend
 export interface ICriminal {
     criminal_id: number;
     name_criminal: string;

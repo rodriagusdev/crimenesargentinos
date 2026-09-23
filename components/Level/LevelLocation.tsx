@@ -97,5 +97,5 @@ export default function LevelLocation({ levelId, locationId, provinceId }: Props
     );
   }
 
-  return <DialogBox dialog={locationDialog} onClose={onCloseDialog} />;
+  return <DialogBox dialog={locationDialog} levelId={levelId} onClose={onCloseDialog} />;
 }

@@ -32,6 +32,7 @@ export const dialogs: IDialog[] = [
         id: "ba_kiosco_q1",
         text: "¿Qué tenía puesto?",
         answer: "Puaaa, un traje sastrero muy clásico, muy pituco andaba el gil. Bolso de viaje y todo.",
+        unlocksClue: "Un testigo mencionó que tenia un traje sastrero muy clásico y bolso de viaje.",
       },
       {
         id: "ba_kiosco_q2",
@@ -64,17 +65,18 @@ export const dialogs: IDialog[] = [
       {
         id: "ba_mercado_q1",
         text: "¿Pudo ver cómo era?",
-        answer: "Pucha, joven... ahí sí que me falló la vista, la verdad que no sabría decirle bien cómo era.",
+        answer: "Pucha, joven... ahí sí que me falló la vista, la verdad que no sabría decirle bien cómo era, pero si recuerdo que era bien bajito.",
+        unlocksClue: "Un testigo mencionó que es de estatura baja.",
       },
       {
         id: "ba_mercado_q2",
         text: "¿Algo que lo destacaba?",
-        answer: "Sí, padrecito, una cosa que se notaba al toque es que era bien bajito, y andaba con un apuro... como si lo fuera persiguiendo el diablo.",
+        answer: "Sí, padrecito, andaba con un apuro... como si lo fuera persiguiendo el diablo.",
       },
       {
         id: "ba_mercado_q3",
         text: "¿Sabe hacia dónde se fue?",
-        answer: "No sabría decirle con certeza, che... con tanta balumba de gente que pasa por aquí, se me perdió de vista al ratico.",
+        answer: "No sabría decirle con certeza, che... con tanta balumba de gente que pasa por aquí, solo siguió de largo.",
       },
     ],
   },
@@ -90,7 +92,7 @@ export const dialogs: IDialog[] = [
     intro: [
       {
         speaker: "npc",
-        text: "Buen día, ¿en qué lo puedo ayudar, señor?",
+        text: "Buen día, ¿en qué lo puedo ayudar, detective?",
       },
       {
         speaker: "player",
@@ -106,6 +108,7 @@ export const dialogs: IDialog[] = [
         id: "ba_ezeiza_q1",
         text: "¿Sabe qué vuelo tomó?",
         answer: "Me mataste. Pero, ahora que lo decís, creo que lo vi hablar con otra persona, recuerdo que mencionó algo de tomarse un buen fernandito",
+        unlocksClue: "Un oficial en el aeropuerto escuchó al sospechoso decir, antes de partir del viaje, que quería tomarse un 'fernandito'",
       },
       {
         id: "ba_ezeiza_q2",
@@ -137,7 +140,11 @@ export const dialogs: IDialog[] = [
       },
       {
         speaker: "player",
-        text: "Disculpe, pero ahora mismo estoy en busca de un sospechoso con estas características.",
+        text: "Disculpe, pero ahora mismo no tengo tiempo, estoy en busca de un sospechoso con estas características.",
+      },
+      {
+        speaker: "narrator",
+        text: "Abrís el expediente mientras el vendedor mira atentamente.",
       },
     ],
     questions: [
@@ -146,6 +153,7 @@ export const dialogs: IDialog[] = [
         text: "¿Sabe si pasó una persona que cumpla con estas características?",
         answer: "Si amigo, tenía la camisa toda manchada de grasa, alto asado se comió de seguro. Le quise vender y me re descansó, me dijo que tenia un puestito pedorro y que no se qué, al final me dijo que si me daba para un viaje a las cataratas de no se donde me compraba.",
         unlocksFlag: "KNOWS_GREASY_SHIRT",
+        unlocksClue: "En Plaza San Martin me dijeron que iba con la camisa toda manchada de grasa y se burlaba del testigo mencionando las Cataratas."
       },
       {
         id: "cba_plaza_q2",
@@ -156,6 +164,7 @@ export const dialogs: IDialog[] = [
         id: "cba_plaza_q3",
         text: "¿Llevaba algo en especial?",
         answer: "Además de que casi se le revienta el lompa y se le salían los terribles rollos, también se le salian los fajos de dólares a ese gato. Creo que vi hasta una zunga... medias no compra pero zungas si, que loco che.",
+        unlocksClue: "Aparentemente llevaba una zunga, ¿tiene la intención de ir a una playa?"
       },
     ],
   },
@@ -187,6 +196,7 @@ export const dialogs: IDialog[] = [
         id: "cba_guemes_q1",
         text: "¿Pudo notar si llevaba algo con él?",
         answer: "Mmm, recuerdo a alguien así. Si, creo que tenía una especie de guardia de seguridad, le vivía secando la nuca todo el tiempo el pobre. Hablaban de la Plaza San Martin.",
+        unlocksClue: "Puede ser que haya ido a la Plaza San Martin."
       },
       {
         id: "cba_guemes_q2",
@@ -235,6 +245,7 @@ export const dialogs: IDialog[] = [
         text: "¿En qué vehículo se movilizaba?",
         answer: "Uffa, no pude notarlo, ese enanito tan lindo, su belleza es como ver las montañas de las sierras por las mañanas, o poder presenciar la divinidad de un querubín en el.",
         unlocksFlag: "CURA_MENTIONED_BEAUTY",
+        unlocksClue: "De nuevo es mencionado como alguien enano."
       },
       {
         id: "cba_manzana_q3",
@@ -288,8 +299,9 @@ export const dialogs: IDialog[] = [
       {
         id: "mis_jardin_q3_conditional",
         text: "¿El sujeto en cuestión estaba de traje y con una camisa grasienta?",
-        answer: "¿Estás hablando de mi suegra acaso? Si la quiere arrestar no me quejo, me haría un gran favor. Había un narigón medio mugroso si mal no recuerdo, pero no se quedó mucho. Estaba como para ir a la playa",
+        answer: "¿Estás hablando de mi suegra acaso? Si la quiere arrestar no me quejo, me haría un gran favor. Había un narigón medio mugroso si mal no recuerdo, pero no se quedó mucho. Creo que quería irse a la playa.",
         requiredFlag: "KNOWS_GREASY_SHIRT",
+        unlocksClue: "El sospechoso ademas es narigón y parece ser que iría a una playa."
       },
     ],
   },
@@ -307,22 +319,39 @@ export const dialogs: IDialog[] = [
         speaker: "npc",
         text: "¿No me distraiga ura, no ve que estoy pescando?",
       },
+      {
+        speaker: "player",
+        text: "Me vas a tener que aguantar 'ura'. Dejá de mirar el agua un segundo y prestá atención.",
+      },
+      {
+        speaker: "narrator",
+        text: "A pesar de la negativa del pescador, le mostras el expediente.",
+      },
     ],
     questions: [
       {
         id: "mis_costanera_q1",
         text: "¿Estoy buscando a un sospechoso, sabe hacia dónde pudo ir?",
         answer: "Justo ahora me venis a joder, la marea esta en su mejor punto, puedo sentir como se acercan los pescados, no me venga a romper las pelotas.",
+        unlocksFlag: "UNCOOPERATIVE_1"
       },
       {
         id: "mis_costanera_q2",
         text: "Necesito saber si tiene alguna característica del sospechoso.",
         answer: "Ni idea chango, mis ojos solo están enfocados en capturar a un gran Surubi del Paraná, llego a tenerlo en mis manos y no sabes lo que voy a festejar jajaja.",
+        unlocksFlag: "UNCOOPERATIVE_2"
       },
       {
         id: "mis_costanera_q3",
         text: "¿Sabe si lo pudo ver tomando fernet o donde lo consiguió?",
         answer: "Nahhh, que fernet? Aca se toma terere chango, no me interesan las bebidas de los porteños.",
+        unlocksFlag: "UNCOOPERATIVE_3"
+      },
+      {
+        id: "mis_costanera_q4",
+        text: "Usted es un imbécil, un tremendo imbécil, por gente como usted que no ayuda en nada este país está como está.",
+        answer: "¡Andá porteño culo roto, tomátela!",
+        requiredFlag: ["UNCOOPERATIVE_1", "UNCOOPERATIVE_2", "UNCOOPERATIVE_3"]
       },
     ],
   },
@@ -346,7 +375,7 @@ export const dialogs: IDialog[] = [
       },
       {
         speaker: "player",
-        text: "Así se ve mi sospechoso.",
+        text: "Escucháme flaco, después te clavas una si queres, ahora prestame atención: así se ve mi sospechoso.",
       },
     ],
     questions: [
@@ -359,17 +388,17 @@ export const dialogs: IDialog[] = [
       {
         id: "mis_playa_q2",
         text: "Mi sospechoso quizás alquilo una sombrilla acá, ¿No recuerda a alguien así?",
-        answer: "Mmm… Che, vi a un karai gordito, muy narigon, iba en zunga… ¡Ñandejára! Mis ojos ya están pidiendo una buena lavada con lavandina, mba’e.",
+        answer: "Mmm… Che, vi a un karai gordito, muy narigon, iba en zunga… ¡Ñandejára! Mis ojos ya están pidiendo una buena lavada con lavandina, mba’e. Seguro sigue ahí por la playa.",
       },
       {
         id: "mis_playa_q3",
-        text: "¿Al menos me podría decir adónde cree que pudo ir?",
+        text: "¿Al menos me podés decir adónde crees que pudo ir?",
         answer: "Ndaikuaái che, pero a un par de cuadras nomás hay un boliche bastante bueno. Hay unas minas re lindas por ahí. Si le interesa, mba’éichapa… le consigo un descuentito pa’ la entrada, ¿qué dice?",
         unlocksFlag: "WANNA_INSULT_2",
       },
       {
         id: "mis_playa_q4",
-        text: "Algún día podrías ejercer de salvavidas y no de pervertido, payaso.",
+        text: "Ejerces de salvavidas, no de pajero, payaso.",
         answer: "Mba'eve! No me jodas chango, vos seguí por tu camino.",
         requiredFlag: ["WANNA_INSULT", "WANNA_INSULT_2"],
       },

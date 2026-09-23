@@ -1,13 +1,13 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { infoPerLevel } from "@/data/infoPerLevel";
+import { gameData } from "@/data/gameData";
 
 export function usePreviewVideoHandler(previewId: number) {
   const router = useRouter();
 
   const [showVideo, setShowVideo] = useState(false);
 
-  const levelInfo = infoPerLevel.find((item) => item.id === previewId);
+  const levelInfo = gameData.find((game) => game.levelId === previewId);
   const targetRoute = levelInfo?.initialRoute ?? `/level/${previewId}`;
 
   useEffect(() => {
@@ -20,7 +20,6 @@ export function usePreviewVideoHandler(previewId: number) {
     try {
       sessionStorage.removeItem(`level_${previewId}_briefing_seen`);
     } catch {
-      // Ignorar errores en SSR
     }
     router.push(targetRoute);
   };
@@ -29,7 +28,6 @@ export function usePreviewVideoHandler(previewId: number) {
     try {
       sessionStorage.removeItem(`level_${previewId}_briefing_seen`);
     } catch {
-      // Ignorar errores en SSR
     }
     setShowVideo((prev) => !prev);
   };

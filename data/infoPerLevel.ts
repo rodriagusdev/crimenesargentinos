@@ -1,5 +1,6 @@
 import IInfoPerLevel from "@/models/IInfoPerLevel";
 
+
 //TODO
 export const infoPerLevel: IInfoPerLevel[] = [
     {
