@@ -1,7 +1,10 @@
 import ILevelDataProvinces from "@/models/ILevelDataProvinces";
 
-// NIVELES CONFIGURADOS, cada {} es un nivel, con sus provincias y sus locaciones
+// Representa las provincias disponibles de cada nivel
+// TODO
+
 export const levelDataConfig: ILevelDataProvinces[] = [
+  // NIVEL 1
   {
     id: 1,
     provinces: [
@@ -28,6 +31,7 @@ export const levelDataConfig: ILevelDataProvinces[] = [
       },
     ],
   },
+  // NIVEL 2
   {
     id: 2,
     provinces: [
@@ -54,4 +58,5 @@ export const levelDataConfig: ILevelDataProvinces[] = [
       },
     ],
   },
+  // NIVEL 3
 ];

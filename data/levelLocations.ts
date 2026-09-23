@@ -1,6 +1,8 @@
 import ILevelLocations from "@/models/ILevelLocations";
 
-// REPRESENTA LAS LOCACIONES QUE HAY EN CADA NIVEL, CON SUS IMAGENES Y NOMBRES
+// Representa las locaciones disponibles de cada provincia
+// TODO
+
 export const levels: ILevelLocations[] = [
   {
     name: "Buenos Aires",
@@ -68,6 +70,7 @@ export const levels: ILevelLocations[] = [
       },
     ],
   },
+  // NIVEL 2
   {
     name: "Chaco",
     id: 4,
@@ -134,4 +137,5 @@ export const levels: ILevelLocations[] = [
       },
     ],
   },
+  // NIVEL 3
 ];
