@@ -147,7 +147,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
       {/* Modal interactivo al pulsar una acción */}
       {activeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in select-none">
-          <div className="relative w-full max-w-md backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] rounded-2xl p-6 flex flex-col items-center text-center text-[#FFF3C7]">
+          <div className="relative w-full max-w-xl backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] rounded-2xl p-6 flex flex-col items-center text-center text-[#FFF3C7]">
             <div className="relative w-28 h-28 rounded-2xl overflow-hidden border-2 border-[rgba(255,243,199,0.25)] mb-4 shadow-[0_12px_30px_rgba(0,0,0,0.7)] bg-black/50">
               <Image
                 src={activeModal.icon}
@@ -228,7 +228,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
                             key={`disc-${idx}`}
                             className="flex items-start gap-2 text-xs font-mono text-emerald-200/95 leading-relaxed bg-[rgba(10,35,25,0.5)] p-2 rounded-lg border border-emerald-500/25"
                           >
-                            <span className="text-emerald-400 font-bold shrink-0">✓</span>
+
                             <span>{clue}</span>
                           </div>
                         ))}

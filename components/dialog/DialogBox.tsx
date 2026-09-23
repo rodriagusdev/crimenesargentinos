@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { useFlagStore } from "@/stores/useFlagStore";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { gameData } from "@/data/gameData";
+import { useHintSound } from "@/hooks/useHintSound";
 import CostFeedbackToast from "../Level/CostFeedbackToast";
 
 interface DialogProps {
@@ -23,12 +24,17 @@ export default function DialogBox({ dialog, levelId = 1, onClose }: DialogProps)
   const logEndRef = useRef<HTMLDivElement>(null);
   const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  const playHintSound = useHintSound();
+
   const flags = useFlagStore((state) => state.flags);
   const addFlag = useFlagStore((state) => state.addFlag);
   const consumeAskQuestion = useGameSessionStore(
     (state) => state.consumeAskQuestion
   );
   const addClue = useGameSessionStore((state) => state.addClue);
+  const hasClue = useGameSessionStore((state) => state.hasClue);
+  const isQuestionAsked = useGameSessionStore((state) => state.isQuestionAsked);
+  const markQuestionAsked = useGameSessionStore((state) => state.markQuestionAsked);
 
   useEffect(() => {
     return () => {
@@ -44,30 +50,36 @@ export default function DialogBox({ dialog, levelId = 1, onClose }: DialogProps)
   });
 
   const onQuestionClicked = (q: IDialogQuestion) => {
-    if (!q.answer || askedIds.has(q.id)) return;
+    if (!q.answer) return;
 
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("close-investigation-menu"));
     }
 
-    // Descontar costo de hacer una pregunta
-    consumeAskQuestion(levelId);
+    const alreadyAsked = isQuestionAsked(q.id);
 
-    // Si la pregunta otorga una pista, registrarla en el expediente
-    if (q.unlocksClue) {
-      addClue(q.unlocksClue);
-      setClueToast(q.unlocksClue);
+    // Solo descuenta recursos y activa pistas la primera vez que se selecciona la pregunta
+    if (!alreadyAsked) {
+      markQuestionAsked(q.id);
+      consumeAskQuestion(levelId);
+
+      // Si la pregunta otorga una pista que aún no fue desbloqueada
+      if (q.unlocksClue && !hasClue(q.unlocksClue)) {
+        addClue(q.unlocksClue);
+        setClueToast(q.unlocksClue);
+        playHintSound();
+      }
+
+      // Mostrar feedback visual de costo solo cuando se descuenta
+      const askCost = gameData.find((g) => g.levelId === levelId)?.costs.askQuestion ?? { time: 1, pi: 5 };
+      setCostToast(askCost);
+
+      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+      toastTimeoutRef.current = setTimeout(() => {
+        setCostToast(null);
+        setClueToast(null);
+      }, 3000);
     }
-
-    // Mostrar feedback visual de costo
-    const askCost = gameData.find((g) => g.levelId === levelId)?.costs.askQuestion ?? { time: 1, pi: 5 };
-    setCostToast(askCost);
-
-    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
-    toastTimeoutRef.current = setTimeout(() => {
-      setCostToast(null);
-      setClueToast(null);
-    }, 3000);
 
     // Desbloquear flag(s) si la pregunta lo otorga
     if (q.unlocksFlag) {

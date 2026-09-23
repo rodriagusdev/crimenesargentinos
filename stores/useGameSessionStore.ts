@@ -12,10 +12,14 @@ interface GameSessionState {
   isGameOver: boolean;
   gameOverReason: "time" | "pi" | null;
   discoveredClues: string[];
+  askedQuestions: string[];
 
   // Métodos
   initSession: (levelId: number) => void;
-  addClue: (clue: string) => void;
+  addClue: (clue: string) => boolean;
+  hasClue: (clue: string) => boolean;
+  isQuestionAsked: (questionId: string) => boolean;
+  markQuestionAsked: (questionId: string) => void;
   consumeCost: (cost: ICost) => boolean;
   consumeTravelProvince: (levelId: number) => boolean;
   consumeTravelLocation: (levelId: number) => boolean;
@@ -35,6 +39,7 @@ export const useGameSessionStore = create<GameSessionState>()(
       isGameOver: false,
       gameOverReason: null,
       discoveredClues: [],
+      askedQuestions: [],
 
       initSession: (levelId: number) => {
         const state = get();
@@ -53,6 +58,7 @@ export const useGameSessionStore = create<GameSessionState>()(
           isGameOver: false,
           gameOverReason: null,
           discoveredClues: [],
+          askedQuestions: [],
         });
       },
 
@@ -60,6 +66,23 @@ export const useGameSessionStore = create<GameSessionState>()(
         const current = get().discoveredClues;
         if (!current.includes(clue)) {
           set({ discoveredClues: [...current, clue] });
+          return true;
+        }
+        return false;
+      },
+
+      hasClue: (clue: string) => {
+        return get().discoveredClues.includes(clue);
+      },
+
+      isQuestionAsked: (questionId: string) => {
+        return get().askedQuestions.includes(questionId);
+      },
+
+      markQuestionAsked: (questionId: string) => {
+        const current = get().askedQuestions;
+        if (!current.includes(questionId)) {
+          set({ askedQuestions: [...current, questionId] });
         }
       },
 
@@ -74,6 +97,7 @@ export const useGameSessionStore = create<GameSessionState>()(
           isGameOver: false,
           gameOverReason: null,
           discoveredClues: [],
+          askedQuestions: [],
         });
       },
 
@@ -133,6 +157,7 @@ export const useGameSessionStore = create<GameSessionState>()(
           isGameOver: false,
           gameOverReason: null,
           discoveredClues: [],
+          askedQuestions: [],
         });
       },
     }),

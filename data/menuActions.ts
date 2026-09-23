@@ -7,7 +7,7 @@ export const MENU_ACTIONS: IMenuAction[] = [
     description: "Cuaderno de notas y evidencias",
     icon: "/images/icons/icon_clues.jpg",
     detail:
-      "Revisa todas las pistas recopiladas a partir de las declaraciones de los testigos en cada ubicación.",
+      "Colección de pistas",
   },
   {
     id: "suspects",
