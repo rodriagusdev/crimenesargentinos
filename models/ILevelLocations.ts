@@ -1,8 +1,7 @@
 import ILocation from "./ILocation";
 
-//todo: integrar con backend
 export default interface ILevelLocations {
-  id: number;
+  id: string; // guid
   name: string;
   backgroundUrl: string;
   locations: ILocation[];

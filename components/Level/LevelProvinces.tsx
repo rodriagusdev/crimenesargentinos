@@ -6,7 +6,6 @@ import { getLevelProvinces } from "@/services/levelService";
 import ILevelDataProvinces from "@/models/ILevelDataProvinces";
 import { ProvinceButton } from "../buttons/ProvinceButton";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
-import { gameData } from "@/data/gameData";
 import IProvince from "@/models/IProvince";
 import TravelConfirmModal from "./TravelConfirmModal";
 
@@ -27,7 +26,7 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
   const [error, setError] = useState<string | null>(null);
   const [selectedProvince, setSelectedProvince] = useState<IProvince | null>(null);
 
-  const travelCost = gameData.find((g) => g.levelId === levelId)?.costs.travelProvince ?? { time: 12, pi: 5 };
+  const travelCost = useGameSessionStore((state) => state.costs?.travelProvince);
 
   useEffect(() => {
     let cancelled = false;
@@ -73,7 +72,7 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
 
   const handleConfirmTravel = () => {
     if (!selectedProvince) return;
-    consumeTravelProvince(levelId);
+    consumeTravelProvince();
     const targetId = selectedProvince.id;
     setSelectedProvince(null);
     router.push(`/level/${levelId}/${targetId}`);
@@ -95,16 +94,18 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
       </div>
 
       {/* Modal de confirmación de viaje entre provincias */}
-      <TravelConfirmModal
-        isOpen={Boolean(selectedProvince)}
-        title="¿Viajar a otra Provincia?"
-        destinationName={selectedProvince?.name ?? ""}
-        destinationIcon={selectedProvince?.icon}
-        cost={travelCost}
-        currentResources={{ time: currentTime, pi: currentPI }}
-        onConfirm={handleConfirmTravel}
-        onCancel={() => setSelectedProvince(null)}
-      />
+      {travelCost && (
+        <TravelConfirmModal
+          isOpen={Boolean(selectedProvince)}
+          title="¿Viajar a otra Provincia?"
+          destinationName={selectedProvince?.name ?? ""}
+          destinationIcon={selectedProvince?.icon}
+          cost={travelCost}
+          currentResources={{ time: currentTime, pi: currentPI }}
+          onConfirm={handleConfirmTravel}
+          onCancel={() => setSelectedProvince(null)}
+        />
+      )}
     </>
   );
 }

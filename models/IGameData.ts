@@ -1,9 +1,14 @@
 import { ISuspect } from "./ISuspect";
 
-// PODRIA ser TODO: Si ves que no necesitamos nada mas respecto a esta estrucutra para el juego, integralo. Pero yo por ahora lo dejaria pasar
 export interface ICost {
     time: number;
     pi: number;
+}
+
+export interface IGameCosts {
+    travelProvince: ICost;
+    travelLocation: ICost;
+    askQuestion: ICost;
 }
 
 export interface IGameData {
@@ -12,12 +17,8 @@ export interface IGameData {
     initialRoute: string;
     initialTime: number;
     initialPI: number;
-    costs: {
-        travelProvince: ICost;
-        travelLocation: ICost;
-        askQuestion: ICost;
-    };
+    costs: IGameCosts;
     initialClues: string[];
     suspects: ISuspect[];
-    targetSuspect: ISuspect;
+    targetSuspect: ISuspect | null; // null si el caso todavía no tiene culpable cargado
 }

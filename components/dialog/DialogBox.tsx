@@ -6,17 +6,15 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useFlagStore } from "@/stores/useFlagStore";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
-import { gameData } from "@/data/gameData";
 import { useHintSound } from "@/hooks/useHintSound";
 import CostFeedbackToast from "../Level/CostFeedbackToast";
 
 interface DialogProps {
   dialog: IDialog;
-  levelId?: number;
   onClose?: () => void;
 }
 
-export default function DialogBox({ dialog, levelId = 1, onClose }: DialogProps) {
+export default function DialogBox({ dialog, onClose }: DialogProps) {
   const [log, setLog] = useState<{ question: string; answer: string }[]>([]);
   const [askedIds, setAskedIds] = useState<Set<string>>(new Set());
   const [costToast, setCostToast] = useState<{ time: number; pi: number } | null>(null);
@@ -28,6 +26,7 @@ export default function DialogBox({ dialog, levelId = 1, onClose }: DialogProps)
 
   const flags = useFlagStore((state) => state.flags);
   const addFlag = useFlagStore((state) => state.addFlag);
+  const askCost = useGameSessionStore((state) => state.costs?.askQuestion);
   const consumeAskQuestion = useGameSessionStore(
     (state) => state.consumeAskQuestion
   );
@@ -61,7 +60,7 @@ export default function DialogBox({ dialog, levelId = 1, onClose }: DialogProps)
     // Solo descuenta recursos y activa pistas la primera vez que se selecciona la pregunta
     if (!alreadyAsked) {
       markQuestionAsked(q.id);
-      consumeAskQuestion(levelId);
+      consumeAskQuestion();
 
       // Si la pregunta otorga una pista que aún no fue desbloqueada
       if (q.unlocksClue && !hasClue(q.unlocksClue)) {
@@ -71,8 +70,7 @@ export default function DialogBox({ dialog, levelId = 1, onClose }: DialogProps)
       }
 
       // Mostrar feedback visual de costo solo cuando se descuenta
-      const askCost = gameData.find((g) => g.levelId === levelId)?.costs.askQuestion ?? { time: 1, pi: 5 };
-      setCostToast(askCost);
+      if (askCost) setCostToast(askCost);
 
       if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
       toastTimeoutRef.current = setTimeout(() => {

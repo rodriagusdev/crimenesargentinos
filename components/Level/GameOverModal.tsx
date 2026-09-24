@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import GameButton from "../buttons/GameButton";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { useFlagStore } from "@/stores/useFlagStore";
-import { gameData } from "@/data/gameData";
 
 interface GameOverModalProps {
   levelId: number;
@@ -29,10 +28,14 @@ export default function GameOverModal({ levelId }: GameOverModalProps) {
     return null;
   }
 
-  const handleRestart = () => {
+  const handleRestart = async () => {
     clearFlags();
-    restartLevel(levelId);
-    const initialRoute = gameData.find((g) => g.levelId === levelId)?.initialRoute ?? `/level/${levelId}`;
+    try {
+      await restartLevel(levelId);
+    } catch (err) {
+      console.error("Error al reiniciar el nivel:", err);
+    }
+    const initialRoute = useGameSessionStore.getState().initialRoute ?? `/level/${levelId}`;
     router.push(initialRoute);
   };
 

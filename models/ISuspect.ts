@@ -1,7 +1,6 @@
-//todo: integrar con backend
 export interface ISuspect {
-    id: number;
+    id: string; // guid
     name: string;
     description: string[];
-    image?: string;
+    image?: string | null;
 }

@@ -2,15 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import IDialog from "@/models/IDialog";
-import { getDialogs, getLevelLocations } from "@/services/levelService";
+import { getDialog, getLevelLocations } from "@/services/levelService";
 import { useEffect, useState } from "react";
 import DialogBox from "../dialog/DialogBox";
 import LocationIntro from "./LocationIntro";
 
 interface Props {
   levelId: number;
-  locationId: number;
-  provinceId: number;
+  locationId: string;
+  provinceId: string;
 }
 
 export default function LevelLocation({ levelId, locationId, provinceId }: Props) {
@@ -33,16 +33,13 @@ export default function LevelLocation({ levelId, locationId, provinceId }: Props
       try {
         setLoading(true);
         setError(null);
-        const [dialogsData, locationsData] = await Promise.all([
-          getDialogs(),
+        const [dialogData, locationsData] = await Promise.all([
+          getDialog(levelId, locationId),
           getLevelLocations(provinceId).catch(() => null),
         ]);
 
         if (!cancelled) {
-          const retrieveLocationDialog = dialogsData.find(
-            (dialog) => dialog.provinceId === provinceId && dialog.locationId === locationId
-          );
-          setLocationDialog(retrieveLocationDialog ?? null);
+          setLocationDialog(dialogData);
 
           if (locationsData) {
             const loc = locationsData.locations.find((l) => l.id === locationId);
@@ -67,7 +64,7 @@ export default function LevelLocation({ levelId, locationId, provinceId }: Props
     return () => {
       cancelled = true;
     };
-  }, [locationId, provinceId]);
+  }, [levelId, locationId, provinceId]);
 
   if (loading) {
     return (
@@ -97,5 +94,5 @@ export default function LevelLocation({ levelId, locationId, provinceId }: Props
     );
   }
 
-  return <DialogBox dialog={locationDialog} levelId={levelId} onClose={onCloseDialog} />;
+  return <DialogBox dialog={locationDialog} onClose={onCloseDialog} />;
 }

@@ -1,7 +1,8 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { gameData } from "@/data/gameData";
-import { ICost } from "@/models/IGameData";
+import { getGameData } from "@/services/levelService";
+import { useFlagStore } from "@/stores/useFlagStore";
+import { ICost, IGameCosts, IGameData } from "@/models/IGameData";
 
 interface GameSessionState {
   levelId: number | null;
@@ -9,24 +10,41 @@ interface GameSessionState {
   currentPI: number;
   initialTime: number;
   initialPI: number;
+  costs: IGameCosts | null;
+  initialRoute: string | null;
   isGameOver: boolean;
   gameOverReason: "time" | "pi" | null;
   discoveredClues: string[];
   askedQuestions: string[];
 
   // Métodos
-  initSession: (levelId: number) => void;
+  initSession: (levelId: number) => Promise<void>;
   addClue: (clue: string) => boolean;
   hasClue: (clue: string) => boolean;
   isQuestionAsked: (questionId: string) => boolean;
   markQuestionAsked: (questionId: string) => void;
   consumeCost: (cost: ICost) => boolean;
-  consumeTravelProvince: (levelId: number) => boolean;
-  consumeTravelLocation: (levelId: number) => boolean;
-  consumeAskQuestion: (levelId: number) => boolean;
+  consumeTravelProvince: () => boolean;
+  consumeTravelLocation: () => boolean;
+  consumeAskQuestion: () => boolean;
   resetSession: () => void;
-  restartLevel: (levelId: number) => void;
+  restartLevel: (levelId: number) => Promise<void>;
 }
+
+// Estado inicial de una partida a partir de la configuración del nivel
+const freshSession = (levelId: number, data: IGameData) => ({
+  levelId,
+  currentTime: data.initialTime,
+  currentPI: data.initialPI,
+  initialTime: data.initialTime,
+  initialPI: data.initialPI,
+  costs: data.costs,
+  initialRoute: data.initialRoute,
+  isGameOver: false,
+  gameOverReason: null,
+  discoveredClues: [],
+  askedQuestions: [],
+});
 
 export const useGameSessionStore = create<GameSessionState>()(
   persist(
@@ -36,30 +54,37 @@ export const useGameSessionStore = create<GameSessionState>()(
       currentPI: 0,
       initialTime: 0,
       initialPI: 0,
+      costs: null,
+      initialRoute: null,
       isGameOver: false,
       gameOverReason: null,
       discoveredClues: [],
       askedQuestions: [],
 
-      initSession: (levelId: number) => {
+      initSession: async (levelId: number) => {
         const state = get();
+        const sameLevelInProgress =
+          state.levelId === levelId && (state.currentTime > 0 || state.currentPI > 0);
+
         // Si ya está iniciada la sesión para este nivel y tiene recursos activos, no sobreescribir
-        if (state.levelId === levelId && (state.currentTime > 0 || state.currentPI > 0)) {
+        if (sameLevelInProgress && state.costs) {
           return;
         }
 
-        const data = gameData.find((g) => g.levelId === levelId) ?? gameData[0];
-        set({
-          levelId,
-          currentTime: data?.initialTime ?? 0,
-          currentPI: data?.initialPI ?? 0,
-          initialTime: data?.initialTime ?? 0,
-          initialPI: data?.initialPI ?? 0,
-          isGameOver: false,
-          gameOverReason: null,
-          discoveredClues: [],
-          askedQuestions: [],
-        });
+        const data = await getGameData(levelId);
+
+        // Sesión en curso guardada sin costos: solo completar la configuración
+        if (sameLevelInProgress) {
+          set({ costs: data.costs, initialRoute: data.initialRoute });
+          return;
+        }
+
+        // Los flags son del nivel anterior
+        if (state.levelId !== levelId) {
+          useFlagStore.getState().clearFlags();
+        }
+
+        set(freshSession(levelId, data));
       },
 
       addClue: (clue: string) => {
@@ -86,19 +111,9 @@ export const useGameSessionStore = create<GameSessionState>()(
         }
       },
 
-      restartLevel: (levelId: number) => {
-        const data = gameData.find((g) => g.levelId === levelId) ?? gameData[0];
-        set({
-          levelId,
-          currentTime: data?.initialTime ?? 0,
-          currentPI: data?.initialPI ?? 0,
-          initialTime: data?.initialTime ?? 0,
-          initialPI: data?.initialPI ?? 0,
-          isGameOver: false,
-          gameOverReason: null,
-          discoveredClues: [],
-          askedQuestions: [],
-        });
+      restartLevel: async (levelId: number) => {
+        const data = await getGameData(levelId);
+        set(freshSession(levelId, data));
       },
 
       consumeCost: (cost: ICost) => {
@@ -129,22 +144,19 @@ export const useGameSessionStore = create<GameSessionState>()(
         return true;
       },
 
-      consumeTravelProvince: (levelId: number) => {
-        const data = gameData.find((g) => g.levelId === levelId);
-        const cost = data?.costs.travelProvince ?? { time: 4, pi: 15 };
-        return get().consumeCost(cost);
+      consumeTravelProvince: () => {
+        const cost = get().costs?.travelProvince;
+        return cost ? get().consumeCost(cost) : false;
       },
 
-      consumeTravelLocation: (levelId: number) => {
-        const data = gameData.find((g) => g.levelId === levelId);
-        const cost = data?.costs.travelLocation ?? { time: 2, pi: 10 };
-        return get().consumeCost(cost);
+      consumeTravelLocation: () => {
+        const cost = get().costs?.travelLocation;
+        return cost ? get().consumeCost(cost) : false;
       },
 
-      consumeAskQuestion: (levelId: number) => {
-        const data = gameData.find((g) => g.levelId === levelId);
-        const cost = data?.costs.askQuestion ?? { time: 1, pi: 5 };
-        return get().consumeCost(cost);
+      consumeAskQuestion: () => {
+        const cost = get().costs?.askQuestion;
+        return cost ? get().consumeCost(cost) : false;
       },
 
       resetSession: () => {
@@ -154,6 +166,8 @@ export const useGameSessionStore = create<GameSessionState>()(
           currentPI: 0,
           initialTime: 0,
           initialPI: 0,
+          costs: null,
+          initialRoute: null,
           isGameOver: false,
           gameOverReason: null,
           discoveredClues: [],

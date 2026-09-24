@@ -2,52 +2,60 @@ import ILevelDataProvinces from "@/models/ILevelDataProvinces";
 import ILevelLocations from "@/models/ILevelLocations";
 import IDialog from "@/models/IDialog";
 import { IGameData } from "@/models/IGameData";
-import { levelDataConfig } from "@/data/levelDataConfig";
-import { levels } from "@/data/levelLocations";
-import { dialogs } from "@/data/dialogs";
-import { gameData } from "@/data/gameData";
+import { API_URL, authHeaders } from "@/lib/api";
 
-export async function getGameData(levelId: number): Promise<IGameData> {
-  const data = gameData.find((game) => game.levelId === levelId) ?? gameData[levelId - 1];
+async function fetchFromApi<T>(path: string, notFoundMessage: string, failMessage: string): Promise<T> {
+  const response = await fetch(`${API_URL}${path}`, {
+    method: "GET",
+    headers: authHeaders(),
+  });
 
-  if (!data) {
-    throw new Error(`Game data for level ${levelId} not found`);
+  if (response.status === 404) {
+    throw new Error(notFoundMessage);
   }
 
-  return data;
+  if (!response.ok) {
+    throw new Error(`${failMessage}: ${response.statusText}`);
+  }
+
+  return response.json();
 }
 
+export async function getGameData(levelId: number): Promise<IGameData> {
+  return fetchFromApi<IGameData>(
+    `/api/Levels/${levelId}/game-data`,
+    `Game data for level ${levelId} not found`,
+    "Failed to fetch game data",
+  );
+}
 
 export async function getLevelProvinces(
   levelId: number,
 ): Promise<ILevelDataProvinces> {
-  const data = levelDataConfig.find((item) => item.id === levelId) ?? levelDataConfig[levelId - 1];
-
-  if (!data) {
-    throw new Error(`Data for level ${levelId} not found`);
-  }
-
-  return data;
+  return fetchFromApi<ILevelDataProvinces>(
+    `/LevelLocation/GetByCaseId/${levelId}`,
+    `Data for level ${levelId} not found`,
+    "Failed to fetch level provinces",
+  );
 }
 
 export async function getLevelLocations(
-  provinceId: number,
+  provinceId: string,
 ): Promise<ILevelLocations> {
-  const data = levels.find((item) => item.id === provinceId) ?? levels[provinceId - 1];
-
-  if (!data) {
-    throw new Error(`Data for province ${provinceId} not found`);
-  }
-
-  return data;
+  return fetchFromApi<ILevelLocations>(
+    `/Province/GetWithLocations/${provinceId}`,
+    `Data for province ${provinceId} not found`,
+    "Failed to fetch province locations",
+  );
 }
 
-export async function getDialogs(): Promise<IDialog[]> {
-  const data = dialogs;
-
-  if (!data) {
-    throw new Error(`Dialogs not found`);
-  }
-
-  return data;
+export async function getDialog(
+  levelId: number,
+  locationId: string,
+): Promise<IDialog> {
+  return fetchFromApi<IDialog>(
+    `/Dialog/GetByLocation/${levelId}/${locationId}`,
+    `Dialog for location ${locationId} not found`,
+    "Failed to fetch dialog",
+  );
 }

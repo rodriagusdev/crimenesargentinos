@@ -17,7 +17,7 @@ export default function LevelTimer({ levelId }: LevelTimerProps) {
 
   useEffect(() => {
     setMounted(true);
-    initSession(levelId);
+    initSession(levelId).catch((err) => console.error("Error al iniciar la partida:", err));
   }, [levelId, initSession]);
 
   return (

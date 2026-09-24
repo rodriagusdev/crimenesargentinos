@@ -8,12 +8,11 @@ import { useRouter } from "next/navigation";
 import ILevelLocations from "@/models/ILevelLocations";
 import ILocation from "@/models/ILocation";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
-import { gameData } from "@/data/gameData";
 import TravelConfirmModal from "./TravelConfirmModal";
 
 interface LevelDataProps {
   levelId: number;
-  provinceId: number;
+  provinceId: string;
 }
 
 export default function LevelProvinceLocations({ levelId, provinceId }: LevelDataProps) {
@@ -29,7 +28,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
   const [error, setError] = useState<string | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<ILocation | null>(null);
 
-  const locationCost = gameData.find((g) => g.levelId === levelId)?.costs.travelLocation ?? { time: 3, pi: 3 };
+  const locationCost = useGameSessionStore((state) => state.costs?.travelLocation);
 
   useEffect(() => {
     let cancelled = false;
@@ -65,7 +64,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen text-[#FFF3C7]">
-        Cargando nivel {provinceId}...
+        Cargando provincia...
       </div>
     );
   }
@@ -80,7 +79,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
 
   const handleConfirmLocation = () => {
     if (!selectedLocation) return;
-    consumeTravelLocation(levelId);
+    consumeTravelLocation();
     const targetId = selectedLocation.id;
     setSelectedLocation(null);
     router.push(`/level/${levelId}/${provinceId}/${targetId}`);
@@ -111,7 +110,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
               {data.name}
             </h1>
             <p className="text-xs text-[#E1C380]/80 font-mono tracking-wider mt-0.5">
-              PROVINCIA #{provinceId.toString().padStart(2, "0")}
+              PROVINCIA #{provinceId.slice(0, 8).toUpperCase()}
             </p>
           </div>
         </div>
@@ -143,15 +142,17 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
       </aside>
 
       {/* Modal de confirmación para investigar una locación */}
-      <TravelConfirmModal
-        isOpen={Boolean(selectedLocation)}
-        title="¿Inspeccionar Locación?"
-        destinationName={selectedLocation?.name ?? ""}
-        cost={locationCost}
-        currentResources={{ time: currentTime, pi: currentPI }}
-        onConfirm={handleConfirmLocation}
-        onCancel={() => setSelectedLocation(null)}
-      />
+      {locationCost && (
+        <TravelConfirmModal
+          isOpen={Boolean(selectedLocation)}
+          title="¿Inspeccionar Locación?"
+          destinationName={selectedLocation?.name ?? ""}
+          cost={locationCost}
+          currentResources={{ time: currentTime, pi: currentPI }}
+          onConfirm={handleConfirmLocation}
+          onCancel={() => setSelectedLocation(null)}
+        />
+      )}
     </>
   );
 }

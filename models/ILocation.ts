@@ -1,7 +1,6 @@
 
-//todo: integrar con backend
 export default interface ILocation {
-  id: number;
+  id: string; // guid
   name: string;
   imageUrl: string;
 }

@@ -14,13 +14,11 @@ export default async function ProvinceLocation({ params }: Props) {
   const { levelId, provinceId, locationId } = await params;
 
   const levelIdNum = Number(levelId);
-  const provinceIdNum = Number(provinceId);
-  const locationIdNum = Number(locationId);
 
   return (
     <main className="relative min-h-screen overflow-hidden">
       <LevelTimer levelId={levelIdNum} />
-      <LevelLocation levelId={levelIdNum} locationId={locationIdNum} provinceId={provinceIdNum} />
+      <LevelLocation levelId={levelIdNum} locationId={locationId} provinceId={provinceId} />
       <LevelMenu levelId={levelIdNum} />
     </main>
   );

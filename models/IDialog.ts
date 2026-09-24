@@ -1,5 +1,3 @@
-// PODRIA ser TODO: Si ves que no necesitamos nada mas respecto a esta estrucutra para el sospechoso, integralo. Pero yo por ahora lo dejaria pasar
-
 export interface IDialogMessage {
   speaker: "npc" | "player" | "narrator";
   text: string;
@@ -15,8 +13,9 @@ export interface IDialogQuestion {
 }
 
 export default interface IDialog {
-  provinceId: number;
-  locationId: number;
+  caseId: number;
+  provinceId: string; // guid
+  locationId: string; // guid
   npc: string;
   overlayBackgroundUrl: string;
   npcCompleteUrl: string;

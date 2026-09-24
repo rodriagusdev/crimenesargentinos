@@ -1,6 +1,5 @@
-//todo: integrar con backend
 export default interface IProvince {
-  id: number;
+  id: string; // guid
   name: string;
   top: string;
   left: string;

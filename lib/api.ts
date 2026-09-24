@@ -9,18 +9,22 @@ export interface LevelResponse {
   canPlay: boolean;
 }
 
-export async function getLevelsByUserId(userId: string): Promise<LevelResponse[]> {
+export function authHeaders(): HeadersInit {
   const token = localStorage.getItem("auth_token");
   if (!token) {
     throw new Error("No authentication token found");
   }
 
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+}
+
+export async function getLevelsByUserId(userId: string): Promise<LevelResponse[]> {
   const response = await fetch(`${API_URL}/api/levels/user/${userId}`, {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
+    headers: authHeaders(),
   });
 
   if (!response.ok) {

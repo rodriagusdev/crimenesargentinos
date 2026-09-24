@@ -12,12 +12,11 @@ interface Props {
 export default async function Province({ params }: Props) {
   const { levelId, provinceId } = await params;
   const levelIdNum = Number(levelId);
-  const provinceIdNum = Number(provinceId);
 
   return (
     <main className="relative min-h-screen overflow-hidden">
       <LevelTimer levelId={levelIdNum} />
-      <LevelProvinceLocations levelId={levelIdNum} provinceId={provinceIdNum} />
+      <LevelProvinceLocations levelId={levelIdNum} provinceId={provinceId} />
       <LevelMenu levelId={levelIdNum} />
     </main>
   );
