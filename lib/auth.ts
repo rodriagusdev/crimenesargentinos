@@ -31,7 +31,7 @@ export function msUntilTokenExpires(claims: TokenClaims | null = getTokenClaims(
 }
 
 // Pantallas que se ven sin sesión
-export const PUBLIC_PATHS = ["/", "/login"];
+export const PUBLIC_PATHS = ["/", "/login", "/reglas"];
 
 // Sesión vencida o inválida: se borra el token y se vuelve al login (navegación completa para limpiar el estado)
 export function redirectToLogin() {
