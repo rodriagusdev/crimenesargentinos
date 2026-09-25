@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import GameButton from "../buttons/GameButton";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
-import { useFlagStore } from "@/stores/useFlagStore";
 
 interface GameOverModalProps {
   levelId: number;
@@ -18,7 +17,6 @@ export default function GameOverModal({ levelId }: GameOverModalProps) {
   const isGameOver = useGameSessionStore((state) => state.isGameOver);
   const gameOverReason = useGameSessionStore((state) => state.gameOverReason);
   const restartLevel = useGameSessionStore((state) => state.restartLevel);
-  const clearFlags = useFlagStore((state) => state.clearFlags);
 
   useEffect(() => {
     setMounted(true);
@@ -29,7 +27,6 @@ export default function GameOverModal({ levelId }: GameOverModalProps) {
   }
 
   const handleRestart = async () => {
-    clearFlags();
     try {
       await restartLevel(levelId);
     } catch (err) {
@@ -40,7 +37,6 @@ export default function GameOverModal({ levelId }: GameOverModalProps) {
   };
 
   const handleBackToPrincipal = () => {
-    clearFlags();
     useGameSessionStore.getState().resetSession();
     try {
       Object.keys(sessionStorage).forEach((key) => {

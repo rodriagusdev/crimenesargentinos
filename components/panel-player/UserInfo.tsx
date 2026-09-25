@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import InfoItem from "./UserInfoItem";
+import { getPlayerStats } from "@/services/gameSessionService";
 
 interface UserData {
   username: string;
@@ -59,6 +60,18 @@ export default function UserInfo() {
         }));
       }
     }
+
+    // Nivel, puntos y partidas salen del progreso guardado en el servidor
+    let cancelled = false;
+    getPlayerStats()
+      .then((stats) => {
+        if (!cancelled) setUser((prevUser) => ({ ...prevUser, ...stats }));
+      })
+      .catch((error) => console.error("Error al obtener las estadísticas del jugador:", error));
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
   return (
     <section

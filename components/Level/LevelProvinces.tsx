@@ -6,6 +6,7 @@ import { getLevelProvinces } from "@/services/levelService";
 import ILevelDataProvinces from "@/models/ILevelDataProvinces";
 import { ProvinceButton } from "../buttons/ProvinceButton";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
+import { useGameSession } from "@/hooks/useGameSession";
 import IProvince from "@/models/IProvince";
 import TravelConfirmModal from "./TravelConfirmModal";
 
@@ -15,9 +16,8 @@ interface LevelDataProps {
 
 export default function LevelProvinces({ levelId }: LevelDataProps) {
   const router = useRouter();
-  const consumeTravelProvince = useGameSessionStore(
-    (state) => state.consumeTravelProvince
-  );
+  useGameSession(levelId);
+  const travelProvince = useGameSessionStore((state) => state.travelProvince);
   const currentTime = useGameSessionStore((state) => state.currentTime);
   const currentPI = useGameSessionStore((state) => state.currentPI);
 
@@ -25,6 +25,8 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedProvince, setSelectedProvince] = useState<IProvince | null>(null);
+  const [traveling, setTraveling] = useState(false);
+  const [travelError, setTravelError] = useState<string | null>(null);
 
   const travelCost = useGameSessionStore((state) => state.costs?.travelProvince);
 
@@ -70,12 +72,23 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
     );
   }
 
-  const handleConfirmTravel = () => {
-    if (!selectedProvince) return;
-    consumeTravelProvince();
+  // El servidor cobra el viaje y mueve al jugador; recién después se navega
+  const handleConfirmTravel = async () => {
+    if (!selectedProvince || traveling) return;
     const targetId = selectedProvince.id;
-    setSelectedProvince(null);
-    router.push(`/level/${levelId}/${targetId}`);
+
+    setTraveling(true);
+    setTravelError(null);
+    try {
+      await travelProvince(targetId);
+      setSelectedProvince(null);
+      router.push(`/level/${levelId}/${targetId}`);
+    } catch (err) {
+      setSelectedProvince(null);
+      setTravelError(err instanceof Error ? err.message : "No se pudo viajar a la provincia");
+    } finally {
+      setTraveling(false);
+    }
   };
 
   return (
@@ -88,10 +101,19 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
             top={province.top}
             left={province.left}
             icon={province.icon}
-            onClick={() => setSelectedProvince(province)}
+            onClick={() => {
+              setTravelError(null);
+              setSelectedProvince(province);
+            }}
           />
         ))}
       </div>
+
+      {travelError && (
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 px-5 py-3 rounded-2xl bg-red-950/80 border border-red-400/40 text-red-200 text-sm">
+          {travelError}
+        </div>
+      )}
 
       {/* Modal de confirmación de viaje entre provincias */}
       {travelCost && (

@@ -4,8 +4,8 @@ import IDialog, { IDialogQuestion } from "@/models/IDialog";
 import GameButton from "../buttons/GameButton";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { useFlagStore } from "@/stores/useFlagStore";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
+import { getDialogLog } from "@/services/gameSessionService";
 import { useHintSound } from "@/hooks/useHintSound";
 import CostFeedbackToast from "../Level/CostFeedbackToast";
 
@@ -16,30 +16,44 @@ interface DialogProps {
 
 export default function DialogBox({ dialog, onClose }: DialogProps) {
   const [log, setLog] = useState<{ question: string; answer: string }[]>([]);
-  const [askedIds, setAskedIds] = useState<Set<string>>(new Set());
   const [costToast, setCostToast] = useState<{ time: number; pi: number } | null>(null);
   const [clueToast, setClueToast] = useState<string | null>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
   const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  const askingRef = useRef(false);
+
   const playHintSound = useHintSound();
 
-  const flags = useFlagStore((state) => state.flags);
-  const addFlag = useFlagStore((state) => state.addFlag);
-  const askCost = useGameSessionStore((state) => state.costs?.askQuestion);
-  const consumeAskQuestion = useGameSessionStore(
-    (state) => state.consumeAskQuestion
-  );
-  const addClue = useGameSessionStore((state) => state.addClue);
-  const hasClue = useGameSessionStore((state) => state.hasClue);
-  const isQuestionAsked = useGameSessionStore((state) => state.isQuestionAsked);
-  const markQuestionAsked = useGameSessionStore((state) => state.markQuestionAsked);
+  const flags = useGameSessionStore((state) => state.flags);
+  // Preguntas ya hechas en esta partida (también en visitas anteriores): quedan deshabilitadas
+  const askedQuestions = useGameSessionStore((state) => state.askedQuestions);
+  const sessionId = useGameSessionStore((state) => state.session?.sessionId);
+  const askQuestion = useGameSessionStore((state) => state.askQuestion);
 
   useEffect(() => {
     return () => {
       if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
     };
   }, []);
+
+  // La conversación guardada de esta locación: se retoma donde había quedado
+  useEffect(() => {
+    if (!sessionId) return;
+    let cancelled = false;
+
+    getDialogLog(sessionId, dialog.locationId)
+      .then((entries) => {
+        if (cancelled) return;
+        const saved = entries.map((entry) => ({ question: entry.question, answer: entry.answer }));
+        setLog((prev) => [...saved, ...prev]);
+      })
+      .catch((err) => console.error("No se pudo cargar la conversación guardada:", err));
+
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionId, dialog.locationId]);
 
   // Filtra las preguntas: solo muestra las que no tienen requiredFlag o si todos los flags requeridos ya fueron desbloqueados
   const availableQuestions = dialog.questions.filter((q) => {
@@ -48,44 +62,40 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
     return required.every((flag) => flags.includes(flag));
   });
 
-  const onQuestionClicked = (q: IDialogQuestion) => {
-    if (!q.answer) return;
+  // El servidor cobra (solo la primera vez), desbloquea pistas y flags y guarda la pregunta en el chat
+  const onQuestionClicked = async (q: IDialogQuestion) => {
+    if (!q.answer || askingRef.current) return;
+    askingRef.current = true;
 
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("close-investigation-menu"));
     }
 
-    const alreadyAsked = isQuestionAsked(q.id);
+    try {
+      const result = await askQuestion(q.id);
 
-    // Solo descuenta recursos y activa pistas la primera vez que se selecciona la pregunta
-    if (!alreadyAsked) {
-      markQuestionAsked(q.id);
-      consumeAskQuestion();
+      if (result.costCharged) {
+        if (result.newClue) {
+          setClueToast(result.newClue);
+          playHintSound();
+        }
 
-      // Si la pregunta otorga una pista que aún no fue desbloqueada
-      if (q.unlocksClue && !hasClue(q.unlocksClue)) {
-        addClue(q.unlocksClue);
-        setClueToast(q.unlocksClue);
-        playHintSound();
+        // Mostrar feedback visual de costo solo cuando se descuenta
+        if (result.cost) setCostToast(result.cost);
+
+        if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+        toastTimeoutRef.current = setTimeout(() => {
+          setCostToast(null);
+          setClueToast(null);
+        }, 3000);
       }
 
-      // Mostrar feedback visual de costo solo cuando se descuenta
-      if (askCost) setCostToast(askCost);
-
-      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
-      toastTimeoutRef.current = setTimeout(() => {
-        setCostToast(null);
-        setClueToast(null);
-      }, 3000);
+      setLog((prev) => [...prev, { question: q.text, answer: result.answer }]);
+    } catch (err) {
+      console.error("No se pudo hacer la pregunta:", err);
+    } finally {
+      askingRef.current = false;
     }
-
-    // Desbloquear flag(s) si la pregunta lo otorga
-    if (q.unlocksFlag) {
-      addFlag(q.unlocksFlag);
-    }
-
-    setLog((prev) => [...prev, { question: q.text, answer: q.answer }]);
-    setAskedIds((prev) => new Set(prev).add(q.id));
   };
 
   // Auto-scroll log para cuando se agrega a la conversacion
@@ -265,7 +275,7 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
                       icon=""
                       label={q.text}
                       onClick={() => onQuestionClicked(q)}
-                      disabled={askedIds.has(q.id)}
+                      disabled={askedQuestions.includes(q.id)}
                     />
                   ))}
                 </div>

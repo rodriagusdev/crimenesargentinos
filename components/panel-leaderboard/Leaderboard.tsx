@@ -1,4 +1,24 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { getLeaderboard } from "@/services/gameSessionService";
+import { ILeaderboardEntry } from "@/models/IGameSession";
+
 export default function Leaderboard() {
+  const [users, setUsers] = useState<ILeaderboardEntry[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    getLeaderboard(10)
+      .then((ranking) => {
+        if (!cancelled) setUsers(ranking);
+      })
+      .catch((error) => console.error("Error al obtener el ranking:", error));
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <div
@@ -26,7 +46,7 @@ export default function Leaderboard() {
       </div>
 
       <div className="divide-y divide-[rgba(255,243,199,0.08)]">
-        {users.map((user, index) => (
+        {users.map((user) => (
           <div
             key={user.username}
             className="
@@ -51,7 +71,7 @@ export default function Leaderboard() {
                   shrink-0
                 "
               >
-                {index + 1}
+                {user.position}
               </div>
 
               <span
@@ -83,16 +103,3 @@ export default function Leaderboard() {
     </div>
   );
 }
-// MOCK USERS - EN UN FUTURO ESTO SE OBTENDRÁ DE UNA API O BASE DE DATOS
-const users = [
-  { username: "ShadowWolf", points: 15420 },
-  { username: "PixelKnight", points: 14980 },
-  { username: "DragonByte", points: 13750 },
-  { username: "RetroMage", points: 13100 },
-  { username: "IronGoblin", points: 12640 },
-  { username: "NeonRogue", points: 11890 },
-  { username: "CrystalFox", points: 11230 },
-  { username: "StormRider", points: 10750 },
-  { username: "VoidHunter", points: 10120 },
-  { username: "GoldenSlime", points: 9630 },
-];

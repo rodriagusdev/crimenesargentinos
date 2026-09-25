@@ -1,183 +1,157 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
 import { getGameData } from "@/services/levelService";
-import { useFlagStore } from "@/stores/useFlagStore";
-import { ICost, IGameCosts, IGameData } from "@/models/IGameData";
+import {
+  askQuestion as askQuestionApi,
+  GameSessionApiError,
+  getSession,
+  markIntroSeen as markIntroSeenApi,
+  restartSession,
+  sessionRoute,
+  startOrResumeSession,
+  travelToLocation,
+  travelToProvince,
+} from "@/services/gameSessionService";
+import { IGameCosts } from "@/models/IGameData";
+import { IAskQuestionResult, IGameSession } from "@/models/IGameSession";
 
+// El progreso lo guarda el backend (/api/GameSessions): este store es solo la copia del último estado recibido
 interface GameSessionState {
   levelId: number | null;
+  session: IGameSession | null;
+  costs: IGameCosts | null; // de game-data, para mostrar el precio antes de confirmar
+
+  // Atajos al estado de la partida
   currentTime: number;
   currentPI: number;
   initialTime: number;
   initialPI: number;
-  costs: IGameCosts | null;
-  initialRoute: string | null;
   isGameOver: boolean;
-  gameOverReason: "time" | "pi" | null;
+  gameOverReason: IGameSession["gameOverReason"];
   discoveredClues: string[];
   askedQuestions: string[];
+  flags: string[];
+  initialRoute: string | null; // pantalla donde quedó el jugador
 
   // Métodos
-  initSession: (levelId: number) => Promise<void>;
-  addClue: (clue: string) => boolean;
-  hasClue: (clue: string) => boolean;
-  isQuestionAsked: (questionId: string) => boolean;
-  markQuestionAsked: (questionId: string) => void;
-  consumeCost: (cost: ICost) => boolean;
-  consumeTravelProvince: () => boolean;
-  consumeTravelLocation: () => boolean;
-  consumeAskQuestion: () => boolean;
-  resetSession: () => void;
+  initSession: (levelId: number) => Promise<IGameSession>;
+  travelProvince: (provinceId: string) => Promise<IGameSession>;
+  travelLocation: (locationId: string) => Promise<IGameSession>;
+  markIntroSeen: (locationId: string) => Promise<IGameSession>;
+  askQuestion: (questionCode: string) => Promise<IAskQuestionResult>;
   restartLevel: (levelId: number) => Promise<void>;
+  resetSession: () => void;
 }
 
-// Estado inicial de una partida a partir de la configuración del nivel
-const freshSession = (levelId: number, data: IGameData) => ({
-  levelId,
-  currentTime: data.initialTime,
-  currentPI: data.initialPI,
-  initialTime: data.initialTime,
-  initialPI: data.initialPI,
-  costs: data.costs,
-  initialRoute: data.initialRoute,
+const emptySession = {
+  levelId: null,
+  session: null,
+  costs: null,
+  currentTime: 0,
+  currentPI: 0,
+  initialTime: 0,
+  initialPI: 0,
   isGameOver: false,
   gameOverReason: null,
   discoveredClues: [],
   askedQuestions: [],
+  flags: [],
+  initialRoute: null,
+};
+
+const fromSession = (session: IGameSession) => ({
+  levelId: session.caseId,
+  session,
+  currentTime: session.currentTime,
+  currentPI: session.currentPI,
+  initialTime: session.initialTime,
+  initialPI: session.initialPI,
+  isGameOver: session.isGameOver,
+  gameOverReason: session.gameOverReason,
+  discoveredClues: session.discoveredClues,
+  askedQuestions: session.askedQuestions,
+  flags: session.flags,
+  initialRoute: sessionRoute(session),
 });
 
-export const useGameSessionStore = create<GameSessionState>()(
-  persist(
-    (set, get) => ({
-      levelId: null,
-      currentTime: 0,
-      currentPI: 0,
-      initialTime: 0,
-      initialPI: 0,
-      costs: null,
-      initialRoute: null,
-      isGameOver: false,
-      gameOverReason: null,
-      discoveredClues: [],
-      askedQuestions: [],
+// Varios componentes de la misma pantalla inician la partida a la vez: se comparte la misma request
+let pendingInit: { levelId: number; promise: Promise<IGameSession> } | null = null;
 
-      initSession: async (levelId: number) => {
-        const state = get();
-        const sameLevelInProgress =
-          state.levelId === levelId && (state.currentTime > 0 || state.currentPI > 0);
+export const useGameSessionStore = create<GameSessionState>()((set, get) => {
+  const applySession = (session: IGameSession) => set(fromSession(session));
 
-        // Si ya está iniciada la sesión para este nivel y tiene recursos activos, no sobreescribir
-        if (sameLevelInProgress && state.costs) {
-          return;
-        }
+  // Ejecuta una acción sobre la partida y guarda el estado que devuelve el servidor
+  const act = async <T>(call: (sessionId: string) => Promise<T>, stateOf: (result: T) => IGameSession): Promise<T> => {
+    const { session } = get();
+    if (!session) throw new Error("No hay una partida iniciada");
 
-        const data = await getGameData(levelId);
-
-        // Sesión en curso guardada sin costos: solo completar la configuración
-        if (sameLevelInProgress) {
-          set({ costs: data.costs, initialRoute: data.initialRoute });
-          return;
-        }
-
-        // Los flags son del nivel anterior
-        if (state.levelId !== levelId) {
-          useFlagStore.getState().clearFlags();
-        }
-
-        set(freshSession(levelId, data));
-      },
-
-      addClue: (clue: string) => {
-        const current = get().discoveredClues;
-        if (!current.includes(clue)) {
-          set({ discoveredClues: [...current, clue] });
-          return true;
-        }
-        return false;
-      },
-
-      hasClue: (clue: string) => {
-        return get().discoveredClues.includes(clue);
-      },
-
-      isQuestionAsked: (questionId: string) => {
-        return get().askedQuestions.includes(questionId);
-      },
-
-      markQuestionAsked: (questionId: string) => {
-        const current = get().askedQuestions;
-        if (!current.includes(questionId)) {
-          set({ askedQuestions: [...current, questionId] });
-        }
-      },
-
-      restartLevel: async (levelId: number) => {
-        const data = await getGameData(levelId);
-        set(freshSession(levelId, data));
-      },
-
-      consumeCost: (cost: ICost) => {
-        const { currentTime, currentPI, isGameOver } = get();
-        if (isGameOver) return false;
-
-        const newTime = Math.max(0, currentTime - cost.time);
-        const newPI = Math.max(0, currentPI - cost.pi);
-
-        let gameOver = false;
-        let reason: "time" | "pi" | null = null;
-
-        if (newTime <= 0) {
-          gameOver = true;
-          reason = "time";
-        } else if (newPI <= 0) {
-          gameOver = true;
-          reason = "pi";
-        }
-
-        set({
-          currentTime: newTime,
-          currentPI: newPI,
-          isGameOver: gameOver,
-          gameOverReason: reason,
-        });
-
-        return true;
-      },
-
-      consumeTravelProvince: () => {
-        const cost = get().costs?.travelProvince;
-        return cost ? get().consumeCost(cost) : false;
-      },
-
-      consumeTravelLocation: () => {
-        const cost = get().costs?.travelLocation;
-        return cost ? get().consumeCost(cost) : false;
-      },
-
-      consumeAskQuestion: () => {
-        const cost = get().costs?.askQuestion;
-        return cost ? get().consumeCost(cost) : false;
-      },
-
-      resetSession: () => {
-        set({
-          levelId: null,
-          currentTime: 0,
-          currentPI: 0,
-          initialTime: 0,
-          initialPI: 0,
-          costs: null,
-          initialRoute: null,
-          isGameOver: false,
-          gameOverReason: null,
-          discoveredClues: [],
-          askedQuestions: [],
-        });
-      },
-    }),
-    {
-      name: "game_session_storage",
-      storage: createJSONStorage(() => sessionStorage),
+    try {
+      const result = await call(session.sessionId);
+      applySession(stateOf(result));
+      return result;
+    } catch (err) {
+      // 409: la partida ya terminó; se trae el estado para que se muestre el resultado
+      if (err instanceof GameSessionApiError && err.status === 409) {
+        applySession(await getSession(session.sessionId));
+      }
+      throw err;
     }
-  )
-);
+  };
+
+  return {
+    ...emptySession,
+
+    initSession: (levelId: number) => {
+      const { session, costs } = get();
+      if (session && costs && session.caseId === levelId) {
+        return Promise.resolve(session);
+      }
+
+      if (pendingInit?.levelId === levelId) {
+        return pendingInit.promise;
+      }
+
+      // La partida va primero: si falla (401, 403) ese es el error que se reporta
+      const promise = Promise.all([startOrResumeSession(levelId), getGameData(levelId)])
+        .then(([newSession, gameData]) => {
+          set({ ...fromSession(newSession), costs: gameData.costs });
+          return newSession;
+        })
+        .finally(() => {
+          if (pendingInit?.promise === promise) pendingInit = null;
+        });
+
+      pendingInit = { levelId, promise };
+      return promise;
+    },
+
+    travelProvince: (provinceId: string) =>
+      act((sessionId) => travelToProvince(sessionId, provinceId), (session) => session),
+
+    travelLocation: (locationId: string) =>
+      act((sessionId) => travelToLocation(sessionId, locationId), (session) => session),
+
+    markIntroSeen: (locationId: string) =>
+      act((sessionId) => markIntroSeenApi(sessionId, locationId), (session) => session),
+
+    askQuestion: (questionCode: string) =>
+      act((sessionId) => askQuestionApi(sessionId, questionCode), (result) => result.state),
+
+    restartLevel: async (levelId: number) => {
+      const { session } = get();
+      if (session && session.caseId === levelId && session.status === "InProgress") {
+        await act((sessionId) => restartSession(sessionId), (newSession) => newSession);
+        return;
+      }
+
+      // La partida ya terminó: se empieza una nueva
+      const newSession = await startOrResumeSession(levelId);
+      applySession(newSession);
+    },
+
+    // Solo limpia la copia local: la partida sigue guardada en el servidor para continuarla
+    resetSession: () => {
+      pendingInit = null;
+      set(emptySession);
+    },
+  };
+});

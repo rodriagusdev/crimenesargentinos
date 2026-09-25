@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import ILevelLocations from "@/models/ILevelLocations";
 import ILocation from "@/models/ILocation";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
+import { useGameSession } from "@/hooks/useGameSession";
 import TravelConfirmModal from "./TravelConfirmModal";
 
 interface LevelDataProps {
@@ -17,9 +18,9 @@ interface LevelDataProps {
 
 export default function LevelProvinceLocations({ levelId, provinceId }: LevelDataProps) {
   const router = useRouter();
-  const consumeTravelLocation = useGameSessionStore(
-    (state) => state.consumeTravelLocation
-  );
+  // Si el jugador no está en esta provincia, se lo redirige a donde quedó
+  const { ready, error: sessionError } = useGameSession(levelId, { provinceId });
+  const travelLocation = useGameSessionStore((state) => state.travelLocation);
   const currentTime = useGameSessionStore((state) => state.currentTime);
   const currentPI = useGameSessionStore((state) => state.currentPI);
 
@@ -27,6 +28,8 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<ILocation | null>(null);
+  const [traveling, setTraveling] = useState(false);
+  const [travelError, setTravelError] = useState<string | null>(null);
 
   const locationCost = useGameSessionStore((state) => state.costs?.travelLocation);
 
@@ -61,7 +64,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
     };
   }, [provinceId]);
 
-  if (loading) {
+  if (loading || (!ready && !sessionError)) {
     return (
       <div className="flex items-center justify-center min-h-screen text-[#FFF3C7]">
         Cargando provincia...
@@ -69,20 +72,31 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
     );
   }
 
-  if (error || !data) {
+  if (error || sessionError || !data) {
     return (
       <div className="flex items-center justify-center min-h-screen text-red-400">
-        {error ?? "Nivel no encontrado"}
+        {error ?? sessionError ?? "Nivel no encontrado"}
       </div>
     );
   }
 
-  const handleConfirmLocation = () => {
-    if (!selectedLocation) return;
-    consumeTravelLocation();
+  // El servidor cobra el traslado y mueve al jugador; recién después se navega
+  const handleConfirmLocation = async () => {
+    if (!selectedLocation || traveling) return;
     const targetId = selectedLocation.id;
-    setSelectedLocation(null);
-    router.push(`/level/${levelId}/${provinceId}/${targetId}`);
+
+    setTraveling(true);
+    setTravelError(null);
+    try {
+      await travelLocation(targetId);
+      setSelectedLocation(null);
+      router.push(`/level/${levelId}/${provinceId}/${targetId}`);
+    } catch (err) {
+      setSelectedLocation(null);
+      setTravelError(err instanceof Error ? err.message : "No se pudo ir a la locación");
+    } finally {
+      setTraveling(false);
+    }
   };
 
   return (
@@ -126,7 +140,10 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
               key={location.id}
               icon={""}
               label={location.name}
-              onClick={() => setSelectedLocation(location)}
+              onClick={() => {
+                setTravelError(null);
+                setSelectedLocation(location);
+              }}
             />
           ))}
         </div>
@@ -140,6 +157,12 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
           />
         </div>
       </aside>
+
+      {travelError && (
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 px-5 py-3 rounded-2xl bg-red-950/80 border border-red-400/40 text-red-200 text-sm">
+          {travelError}
+        </div>
+      )}
 
       {/* Modal de confirmación para investigar una locación */}
       {locationCost && (
