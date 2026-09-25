@@ -62,6 +62,7 @@ export const adminTables: AdminTable[] = [
       { name: "initialTime", label: "Tiempo inicial (hs)", type: "number", required: true },
       { name: "initialPI", label: "PI iniciales", type: "number", required: true },
       { name: "startLocationId", label: "Locación inicial", type: "reference", reference: "locations" },
+      { name: "criminalLocationId", label: "Escondite del criminal", type: "reference", reference: "locations", hint: "Al llegar ahí se resuelve la orden de arresto" },
       { name: "travelProvinceTime", label: "Viajar a provincia: tiempo", type: "number", required: true },
       { name: "travelProvincePi", label: "Viajar a provincia: PI", type: "number", required: true },
       { name: "travelLocationTime", label: "Ir a locación: tiempo", type: "number", required: true },
