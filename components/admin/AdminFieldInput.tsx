@@ -15,31 +15,42 @@ interface Props {
   onChange: (value: unknown) => void;
 }
 
-const inputClass =
-  "w-full rounded-lg bg-[rgba(20,30,42,0.6)] border border-[rgba(255,243,199,0.18)] px-3 py-2 text-sm text-[#FFF3C7] " +
-  "focus:outline-none focus:border-[#E1C380] disabled:opacity-50";
+export const adminInputClass =
+  "w-full rounded-md bg-[#0a0f18] border border-white/10 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600 " +
+  "focus:outline-none focus:border-[#E1C380]/60 focus:ring-2 focus:ring-[#E1C380]/15 disabled:opacity-50 disabled:cursor-not-allowed transition";
 
 // Un campo del formulario según su tipo. Los números y las referencias vacías se guardan como null
 export default function AdminFieldInput({ field, value, disabled, options = [], onChange }: Props) {
   const text = value === null || value === undefined ? "" : String(value);
 
   if (field.type === "boolean") {
+    const checked = Boolean(value);
     return (
-      <label className="flex items-center gap-2 text-sm">
-        <input
-          type="checkbox"
-          checked={Boolean(value)}
-          disabled={disabled}
-          onChange={(e) => onChange(e.target.checked)}
-          className="accent-[#E1C380]"
-        />
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        disabled={disabled}
+        onClick={() => onChange(!checked)}
+        className="flex items-center gap-3 text-sm text-slate-200 disabled:opacity-50"
+      >
+        <span className={`relative h-5 w-9 rounded-full transition-colors ${checked ? "bg-[#E1C380]" : "bg-white/10"}`}>
+          <span className={`absolute top-0.5 size-4 rounded-full bg-white shadow transition-all ${checked ? "left-[18px]" : "left-0.5"}`} />
+        </span>
         {field.label}
-      </label>
+      </button>
     );
   }
 
   if (field.type === "textarea") {
-    return <textarea className={`${inputClass} min-h-24`} value={text} disabled={disabled} onChange={(e) => onChange(e.target.value)} />;
+    return (
+      <textarea
+        className={`${adminInputClass} min-h-28 resize-y leading-relaxed`}
+        value={text}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    );
   }
 
   if (field.type === "number" || field.type === "decimal") {
@@ -47,7 +58,7 @@ export default function AdminFieldInput({ field, value, disabled, options = [], 
       <input
         type="number"
         step={field.type === "decimal" ? "0.01" : "1"}
-        className={inputClass}
+        className={adminInputClass}
         value={text}
         disabled={disabled}
         onChange={(e) => onChange(e.target.value === "" ? null : Number(e.target.value))}
@@ -61,7 +72,7 @@ export default function AdminFieldInput({ field, value, disabled, options = [], 
 
     return (
       <select
-        className={inputClass}
+        className={adminInputClass}
         value={text}
         disabled={disabled}
         onChange={(e) => {
@@ -81,5 +92,5 @@ export default function AdminFieldInput({ field, value, disabled, options = [], 
     );
   }
 
-  return <input type="text" className={inputClass} value={text} disabled={disabled} onChange={(e) => onChange(e.target.value)} />;
+  return <input type="text" className={adminInputClass} value={text} disabled={disabled} onChange={(e) => onChange(e.target.value)} />;
 }

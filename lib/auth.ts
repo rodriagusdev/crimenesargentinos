@@ -31,6 +31,22 @@ export function getUserRoles(claims: TokenClaims | null = getTokenClaims()): str
   return typeof roles === "string" ? [roles] : [];
 }
 
+// Nombre y email del usuario logueado (claims estándar de .NET o sus nombres cortos)
+export function getUserIdentity(claims: TokenClaims | null = getTokenClaims()): { name: string; email: string } {
+  const pick = (...keys: string[]) => {
+    for (const key of keys) {
+      const value = claims?.[key];
+      if (typeof value === "string" && value) return value;
+    }
+    return "";
+  };
+
+  return {
+    name: pick("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name", "unique_name", "sub"),
+    email: pick("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email"),
+  };
+}
+
 export function isAdmin(claims: TokenClaims | null = getTokenClaims()): boolean {
   return getUserRoles(claims).includes("Admin");
 }
