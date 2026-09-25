@@ -5,7 +5,7 @@ import {
   GameSessionApiError,
   getSession,
   markIntroSeen as markIntroSeenApi,
-  restartSession,
+  playLevel,
   sessionRoute,
   startOrResumeSession,
   travelToLocation,
@@ -19,6 +19,7 @@ interface GameSessionState {
   levelId: number | null;
   session: IGameSession | null;
   costs: IGameCosts | null; // de game-data, para mostrar el precio antes de confirmar
+  videoUrl: string | null; // video de intro del caso en juego
 
   // Atajos al estado de la partida
   currentTime: number;
@@ -34,6 +35,7 @@ interface GameSessionState {
 
   // Métodos
   initSession: (levelId: number) => Promise<IGameSession>;
+  play: () => Promise<IGameSession>; // retoma o sortea el caso del nivel habilitado
   travelProvince: (provinceId: string) => Promise<IGameSession>;
   travelLocation: (locationId: string) => Promise<IGameSession>;
   markIntroSeen: (locationId: string) => Promise<IGameSession>;
@@ -46,6 +48,7 @@ const emptySession = {
   levelId: null,
   session: null,
   costs: null,
+  videoUrl: null,
   currentTime: 0,
   currentPI: 0,
   initialTime: 0,
@@ -113,7 +116,7 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
       // La partida va primero: si falla (401, 403) ese es el error que se reporta
       const promise = Promise.all([startOrResumeSession(levelId), getGameData(levelId)])
         .then(([newSession, gameData]) => {
-          set({ ...fromSession(newSession), costs: gameData.costs });
+          set({ ...fromSession(newSession), costs: gameData.costs, videoUrl: gameData.videoUrl ?? null });
           return newSession;
         })
         .finally(() => {
@@ -136,16 +139,17 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
     askQuestion: (questionCode: string) =>
       act((sessionId) => askQuestionApi(sessionId, questionCode), (result) => result.state),
 
-    restartLevel: async (levelId: number) => {
-      const { session } = get();
-      if (session && session.caseId === levelId && session.status === "InProgress") {
-        await act((sessionId) => restartSession(sessionId), (newSession) => newSession);
-        return;
-      }
+    play: async () => {
+      const newSession = await playLevel();
+      const gameData = await getGameData(newSession.caseId);
+      pendingInit = null;
+      set({ ...fromSession(newSession), costs: gameData.costs, videoUrl: gameData.videoUrl ?? null });
+      return newSession;
+    },
 
-      // La partida ya terminó: se empieza una nueva
-      const newSession = await startOrResumeSession(levelId);
-      applySession(newSession);
+    // Después de perder se juega otra partida: el caso se vuelve a sortear
+    restartLevel: async () => {
+      await get().play();
     },
 
     // Solo limpia la copia local: la partida sigue guardada en el servidor para continuarla

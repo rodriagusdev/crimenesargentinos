@@ -19,7 +19,8 @@ export default function CostFeedbackToast({
       {cost && (
         <div className="px-5 py-2.5 rounded-2xl backdrop-blur-md bg-[rgba(20,10,15,0.92)] border border-red-500/50 shadow-[0_12px_35px_rgba(0,0,0,0.85)] flex items-center gap-3 animate-pulse">
           <div className="flex items-center gap-2 font-bold text-xs sm:text-sm">
-            <span className="text-cyan-300">-{cost.pi} PUNTOS DE INVESTIGACIÓN</span>
+            {/* pi negativo: la pregunta dejó una pista nueva y sumó puntos */}
+            <span className="text-cyan-300">{cost.pi < 0 ? `+${-cost.pi}` : `-${cost.pi}`} PUNTOS DE INVESTIGACIÓN</span>
             <span className="text-[#FFF3C7]/40">|</span>
             <span className="text-amber-300">-{cost.time} HS</span>
           </div>

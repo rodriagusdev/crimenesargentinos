@@ -14,12 +14,17 @@ interface DialogProps {
   onClose?: () => void;
 }
 
+// Tiempo en pantalla de los avisos: el de pista queda 40 segundos más que el de costo
+const COST_TOAST_MS = 3000;
+const CLUE_TOAST_MS = COST_TOAST_MS + 40000;
+
 export default function DialogBox({ dialog, onClose }: DialogProps) {
   const [log, setLog] = useState<{ question: string; answer: string }[]>([]);
   const [costToast, setCostToast] = useState<{ time: number; pi: number } | null>(null);
   const [clueToast, setClueToast] = useState<string | null>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
-  const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const costTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const clueTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const askingRef = useRef(false);
 
@@ -33,7 +38,8 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
 
   useEffect(() => {
     return () => {
-      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+      if (costTimeoutRef.current) clearTimeout(costTimeoutRef.current);
+      if (clueTimeoutRef.current) clearTimeout(clueTimeoutRef.current);
     };
   }, []);
 
@@ -78,16 +84,18 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
         if (result.newClue) {
           setClueToast(result.newClue);
           playHintSound();
+
+          if (clueTimeoutRef.current) clearTimeout(clueTimeoutRef.current);
+          clueTimeoutRef.current = setTimeout(() => setClueToast(null), CLUE_TOAST_MS);
         }
 
         // Mostrar feedback visual de costo solo cuando se descuenta
-        if (result.cost) setCostToast(result.cost);
+        if (result.cost) {
+          setCostToast(result.cost);
 
-        if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
-        toastTimeoutRef.current = setTimeout(() => {
-          setCostToast(null);
-          setClueToast(null);
-        }, 3000);
+          if (costTimeoutRef.current) clearTimeout(costTimeoutRef.current);
+          costTimeoutRef.current = setTimeout(() => setCostToast(null), COST_TOAST_MS);
+        }
       }
 
       setLog((prev) => [...prev, { question: q.text, answer: result.answer }]);

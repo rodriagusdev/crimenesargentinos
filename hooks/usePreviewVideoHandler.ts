@@ -1,50 +1,36 @@
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { getGameData } from "@/services/levelService";
-import { GameSessionApiError, getCurrentSession, sessionRoute } from "@/services/gameSessionService";
+import { useRef, useState } from "react";
+import { GameSessionApiError, sessionRoute } from "@/services/gameSessionService";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 
-// Pantalla a precargar mientras corre el video: donde quedó la partida en curso o, si no hay, el inicio del nivel
-async function fetchRouteToPrefetch(levelId: number): Promise<string> {
-  try {
-    return sessionRoute(await getCurrentSession(levelId));
-  } catch {
-    try {
-      return (await getGameData(levelId)).initialRoute;
-    } catch {
-      return `/level/${levelId}`;
-    }
-  }
-}
-
-export function usePreviewVideoHandler(previewId: number) {
+// Entrada al nivel habilitado desde su tarjeta: retoma la partida en curso o sortea el caso,
+// muestra el video de intro del caso (si tiene) y va a donde quedó el jugador
+export function usePreviewVideoHandler(previewVideoURL?: string) {
   const router = useRouter();
-  const initSession = useGameSessionStore((state) => state.initSession);
+  const play = useGameSessionStore((state) => state.play);
 
   const [showVideo, setShowVideo] = useState(false);
+  const [videoURL, setVideoURL] = useState<string | undefined>(previewVideoURL);
+  const videoSeen = useRef(false);
 
-  useEffect(() => {
-    if (!showVideo) return;
-
-    let cancelled = false;
-    fetchRouteToPrefetch(previewId).then((route) => {
-      if (!cancelled) router.prefetch(route);
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [showVideo, previewId, router]);
-
-  // Continúa la partida en curso (o empieza una) y va a donde quedó el jugador
   const goToLevel = async () => {
     try {
-      sessionStorage.removeItem(`level_${previewId}_briefing_seen`);
-    } catch {
-    }
+      const session = await play();
 
-    try {
-      const session = await initSession(previewId);
+      try {
+        sessionStorage.removeItem(`level_${session.caseId}_briefing_seen`);
+      } catch {
+      }
+
+      // Caso recién sorteado con video: se muestra antes de entrar
+      const caseVideo = useGameSessionStore.getState().videoUrl;
+      if (caseVideo && !videoSeen.current) {
+        videoSeen.current = true;
+        setVideoURL(caseVideo);
+        setShowVideo(true);
+        return;
+      }
+
       router.push(sessionRoute(session));
     } catch (err) {
       if (err instanceof GameSessionApiError && err.status === 401) {
@@ -52,17 +38,14 @@ export function usePreviewVideoHandler(previewId: number) {
         return;
       }
       console.error("Error al iniciar la partida:", err);
-      router.push(`/level/${previewId}`);
     }
   };
 
+  // La tarjeta ya conoce el caso en curso y tiene video: se muestra primero
   const handleShowVideo = () => {
-    try {
-      sessionStorage.removeItem(`level_${previewId}_briefing_seen`);
-    } catch {
-    }
+    videoSeen.current = true;
     setShowVideo((prev) => !prev);
   };
 
-  return { showVideo, handleShowVideo, goToLevel };
+  return { showVideo, videoURL, handleShowVideo, goToLevel };
 }

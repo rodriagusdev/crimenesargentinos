@@ -1,5 +1,5 @@
-import { API_URL, authHeaders } from "@/lib/api";
-import { IAskQuestionResult, IDialogLogEntry, IGameSession, ILeaderboardEntry, IPlayerStats } from "@/models/IGameSession";
+import { API_URL, authHeaders, handleUnauthorized } from "@/lib/api";
+import { IAskQuestionResult, IDialogLogEntry, IGameSession, ILeaderboardEntry, ILevelOverview, IPlayerStats } from "@/models/IGameSession";
 
 // Error de la API con el código HTTP, para decidir qué hacer:
 // 401 volver al login, 403 caso bloqueado, 404 sin partida, 409 la partida ya terminó, 400 jugada no válida
@@ -27,6 +27,7 @@ async function request<T>(method: "GET" | "POST", path: string, body?: unknown):
     body: body === undefined ? undefined : JSON.stringify(body),
   });
 
+  handleUnauthorized(response);
   if (!response.ok) {
     let message = response.statusText;
     try {
@@ -50,12 +51,22 @@ export function getLeaderboard(top = 10): Promise<ILeaderboardEntry[]> {
   return request("GET", `/leaderboard?top=${top}`);
 }
 
+// Niveles de la pantalla principal: completados, habilitado y bloqueados
+export function getLevels(): Promise<ILevelOverview[]> {
+  return request("GET", "/levels");
+}
+
+// Retoma la partida en curso o sortea el caso del nivel habilitado
+export function playLevel(): Promise<IGameSession> {
+  return request("POST", "/play");
+}
+
 // Partida en curso del caso, sin crear una (404 si no hay)
 export function getCurrentSession(caseId: number): Promise<IGameSession> {
   return request("GET", `/current/${caseId}`);
 }
 
-// Continúa la partida en curso o crea una nueva en la locación inicial
+// Solo retoma la partida en curso de ese caso (las nuevas se crean con playLevel)
 export function startOrResumeSession(caseId: number): Promise<IGameSession> {
   return request("POST", `/start-or-resume?caseId=${caseId}`);
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Press_Start_2P } from "next/font/google";
+import SessionExpiryWatcher from "@/components/SessionExpiryWatcher";
 
 const pressStart = Press_Start_2P({
   weight: "400",
@@ -19,7 +20,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`h-full antialiased`}>
-      <body className={pressStart.className}>{children}</body>
+      <body className={pressStart.className}>
+        <SessionExpiryWatcher />
+        {children}
+      </body>
     </html>
   );
 }

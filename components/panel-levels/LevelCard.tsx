@@ -8,8 +8,8 @@ type LevelCardProps = {
 };
 
 export default function LevelCard({ preview }: LevelCardProps) {
-  const { handleShowVideo, showVideo, goToLevel } = usePreviewVideoHandler(
-    preview.id,
+  const { handleShowVideo, showVideo, videoURL, goToLevel } = usePreviewVideoHandler(
+    preview.videoURL,
   );
 
   const handleCardClick = () => {
@@ -57,7 +57,7 @@ export default function LevelCard({ preview }: LevelCardProps) {
         />
         {!preview.canPlay && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <span className="text-4xl">🔒</span>
+            <span className="text-4xl">{preview.completed ? "✅" : "🔒"}</span>
           </div>
         )}
       </div>
@@ -71,7 +71,7 @@ export default function LevelCard({ preview }: LevelCardProps) {
           `}
         >
           {preview.title}
-          {!preview.canPlay && " [BLOQUEADO]"}
+          {!preview.canPlay && (preview.completed ? " [RESUELTO]" : " [BLOQUEADO]")}
         </h3>
 
         <p className={`text-xs line-clamp-3 ${preview.canPlay ? "text-[#FFF3C7]" : "text-[#888888]"}`}>
@@ -80,7 +80,7 @@ export default function LevelCard({ preview }: LevelCardProps) {
       </div>
 
       {showVideo && (
-        <OverlayVideo videoURL={preview.videoURL} onSkip={goToLevel} />
+        <OverlayVideo videoURL={videoURL} onSkip={goToLevel} />
       )}
     </div>
   );

@@ -1,4 +1,4 @@
-import { API_URL } from "@/lib/api";
+import { API_URL, authHeaders, handleUnauthorized } from "@/lib/api";
 
 export type AdminRow = Record<string, unknown>;
 
@@ -34,15 +34,20 @@ async function readErrorMessage(response: Response): Promise<string> {
 }
 
 async function request<T>(method: "GET" | "POST" | "PUT" | "DELETE", path: string, body?: unknown): Promise<T> {
-  const token = localStorage.getItem("auth_token");
-  if (!token) throw new AdminApiError(401, "No hay una sesión iniciada.");
+  let headers: HeadersInit;
+  try {
+    headers = authHeaders();
+  } catch {
+    throw new AdminApiError(401, "No hay una sesión iniciada.");
+  }
 
   const response = await fetch(`${API_URL}${path}`, {
     method,
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    headers,
     body: body === undefined ? undefined : JSON.stringify(body),
   });
 
+  handleUnauthorized(response);
   if (!response.ok) {
     throw new AdminApiError(response.status, await readErrorMessage(response));
   }

@@ -2,57 +2,57 @@
 
 import { useEffect, useState } from "react";
 import { ICardLevelPreview } from "@/models/ICardLevelPreview";
-import { getLevelsByUserId, LevelResponse } from "@/lib/api";
-import { useUserId } from "@/hooks/useUserId";
+import { getLevels } from "@/services/gameSessionService";
+import { ILevelOverview } from "@/models/IGameSession";
 import LevelCard from "./LevelCard";
 
+// Tarjeta de un nivel: el caso ganado o en curso, o genérica si el caso todavía no se sorteó
+function toCard(level: ILevelOverview): ICardLevelPreview {
+  const hasCase = level.caseId !== null;
+  return {
+    id: level.level,
+    title: hasCase ? level.title ?? "" : `NIVEL ${level.level}`,
+    description: hasCase
+      ? level.description ?? ""
+      : level.status === "current"
+        ? "Te va a tocar un caso al azar."
+        : "Resolvé el nivel anterior para desbloquearlo.",
+    imageURL: (hasCase && level.imageUrl) || `/images/levelcardspreview/level_${level.level}_preview.jpg`,
+    videoURL: level.status === "current" ? level.videoUrl ?? undefined : undefined,
+    canPlay: level.status === "current",
+    completed: level.status === "completed",
+  };
+}
+
 export default function Levels() {
-  const { userId, loading: userIdLoading, error: userIdError } = useUserId();
   const [levels, setLevels] = useState<ICardLevelPreview[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (userIdLoading || !userId) {
-      return;
-    }
+    let cancelled = false;
 
-    const fetchLevels = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        // Llamar al API para obtener los niveles
-        const apiLevels = await getLevelsByUserId(userId);
-
-        // Mapear la respuesta a ICardLevelPreview
-        const mappedLevels: ICardLevelPreview[] = apiLevels.map(
-          (level: LevelResponse) => ({
-            id: level.caseId,
-            title: level.title,
-            description: level.description,
-            imageURL: level.imageUrl,
-            videoURL: level.videoUrl,
-            canPlay: level.canPlay,
-          })
-        );
-
-        setLevels(mappedLevels);
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : "Error desconocido";
+    // Niveles completados, el habilitado (con su caso si ya se sorteó) y los bloqueados
+    getLevels()
+      .then((apiLevels) => {
+        if (!cancelled) setLevels(apiLevels.map(toCard));
+      })
+      .catch((err) => {
+        const errorMessage = err instanceof Error ? err.message : "Error desconocido";
         console.error("Error fetching levels:", errorMessage);
-        setError(errorMessage);
-      } finally {
-        setLoading(false);
-      }
+        if (!cancelled) setError(errorMessage);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
     };
+  }, []);
 
-    fetchLevels();
-  }, [userId, userIdLoading]);
-
-  const isLoading = userIdLoading || loading;
-  const displayError = userIdError || error;
+  const isLoading = loading;
+  const displayError = error;
 
   if (isLoading) {
     return (
@@ -116,7 +116,7 @@ export default function Levels() {
       >
         {levels.map((level) => (
           <LevelCard
-            key={level.title}
+            key={level.id}
             preview={level}
   
           />

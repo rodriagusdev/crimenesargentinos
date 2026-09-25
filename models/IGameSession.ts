@@ -11,6 +11,7 @@ export interface IVisitedLocation {
 export interface IGameSession {
   sessionId: string; // guid
   caseId: number;
+  level: number; // nivel (etapa) en el que se juega
   status: GameSessionStatus;
   currentTime: number;
   currentPI: number;
@@ -51,6 +52,18 @@ export interface ILeaderboardEntry {
   username: string;
   points: number;
   gamesPlayed: number;
+}
+
+// Una tarjeta de nivel de la pantalla principal
+export interface ILevelOverview {
+  level: number;
+  status: "completed" | "current" | "locked";
+  // Caso ganado (completed) o en curso (current); null si todavía no se sorteó o está bloqueado
+  caseId: number | null;
+  title: string | null;
+  description: string | null;
+  imageUrl: string | null;
+  videoUrl: string | null;
 }
 
 // Una línea del chat guardado de una locación

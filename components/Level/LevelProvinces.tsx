@@ -18,6 +18,7 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
   const router = useRouter();
   useGameSession(levelId);
   const travelProvince = useGameSessionStore((state) => state.travelProvince);
+  const currentProvinceId = useGameSessionStore((state) => state.session?.currentProvinceId);
   const currentTime = useGameSessionStore((state) => state.currentTime);
   const currentPI = useGameSessionStore((state) => state.currentPI);
 
@@ -103,6 +104,11 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
             icon={province.icon}
             onClick={() => {
               setTravelError(null);
+              // Volver a la provincia en la que ya está no cuesta nada: se entra directo, sin confirmar
+              if (province.id === currentProvinceId) {
+                router.push(`/level/${levelId}/${province.id}`);
+                return;
+              }
               setSelectedProvince(province);
             }}
           />

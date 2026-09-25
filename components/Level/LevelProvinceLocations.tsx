@@ -21,6 +21,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
   // Si el jugador no está en esta provincia, se lo redirige a donde quedó
   const { ready, error: sessionError } = useGameSession(levelId, { provinceId });
   const travelLocation = useGameSessionStore((state) => state.travelLocation);
+  const currentLocationId = useGameSessionStore((state) => state.session?.currentLocationId);
   const currentTime = useGameSessionStore((state) => state.currentTime);
   const currentPI = useGameSessionStore((state) => state.currentPI);
 
@@ -142,6 +143,11 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
               label={location.name}
               onClick={() => {
                 setTravelError(null);
+                // Volver a la locación en la que ya está no cuesta nada: se entra directo, sin confirmar
+                if (location.id === currentLocationId) {
+                  router.push(`/level/${levelId}/${provinceId}/${location.id}`);
+                  return;
+                }
                 setSelectedLocation(location);
               }}
             />

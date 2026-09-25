@@ -24,6 +24,28 @@ export function isTokenExpired(claims: TokenClaims): boolean {
   return typeof claims.exp === "number" && claims.exp * 1000 <= Date.now();
 }
 
+// Milisegundos que le quedan al token (null si no hay token o no tiene vencimiento)
+export function msUntilTokenExpires(claims: TokenClaims | null = getTokenClaims()): number | null {
+  if (!claims || typeof claims.exp !== "number") return null;
+  return claims.exp * 1000 - Date.now();
+}
+
+// Pantallas que se ven sin sesión
+export const PUBLIC_PATHS = ["/", "/login"];
+
+// Sesión vencida o inválida: se borra el token y se vuelve al login (navegación completa para limpiar el estado)
+export function redirectToLogin() {
+  try {
+    localStorage.removeItem("auth_token");
+  } catch {
+    // sin acceso a localStorage
+  }
+
+  if (typeof window !== "undefined" && !PUBLIC_PATHS.includes(window.location.pathname)) {
+    window.location.replace("/login");
+  }
+}
+
 export function getUserRoles(claims: TokenClaims | null = getTokenClaims()): string[] {
   if (!claims) return [];
   const roles = claims[ROLE_CLAIM] ?? claims.role;

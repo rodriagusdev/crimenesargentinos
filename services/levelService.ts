@@ -2,7 +2,7 @@ import ILevelDataProvinces from "@/models/ILevelDataProvinces";
 import ILevelLocations from "@/models/ILevelLocations";
 import IDialog from "@/models/IDialog";
 import { IGameData } from "@/models/IGameData";
-import { API_URL, authHeaders } from "@/lib/api";
+import { API_URL, authHeaders, handleUnauthorized } from "@/lib/api";
 
 async function fetchFromApi<T>(path: string, notFoundMessage: string, failMessage: string): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {
@@ -10,6 +10,7 @@ async function fetchFromApi<T>(path: string, notFoundMessage: string, failMessag
     headers: authHeaders(),
   });
 
+  handleUnauthorized(response);
   if (response.status === 404) {
     throw new Error(notFoundMessage);
   }

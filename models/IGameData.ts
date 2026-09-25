@@ -14,6 +14,7 @@ export interface IGameCosts {
 export interface IGameData {
     levelId: number;
     info: string;
+    videoUrl?: string | null; // video de intro del caso
     initialRoute: string;
     initialTime: number;
     initialPI: number;

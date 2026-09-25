@@ -1,5 +1,6 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { getTokenClaims, isTokenExpired } from "@/lib/auth";
 
 export function useAuth() {
   const router = useRouter();
@@ -8,7 +9,9 @@ export function useAuth() {
 
   useEffect(() => {
     const token = localStorage.getItem("auth_token");
-    setIsAuthenticated(!!token);
+    const claims = getTokenClaims();
+    // Un token vencido cuenta como sin sesión
+    setIsAuthenticated(!!token && !!claims && !isTokenExpired(claims));
     setLoading(false);
   }, []);
 
