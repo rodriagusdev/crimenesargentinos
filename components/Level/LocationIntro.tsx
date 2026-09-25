@@ -75,7 +75,7 @@ export default function LocationIntro({
         <div className="hidden sm:flex absolute top-28 left-6 items-center gap-2 p-4 rounded-2xl backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] text-[#FFF3C7]">
           <span className="size-2 rounded-full bg-emerald-400 animate-ping" />
           <span className="text-xs uppercase tracking-widest text-[#E1C380] font-semibold">
-            Escena del Crimen
+            Ubicación
           </span>
         </div>
       </div>
