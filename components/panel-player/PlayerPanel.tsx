@@ -2,9 +2,12 @@
 
 import Image from "next/image";
 import UserInfo from "./UserInfo";
+import GameButton from "../buttons/GameButton";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function PlayerPanel() {
-  console.log("PLAYER PANEL MOUNTED");
+  const { logout } = useAuth();
+
   return (
     <div
       className="
@@ -16,6 +19,17 @@ export default function PlayerPanel() {
       {/* USER INFO */}
       <div className="order-2 lg:order-1">
         <UserInfo />
+      </div>
+
+      {/* BOTON ABANDONAR */}
+      <div className="order-3">
+        <GameButton
+          icon="🚪"
+          label="ABANDONAR"
+          variant="secondary"
+          className="w-full"
+          onClick={logout}
+        />
       </div>
 
       {/* GAME LOGO */}

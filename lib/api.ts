@@ -21,6 +21,7 @@ export function authHeaders(): HeadersInit {
     throw new Error("No authentication token found");
   }
 
+
   return {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,

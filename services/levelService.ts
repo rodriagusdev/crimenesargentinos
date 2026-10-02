@@ -23,11 +23,13 @@ async function fetchFromApi<T>(path: string, notFoundMessage: string, failMessag
 }
 
 export async function getGameData(levelId: number): Promise<IGameData> {
-  return fetchFromApi<IGameData>(
+  const data = await fetchFromApi<IGameData>(
     `/api/Levels/${levelId}/game-data`,
     `Game data for level ${levelId} not found`,
     "Failed to fetch game data",
   );
+  console.log("[RAW GAME DATA RESPONSE]", data);
+  return data;
 }
 
 export async function getLevelProvinces(

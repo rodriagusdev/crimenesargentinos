@@ -12,6 +12,7 @@ import {
   travelToProvince,
 } from "@/services/gameSessionService";
 import { IGameCosts } from "@/models/IGameData";
+import { ISuspect } from "@/models/ISuspect";
 import { IAskQuestionResult, IGameSession } from "@/models/IGameSession";
 
 // El progreso lo guarda el backend (/api/GameSessions): este store es solo la copia del último estado recibido
@@ -20,6 +21,8 @@ interface GameSessionState {
   session: IGameSession | null;
   costs: IGameCosts | null; // de game-data, para mostrar el precio antes de confirmar
   videoUrl: string | null; // video de intro del caso en juego
+  targetSuspect: ISuspect | null;
+  criminalLocationId: string | null;
 
   // Atajos al estado de la partida
   currentTime: number;
@@ -28,6 +31,9 @@ interface GameSessionState {
   initialPI: number;
   isGameOver: boolean;
   gameOverReason: IGameSession["gameOverReason"];
+  isVictory: boolean;
+  issuedArrestSuspectId: string | null;
+  issuedArrestSuspect: ISuspect | null;
   discoveredClues: string[];
   askedQuestions: string[];
   flags: string[];
@@ -40,6 +46,9 @@ interface GameSessionState {
   travelLocation: (locationId: string) => Promise<IGameSession>;
   markIntroSeen: (locationId: string) => Promise<IGameSession>;
   askQuestion: (questionCode: string) => Promise<IAskQuestionResult>;
+  issueArrestWarrant: (suspect: ISuspect) => void;
+  triggerGameOver: (reason: "time" | "pi" | "arrest") => void;
+  triggerVictory: () => void;
   restartLevel: (levelId: number) => Promise<void>;
   resetSession: () => void;
 }
@@ -49,12 +58,17 @@ const emptySession = {
   session: null,
   costs: null,
   videoUrl: null,
+  targetSuspect: null,
+  criminalLocationId: null,
   currentTime: 0,
   currentPI: 0,
   initialTime: 0,
   initialPI: 0,
   isGameOver: false,
   gameOverReason: null,
+  isVictory: false,
+  issuedArrestSuspectId: null,
+  issuedArrestSuspect: null,
   discoveredClues: [],
   askedQuestions: [],
   flags: [],
@@ -116,7 +130,17 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
       // La partida va primero: si falla (401, 403) ese es el error que se reporta
       const promise = Promise.all([startOrResumeSession(levelId), getGameData(levelId)])
         .then(([newSession, gameData]) => {
-          set({ ...fromSession(newSession), costs: gameData.costs, videoUrl: gameData.videoUrl ?? null });
+          const rawGameData = gameData as unknown as Record<string, unknown>;
+          const crimLocId = (rawGameData.criminalLocationId ?? rawGameData.CriminalLocationId ?? null) as string | null;
+          const tgtSuspect = (rawGameData.targetSuspect ?? rawGameData.TargetSuspect ?? null) as ISuspect | null;
+
+          set({
+            ...fromSession(newSession),
+            costs: gameData.costs,
+            videoUrl: gameData.videoUrl ?? null,
+            targetSuspect: tgtSuspect,
+            criminalLocationId: crimLocId,
+          });
           return newSession;
         })
         .finally(() => {
@@ -139,11 +163,44 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
     askQuestion: (questionCode: string) =>
       act((sessionId) => askQuestionApi(sessionId, questionCode), (result) => result.state),
 
+    issueArrestWarrant: (suspect: ISuspect) => {
+      set({
+        issuedArrestSuspectId: suspect.id,
+        issuedArrestSuspect: suspect,
+      });
+    },
+
+    triggerGameOver: (reason: "time" | "pi" | "arrest") => {
+      set({
+        isGameOver: true,
+        gameOverReason: reason,
+      });
+    },
+
+    triggerVictory: () => {
+      set({
+        isVictory: true,
+      });
+    },
+
     play: async () => {
       const newSession = await playLevel();
       const gameData = await getGameData(newSession.caseId);
+      const rawGameData = gameData as unknown as Record<string, unknown>;
+      const crimLocId = (rawGameData.criminalLocationId ?? rawGameData.CriminalLocationId ?? null) as string | null;
+      const tgtSuspect = (rawGameData.targetSuspect ?? rawGameData.TargetSuspect ?? null) as ISuspect | null;
+
       pendingInit = null;
-      set({ ...fromSession(newSession), costs: gameData.costs, videoUrl: gameData.videoUrl ?? null });
+      set({
+        ...fromSession(newSession),
+        costs: gameData.costs,
+        videoUrl: gameData.videoUrl ?? null,
+        targetSuspect: tgtSuspect,
+        criminalLocationId: crimLocId,
+        issuedArrestSuspectId: null,
+        issuedArrestSuspect: null,
+        isVictory: false,
+      });
       return newSession;
     },
 

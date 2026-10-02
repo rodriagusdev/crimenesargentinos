@@ -17,12 +17,4 @@ export const MENU_ACTIONS: IMenuAction[] = [
     detail:
       "Consulta los expedientes y rasgos particulares de los posibles sospechosos involucrados en este caso.",
   },
-  {
-    id: "arrest",
-    title: "Orden de Arresto",
-    description: "Emisión de captura judicial",
-    icon: "/images/icons/icon_arrestorder.jpg",
-    detail:
-      "Emite una orden de arresto cuando tengas suficiente evidencia para acusar formalmente al sospechoso.",
-  },
 ];

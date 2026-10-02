@@ -39,7 +39,7 @@ export default function Levels() {
       })
       .catch((err) => {
         const errorMessage = err instanceof Error ? err.message : "Error desconocido";
-        console.error("Error fetching levels:", errorMessage);
+        console.log("Error fetching levels:", errorMessage);
         if (!cancelled) setError(errorMessage);
       })
       .finally(() => {
@@ -118,7 +118,7 @@ export default function Levels() {
           <LevelCard
             key={level.id}
             preview={level}
-  
+
           />
         ))}
       </div>

@@ -14,9 +14,9 @@ interface DialogProps {
   onClose?: () => void;
 }
 
-// Tiempo en pantalla de los avisos: el de pista queda 40 segundos más que el de costo
-const COST_TOAST_MS = 3000;
-const CLUE_TOAST_MS = COST_TOAST_MS + 40000;
+// Tiempo en pantalla de los avisos: costo (5s) y pista (8s)
+const COST_TOAST_MS = 5000;
+const CLUE_TOAST_MS = 8000;
 
 export default function DialogBox({ dialog, onClose }: DialogProps) {
   const [log, setLog] = useState<{ question: string; answer: string }[]>([]);
@@ -80,22 +80,25 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
     try {
       const result = await askQuestion(q.id);
 
-      if (result.costCharged) {
-        if (result.newClue) {
-          setClueToast(result.newClue);
-          playHintSound();
+      // Mostrar feedback visual de costo solo cuando se descuenta
+      if (result.costCharged && result.cost) {
+        if (costTimeoutRef.current) clearTimeout(costTimeoutRef.current);
+        setCostToast(result.cost);
+        costTimeoutRef.current = setTimeout(() => {
+          setCostToast(null);
+          costTimeoutRef.current = null;
+        }, COST_TOAST_MS);
+      }
 
-          if (clueTimeoutRef.current) clearTimeout(clueTimeoutRef.current);
-          clueTimeoutRef.current = setTimeout(() => setClueToast(null), CLUE_TOAST_MS);
-        }
-
-        // Mostrar feedback visual de costo solo cuando se descuenta
-        if (result.cost) {
-          setCostToast(result.cost);
-
-          if (costTimeoutRef.current) clearTimeout(costTimeoutRef.current);
-          costTimeoutRef.current = setTimeout(() => setCostToast(null), COST_TOAST_MS);
-        }
+      // Mostrar feedback visual de pista descubierta
+      if (result.newClue) {
+        if (clueTimeoutRef.current) clearTimeout(clueTimeoutRef.current);
+        setClueToast(result.newClue);
+        playHintSound();
+        clueTimeoutRef.current = setTimeout(() => {
+          setClueToast(null);
+          clueTimeoutRef.current = null;
+        }, CLUE_TOAST_MS);
       }
 
       setLog((prev) => [...prev, { question: q.text, answer: result.answer }]);

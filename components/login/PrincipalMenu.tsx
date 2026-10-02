@@ -8,6 +8,7 @@ export default function PrincipalMenu() {
 	const router = useRouter();
 	const { isAuthenticated } = useAuth();
 
+
 	const handleContinuar = () => {
 		if (isAuthenticated) {
 			router.push("/");
