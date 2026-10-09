@@ -20,7 +20,5 @@ export interface IGameData {
     initialPI: number;
     costs: IGameCosts;
     initialClues: string[];
-    suspects: ISuspect[];
-    targetSuspect: ISuspect | null; // null si el caso todavía no tiene culpable cargado
-    criminalLocationId?: string | null; // locación del sospechoso donde se resuelve el caso
+    suspects: ISuspect[]; // el culpable y el escondite no vienen: la orden de arresto la resuelve el backend
 }

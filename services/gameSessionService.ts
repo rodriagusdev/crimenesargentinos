@@ -103,6 +103,11 @@ export function askQuestion(sessionId: string, questionCode: string): Promise<IA
   return request("POST", `/${sessionId}/ask`, { questionCode });
 }
 
+// Orden de arresto (definitiva): si ya está en el escondite se resuelve en el acto
+export function issueWarrant(sessionId: string, suspectId: string): Promise<IGameSession> {
+  return request("POST", `/${sessionId}/warrant`, { suspectId });
+}
+
 export function getDialogLog(sessionId: string, locationId: string): Promise<IDialogLogEntry[]> {
   return request("GET", `/${sessionId}/dialog-log/${locationId}`);
 }

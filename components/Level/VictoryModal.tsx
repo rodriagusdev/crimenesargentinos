@@ -16,8 +16,8 @@ export default function VictoryModal({ levelId }: VictoryModalProps) {
   const [mounted, setMounted] = useState(false);
 
   const isVictory = useGameSessionStore((state) => state.isVictory);
-  const targetSuspect = useGameSessionStore((state) => state.targetSuspect);
-  const issuedArrestSuspect = useGameSessionStore((state) => state.issuedArrestSuspect);
+  const warrantSuspectId = useGameSessionStore((state) => state.session?.warrantSuspectId ?? null);
+  const suspects = useGameSessionStore((state) => state.suspects);
 
   useEffect(() => {
     setMounted(true);
@@ -27,7 +27,8 @@ export default function VictoryModal({ levelId }: VictoryModalProps) {
     return null;
   }
 
-  const capturedSuspect = targetSuspect || issuedArrestSuspect;
+  // Si ganó, la orden era para el culpable
+  const capturedSuspect = suspects.find((s) => s.id === warrantSuspectId) ?? null;
 
   const handleBackToPrincipal = () => {
     useGameSessionStore.getState().resetSession();

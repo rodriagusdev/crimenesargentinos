@@ -25,7 +25,7 @@ export default function Login() {
 			{/* Reglas del juego (se ven sin sesión) */}
 			<Link
 				href="/reglas"
-				className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 text-xs tracking-widest text-[#FFF3C7]/80 hover:text-[#E1C380] [text-shadow:_0_2px_0_#1E2A36]"
+				className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 text-xs tracking-widest text-[#FFF3C7]/80 hover:text-[#E1C380] [text-shadow:_0_2px_0_#1E2A36]"
 			>
 				¿CÓMO SE JUEGA?
 			</Link>

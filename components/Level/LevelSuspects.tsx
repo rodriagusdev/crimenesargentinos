@@ -19,9 +19,17 @@ export default function LevelSuspects({
 }: LevelSuspectsProps) {
   const [mounted, setMounted] = useState(false);
   const [selectedSuspect, setSelectedSuspect] = useState<ISuspect | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [warrantError, setWarrantError] = useState<string | null>(null);
 
-  const issuedArrestSuspectId = useGameSessionStore((state) => state.issuedArrestSuspectId);
+  // La orden la valida y la resuelve el backend: acá solo se muestra su estado
+  const session = useGameSessionStore((state) => state.session);
+  const discoveredClues = useGameSessionStore((state) => state.discoveredClues);
   const issueArrestWarrant = useGameSessionStore((state) => state.issueArrestWarrant);
+
+  const warrantSuspectId = session?.warrantSuspectId ?? null;
+  const canIssueWarrant = Boolean(session?.canIssueWarrant);
+  const requiredClues = session?.requiredCluesForWarrant ?? 0;
 
   useEffect(() => {
     setMounted(true);
@@ -31,22 +39,29 @@ export default function LevelSuspects({
   const count = hasSuspects ? suspects.length : 3;
 
   const handleArrestClick = (suspect: ISuspect) => {
+    if (!canIssueWarrant) return;
+    setWarrantError(null);
     setSelectedSuspect(suspect);
   };
 
-  const handleConfirmArrest = () => {
-    if (selectedSuspect) {
-      console.log("[ARREST WARRANT ISSUED]", {
-        suspectId: selectedSuspect.id,
-        suspectName: selectedSuspect.name,
-      });
-      issueArrestWarrant(selectedSuspect);
+  const handleConfirmArrest = async () => {
+    if (!selectedSuspect || submitting) return;
+
+    try {
+      setSubmitting(true);
+      await issueArrestWarrant(selectedSuspect.id);
       onEmitArrest?.(selectedSuspect);
       setSelectedSuspect(null);
+    } catch (err) {
+      setWarrantError(err instanceof Error ? err.message : "No se pudo emitir la orden de arresto");
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const handleCancelArrest = () => {
+    if (submitting) return;
+    setWarrantError(null);
     setSelectedSuspect(null);
   };
 
@@ -86,11 +101,25 @@ export default function LevelSuspects({
           </span>
         </div>
 
+        {/* Estado de la orden de arresto */}
+        {warrantSuspectId ? (
+          <p className="text-[10px] font-mono text-red-200/90 bg-red-950/40 p-2.5 rounded-xl border border-red-500/30">
+            ⚖️ La orden de arresto ya fue emitida y es definitiva: se ejecuta cuando llegues al escondite del criminal.
+          </p>
+        ) : (
+          !canIssueWarrant && (
+            <p className="text-[10px] font-mono text-amber-200/90 bg-amber-950/30 p-2.5 rounded-xl border border-amber-500/30">
+              🔒 Para emitir la orden de arresto necesitás al menos {requiredClues} pistas de testigos (tenés{" "}
+              {discoveredClues.length}).
+            </p>
+          )
+        )}
+
         {/* Suspects Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 max-h-[55vh] overflow-y-auto p-1 text-left">
           {hasSuspects
             ? suspects.map((suspect, index) => {
-                const isWarrantActive = issuedArrestSuspectId === suspect.id;
+                const isWarrantActive = warrantSuspectId === suspect.id;
                 return (
                   <div
                     key={suspect.id || `suspect-${index}`}
@@ -178,10 +207,11 @@ export default function LevelSuspects({
                     <button
                       type="button"
                       onClick={() => handleArrestClick(suspect)}
-                      className={`w-full mt-3 flex items-center justify-center gap-2 px-3 py-2 rounded-xl transition-all duration-200 shadow-md group/btn cursor-pointer ${
+                      disabled={!canIssueWarrant}
+                      className={`w-full mt-3 flex items-center justify-center gap-2 px-3 py-2 rounded-xl transition-all duration-200 shadow-md group/btn disabled:cursor-not-allowed ${
                         isWarrantActive
-                          ? "bg-red-800/80 hover:bg-red-700 border border-red-400 text-white font-bold"
-                          : "bg-red-950/40 hover:bg-red-900/60 border border-red-500/30 hover:border-red-400 text-red-200"
+                          ? "bg-red-800/80 border border-red-400 text-white font-bold"
+                          : "bg-red-950/40 hover:bg-red-900/60 border border-red-500/30 hover:border-red-400 text-red-200 cursor-pointer disabled:opacity-40 disabled:hover:bg-red-950/40 disabled:hover:border-red-500/30"
                       }`}
                     >
                       <div className="relative size-5 rounded overflow-hidden border border-red-500/40 shrink-0">
@@ -200,11 +230,6 @@ export default function LevelSuspects({
                 );
               })
             : Array.from({ length: 3 }).map((_, index) => {
-              const placeholderSuspect: ISuspect = {
-                id: `empty-${index}`,
-                name: `Sospechoso ${index + 1}`,
-                description: [],
-              };
               return (
                 <div
                   key={`empty-suspect-${index}`}
@@ -242,10 +267,11 @@ export default function LevelSuspects({
                   </div>
 
                   {/* Arrest order action button for placeholder */}
+                  {/* Sin datos del caso no hay a quién emitirle la orden */}
                   <button
                     type="button"
-                    onClick={() => handleArrestClick(placeholderSuspect)}
-                    className="w-full mt-3 flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-red-950/40 hover:bg-red-900/60 border border-red-500/30 hover:border-red-400 text-red-200 transition-all duration-200 shadow-md group/btn cursor-pointer"
+                    disabled
+                    className="w-full mt-3 flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-red-950/40 border border-red-500/30 text-red-200 shadow-md opacity-40 cursor-not-allowed"
                   >
                     <div className="relative size-5 rounded overflow-hidden border border-red-500/40 shrink-0">
                       <Image
@@ -297,24 +323,32 @@ export default function LevelSuspects({
               </div>
 
               <p className="text-xs text-[#FFF3C7]/80 font-mono bg-[rgba(10,15,25,0.6)] p-3 rounded-xl border border-[rgba(255,243,199,0.12)]">
-                ¿Estás seguro de que deseas formalizar la captura de este sospechoso?
+                ¿Estás seguro de que deseas formalizar la captura de este sospechoso? La orden es definitiva: no se puede cambiar.
               </p>
+
+              {warrantError && (
+                <p className="w-full text-xs font-mono text-red-300 bg-red-950/50 p-2.5 rounded-xl border border-red-500/40">
+                  {warrantError}
+                </p>
+              )}
 
               {/* Action Buttons: Yes / No */}
               <div className="flex flex-row gap-3 w-full pt-2">
                 <button
                   type="button"
                   onClick={handleConfirmArrest}
-                  className="flex-1 py-3 px-4 rounded-xl font-mono font-bold text-xs uppercase tracking-wider bg-gradient-to-b from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white border border-red-400/60 shadow-[0_10px_25px_rgba(220,38,38,0.4)] hover:shadow-[0_15px_30px_rgba(220,38,38,0.6)] transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5"
+                  disabled={submitting}
+                  className="disabled:opacity-50 disabled:cursor-wait flex-1 py-3 px-4 rounded-xl font-mono font-bold text-xs uppercase tracking-wider bg-gradient-to-b from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white border border-red-400/60 shadow-[0_10px_25px_rgba(220,38,38,0.4)] hover:shadow-[0_15px_30px_rgba(220,38,38,0.6)] transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5"
                 >
                   <span>✓</span>
-                  <span>SÍ</span>
+                  <span>{submitting ? "EMITIENDO..." : "SÍ"}</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={handleCancelArrest}
-                  className="flex-1 py-3 px-4 rounded-xl font-mono font-bold text-xs uppercase tracking-wider bg-[rgba(20,30,42,0.6)] hover:bg-[rgba(255,243,199,0.1)] text-[#FFF3C7]/80 hover:text-[#FFF3C7] border border-[rgba(255,243,199,0.2)] transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5"
+                  disabled={submitting}
+                  className="disabled:opacity-50 flex-1 py-3 px-4 rounded-xl font-mono font-bold text-xs uppercase tracking-wider bg-[rgba(20,30,42,0.6)] hover:bg-[rgba(255,243,199,0.1)] text-[#FFF3C7]/80 hover:text-[#FFF3C7] border border-[rgba(255,243,199,0.2)] transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5"
                 >
                   <span>✕</span>
                   <span>NO</span>

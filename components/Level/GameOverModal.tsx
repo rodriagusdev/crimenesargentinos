@@ -55,14 +55,18 @@ export default function GameOverModal({ levelId }: GameOverModalProps) {
       ? "¡TIEMPO AGOTADO!"
       : gameOverReason === "pi"
         ? "¡SIN PUNTOS DE INVESTIGACIÓN!"
-        : "¡ARRESTO FALLIDO!";
+        : gameOverReason === "nowarrant"
+          ? "¡SIN ORDEN DE ARRESTO!"
+          : "¡ARRESTO FALLIDO!";
 
   const description =
     gameOverReason === "time"
       ? "El plazo límite de la investigación ha concluido y el sospechoso logró escapar del país. El caso se ha cerrado."
       : gameOverReason === "pi"
         ? "Has agotado todos tus Puntos de Investigación (PI) sin obtener la evidencia suficiente para proceder. El sospechoso ha burlado la persecución."
-        : "El sospechoso se encontraba en este lugar, pero no pudiste detenerlo legalmente (falta de orden de arresto o la orden estaba dirigida a otra persona). El criminal logró escapar.";
+        : gameOverReason === "nowarrant"
+          ? "Encontraste el escondite del criminal, pero no tenías las pistas suficientes para emitir una orden de arresto. No pudiste detenerlo legalmente y logró escapar."
+          : "Encontraste el escondite del criminal, pero la orden de arresto estaba dirigida a otra persona. No pudiste detenerlo legalmente y logró escapar.";
 
   return createPortal(
     <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md animate-fade-in select-none">

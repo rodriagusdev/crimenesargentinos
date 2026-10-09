@@ -4,6 +4,7 @@ import {
   askQuestion as askQuestionApi,
   GameSessionApiError,
   getSession,
+  issueWarrant,
   markIntroSeen as markIntroSeenApi,
   playLevel,
   sessionRoute,
@@ -21,8 +22,7 @@ interface GameSessionState {
   session: IGameSession | null;
   costs: IGameCosts | null; // de game-data, para mostrar el precio antes de confirmar
   videoUrl: string | null; // video de intro del caso en juego
-  targetSuspect: ISuspect | null;
-  criminalLocationId: string | null;
+  suspects: ISuspect[]; // de game-data; el culpable no viene marcado
 
   // Atajos al estado de la partida
   currentTime: number;
@@ -32,8 +32,6 @@ interface GameSessionState {
   isGameOver: boolean;
   gameOverReason: IGameSession["gameOverReason"];
   isVictory: boolean;
-  issuedArrestSuspectId: string | null;
-  issuedArrestSuspect: ISuspect | null;
   discoveredClues: string[];
   askedQuestions: string[];
   flags: string[];
@@ -46,9 +44,7 @@ interface GameSessionState {
   travelLocation: (locationId: string) => Promise<IGameSession>;
   markIntroSeen: (locationId: string) => Promise<IGameSession>;
   askQuestion: (questionCode: string) => Promise<IAskQuestionResult>;
-  issueArrestWarrant: (suspect: ISuspect) => void;
-  triggerGameOver: (reason: "time" | "pi" | "arrest") => void;
-  triggerVictory: () => void;
+  issueArrestWarrant: (suspectId: string) => Promise<IGameSession>;
   restartLevel: (levelId: number) => Promise<void>;
   resetSession: () => void;
 }
@@ -58,8 +54,7 @@ const emptySession = {
   session: null,
   costs: null,
   videoUrl: null,
-  targetSuspect: null,
-  criminalLocationId: null,
+  suspects: [],
   currentTime: 0,
   currentPI: 0,
   initialTime: 0,
@@ -67,8 +62,6 @@ const emptySession = {
   isGameOver: false,
   gameOverReason: null,
   isVictory: false,
-  issuedArrestSuspectId: null,
-  issuedArrestSuspect: null,
   discoveredClues: [],
   askedQuestions: [],
   flags: [],
@@ -84,6 +77,7 @@ const fromSession = (session: IGameSession) => ({
   initialPI: session.initialPI,
   isGameOver: session.isGameOver,
   gameOverReason: session.gameOverReason,
+  isVictory: session.status === "Won",
   discoveredClues: session.discoveredClues,
   askedQuestions: session.askedQuestions,
   flags: session.flags,
@@ -130,16 +124,11 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
       // La partida va primero: si falla (401, 403) ese es el error que se reporta
       const promise = Promise.all([startOrResumeSession(levelId), getGameData(levelId)])
         .then(([newSession, gameData]) => {
-          const rawGameData = gameData as unknown as Record<string, unknown>;
-          const crimLocId = (rawGameData.criminalLocationId ?? rawGameData.CriminalLocationId ?? null) as string | null;
-          const tgtSuspect = (rawGameData.targetSuspect ?? rawGameData.TargetSuspect ?? null) as ISuspect | null;
-
           set({
             ...fromSession(newSession),
             costs: gameData.costs,
             videoUrl: gameData.videoUrl ?? null,
-            targetSuspect: tgtSuspect,
-            criminalLocationId: crimLocId,
+            suspects: gameData.suspects,
           });
           return newSession;
         })
@@ -163,43 +152,20 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
     askQuestion: (questionCode: string) =>
       act((sessionId) => askQuestionApi(sessionId, questionCode), (result) => result.state),
 
-    issueArrestWarrant: (suspect: ISuspect) => {
-      set({
-        issuedArrestSuspectId: suspect.id,
-        issuedArrestSuspect: suspect,
-      });
-    },
-
-    triggerGameOver: (reason: "time" | "pi" | "arrest") => {
-      set({
-        isGameOver: true,
-        gameOverReason: reason,
-      });
-    },
-
-    triggerVictory: () => {
-      set({
-        isVictory: true,
-      });
-    },
+    // El backend valida las pistas y, si el jugador ya está en el escondite, resuelve si ganó o perdió
+    issueArrestWarrant: (suspectId: string) =>
+      act((sessionId) => issueWarrant(sessionId, suspectId), (session) => session),
 
     play: async () => {
       const newSession = await playLevel();
       const gameData = await getGameData(newSession.caseId);
-      const rawGameData = gameData as unknown as Record<string, unknown>;
-      const crimLocId = (rawGameData.criminalLocationId ?? rawGameData.CriminalLocationId ?? null) as string | null;
-      const tgtSuspect = (rawGameData.targetSuspect ?? rawGameData.TargetSuspect ?? null) as ISuspect | null;
 
       pendingInit = null;
       set({
         ...fromSession(newSession),
         costs: gameData.costs,
         videoUrl: gameData.videoUrl ?? null,
-        targetSuspect: tgtSuspect,
-        criminalLocationId: crimLocId,
-        issuedArrestSuspectId: null,
-        issuedArrestSuspect: null,
-        isVictory: false,
+        suspects: gameData.suspects,
       });
       return newSession;
     },
