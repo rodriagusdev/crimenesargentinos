@@ -1,16 +1,9 @@
-import { useRef } from "react";
+import { useAudioStore } from "@/stores/useAudioStore";
 
 export function useTypewriterSound() {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const playSfx = useAudioStore((state) => state.playSfx);
 
-  const play = () => {
-    if (!audioRef.current) {
-      audioRef.current = new Audio("/sounds/typewriter.wav");
-      audioRef.current.volume = 0.1;
-    }
-    audioRef.current.currentTime = 0;
-    audioRef.current.play();
+  return () => {
+    playSfx("typewriter");
   };
-  
-  return play;
 }

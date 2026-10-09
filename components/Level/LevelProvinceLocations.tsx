@@ -10,6 +10,7 @@ import ILocation from "@/models/ILocation";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { useGameSession } from "@/hooks/useGameSession";
 import TravelConfirmModal from "./TravelConfirmModal";
+import SuspectProvinceWarning from "./SuspectProvinceWarning";
 
 interface LevelDataProps {
   levelId: number;
@@ -100,6 +101,8 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
     }
   };
 
+  const currentLocation = data?.locations.find((l) => l.id === currentLocationId);
+
   return (
     <>
       {/* Fondo del mapa */}
@@ -115,19 +118,38 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
         <div className="absolute inset-0 bg-black/40" />
       </div>
 
+      {/* Alerta si el sospechoso podría estar en esta provincia */}
+      <SuspectProvinceWarning levelId={levelId} provinceName={data.name} provinceId={provinceId} />
+
       {/* Barra de menú lateral con glassmorfismo */}
       <aside className="mt-4 mr-6 rounded-2xl absolute right-0 top-0 bottom-4 w-80 backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] p-6 flex flex-col z-20 text-[#FFF3C7] overflow-hidden">
 
         {/* Título del menú/provincia */}
-        <div className="flex items-center justify-between mb-6 border-b border-[rgba(255,243,199,0.12)] pb-4">
-          <div>
-            <h1 className="text-xl font-bold text-[#FFF3C7]">
-              {data.name}
-            </h1>
-            <p className="text-xs text-[#E1C380]/80 font-mono tracking-wider mt-0.5">
-              PROVINCIA #{provinceId.slice(0, 8).toUpperCase()}
-            </p>
+        <div className="flex flex-col mb-4 border-b border-[rgba(255,243,199,0.12)] pb-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-bold text-[#FFF3C7]">
+                {data.name}
+              </h1>
+              <p className="text-xs text-[#E1C380]/80 font-mono tracking-wider mt-0.5">
+                PROVINCIA #{provinceId.slice(0, 8).toUpperCase()}
+              </p>
+            </div>
           </div>
+
+          {currentLocation && (
+            <div className="mt-3 px-3 py-2 rounded-xl bg-amber-950/70 border border-amber-400/50 shadow-inner flex items-center gap-2">
+              <span className="text-base animate-pulse">📍</span>
+              <div className="flex flex-col">
+                <span className="text-[9px] uppercase tracking-widest text-[#E1C380]/80 font-mono font-semibold">
+                  Estás actualmente en:
+                </span>
+                <span className="text-xs font-bold text-amber-200 font-mono">
+                  {currentLocation.name}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
 
         <h2 className="text-xs uppercase tracking-wider text-[#FFF3C7]/60 mb-4 font-semibold">
@@ -136,22 +158,28 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
 
         {/* Lista de botones de ubicaciones */}
         <div className="flex-grow flex flex-col gap-3 overflow-y-auto pt-4">
-          {data.locations.map((location) => (
-            <GameButton
-              key={location.id}
-              icon={""}
-              label={location.name}
-              onClick={() => {
-                setTravelError(null);
-                // Volver a la locación en la que ya está no cuesta nada: se entra directo, sin confirmar
-                if (location.id === currentLocationId) {
-                  router.push(`/level/${levelId}/${provinceId}/${location.id}`);
-                  return;
-                }
-                setSelectedLocation(location);
-              }}
-            />
-          ))}
+          {data.locations.map((location) => {
+            const isCurrent = location.id === currentLocationId;
+            return (
+              <GameButton
+                key={location.id}
+                icon={isCurrent ? "📍" : ""}
+                label={isCurrent ? `${location.name} (ESTÁS ACÁ)` : location.name}
+                variant={isCurrent ? "primary" : "secondary"}
+                disabled={traveling}
+                onClick={() => {
+                  if (traveling) return;
+                  setTravelError(null);
+                  // Volver a la locación en la que ya está no cuesta nada: se entra directo, sin confirmar
+                  if (location.id === currentLocationId) {
+                    router.push(`/level/${levelId}/${provinceId}/${location.id}`);
+                    return;
+                  }
+                  setSelectedLocation(location);
+                }}
+              />
+            );
+          })}
         </div>
 
         <div className="mt-auto w-full">
@@ -159,7 +187,8 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
             icon="🗺️"
             label="VOLVER AL MAPA DE ARGENTINA"
             variant="secondary"
-            onClick={() => router.push(`/level/${levelId}`)}
+            disabled={traveling}
+            onClick={() => !traveling && router.push(`/level/${levelId}`)}
           />
         </div>
       </aside>
@@ -178,8 +207,9 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
           destinationName={selectedLocation?.name ?? ""}
           cost={locationCost}
           currentResources={{ time: currentTime, pi: currentPI }}
+          loading={traveling}
           onConfirm={handleConfirmLocation}
-          onCancel={() => setSelectedLocation(null)}
+          onCancel={() => !traveling && setSelectedLocation(null)}
         />
       )}
     </>

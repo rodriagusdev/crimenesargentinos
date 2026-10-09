@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import { ISuspect } from "@/models/ISuspect";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
+import { useAudioStore } from "@/stores/useAudioStore";
 
 interface LevelSuspectsProps {
   suspects?: ISuspect[];
@@ -21,6 +22,7 @@ export default function LevelSuspects({
   const [selectedSuspect, setSelectedSuspect] = useState<ISuspect | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [warrantError, setWarrantError] = useState<string | null>(null);
+  const playSfx = useAudioStore((state) => state.playSfx);
 
   // La orden la valida y la resuelve el backend: acá solo se muestra su estado
   const session = useGameSessionStore((state) => state.session);
@@ -49,6 +51,7 @@ export default function LevelSuspects({
 
     try {
       setSubmitting(true);
+      playSfx("stamp");
       await issueArrestWarrant(selectedSuspect.id);
       onEmitArrest?.(selectedSuspect);
       setSelectedSuspect(null);

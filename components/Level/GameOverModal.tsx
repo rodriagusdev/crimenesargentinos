@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import GameButton from "../buttons/GameButton";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 
+import { useAudioStore } from "@/stores/useAudioStore";
+
 interface GameOverModalProps {
   levelId: number;
 }
@@ -21,6 +23,12 @@ export default function GameOverModal({ levelId }: GameOverModalProps) {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (isGameOver) {
+      useAudioStore.getState().playSfx("defeat");
+    }
+  }, [isGameOver]);
 
   if (!mounted || !isGameOver || typeof window === "undefined") {
     return null;

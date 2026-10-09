@@ -9,6 +9,7 @@ import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { useGameSession } from "@/hooks/useGameSession";
 import IProvince from "@/models/IProvince";
 import TravelConfirmModal from "./TravelConfirmModal";
+import TravelAnimationOverlay from "./TravelAnimationOverlay";
 
 interface LevelDataProps {
   levelId: number;
@@ -26,6 +27,7 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedProvince, setSelectedProvince] = useState<IProvince | null>(null);
+  const [travelingTo, setTravelingTo] = useState<IProvince | null>(null);
   const [traveling, setTraveling] = useState(false);
   const [travelError, setTravelError] = useState<string | null>(null);
 
@@ -73,19 +75,29 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
     );
   }
 
-  // El servidor cobra el viaje y mueve al jugador; recién después se navega
+  const currentProvince = data.provinces.find((p) => p.id === currentProvinceId);
+
+  // El servidor cobra el viaje y mueve al jugador con animación de vuelo
   const handleConfirmTravel = async () => {
     if (!selectedProvince || traveling) return;
-    const targetId = selectedProvince.id;
+    const targetProvince = selectedProvince;
+    const targetId = targetProvince.id;
 
     setTraveling(true);
+    setTravelingTo(targetProvince);
     setTravelError(null);
+    setSelectedProvince(null);
+
     try {
-      await travelProvince(targetId);
-      setSelectedProvince(null);
+      // Lanzar petición y esperar al menos 1.6s para que la animación de vuelo se aprecie
+      const [result] = await Promise.all([
+        travelProvince(targetId),
+        new Promise((resolve) => setTimeout(resolve, 1600)),
+      ]);
+
       router.push(`/level/${levelId}/${targetId}`);
     } catch (err) {
-      setSelectedProvince(null);
+      setTravelingTo(null);
       setTravelError(err instanceof Error ? err.message : "No se pudo viajar a la provincia");
     } finally {
       setTraveling(false);
@@ -94,6 +106,14 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
 
   return (
     <>
+      {/* Animación de vuelo interprovincial */}
+      {travelingTo && (
+        <TravelAnimationOverlay
+          fromProvince={currentProvince}
+          toProvince={travelingTo}
+        />
+      )}
+
       <div className="absolute inset-0 z-10">
         {data.provinces.map((province) => (
           <ProvinceButton
@@ -103,6 +123,7 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
             left={province.left}
             icon={province.icon}
             onClick={() => {
+              if (traveling) return;
               setTravelError(null);
               // Volver a la provincia en la que ya está no cuesta nada: se entra directo, sin confirmar
               if (province.id === currentProvinceId) {
@@ -130,8 +151,9 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
           destinationIcon={selectedProvince?.icon}
           cost={travelCost}
           currentResources={{ time: currentTime, pi: currentPI }}
+          loading={traveling}
           onConfirm={handleConfirmTravel}
-          onCancel={() => setSelectedProvince(null)}
+          onCancel={() => !traveling && setSelectedProvince(null)}
         />
       )}
     </>

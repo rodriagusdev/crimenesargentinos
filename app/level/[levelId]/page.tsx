@@ -26,9 +26,6 @@ export default async function Level({ params }: Props) {
         sizes="100vw"
       />
 
-      {/* Botón Volver a la pantalla principal */}
-      <BackToPrincipalButton />
-
       {/* Temporizador central superior */}
       <LevelTimer levelId={id} />
 

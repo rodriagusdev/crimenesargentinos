@@ -13,6 +13,7 @@ import { useGameSessionStore } from "@/stores/useGameSessionStore";
 
 import GameButton from "../buttons/GameButton";
 import LevelSuspects from "./LevelSuspects";
+import SoundSettingsModal from "../settings/SoundSettingsModal";
 
 interface LevelMenuProps {
   levelId: number;
@@ -25,6 +26,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
   const [info, setInfo] = useState<IGameData | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
+  const [showSoundSettings, setShowSoundSettings] = useState(false);
   const [isRestarting, setIsRestarting] = useState(false);
   const discoveredClues = useGameSessionStore((state) => state.discoveredClues);
   const resetSession = useGameSessionStore((state) => state.resetSession);
@@ -216,8 +218,17 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
               ))}
             </div>
 
-            {/* Volver al menú principal */}
-            <div className="pt-2 border-t border-[rgba(255,243,199,0.1)]">
+            {/* Opciones de sonido y Volver al menú principal */}
+            <div className="pt-2 border-t border-[rgba(255,243,199,0.1)] flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => setShowSoundSettings(true)}
+                className="w-full py-2 px-4 rounded-xl bg-[rgba(255,243,199,0.06)] hover:bg-[rgba(255,243,199,0.12)] border border-[rgba(255,243,199,0.2)] hover:border-[#E1C380] text-[#FFF3C7] font-mono text-xs font-semibold tracking-wider flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer shadow-md"
+              >
+                <span>⚙️</span>
+                <span>AJUSTES DE AUDIO</span>
+              </button>
+
               <button
                 type="button"
                 onClick={() => setShowRestartConfirm(true)}
@@ -230,6 +241,12 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
           </div>
         </div>
       </aside>
+
+      {/* Modal de Ajustes de Audio */}
+      <SoundSettingsModal
+        isOpen={showSoundSettings}
+        onClose={() => setShowSoundSettings(false)}
+      />
 
       {/* Modal interactivo al pulsar una acción */}
       {activeModal && (

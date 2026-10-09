@@ -18,6 +18,7 @@ interface TravelConfirmModalProps {
     time: number;
     pi: number;
   };
+  loading?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -29,6 +30,7 @@ export default function TravelConfirmModal({
   destinationIcon,
   cost,
   currentResources,
+  loading = false,
   onConfirm,
   onCancel,
 }: TravelConfirmModalProps) {
@@ -168,7 +170,8 @@ export default function TravelConfirmModal({
             label="CONFIRMAR DESPLAZAMIENTO"
             variant="primary"
             onClick={onConfirm}
-            disabled={!canTravel}
+            loading={loading}
+            disabled={!canTravel || loading}
           />
 
           <GameButton
@@ -176,6 +179,7 @@ export default function TravelConfirmModal({
             label="CANCELAR"
             variant="secondary"
             onClick={onCancel}
+            disabled={loading}
           />
         </div>
       </div>

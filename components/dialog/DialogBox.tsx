@@ -22,6 +22,7 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
   const [log, setLog] = useState<{ question: string; answer: string }[]>([]);
   const [costToast, setCostToast] = useState<{ time: number; pi: number } | null>(null);
   const [clueToast, setClueToast] = useState<string | null>(null);
+  const [askingQuestionId, setAskingQuestionId] = useState<string | null>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
   const costTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const clueTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -70,8 +71,9 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
 
   // El servidor cobra (solo la primera vez), desbloquea pistas y flags y guarda la pregunta en el chat
   const onQuestionClicked = async (q: IDialogQuestion) => {
-    if (!q.answer || askingRef.current) return;
+    if (!q.answer || askingRef.current || askedQuestions.includes(q.id)) return;
     askingRef.current = true;
+    setAskingQuestionId(q.id);
 
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("close-investigation-menu"));
@@ -106,6 +108,7 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
       console.error("No se pudo hacer la pregunta:", err);
     } finally {
       askingRef.current = false;
+      setAskingQuestionId(null);
     }
   };
 
@@ -280,15 +283,22 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
 
                 {/* Questions — pinned to bottom */}
                 <div className="px-5 py-4 flex flex-col gap-2">
-                  {availableQuestions.map((q) => (
-                    <GameButton
-                      key={q.id}
-                      icon=""
-                      label={q.text}
-                      onClick={() => onQuestionClicked(q)}
-                      disabled={askedQuestions.includes(q.id)}
-                    />
-                  ))}
+                  {availableQuestions.map((q) => {
+                    const isAsked = askedQuestions.includes(q.id);
+                    const isThisAsking = askingQuestionId === q.id;
+                    const isAnyAsking = Boolean(askingQuestionId);
+
+                    return (
+                      <GameButton
+                        key={q.id}
+                        icon=""
+                        label={q.text}
+                        onClick={() => onQuestionClicked(q)}
+                        loading={isThisAsking}
+                        disabled={isAsked || (isAnyAsking && !isThisAsking)}
+                      />
+                    );
+                  })}
                 </div>
               </div>
             </div>
