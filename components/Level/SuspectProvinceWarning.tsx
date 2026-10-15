@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState, useMemo } from "react";
 import { useAudioStore } from "@/stores/useAudioStore";
@@ -47,6 +47,18 @@ export const CASE_SUSPECT_LOCATIONS: Record<number, CaseSuspectLocation> = {
     provinceName: "Santa Fe",
     criminalLocationId: "c3e70ad5-ac42-4f48-9d1a-cb4e8a2894f2",
     criminalLocationName: "Rambla Catalunya",
+  },
+  6: {
+    provinceId: "01653342-9355-4d4b-b391-4de7fd955de2",
+    provinceName: "Buenos Aires",
+    criminalLocationId: "cf7f9e56-6149-4e68-ae5a-2bba9829dfa3",
+    criminalLocationName: "Mercado Avellaneda",
+  },
+  7: {
+    provinceId: "235804f3-f074-4c22-b9d6-3fd616f85500",
+    provinceName: "Cordoba",
+    criminalLocationId: "532fc8d8-1c54-4b6a-9667-03d91e6b100f",
+    criminalLocationName: "Manzana Jesuítica",
   },
 };
 
