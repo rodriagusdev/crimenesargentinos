@@ -51,9 +51,10 @@ export const adminTables: AdminTable[] = [
     controller: "Cases",
     keyKind: "int",
     label: (r) => `#${str(r.id)} ${str(r.title)}`,
-    columns: ["id", "title", "initialTime", "initialPI", "startLocationId"],
-    orderBy: ["id"],
+    columns: ["id", "groupLevel", "title", "initialTime", "initialPI", "startLocationId"],
+    orderBy: ["groupLevel", "id"],
     fields: [
+      { name: "groupLevel", label: "Nivel", type: "number", required: true, hint: "El nivel N sortea entre los casos con este valor (variaciones del mismo caso)" },
       { name: "title", label: "Título", type: "text", required: true },
       { name: "description", label: "Descripción", type: "textarea", required: true },
       { name: "imageUrl", label: "Imagen (URL)", type: "text" },
