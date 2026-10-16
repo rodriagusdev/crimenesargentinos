@@ -19,7 +19,8 @@ function toCard(level: ILevelOverview): ICardLevelPreview {
         : "Resolvé el nivel anterior para desbloquearlo.",
     imageURL: (hasCase && level.imageUrl) || `/images/levelcardspreview/level_${level.level}_preview.jpg`,
     videoURL: level.status === "current" ? level.videoUrl ?? undefined : undefined,
-    canPlay: level.status === "current",
+    // El nivel habilitado se juega; los completados se pueden rejugar
+    canPlay: level.status === "current" || level.status === "completed",
     completed: level.status === "completed",
   };
 }

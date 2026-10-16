@@ -120,6 +120,8 @@ export const adminTables: AdminTable[] = [
     fields: [
       { name: "name", label: "Nombre", type: "text", required: true },
       { name: "backgroundUrl", label: "Fondo (URL)", type: "text" },
+      { name: "latitude", label: "Latitud (punto de llegada)", type: "decimal", hint: "Para calcular el tiempo de viaje según la distancia" },
+      { name: "longitude", label: "Longitud (punto de llegada)", type: "decimal", hint: "Para calcular el tiempo de viaje según la distancia" },
     ],
   },
   {
@@ -137,6 +139,8 @@ export const adminTables: AdminTable[] = [
       { name: "provinceId", label: "Provincia", type: "reference", reference: "provinces", required: true },
       { name: "name", label: "Nombre", type: "text", required: true },
       { name: "imageUrl", label: "Imagen (URL)", type: "text" },
+      { name: "latitude", label: "Latitud", type: "decimal", hint: "Para calcular el tiempo de viaje según la distancia" },
+      { name: "longitude", label: "Longitud", type: "decimal", hint: "Para calcular el tiempo de viaje según la distancia" },
     ],
   },
   {

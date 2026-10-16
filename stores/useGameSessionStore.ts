@@ -39,7 +39,7 @@ interface GameSessionState {
 
   // Métodos
   initSession: (levelId: number) => Promise<IGameSession>;
-  play: () => Promise<IGameSession>; // retoma o sortea el caso del nivel habilitado
+  play: (level?: number) => Promise<IGameSession>; // retoma o sortea el caso del nivel habilitado; con nivel, rejuega uno completado
   travelProvince: (provinceId: string) => Promise<IGameSession>;
   travelLocation: (locationId: string) => Promise<IGameSession>;
   markIntroSeen: (locationId: string) => Promise<IGameSession>;
@@ -156,8 +156,8 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
     issueArrestWarrant: (suspectId: string) =>
       act((sessionId) => issueWarrant(sessionId, suspectId), (session) => session),
 
-    play: async () => {
-      const newSession = await playLevel();
+    play: async (level?: number) => {
+      const newSession = await playLevel(level);
       const gameData = await getGameData(newSession.caseId);
 
       pendingInit = null;
@@ -170,9 +170,9 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
       return newSession;
     },
 
-    // Después de perder se juega otra partida: el caso se vuelve a sortear
+    // Después de perder se juega otra partida del mismo nivel: el caso se vuelve a sortear
     restartLevel: async () => {
-      await get().play();
+      await get().play(get().session?.level);
     },
 
     // Solo limpia la copia local: la partida sigue guardada en el servidor para continuarla

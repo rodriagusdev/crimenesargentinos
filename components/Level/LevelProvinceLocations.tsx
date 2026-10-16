@@ -34,6 +34,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
   const [travelError, setTravelError] = useState<string | null>(null);
 
   const locationCost = useGameSessionStore((state) => state.costs?.travelLocation);
+  const travelHours = useGameSessionStore((state) => state.session?.travelHours);
 
   useEffect(() => {
     let cancelled = false;
@@ -205,7 +206,8 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
           isOpen={Boolean(selectedLocation)}
           title="¿Inspeccionar Locación?"
           destinationName={selectedLocation?.name ?? ""}
-          cost={locationCost}
+          // Las horas dependen de la distancia desde donde está el jugador; los PI son fijos
+          cost={{ ...locationCost, time: (selectedLocation && travelHours?.[selectedLocation.id]) ?? locationCost.time }}
           currentResources={{ time: currentTime, pi: currentPI }}
           loading={traveling}
           onConfirm={handleConfirmLocation}

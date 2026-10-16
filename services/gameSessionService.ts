@@ -5,12 +5,28 @@ import { IAskQuestionResult, IDialogLogEntry, IGameSession, ILeaderboardEntry, I
 // 401 volver al login, 403 caso bloqueado, 404 sin partida, 409 la partida ya terminó, 400 jugada no válida
 export class GameSessionApiError extends Error {
   status: number;
+  body: Record<string, unknown> | null; // cuerpo JSON de la respuesta (p. ej. el 409 de play trae la partida en curso)
 
-  constructor(status: number, message: string) {
+  constructor(status: number, message: string, body: Record<string, unknown> | null = null) {
     super(message);
     this.name = "GameSessionApiError";
     this.status = status;
+    this.body = body;
   }
+}
+
+// 409 de play: hay una partida en curso de otro nivel que hay que abandonar para rejugar
+export interface IPlayConflict {
+  sessionId: string;
+  level: number;
+  message: string;
+}
+
+export function playConflictOf(err: unknown): IPlayConflict | null {
+  if (!(err instanceof GameSessionApiError) || err.status !== 409 || !err.body) return null;
+  const { sessionId, level } = err.body;
+  if (typeof sessionId !== "string" || typeof level !== "number") return null;
+  return { sessionId, level, message: err.message };
 }
 
 async function request<T>(method: "GET" | "POST", path: string, body?: unknown): Promise<T> {
@@ -30,12 +46,14 @@ async function request<T>(method: "GET" | "POST", path: string, body?: unknown):
   handleUnauthorized(response);
   if (!response.ok) {
     let message = response.statusText;
+    let body: Record<string, unknown> | null = null;
     try {
-      message = (await response.json()).message ?? message;
+      body = await response.json();
+      message = (body?.message as string | undefined) ?? message;
     } catch {
       // respuesta sin cuerpo JSON
     }
-    throw new GameSessionApiError(response.status, message);
+    throw new GameSessionApiError(response.status, message, body);
   }
 
   return response.json();
@@ -56,9 +74,10 @@ export function getLevels(): Promise<ILevelOverview[]> {
   return request("GET", "/levels");
 }
 
-// Retoma la partida en curso o sortea el caso del nivel habilitado
-export function playLevel(): Promise<IGameSession> {
-  return request("POST", "/play");
+// Sin nivel: retoma la partida en curso o sortea el caso del nivel habilitado.
+// Con un nivel completado: lo rejuega con un caso ya ganado (409 si hay una partida en curso de otro nivel)
+export function playLevel(level?: number): Promise<IGameSession> {
+  return request("POST", level === undefined ? "/play" : `/play?level=${level}`);
 }
 
 // Partida en curso del caso, sin crear una (404 si no hay)

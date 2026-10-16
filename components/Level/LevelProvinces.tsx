@@ -32,6 +32,7 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
   const [travelError, setTravelError] = useState<string | null>(null);
 
   const travelCost = useGameSessionStore((state) => state.costs?.travelProvince);
+  const travelHours = useGameSessionStore((state) => state.session?.travelHours);
 
   useEffect(() => {
     let cancelled = false;
@@ -149,7 +150,8 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
           title="¿Viajar a otra Provincia?"
           destinationName={selectedProvince?.name ?? ""}
           destinationIcon={selectedProvince?.icon}
-          cost={travelCost}
+          // Las horas dependen de la distancia a esa provincia; los PI son fijos
+          cost={{ ...travelCost, time: (selectedProvince && travelHours?.[selectedProvince.id]) ?? travelCost.time }}
           currentResources={{ time: currentTime, pi: currentPI }}
           loading={traveling}
           onConfirm={handleConfirmTravel}

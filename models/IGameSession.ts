@@ -29,6 +29,9 @@ export interface IGameSession {
   canIssueWarrant: boolean; // tiene las pistas necesarias y todavía no la emitió
   facingCriminal: boolean; // llegó al escondite sin orden: lo único que puede hacer es emitirla
   requiredCluesForWarrant: number;
+  // Horas de viaje según la distancia desde donde está el jugador: id de provincia o locación → horas.
+  // Vacío si el caso no tiene coordenadas (se usan los costos fijos de game-data)
+  travelHours: Record<string, number>;
   discoveredClues: string[]; // sin las iniciales (vienen en game-data)
   askedQuestions: string[]; // códigos
   flags: string[]; // códigos

@@ -5,5 +5,5 @@ export interface ICardLevelPreview {
   imageURL: string;
   videoURL?: string;
   canPlay: boolean;
-  completed?: boolean; // nivel ya ganado: no se vuelve a jugar
+  completed?: boolean; // nivel ya ganado: se puede rejugar (con un caso ya ganado)
 }
