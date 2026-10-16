@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState, useMemo } from "react";
 import { useAudioStore } from "@/stores/useAudioStore";
@@ -59,6 +59,30 @@ export const CASE_SUSPECT_LOCATIONS: Record<number, CaseSuspectLocation> = {
     provinceName: "Cordoba",
     criminalLocationId: "532fc8d8-1c54-4b6a-9667-03d91e6b100f",
     criminalLocationName: "Manzana Jesuítica",
+  },
+  8: {
+    provinceId: "db555128-3ee4-4e5d-bcf2-1a86aec26e31",
+    provinceName: "Corrientes",
+    criminalLocationId: "769bbd87-e207-4acf-9c17-b98a07949632",
+    criminalLocationName: "Teatro Oficial Juan de Vera",
+  },
+  9: {
+    provinceId: "eceab6a9-3478-4c0e-b41a-81ed46ff4fa1",
+    provinceName: "Tierra del Fuego",
+    criminalLocationId: "37e94d90-5583-45ec-a84c-77d960aa3e05",
+    criminalLocationName: "Isla Martillo",
+  },
+  10: {
+    provinceId: "c9daed5d-7052-47f8-bc72-dea33bcbb152",
+    provinceName: "Río Negro",
+    criminalLocationId: "9e5a8ed9-cf87-4175-a437-8a4a4c55d87a",
+    criminalLocationName: "Hotel Llao Llao",
+  },
+  11: {
+    provinceId: "a36af09c-7bc6-4ad9-9d14-ce0a2c7094f7",
+    provinceName: "Mendoza",
+    criminalLocationId: "278ab945-2dc8-46ed-8311-b417ccf5df09",
+    criminalLocationName: "Puente del Inca",
   },
 };
 
