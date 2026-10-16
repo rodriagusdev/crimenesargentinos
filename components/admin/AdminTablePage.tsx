@@ -6,6 +6,7 @@ import { AdminField, AdminTable, deletePath, findAdminTable, rowKey } from "@/li
 import { AdminApiError, AdminRow, createRow, deleteRow, listRows, updateRow } from "@/services/adminService";
 import AdminFieldInput, { adminInputClass, ReferenceOption } from "./AdminFieldInput";
 import AdminIcon from "./AdminIcon";
+import AdminImagePreview, { AdminImage } from "./AdminImagePreview";
 
 interface Props {
   tableKey: string;
@@ -25,6 +26,9 @@ const secondaryButton = `${button} px-3.5 py-2 border border-white/10 text-slate
 const iconButton = `${button} size-8 text-slate-400 hover:text-slate-100 hover:bg-white/[0.06]`;
 
 const isEmpty = (value: unknown) => value === null || value === undefined || value === "";
+
+// "Retrato (URL)" → "Retrato": título de cada imagen en el preview
+const imageLabel = (field: AdminField) => field.label.replace(/\s*\(URL\)\s*$/, "");
 
 function fieldLabel(table: AdminTable, name: string): string {
   if (name === "id") return "Id";
@@ -46,6 +50,7 @@ export default function AdminTablePage({ tableKey }: Props) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("");
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [preview, setPreview] = useState<{ title: string; images: AdminImage[] } | null>(null);
 
   // 401: sesión vencida, 403: no es admin
   const handleAuthError = useCallback(
@@ -155,6 +160,11 @@ export default function AdminTablePage({ tableKey }: Props) {
   };
 
   const filterField = table.filterBy ? table.fields.find((f) => f.name === table.filterBy) : undefined;
+
+  // Imágenes cargadas en un registro (campos marcados con image), para el botón "Ver imagen"
+  const imageFields = table.fields.filter((f) => f.image);
+  const rowImages = (row: AdminRow): AdminImage[] =>
+    imageFields.filter((f) => !isEmpty(row[f.name])).map((f) => ({ label: imageLabel(f), url: String(row[f.name]) }));
 
   const visibleRows = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -329,6 +339,16 @@ export default function AdminTablePage({ tableKey }: Props) {
                         </div>
                       ) : (
                         <div className="inline-flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                          {rowImages(row).length > 0 && (
+                            <button
+                              className={iconButton}
+                              onClick={() => setPreview({ title: table.label(row), images: rowImages(row) })}
+                              title="Ver imagen"
+                              aria-label="Ver imagen"
+                            >
+                              <AdminIcon name="image" />
+                            </button>
+                          )}
                           {editable && (
                             <button className={iconButton} onClick={() => openEdit(row)} title="Editar" aria-label="Editar">
                               <AdminIcon name="edit" />
@@ -390,6 +410,16 @@ export default function AdminTablePage({ tableKey }: Props) {
                     options={field.reference ? references[field.reference]?.options : undefined}
                     onChange={(value) => setValue(field, value)}
                   />
+                  {field.image && !isEmpty(form.values[field.name]) && (
+                    <button
+                      type="button"
+                      className={`${button} self-start px-2.5 py-1 text-xs text-slate-300 border border-white/10 hover:bg-white/[0.05]`}
+                      onClick={() => setPreview({ title: imageLabel(field), images: [{ label: imageLabel(field), url: String(form.values[field.name]) }] })}
+                    >
+                      <AdminIcon name="image" className="size-3.5" />
+                      Ver imagen
+                    </button>
+                  )}
                   {field.hint && <p className="text-xs text-slate-500">{field.hint}</p>}
                 </div>
               ))}
@@ -414,6 +444,9 @@ export default function AdminTablePage({ tableKey }: Props) {
           </aside>
         </div>
       )}
+
+      {/* ── Preview de imágenes ── */}
+      {preview && <AdminImagePreview title={preview.title} images={preview.images} onClose={() => setPreview(null)} />}
 
       {/* ── Aviso de éxito ── */}
       {notice && (

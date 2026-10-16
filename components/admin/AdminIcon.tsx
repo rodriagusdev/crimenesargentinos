@@ -15,6 +15,7 @@ const paths = {
   map: "M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Zm0 0v14m6-12v14",
   chat: "M4 5h16v11H8l-4 4V5Z",
   user: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-8 9a8 8 0 0 1 16 0",
+  image: "M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Zm4 6a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm11 5-5-5L5 20",
 } as const;
 
 export type AdminIconName = keyof typeof paths;

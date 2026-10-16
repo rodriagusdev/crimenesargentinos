@@ -14,6 +14,7 @@ export interface AdminField {
   reference?: string; // para "reference": key de la tabla a la que apunta
   keyPart?: boolean; // parte de una clave compuesta: no se edita después de crear
   hint?: string;
+  image?: boolean; // URL de una imagen: el panel ofrece ver el preview
 }
 
 // guid: el backend genera el Id | guid-client: el Id lo manda el panel | int: autoincremental | composite: sin Id
@@ -57,7 +58,7 @@ export const adminTables: AdminTable[] = [
       { name: "groupLevel", label: "Nivel", type: "number", required: true, hint: "El nivel N sortea entre los casos con este valor (variaciones del mismo caso)" },
       { name: "title", label: "Título", type: "text", required: true },
       { name: "description", label: "Descripción", type: "textarea", required: true },
-      { name: "imageUrl", label: "Imagen (URL)", type: "text" },
+      { name: "imageUrl", label: "Imagen (URL)", type: "text", image: true },
       { name: "videoUrl", label: "Video (URL)", type: "text" },
       { name: "briefing", label: "Briefing", type: "textarea" },
       { name: "initialTime", label: "Tiempo inicial (hs)", type: "number", required: true },
@@ -120,7 +121,7 @@ export const adminTables: AdminTable[] = [
     orderBy: ["name"],
     fields: [
       { name: "name", label: "Nombre", type: "text", required: true },
-      { name: "backgroundUrl", label: "Fondo (URL)", type: "text" },
+      { name: "backgroundUrl", label: "Fondo (URL)", type: "text", image: true },
       { name: "latitude", label: "Latitud (punto de llegada)", type: "decimal", hint: "Para calcular el tiempo de viaje según la distancia" },
       { name: "longitude", label: "Longitud (punto de llegada)", type: "decimal", hint: "Para calcular el tiempo de viaje según la distancia" },
     ],
@@ -139,7 +140,7 @@ export const adminTables: AdminTable[] = [
     fields: [
       { name: "provinceId", label: "Provincia", type: "reference", reference: "provinces", required: true },
       { name: "name", label: "Nombre", type: "text", required: true },
-      { name: "imageUrl", label: "Imagen (URL)", type: "text" },
+      { name: "imageUrl", label: "Imagen (URL)", type: "text", image: true },
       { name: "latitude", label: "Latitud", type: "decimal", hint: "Para calcular el tiempo de viaje según la distancia" },
       { name: "longitude", label: "Longitud", type: "decimal", hint: "Para calcular el tiempo de viaje según la distancia" },
     ],
@@ -161,7 +162,7 @@ export const adminTables: AdminTable[] = [
       { name: "name", label: "Nombre", type: "text", required: true },
       { name: "top", label: "Posición vertical", type: "text", hint: "Porcentaje, ej. 44%" },
       { name: "left", label: "Posición horizontal", type: "text", hint: "Porcentaje, ej. 58%" },
-      { name: "icon", label: "Ícono (URL)", type: "text" },
+      { name: "icon", label: "Ícono (URL)", type: "text", image: true },
     ],
   },
 
@@ -181,9 +182,9 @@ export const adminTables: AdminTable[] = [
       { name: "caseId", label: "Caso", type: "reference", reference: "cases", required: true },
       { name: "locationId", label: "Locación", type: "reference", reference: "locations", required: true },
       { name: "npcName", label: "NPC", type: "text", required: true },
-      { name: "portraitUrl", label: "Retrato (URL)", type: "text" },
-      { name: "overlayBackgroundUrl", label: "Fondo de la intro (URL)", type: "text" },
-      { name: "npcCompleteUrl", label: "Escena del interrogatorio (URL)", type: "text" },
+      { name: "portraitUrl", label: "Retrato (URL)", type: "text", image: true },
+      { name: "overlayBackgroundUrl", label: "Fondo de la intro (URL)", type: "text", image: true },
+      { name: "npcCompleteUrl", label: "Escena del interrogatorio (URL)", type: "text", image: true },
       { name: "infoBackground", label: "Texto del lugar", type: "textarea" },
     ],
   },
@@ -264,7 +265,7 @@ export const adminTables: AdminTable[] = [
       { name: "eyeColor", label: "Color de ojos", type: "text" },
       { name: "hairColor", label: "Color de pelo", type: "text" },
       { name: "dangerLevel", label: "Peligrosidad", type: "number" },
-      { name: "imageUrl", label: "Imagen (URL)", type: "text" },
+      { name: "imageUrl", label: "Imagen (URL)", type: "text", image: true },
     ],
   },
   {
