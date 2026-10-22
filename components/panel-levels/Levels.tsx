@@ -11,7 +11,7 @@ import LevelCard from "./LevelCard";
 const LEVEL_DEFINITIONS = [
   {
     id: 1,
-    title: "NIVEL 1 · ROBO A LAS ESTRELLAS",
+    title: "ROBO A LAS ESTRELLAS",
     description: "El trofeo nacional desapareció en pleno centro porteño tras los festejos.",
     imageURL: "/images/levelcardspreview/level_1_preview.png",
     subLevels: [
@@ -22,7 +22,7 @@ const LEVEL_DEFINITIONS = [
   },
   {
     id: 2,
-    title: "NIVEL 2 · DESAPARECEN LOS MAÑANEROS",
+    title: "DESAPARECEN LOS MAÑANEROS",
     description: "Fanáticos desaparecieron misteriosamente tras ganar el sorteo del tren nocturno.",
     imageURL: "/images/levelcardspreview/level_2_preview.png",
     subLevels: [
@@ -33,7 +33,7 @@ const LEVEL_DEFINITIONS = [
   },
   {
     id: 3,
-    title: "NIVEL 3 · CASO PATAGONIA",
+    title: "CASO PATAGONIA",
     description: "Sombras en la cordillera y sospechas en la fría estepa patagónica.",
     imageURL: "/images/levelcardspreview/level_3_preview.png",
     subLevels: [
@@ -44,7 +44,7 @@ const LEVEL_DEFINITIONS = [
   },
   {
     id: 4,
-    title: "NIVEL 4 · RUTA NACIONAL 40",
+    title: "RUTA NACIONAL 40",
     description: "Misterio a lo largo de la mítica ruta y sus rascacielos al anochecer.",
     imageURL: "/images/levelcardspreview/level_4_preview.png",
     subLevels: [
@@ -55,7 +55,7 @@ const LEVEL_DEFINITIONS = [
   },
   {
     id: 5,
-    title: "NIVEL 5 · EL ASESINO DE LAS PROVINCIAS",
+    title: "EL ASESINO DE LAS PROVINCIAS",
     description: "El río bajo la luna esconde el escape del audaz robo de diamantes.",
     imageURL: "/images/levelcardspreview/level_5_preview.png",
     subLevels: [
@@ -111,12 +111,8 @@ export default function Levels() {
               return { ...subDef, status: "completed" as const };
             }
 
-            // Los casos existentes en la BD (niveles 1 a 3 tienen 3 casos cada uno; 4 y 5 tienen el caso A)
-            // están disponibles y sorteables desde el comienzo.
-            if (subDef.caseId <= 11) {
-              return { ...subDef, status: "current" as const };
-            }
-            if ((def.id === 4 || def.id === 5) && subDef.code === "A") {
+            // Todos los casos del 1 al 15 están disponibles en la BD
+            if (subDef.caseId <= 15) {
               return { ...subDef, status: "current" as const };
             }
 
@@ -124,7 +120,7 @@ export default function Levels() {
           });
 
           // Un nivel SOLO se considera completado (RESUELTO ✓) si TODOS los subniveles disponibles están ganados
-          const playableSublevels = subLevels.filter((s) => s.caseId <= 11 || ((def.id === 4 || def.id === 5) && s.code === "A"));
+          const playableSublevels = subLevels.filter((s) => s.caseId <= 15);
           const allSublevelsCompleted = playableSublevels.length > 0 && playableSublevels.every((s) => s.status === "completed");
 
           return {
@@ -192,11 +188,8 @@ export default function Levels() {
       {/* 2. Cabecera táctica retro */}
       <div className="mb-6 text-center">
         <h2 className="font-['Press_Start_2P'] text-[#E1C380] text-sm sm:text-base tracking-widest drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-          NIVELES DE INVESTIGACIÓN
+          NIVELES DE INVESTIGACION
         </h2>
-        <p className="font-mono text-[11px] sm:text-xs text-slate-400 tracking-wider mt-2 uppercase">
-          Completá los 3 subniveles [ A ], [ B ] y [ C ] para resolver cada caso
-        </p>
       </div>
 
       {/* 3. Grilla de tarjetas con imagen como protagonista visual */}

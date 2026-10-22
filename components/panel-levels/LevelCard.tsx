@@ -55,19 +55,18 @@ export default function LevelCard({ preview, onPlaySubLevel }: LevelCardProps) {
       className={`
         group relative flex flex-col rounded-2xl overflow-hidden
         border-2 transition-all duration-300
-        ${
-          preview.canPlay
-            ? "border-[#1c2c3e] bg-[#0c1421] hover:border-amber-400/60 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(0,0,0,0.85),0_0_20px_rgba(245,158,11,0.15)] cursor-pointer"
-            : "border-[#141e2b] bg-[#080d15] opacity-60 cursor-not-allowed"
+        ${preview.canPlay
+          ? "border-[#1c2c3e] bg-[#0c1421] hover:border-amber-400/60 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(0,0,0,0.85),0_0_20px_rgba(245,158,11,0.15)] cursor-pointer"
+          : "border-[#141e2b] bg-[#080d15] opacity-60 cursor-not-allowed"
         }
         shadow-[0_12px_32px_rgba(0,0,0,0.65)]
       `}
     >
       {/* 1. Header con título del caso/nivel */}
-      <div className="px-3.5 py-2.5 flex items-center justify-between border-b border-[#1c2c3e]/80 bg-[#0e1724]">
+      <div className="px-3.5 py-2.5 flex flex-col items-center justify-between border-b border-[#1c2c3e]/80 bg-[#0e1724]">
         <h3
           className={`
-            font-mono font-bold text-xs sm:text-sm tracking-wider uppercase truncate
+            font-mono font-bold text-xs sm:text-sm tracking-wider uppercase text-center
             ${preview.canPlay ? "text-[#f1f5f9] group-hover:text-amber-300 transition-colors" : "text-slate-500"}
           `}
         >
@@ -98,7 +97,7 @@ export default function LevelCard({ preview, onPlaySubLevel }: LevelCardProps) {
           fill
           className={`
             object-cover transition-transform duration-500
-            ${preview.canPlay ? "group-hover:scale-105" : "grayscale contrast-125"}
+            ${preview.canPlay ? "group-hover:scale-105" : " contrast-200"}
           `}
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
@@ -107,13 +106,6 @@ export default function LevelCard({ preview, onPlaySubLevel }: LevelCardProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-[#0c1421] via-transparent to-black/30 pointer-events-none" />
 
         {/* OVERLAYS SEGÚN ESTADO */}
-
-        {/* Estado A: Completado - Sello Verde RESUELTO */}
-        {preview.completed && (
-          <div className="absolute top-3 right-3 px-3 py-1 rounded-lg bg-emerald-950/90 border-2 border-emerald-400 text-emerald-300 font-mono font-black text-xs tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.4)] backdrop-blur-xs flex items-center gap-1.5 select-none">
-            <span>✓</span> RESUELTO
-          </div>
-        )}
 
         {/* Estado B: Bloqueado - Candado */}
         {!preview.canPlay && (
@@ -145,10 +137,9 @@ export default function LevelCard({ preview, onPlaySubLevel }: LevelCardProps) {
                 title={`${sub.title} - ${isCompleted ? "Completado" : isCurrent ? "Disponible" : "Bloqueado"}`}
                 className={`
                   flex flex-col items-center justify-center py-2 px-1 rounded-xl border transition-all duration-200 select-none
-                  ${
-                    isCompleted
-                      ? "border-[#c68a26] bg-gradient-to-b from-[#1b2536] to-[#121a26] hover:border-amber-400 text-amber-300 hover:bg-[#202c40] cursor-pointer"
-                      : isCurrent
+                  ${isCompleted
+                    ? "border-[#c68a26] bg-gradient-to-b from-[#1b2536] to-[#121a26] hover:border-amber-400 text-amber-300 hover:bg-[#202c40] cursor-pointer"
+                    : isCurrent
                       ? "border-amber-400 bg-amber-500/15 hover:bg-amber-500/25 shadow-[0_0_12px_rgba(245,158,11,0.25)] text-amber-200 cursor-pointer"
                       : "border-[#1c2c3e]/50 bg-[#080d15]/60 text-slate-600 cursor-not-allowed"
                   }
@@ -156,36 +147,18 @@ export default function LevelCard({ preview, onPlaySubLevel }: LevelCardProps) {
               >
                 {/* Código de subnivel [ A ], [ B ], [ C ] */}
                 <span
-                  className={`font-mono font-black text-xs ${
-                    isCompleted ? "text-amber-300" : isCurrent ? "text-amber-200" : "text-slate-500"
-                  }`}
+                  className={`font-mono font-black text-xs ${isCompleted ? "text-amber-300" : isCurrent ? "text-amber-200" : "text-slate-500"
+                    }`}
                 >
                   [ {sub.code} ]
                 </span>
 
-                {/* Ícono de estado */}
-                <div className="my-0.5">
-                  {isCompleted ? (
+                {/* Ícono de estado con altura uniforme */}
+                <div className="h-4 flex items-center justify-center my-0.5">
+                  {isCompleted && (
                     <span className="text-amber-400 text-sm drop-shadow-[0_0_6px_rgba(245,158,11,0.6)]">★</span>
-                  ) : isCurrent ? (
-                    <span className="text-amber-300 text-xs font-black">▶</span>
-                  ) : (
-                    <span className="text-slate-500 text-xs">🔒</span>
                   )}
                 </div>
-
-                {/* Etiqueta de estado */}
-                <span
-                  className={`font-mono text-[9px] tracking-wider uppercase font-bold truncate max-w-full px-1 ${
-                    isCompleted
-                      ? "text-amber-400/90"
-                      : isCurrent
-                      ? "text-amber-200"
-                      : "text-slate-600"
-                  }`}
-                >
-                  {isCompleted ? "LISTO" : isCurrent ? "JUGAR" : "CANDADO"}
-                </span>
               </button>
             );
           })}

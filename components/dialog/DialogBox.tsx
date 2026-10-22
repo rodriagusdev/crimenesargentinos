@@ -125,9 +125,9 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
       {/* Toast de Feedback de Costo y Pista Desbloqueada */}
       <CostFeedbackToast cost={costToast} unlockedClue={clueToast} />
       {/* ── Top Bar ── */}
-      <div className="relative z-20 p-6 flex items-center justify-end">
+      <div className="relative z-20 p-4 md:p-6 flex items-center justify-end">
         {onClose ? (
-          <div className="flex flex-row gap-4 flex-row-reverse">
+          <div className="flex flex-row gap-2 md:gap-4 flex-row-reverse">
             <GameButton
               icon=""
               label="VOLVER AL MAPA DE LA PROVINCIA"
@@ -135,7 +135,7 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
               variant="secondary"
             />
 
-            <div className="flex items-center gap-2 px-4 py-2 rounded-2xl backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] text-[#FFF3C7]">
+            <div className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-2xl backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] text-[#FFF3C7]">
               <span className="size-2 rounded-full bg-amber-400 animate-pulse" />
               <span className="text-xs uppercase tracking-widest text-[#E1C380] font-semibold">
                 Interrogatorio
@@ -145,17 +145,15 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
         ) : (
           <div />
         )}
-
-
       </div>
 
       {/* ── Content area (Dialog panel + Background Scene) ── */}
-      <div className="flex-1 flex flex-row-reverse min-h-0 px-6 pb-6 gap-6">
-        {/* Right: Dialog panel */}
-        <div className="flex-1 flex items-center justify-center">
+      <div className="flex-1 flex flex-col-reverse xl:flex-row-reverse min-h-0 px-4 md:px-6 pb-4 md:pb-6 gap-4 md:gap-6">
+        {/* Right / Bottom on tablet: Dialog panel */}
+        <div className="flex-1 flex items-center justify-center min-h-0 w-full xl:flex-1">
           <div
             className="
-              relative z-10 w-full max-w-2xl h-full flex flex-col
+              relative z-10 w-full max-w-4xl xl:max-w-2xl h-full flex flex-col
               backdrop-blur-xs
               border border-[rgba(255,243,199,0.18)]
               shadow-[0_20px_50px_rgba(0,0,0,0.6)]
@@ -167,10 +165,10 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
             {/* Body: portrait + content */}
             <div className="flex flex-1 min-h-0">
               {/* Portrait column */}
-              <div className="w-44 shrink-0 flex flex-col items-center pt-6 pb-4 px-4 border-r border-[rgba(255,243,199,0.12)]">
+              <div className="w-36 md:w-44 shrink-0 flex flex-col items-center pt-4 md:pt-6 pb-4 px-3 md:px-4 border-r border-[rgba(255,243,199,0.12)]">
                 <div
                   className="
-                    relative w-32 h-32
+                    relative w-24 h-24 md:w-32 md:h-32
                     rounded-2xl overflow-hidden
                     border-2 border-[rgba(255,243,199,0.25)]
                     shadow-[0_12px_30px_rgba(0,0,0,0.7)]
@@ -188,13 +186,13 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
                 </div>
 
                 {/* NPC name */}
-                <p className="mt-4 text-center tracking-widest text-[#E1C380] font-semibold uppercase text-sm">
+                <p className="mt-3 md:mt-4 text-center tracking-widest text-[#E1C380] font-semibold uppercase text-xs md:text-sm">
                   {dialog.npc}
                 </p>
 
                 {/* Decorative divider + label */}
-                <div className="mt-3 w-10 h-px bg-[rgba(255,243,199,0.18)]" />
-                <div className="mt-2 px-3 py-1 rounded-xl bg-[rgba(255,243,199,0.06)] backdrop-blur-xs border border-[rgba(255,243,199,0.12)] text-[10px] text-[#E1C380]/80 uppercase tracking-widest font-mono">
+                <div className="mt-2 md:mt-3 w-8 md:w-10 h-px bg-[rgba(255,243,199,0.18)]" />
+                <div className="mt-2 px-2.5 md:px-3 py-1 rounded-xl bg-[rgba(255,243,199,0.06)] backdrop-blur-xs border border-[rgba(255,243,199,0.12)] text-[9px] md:text-[10px] text-[#E1C380]/80 uppercase tracking-widest font-mono">
                   Testigo
                 </div>
               </div>
@@ -305,8 +303,8 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
           </div>
         </div>
 
-        {/* Left: Background image box */}
-        <div className="flex-[2] p-6 backdrop-blur-xs flex items-center justify-center border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] rounded-2xl">
+        {/* Left / Top on tablet: Background image box */}
+        <div className="h-44 md:h-52 xl:h-auto xl:flex-[2] p-3 md:p-4 xl:p-6 backdrop-blur-xs flex items-center justify-center border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] rounded-2xl shrink-0 xl:shrink">
           <div className="relative w-full h-full rounded-2xl overflow-hidden border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
             <Image
               src={background}

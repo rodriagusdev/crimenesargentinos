@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useTypewriterSound } from "@/hooks/useTypewriterSound";
 import IMenuAction from "@/models/IMenuAction";
 import { MENU_ACTIONS } from "@/data/menuActions";
@@ -17,7 +18,6 @@ import GameButton from "../buttons/GameButton";
 
 // Lazy loading de modales grandes
 const LevelSuspects = dynamic(() => import("./LevelSuspects"), { ssr: false });
-const SoundSettingsModal = dynamic(() => import("../settings/SoundSettingsModal"), { ssr: false });
 
 interface LevelMenuProps {
   levelId: number;
@@ -30,7 +30,6 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
   const [info, setInfo] = useState<IGameData | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
-  const [showSoundSettings, setShowSoundSettings] = useState(false);
   const [isRestarting, setIsRestarting] = useState(false);
 
   const discoveredClues = useGameSessionStore((state) => state.discoveredClues);
@@ -122,7 +121,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
 
   return (
     <>
-      <aside className="mt-6 ml-6 rounded-2xl z-100 absolute left-0 top-0 w-[480px] max-w-[calc(100vw-3rem)] backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] z-20 text-[#FFF3C7] overflow-hidden">
+      <aside className="mt-4 md:mt-4 xl:mt-6 ml-4 md:ml-4 xl:ml-6 rounded-2xl z-100 absolute left-0 top-0 w-[360px] md:w-[380px] xl:w-[480px] max-w-[calc(100vw-2rem)] backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] z-20 text-[#FFF3C7] overflow-hidden">
         <button
           onClick={() =>
             setIsOpen((prev) => {
@@ -242,6 +241,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
                   key={action.id}
                   onClick={() => {
                     audioManager.play("opencasefile");
+                    setIsOpen(false);
                     setActiveModal(action);
                   }}
                   onMouseEnter={playTypewriter}
@@ -260,17 +260,8 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
               ))}
             </div>
 
-            {/* Opciones de sonido y Volver al menú principal */}
+            {/* Volver al menú principal */}
             <div className="pt-2 border-t border-[rgba(255,243,199,0.1)] flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={() => setShowSoundSettings(true)}
-                className="w-full py-2 px-4 rounded-xl bg-[rgba(255,243,199,0.06)] hover:bg-[rgba(255,243,199,0.12)] border border-[rgba(255,243,199,0.2)] hover:border-[#E1C380] text-[#FFF3C7] font-mono text-xs font-semibold tracking-wider flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer shadow-md"
-              >
-                <span>⚙️</span>
-                <span>AJUSTES DE AUDIO</span>
-              </button>
-
               <button
                 type="button"
                 onClick={() => setShowRestartConfirm(true)}
@@ -284,46 +275,59 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
         </div>
       </aside>
 
-      {/* Modal de Ajustes de Audio */}
-      {showSoundSettings && (
-        <SoundSettingsModal
-          isOpen={showSoundSettings}
-          onClose={() => setShowSoundSettings(false)}
-        />
-      )}
-
       {/* Modal interactivo al pulsar una acción */}
-      {activeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in select-none">
+      {activeModal && typeof window !== "undefined" && createPortal(
+        <div
+          className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in select-none"
+          onClick={() => setActiveModal(null)}
+        >
           <div
             className={`relative w-full ${
               activeModal.id === "suspects" ? "max-w-4xl" : "max-w-xl"
-            } max-h-[90vh] overflow-y-auto backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] rounded-2xl p-6 flex flex-col items-center text-center text-[#FFF3C7]`}
+            } max-h-[96vh] sm:max-h-[92vh] overflow-y-auto backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] rounded-2xl p-3.5 sm:p-5 flex flex-col items-center text-center text-[#FFF3C7]`}
+            onClick={(e) => e.stopPropagation()}
           >
-            <div className="relative w-28 h-28 rounded-2xl overflow-hidden border-2 border-[rgba(255,243,199,0.25)] mb-4 shadow-[0_12px_30px_rgba(0,0,0,0.7)] bg-black/50">
-              <Image
-                src={activeModal.icon}
-                alt={activeModal.title}
-                fill
-                sizes="112px"
-                className="object-cover"
-              />
+            {/* Modal Header Bar */}
+            <div className="w-full flex items-center justify-between pb-2.5 mb-2 sm:mb-3 border-b border-[rgba(255,243,199,0.12)] shrink-0">
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl overflow-hidden border border-[rgba(255,243,199,0.2)] bg-black/50 shrink-0">
+                  <Image
+                    src={activeModal.icon}
+                    alt={activeModal.title}
+                    fill
+                    sizes="36px"
+                    className="object-cover"
+                  />
+                </div>
+                <div className="text-left">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm sm:text-base font-bold font-mono text-[#FFF3C7]">
+                      {activeModal.title}
+                    </h3>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/15 border border-amber-500/30 text-amber-300 font-bold">
+                      CASO #{levelId.toString().padStart(2, "0")}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setActiveModal(null)}
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[rgba(255,243,199,0.06)] border border-[rgba(255,243,199,0.15)] flex items-center justify-center text-[#FFF3C7]/70 hover:text-white hover:border-[#E1C380] transition-colors cursor-pointer text-xs"
+                title="Cerrar (Esc)"
+              >
+                ✕
+              </button>
             </div>
 
-            <h3 className="text-xl font-bold text-[#FFF3C7] mb-1">
-              {activeModal.title}
-            </h3>
-            <p className="text-xs uppercase tracking-widest text-[#E1C380]/80 font-mono mb-3">
-              CASO #{levelId.toString().padStart(2, "0")}
-            </p>
-
             {activeModal.id === "clues" ? (
-              <div className="w-full flex flex-col gap-3 mb-6">
-                <p className="text-xs text-[#FFF3C7]/80 leading-relaxed bg-[rgba(10,15,25,0.5)] p-3 rounded-xl border border-[rgba(255,243,199,0.12)]">
+              <div className="w-full flex flex-col gap-2.5 mb-2 text-left">
+                <p className="text-[11px] sm:text-xs text-[#FFF3C7]/80 leading-relaxed bg-[rgba(10,15,25,0.5)] p-2.5 rounded-xl border border-[rgba(255,243,199,0.12)]">
                   {activeModal.detail}
                 </p>
 
-                <div className="flex flex-col gap-2 text-left">
+                <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <svg
@@ -350,7 +354,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
                     </span>
                   </div>
 
-                  <div className="flex flex-col gap-2 p-3.5 rounded-xl bg-[rgba(10,15,25,0.6)] border border-[rgba(255,243,199,0.12)] shadow-inner max-h-56 overflow-y-auto">
+                  <div className="flex flex-col gap-2 p-3 rounded-xl bg-[rgba(10,15,25,0.6)] border border-[rgba(255,243,199,0.12)] shadow-inner max-h-56 overflow-y-auto">
                     {/* Pistas iniciales */}
                     {displayInitialClues.length > 0 && (
                       <div className="flex flex-col gap-1.5 mb-1">
@@ -402,12 +406,12 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
                 detail={activeModal.detail}
               />
             ) : (
-              <p className="text-sm text-[#FFF3C7]/90 leading-relaxed mb-6 bg-[rgba(10,15,25,0.5)] p-4 rounded-2xl border border-[rgba(255,243,199,0.12)] shadow-inner">
+              <p className="text-sm text-[#FFF3C7]/90 leading-relaxed mb-4 bg-[rgba(10,15,25,0.5)] p-4 rounded-2xl border border-[rgba(255,243,199,0.12)] shadow-inner">
                 {activeModal.detail}
               </p>
             )}
 
-            <div className="w-full">
+            <div className="w-full mt-1 sm:mt-2 pt-2 border-t border-[rgba(255,243,199,0.1)]">
               <GameButton
                 icon="✕"
                 label="CERRAR EXPEDIENTE"
@@ -416,12 +420,13 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
               />
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Modal de confirmación para volver al menú principal */}
-      {showRestartConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in select-none">
+      {showRestartConfirm && typeof window !== "undefined" && createPortal(
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in select-none">
           <div className="relative w-full max-w-md backdrop-blur-xs border border-red-500/30 bg-[rgba(18,22,32,0.95)] shadow-[0_25px_60px_rgba(0,0,0,0.8)] rounded-2xl p-6 sm:p-7 flex flex-col items-center text-center text-[#FFF3C7] gap-4">
             <div className="w-16 h-16 rounded-2xl bg-red-950/60 border border-red-500/40 flex items-center justify-center text-3xl shadow-inner">
               ↩
@@ -462,7 +467,8 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

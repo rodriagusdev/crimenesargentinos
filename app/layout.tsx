@@ -3,6 +3,7 @@ import "./globals.css";
 import { Press_Start_2P } from "next/font/google";
 import SessionExpiryWatcher from "@/components/SessionExpiryWatcher";
 import SoundtrackPlayer from "@/components/audio/SoundtrackPlayer";
+import GlobalAudioControl from "@/components/audio/GlobalAudioControl";
 
 const pressStart = Press_Start_2P({
   weight: "400",
@@ -24,6 +25,7 @@ export default function RootLayout({
       <body className={pressStart.className}>
         <SessionExpiryWatcher />
         <SoundtrackPlayer />
+        <GlobalAudioControl />
         {children}
       </body>
     </html>

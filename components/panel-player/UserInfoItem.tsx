@@ -8,14 +8,13 @@ export default function InfoItem({
   value: string | number;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl py-2 bg-[rgba(20,30,42,0.5)] backdrop-blur-xs border border-[rgba(255,243,199,0.14)] shadow-[0_10px_25px_rgba(0,0,0,0.3)]">
-      <p
-        className="text-[8px] font-['Press_Start_2P'] text-[#E1C380] tracking-widest text-center"
-      >
+    <div className="flex flex-col items-center justify-center py-2.5 px-2 rounded-xl border border-[#1c2c3e] bg-[#0c1421] hover:border-amber-400/40 transition-all duration-200 shadow-sm select-none">
+      <span className="font-mono text-[9px] sm:text-[10px] tracking-wider uppercase font-bold text-slate-400 text-center mb-0.5 truncate max-w-full">
         {label}
-      </p>
-
-      <p className="text-[8px] font-semibold text-[#FFF3C7] text-center break-words">{value}</p>
+      </span>
+      <span className="font-mono font-black text-xs sm:text-sm tracking-wider text-amber-300 text-center break-words drop-shadow-[0_0_8px_rgba(245,158,11,0.25)]">
+        {value}
+      </span>
     </div>
   );
-}
+}

@@ -157,7 +157,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
       <SuspectProvinceWarning levelId={levelId} provinceName={data.name} provinceId={provinceId} />
 
       {/* Barra de menú lateral con glassmorfismo */}
-      <aside className="mt-4 mr-6 rounded-2xl absolute right-0 top-0 bottom-4 w-80 backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] p-6 flex flex-col z-20 text-[#FFF3C7] overflow-hidden">
+      <aside className="mt-4 mr-4 xl:mr-6 rounded-2xl absolute right-0 top-0 bottom-4 w-72 md:w-72 xl:w-80 backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] p-4 md:p-5 xl:p-6 flex flex-col z-20 text-[#FFF3C7] overflow-hidden">
 
         {/* Título del menú/provincia */}
         <div className="flex flex-col mb-4 border-b border-[rgba(255,243,199,0.12)] pb-4">

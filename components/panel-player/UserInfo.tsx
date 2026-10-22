@@ -74,69 +74,44 @@ export default function UserInfo() {
     };
   }, []);
   return (
-    <section
-      className="
-        w-full mx-auto
-        rounded-2xl
-        overflow-hidden
-        backdrop-blur-xs
-        border border-[rgba(255,243,199,0.18)]
-        shadow-[0_20px_50px_rgba(0,0,0,0.6)]
-        text-[#FFF3C7]
-      "
-    >
-      <div className="p-5 border-b border-[rgba(255,243,199,0.12)]">
-        <h2
-          className="
-            text-center
-            text-[#E1C380]
-            text-xs sm:text-sm
-            font-semibold
-            tracking-widest
-          "
-        >
-          JUGADOR
-        </h2>
+    <div className="group relative flex flex-col rounded-2xl overflow-hidden border-2 border-[#1c2c3e] bg-[#0c1421] shadow-[0_12px_32px_rgba(0,0,0,0.65)] transition-all duration-300 hover:border-amber-400/40">
+      {/* 1. Header con estilo táctico matching LevelCard */}
+      <div className="px-3.5 py-2.5 flex items-center justify-between border-b border-[#1c2c3e]/80 bg-[#0e1724]">
+        <h3 className="font-mono font-bold text-xs sm:text-sm tracking-wider uppercase text-[#f1f5f9] text-center w-full">
+          FICHA POLICIAL
+        </h3>
       </div>
 
-      <div className="p-5 sm:p-6">
-        <div className="mb-6 text-center">
-          <div
-            className="
-              mx-auto mb-4
-              w-20 h-20
-              rounded-2xl
-              flex items-center justify-center
-              bg-[rgba(20,30,42,0.6)]
-              backdrop-blur-xs
-              border border-[rgba(255,243,199,0.18)]
-              shadow-[0_10px_25px_rgba(0,0,0,0.5)]
-            "
-          >
-            <span className="text-[#E1C380] font-bold text-xl tracking-wider">
-              {user.username
-                .split(" ")
-                .map((word) => word.charAt(0).toUpperCase())
-                .join("")
-                .slice(0, 2)}
-            </span>
+      {/* 2. Cuerpo de perfil y avatar */}
+      <div className="p-5 flex flex-col items-center justify-center bg-[#0c1421]">
+        <div className="relative mb-3 w-20 h-20 rounded-2xl flex items-center justify-center bg-gradient-to-b from-[#1b2536] to-[#0e1724] border-2 border-amber-400/50 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+          <span className="font-mono font-black text-2xl text-amber-300 tracking-wider">
+            {user.username
+              .split(" ")
+              .map((word) => word.charAt(0).toUpperCase())
+              .join("")
+              .slice(0, 2) || "AG"}
+          </span>
+          <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#0c1421] border border-amber-400/60 flex items-center justify-center text-[10px] shadow-sm select-none">
+            ⭐
           </div>
-
-          <h3 className="text-[#FFF3C7] text-xs font-semibold tracking-widest uppercase">
-            {user.username}
-          </h3>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <h3 className="font-mono font-bold text-sm sm:text-base tracking-wider uppercase text-[#f1f5f9] text-center truncate max-w-full">
+          {user.username}
+        </h3>
+      </div>
+
+      {/* 3. Estadísticas del jugador */}
+      <div className="p-3 bg-[#080d15]/60 border-t border-[#1c2c3e]/80">
+        <div className="grid grid-cols-2 gap-2">
           <InfoItem label="NIVEL" value={user.level} />
           <InfoItem label="PUNTOS" value={user.points.toLocaleString()} />
-          <InfoItem label="JUEGOS" value={user.gamesPlayed} />
-          <InfoItem
-            label="MEJOR PUNTUACION"
-            value={user.highScore.toLocaleString()}
-          />
+          <InfoItem label="PARTIDAS" value={user.gamesPlayed} />
+          <InfoItem label="RÉCORD" value={user.highScore.toLocaleString()} />
         </div>
       </div>
-    </section>
+    </div>
   );
 }
+

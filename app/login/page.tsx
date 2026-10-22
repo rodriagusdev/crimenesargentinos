@@ -30,7 +30,7 @@ export default function Login() {
 			</Link>
 
 			{/* Elegir que menu mostrar */}
-			<div className="relative z-10 w-full max-w-3xl flex flex-col items-center justify-center px-16 py-32">
+			<div className="relative z-10 w-full max-w-3xl flex flex-col items-center justify-center px-4 py-8 sm:px-8 sm:py-16 md:px-12 md:py-20 xl:px-16 xl:py-32">
 				{isMenuOpen ? (
 					<PrincipalMenu />
 				) : (
