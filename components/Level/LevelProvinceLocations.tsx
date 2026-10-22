@@ -9,9 +9,11 @@ import ILevelLocations from "@/models/ILevelLocations";
 import ILocation from "@/models/ILocation";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { useGameSession } from "@/hooks/useGameSession";
-import TravelConfirmModal from "./TravelConfirmModal";
-import TravelAnimationOverlay from "./TravelAnimationOverlay";
-import SuspectProvinceWarning from "./SuspectProvinceWarning";
+import dynamic from "next/dynamic";
+
+const TravelConfirmModal = dynamic(() => import("./TravelConfirmModal"), { ssr: false });
+const TravelAnimationOverlay = dynamic(() => import("./TravelAnimationOverlay"), { ssr: false });
+const SuspectProvinceWarning = dynamic(() => import("./SuspectProvinceWarning"), { ssr: false });
 
 interface LevelDataProps {
   levelId: number;

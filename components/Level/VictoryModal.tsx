@@ -7,6 +7,8 @@ import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { getLevelProvinces } from "@/services/levelService";
 import CronicaVictoryNewspaper from "./CronicaVictoryNewspaper";
 
+import { markCaseCompleted } from "@/lib/completedCases";
+
 interface VictoryModalProps {
   levelId: number;
 }
@@ -53,6 +55,13 @@ export default function VictoryModal({ levelId }: VictoryModalProps) {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Guardar caso completado para progreso de subniveles
+  useEffect(() => {
+    if (isVictory && session?.caseId) {
+      markCaseCompleted(session.caseId);
+    }
+  }, [isVictory, session?.caseId]);
 
   // Fetch province name for the headline: ¡ATRAPADO EN [PROVINCIA]!
   useEffect(() => {

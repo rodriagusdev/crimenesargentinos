@@ -1,3 +1,10 @@
+export interface ISubLevel {
+  code: "A" | "B" | "C";
+  caseId: number;
+  title: string;
+  status: "completed" | "current" | "locked";
+}
+
 export interface ICardLevelPreview {
   id: number;
   title: string;
@@ -5,5 +12,6 @@ export interface ICardLevelPreview {
   imageURL: string;
   videoURL?: string;
   canPlay: boolean;
-  completed?: boolean; // nivel ya ganado: se puede rejugar (con un caso ya ganado)
+  completed?: boolean;
+  subLevels: ISubLevel[];
 }

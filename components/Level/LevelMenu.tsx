@@ -12,9 +12,12 @@ import { abandonSession } from "@/services/gameSessionService";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { audioManager } from "@/lib/audioManager";
 
+import dynamic from "next/dynamic";
 import GameButton from "../buttons/GameButton";
-import LevelSuspects from "./LevelSuspects";
-import SoundSettingsModal from "../settings/SoundSettingsModal";
+
+// Lazy loading de modales grandes
+const LevelSuspects = dynamic(() => import("./LevelSuspects"), { ssr: false });
+const SoundSettingsModal = dynamic(() => import("../settings/SoundSettingsModal"), { ssr: false });
 
 interface LevelMenuProps {
   levelId: number;
@@ -282,10 +285,12 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
       </aside>
 
       {/* Modal de Ajustes de Audio */}
-      <SoundSettingsModal
-        isOpen={showSoundSettings}
-        onClose={() => setShowSoundSettings(false)}
-      />
+      {showSoundSettings && (
+        <SoundSettingsModal
+          isOpen={showSoundSettings}
+          onClose={() => setShowSoundSettings(false)}
+        />
+      )}
 
       {/* Modal interactivo al pulsar una acción */}
       {activeModal && (

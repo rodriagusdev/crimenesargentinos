@@ -8,8 +8,10 @@ import { ProvinceButton } from "../buttons/ProvinceButton";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { useGameSession } from "@/hooks/useGameSession";
 import IProvince from "@/models/IProvince";
-import TravelConfirmModal from "./TravelConfirmModal";
-import TravelAnimationOverlay from "./TravelAnimationOverlay";
+import dynamic from "next/dynamic";
+
+const TravelConfirmModal = dynamic(() => import("./TravelConfirmModal"), { ssr: false });
+const TravelAnimationOverlay = dynamic(() => import("./TravelAnimationOverlay"), { ssr: false });
 
 interface LevelDataProps {
   levelId: number;

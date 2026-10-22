@@ -3,10 +3,8 @@
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import GameButton from "../buttons/GameButton";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
-
-import { useAudioStore } from "@/stores/useAudioStore";
+import CronicaDefeatNewspaper from "./CronicaDefeatNewspaper";
 
 interface GameOverModalProps {
   levelId: number;
@@ -19,20 +17,19 @@ export default function GameOverModal({ levelId }: GameOverModalProps) {
   const isGameOver = useGameSessionStore((state) => state.isGameOver);
   const gameOverReason = useGameSessionStore((state) => state.gameOverReason);
   const restartLevel = useGameSessionStore((state) => state.restartLevel);
+  const session = useGameSessionStore((state) => state.session);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  useEffect(() => {
-    if (isGameOver) {
-      useAudioStore.getState().playSfx("defeat");
-    }
-  }, [isGameOver]);
-
   if (!mounted || !isGameOver || typeof window === "undefined") {
     return null;
   }
+
+  const initialTime = session?.initialTime ?? 35;
+  const currentTime = session?.currentTime ?? 0;
+  const hoursTaken = Math.max(1, initialTime - currentTime);
 
   const handleRestart = async () => {
     try {
@@ -58,61 +55,14 @@ export default function GameOverModal({ levelId }: GameOverModalProps) {
     router.push("/principal");
   };
 
-  const title =
-    gameOverReason === "time"
-      ? "¡TIEMPO AGOTADO!"
-      : gameOverReason === "pi"
-        ? "¡SIN PUNTOS DE INVESTIGACIÓN!"
-        : gameOverReason === "nowarrant"
-          ? "¡SIN ORDEN DE ARRESTO!"
-          : "¡ARRESTO FALLIDO!";
-
-  const description =
-    gameOverReason === "time"
-      ? "El plazo límite de la investigación ha concluido y el sospechoso logró escapar del país. El caso se ha cerrado."
-      : gameOverReason === "pi"
-        ? "Has agotado todos tus Puntos de Investigación (PI) sin obtener la evidencia suficiente para proceder. El sospechoso ha burlado la persecución."
-        : gameOverReason === "nowarrant"
-          ? "Encontraste el escondite del criminal, pero no tenías las pistas suficientes para emitir una orden de arresto. No pudiste detenerlo legalmente y logró escapar."
-          : "Encontraste el escondite del criminal, pero la orden de arresto estaba dirigida a otra persona. No pudiste detenerlo legalmente y logró escapar.";
-
   return createPortal(
-    <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md animate-fade-in select-none">
-      <div className="relative w-full max-w-md p-6 sm:p-8 rounded-2xl backdrop-blur-xs border border-red-500/30 bg-[rgba(20,10,15,0.85)] shadow-[0_20px_50px_rgba(0,0,0,0.8)] text-[#FFF3C7] flex flex-col items-center text-center gap-4">
-        <div className="w-16 h-16 rounded-2xl bg-red-950/60 border border-red-500/40 flex items-center justify-center text-3xl shadow-inner animate-bounce">
-          ⚠️
-        </div>
-
-        <div>
-          <span className="text-[10px] uppercase font-mono tracking-widest text-red-400 font-semibold">
-            CASO NO RESUELTO
-          </span>
-          <h2 className="text-xl sm:text-2xl font-bold font-mono tracking-wider text-red-400 mt-1">
-            {title}
-          </h2>
-        </div>
-
-        <p className="text-xs sm:text-sm text-[#FFF3C7]/85 font-mono leading-relaxed bg-black/40 p-4 rounded-xl border border-[rgba(255,243,199,0.1)]">
-          {description}
-        </p>
-
-        <div className="flex flex-col gap-3 w-full pt-2">
-          <GameButton
-            icon="🔄"
-            label="REINTENTAR INVESTIGACIÓN"
-            variant="primary"
-            onClick={handleRestart}
-          />
-
-          <GameButton
-            icon="🏛️"
-            label="VOLVER AL MENÚ PRINCIPAL"
-            variant="secondary"
-            onClick={handleBackToPrincipal}
-          />
-        </div>
-      </div>
-    </div>,
+    <CronicaDefeatNewspaper
+      levelId={levelId}
+      gameOverReason={gameOverReason}
+      hoursTaken={hoursTaken}
+      onRestart={handleRestart}
+      onClose={handleBackToPrincipal}
+    />,
     document.body
   );
 }
