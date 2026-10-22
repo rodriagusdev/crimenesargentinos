@@ -55,7 +55,7 @@ export default function LevelCard({ preview }: LevelCardProps) {
           alt="Preview"
           fill
           className="object-contain p-2"
-          sizes="100vw"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
         {!preview.canPlay && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">

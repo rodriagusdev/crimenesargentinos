@@ -23,6 +23,8 @@ interface GameSessionState {
   costs: IGameCosts | null; // de game-data, para mostrar el precio antes de confirmar
   videoUrl: string | null; // video de intro del caso en juego
   suspects: ISuspect[]; // de game-data; el culpable no viene marcado
+  briefing: string | null; // informe inicial del caso
+  initialClues: string[]; // pistas del informe inicial
 
   // Atajos al estado de la partida
   currentTime: number;
@@ -55,6 +57,8 @@ const emptySession = {
   costs: null,
   videoUrl: null,
   suspects: [],
+  briefing: null,
+  initialClues: [],
   currentTime: 0,
   currentPI: 0,
   initialTime: 0,
@@ -129,6 +133,8 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
             costs: gameData.costs,
             videoUrl: gameData.videoUrl ?? null,
             suspects: gameData.suspects,
+            briefing: gameData.info ?? null,
+            initialClues: gameData.initialClues ?? [],
           });
           return newSession;
         })
@@ -166,6 +172,8 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
         costs: gameData.costs,
         videoUrl: gameData.videoUrl ?? null,
         suspects: gameData.suspects,
+        briefing: gameData.info ?? null,
+        initialClues: gameData.initialClues ?? [],
       });
       return newSession;
     },

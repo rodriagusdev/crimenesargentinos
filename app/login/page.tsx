@@ -2,25 +2,24 @@
 
 import PrincipalMenu from "@/components/login/PrincipalMenu";
 import RegisterAndLogin from "@/components/login/RegisterAndLogin";
-import Image from "next/image";
+import SeamlessBackgroundVideo from "@/components/login/SeamlessBackgroundVideo";
 import Link from "next/link";
 import { useState } from "react";
 
 export default function Login() {
 	const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+
 	return (
 		<div className="relative min-h-screen w-screen overflow-hidden flex items-center justify-center font-sans bg-black">
-			{/* Background */}
-			<Image
-				src="/images/backgroundlogin.jpeg"
-				alt="Background"
-				fill
-				priority
-				className="object-cover"
+			{/* Seamless Looping Video Background */}
+			<SeamlessBackgroundVideo
+				src="/videos/introvid.mp4"
+				poster="/images/backgroundlogin.jpeg"
+				fadeDuration={0.8}
 			/>
 
 			{/* Overlay (Oscurece un poco el bg) */}
-			<div className="absolute inset-0 bg-black/10" />
+			<div className="absolute inset-0 bg-black/30 pointer-events-none" />
 
 			{/* Reglas del juego (se ven sin sesión) */}
 			<Link

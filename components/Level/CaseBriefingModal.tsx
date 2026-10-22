@@ -1,9 +1,11 @@
 "use client";
 
 import { createPortal } from "react-dom";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import GameButton from "../buttons/GameButton";
 import { getGameData } from "@/services/levelService";
+import { useGameSessionStore } from "@/stores/useGameSessionStore";
+import { audioManager } from "@/lib/audioManager";
 
 interface CaseBriefingModalProps {
   levelId: number;
@@ -21,7 +23,6 @@ export default function CaseBriefingModal({
   const [fullText, setFullText] = useState<string>(initialInfo ?? "");
   const [displayedText, setDisplayedText] = useState<string>("");
   const [isTyping, setIsTyping] = useState<boolean>(true);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Verificar si ya fue visto en esta sesión del nivel
   useEffect(() => {
@@ -29,17 +30,24 @@ export default function CaseBriefingModal({
     const seen = sessionStorage.getItem(`level_${levelId}_briefing_seen`);
     if (!seen) {
       setShouldShow(true);
+      audioManager.play("opencasefile");
     } else {
       onClose();
     }
   }, [levelId, onClose]);
 
-  // Cargar info del nivel si no vino por prop
+  // Cargar info del nivel: primero desde el store; si no está, via servicio deduplicado
   useEffect(() => {
     if (!shouldShow) return;
 
     if (initialInfo) {
       setFullText(initialInfo);
+      return;
+    }
+
+    const storeState = useGameSessionStore.getState();
+    if (storeState.briefing && storeState.levelId === levelId) {
+      setFullText(storeState.briefing);
       return;
     }
 
@@ -61,19 +69,7 @@ export default function CaseBriefingModal({
     };
   }, [levelId, initialInfo, shouldShow]);
 
-  // Inicializar audio
-  useEffect(() => {
-    if (!shouldShow) return;
-    try {
-      const audio = new Audio("/sounds/typewriter.wav");
-      audio.volume = 0.08;
-      audioRef.current = audio;
-    } catch {
-      // Ignorar errores de creación de audio
-    }
-  }, [shouldShow]);
-
-  // Efecto máquina de escribir (letra por letra)
+  // Efecto máquina de escribir (letra por letra con audioManager)
   useEffect(() => {
     if (!shouldShow || !fullText) return;
 
@@ -81,17 +77,16 @@ export default function CaseBriefingModal({
     setIsTyping(true);
 
     let currentIndex = 0;
-    const typingSpeed = 30; // ms por letra
+    const typingSpeed = 25; // ms por letra
 
     const interval = setInterval(() => {
       if (currentIndex < fullText.length) {
         const nextChar = fullText.charAt(currentIndex);
         setDisplayedText((prev) => prev + nextChar);
 
-        // Reproducir sonido de tecla periódicamente
-        if (currentIndex % 3 === 0 && audioRef.current) {
-          audioRef.current.currentTime = 0;
-          audioRef.current.play().catch(() => { });
+        // Reproducir sonido de tecla periódicamente mediante el AudioManager centralizado
+        if (currentIndex % 3 === 0) {
+          audioManager.play("typewriter", { volume: 0.3 });
         }
 
         currentIndex++;

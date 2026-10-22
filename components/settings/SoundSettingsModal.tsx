@@ -14,9 +14,11 @@ export default function SoundSettingsModal({ isOpen, onClose }: SoundSettingsMod
   const [mounted, setMounted] = useState(false);
   const masterVolume = useAudioStore((state) => state.masterVolume);
   const sfxVolume = useAudioStore((state) => state.sfxVolume);
+  const musicVolume = useAudioStore((state) => state.musicVolume);
   const isMuted = useAudioStore((state) => state.isMuted);
   const setMasterVolume = useAudioStore((state) => state.setMasterVolume);
   const setSfxVolume = useAudioStore((state) => state.setSfxVolume);
+  const setMusicVolume = useAudioStore((state) => state.setMusicVolume);
   const toggleMute = useAudioStore((state) => state.toggleMute);
   const playSfx = useAudioStore((state) => state.playSfx);
 
@@ -41,12 +43,12 @@ export default function SoundSettingsModal({ isOpen, onClose }: SoundSettingsMod
           bg-[rgba(15,23,34,0.95)]
           shadow-[0_20px_50px_rgba(0,0,0,0.8)]
           text-[#FFF3C7]
-          flex flex-col gap-5
+          flex flex-col gap-4
         "
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[rgba(255,243,199,0.12)] pb-4">
+        <div className="flex items-center justify-between border-b border-[rgba(255,243,199,0.12)] pb-3">
           <div className="flex items-center gap-2.5">
             <span className="text-2xl">⚙️</span>
             <div>
@@ -54,7 +56,7 @@ export default function SoundSettingsModal({ isOpen, onClose }: SoundSettingsMod
                 AJUSTES DE SONIDO
               </h2>
               <p className="text-[11px] text-[#E1C380]/75 font-mono">
-                Configuración de audio y efectos
+                Configuración de audio, música y efectos
               </p>
             </div>
           </div>
@@ -67,15 +69,15 @@ export default function SoundSettingsModal({ isOpen, onClose }: SoundSettingsMod
         </div>
 
         {/* Mute Master Toggle */}
-        <div className="flex items-center justify-between p-3.5 rounded-xl bg-[rgba(255,243,199,0.04)] border border-[rgba(255,243,199,0.1)]">
+        <div className="flex items-center justify-between p-3 rounded-xl bg-[rgba(255,243,199,0.04)] border border-[rgba(255,243,199,0.1)]">
           <div className="flex items-center gap-3">
             <span className="text-xl">{isMuted ? "🔇" : "🔊"}</span>
             <div>
               <div className="text-xs font-mono font-bold text-[#FFF3C7]">
-                Silenciar Sonidos
+                Silenciar Todo
               </div>
               <div className="text-[10px] font-mono text-[#FFF3C7]/50">
-                {isMuted ? "Todos los sonidos desactivados" : "Sonido habilitado"}
+                {isMuted ? "Todos los sonidos y música desactivados" : "Sonido habilitado"}
               </div>
             </div>
           </div>
@@ -95,7 +97,7 @@ export default function SoundSettingsModal({ isOpen, onClose }: SoundSettingsMod
         </div>
 
         {/* Master Volume Slider */}
-        <div className="flex flex-col gap-2 p-3.5 rounded-xl bg-[rgba(255,243,199,0.04)] border border-[rgba(255,243,199,0.1)]">
+        <div className="flex flex-col gap-1.5 p-3 rounded-xl bg-[rgba(255,243,199,0.04)] border border-[rgba(255,243,199,0.1)]">
           <div className="flex items-center justify-between">
             <label className="text-xs font-mono font-bold text-[#FFF3C7] flex items-center gap-1.5">
               <span>🎚️</span> Volumen General
@@ -116,8 +118,30 @@ export default function SoundSettingsModal({ isOpen, onClose }: SoundSettingsMod
           />
         </div>
 
+        {/* Music Volume Slider */}
+        <div className="flex flex-col gap-1.5 p-3 rounded-xl bg-[rgba(255,243,199,0.04)] border border-[rgba(255,243,199,0.1)]">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-mono font-bold text-[#FFF3C7] flex items-center gap-1.5">
+              <span>🎵</span> Música / Banda Sonora
+            </label>
+            <span className="text-xs font-mono font-bold text-amber-300">
+              {Math.round(musicVolume * 100)}%
+            </span>
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            disabled={isMuted}
+            value={musicVolume}
+            onChange={(e) => setMusicVolume(parseFloat(e.target.value))}
+            className="w-full h-2 bg-black/50 rounded-lg appearance-none cursor-pointer accent-[#E1C380] disabled:opacity-40"
+          />
+        </div>
+
         {/* SFX Volume Slider */}
-        <div className="flex flex-col gap-2 p-3.5 rounded-xl bg-[rgba(255,243,199,0.04)] border border-[rgba(255,243,199,0.1)]">
+        <div className="flex flex-col gap-1.5 p-3 rounded-xl bg-[rgba(255,243,199,0.04)] border border-[rgba(255,243,199,0.1)]">
           <div className="flex items-center justify-between">
             <label className="text-xs font-mono font-bold text-[#FFF3C7] flex items-center gap-1.5">
               <span>🔔</span> Efectos de Sonido (SFX)
@@ -139,25 +163,32 @@ export default function SoundSettingsModal({ isOpen, onClose }: SoundSettingsMod
         </div>
 
         {/* Test Sounds */}
-        <div className="grid grid-cols-3 gap-2 pt-1">
+        <div className="grid grid-cols-4 gap-2 pt-0.5">
           <button
-            onClick={() => playSfx("click")}
+            onClick={() => playSfx("opencasefile")}
             disabled={isMuted}
-            className="px-2.5 py-2 rounded-lg bg-[rgba(255,243,199,0.06)] border border-[rgba(255,243,199,0.15)] text-[10px] font-mono hover:border-[#E1C380] hover:text-[#FFF3C7] transition-all cursor-pointer disabled:opacity-40"
+            className="px-2 py-2 rounded-lg bg-[rgba(255,243,199,0.06)] border border-[rgba(255,243,199,0.15)] text-[10px] font-mono hover:border-[#E1C380] hover:text-[#FFF3C7] transition-all cursor-pointer disabled:opacity-40"
           >
-            🔊 Click
+            📁 Carpeta
+          </button>
+          <button
+            onClick={() => playSfx("arrest")}
+            disabled={isMuted}
+            className="px-2 py-2 rounded-lg bg-[rgba(255,243,199,0.06)] border border-[rgba(255,243,199,0.15)] text-[10px] font-mono hover:border-[#E1C380] hover:text-[#FFF3C7] transition-all cursor-pointer disabled:opacity-40"
+          >
+            ⚖️ Arresto
           </button>
           <button
             onClick={() => playSfx("hint")}
             disabled={isMuted}
-            className="px-2.5 py-2 rounded-lg bg-[rgba(255,243,199,0.06)] border border-[rgba(255,243,199,0.15)] text-[10px] font-mono hover:border-[#E1C380] hover:text-[#FFF3C7] transition-all cursor-pointer disabled:opacity-40"
+            className="px-2 py-2 rounded-lg bg-[rgba(255,243,199,0.06)] border border-[rgba(255,243,199,0.15)] text-[10px] font-mono hover:border-[#E1C380] hover:text-[#FFF3C7] transition-all cursor-pointer disabled:opacity-40"
           >
             🔍 Pista
           </button>
           <button
             onClick={() => playSfx("plane")}
             disabled={isMuted}
-            className="px-2.5 py-2 rounded-lg bg-[rgba(255,243,199,0.06)] border border-[rgba(255,243,199,0.15)] text-[10px] font-mono hover:border-[#E1C380] hover:text-[#FFF3C7] transition-all cursor-pointer disabled:opacity-40"
+            className="px-2 py-2 rounded-lg bg-[rgba(255,243,199,0.06)] border border-[rgba(255,243,199,0.15)] text-[10px] font-mono hover:border-[#E1C380] hover:text-[#FFF3C7] transition-all cursor-pointer disabled:opacity-40"
           >
             ✈️ Avión
           </button>

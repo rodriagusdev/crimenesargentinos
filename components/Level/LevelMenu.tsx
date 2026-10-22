@@ -10,6 +10,7 @@ import { IGameData } from "@/models/IGameData";
 import { getGameData } from "@/services/levelService";
 import { abandonSession } from "@/services/gameSessionService";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
+import { audioManager } from "@/lib/audioManager";
 
 import GameButton from "../buttons/GameButton";
 import LevelSuspects from "./LevelSuspects";
@@ -28,10 +29,25 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
   const [showSoundSettings, setShowSoundSettings] = useState(false);
   const [isRestarting, setIsRestarting] = useState(false);
+
   const discoveredClues = useGameSessionStore((state) => state.discoveredClues);
   const resetSession = useGameSessionStore((state) => state.resetSession);
   const currentTime = useGameSessionStore((state) => state.currentTime);
   const currentPI = useGameSessionStore((state) => state.currentPI);
+
+  const storeLevelId = useGameSessionStore((state) => state.levelId);
+  const storeBriefing = useGameSessionStore((state) => state.briefing);
+  const storeInitialClues = useGameSessionStore((state) => state.initialClues);
+  const storeSuspects = useGameSessionStore((state) => state.suspects);
+
+  const isCurrentLevel = storeLevelId === levelId;
+  const displayBriefing = (isCurrentLevel && storeBriefing) ? storeBriefing : info?.info;
+  const displayInitialClues = (isCurrentLevel && storeInitialClues && storeInitialClues.length > 0)
+    ? storeInitialClues
+    : (info?.initialClues ?? []);
+  const displaySuspects = (isCurrentLevel && storeSuspects && storeSuspects.length > 0)
+    ? storeSuspects
+    : (info?.suspects ?? []);
 
   const handleRestartLevel = async () => {
     try {
@@ -66,17 +82,28 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
   };
 
   useEffect(() => {
+    // Si ya está en el store del nivel actual, no repetimos la petición innecesariamente
+    if (isCurrentLevel && storeBriefing && storeSuspects.length > 0) {
+      return;
+    }
+
+    let cancelled = false;
     const fetchData = async () => {
       try {
         const infoData = await getGameData(levelId);
-        setInfo(infoData);
+        if (!cancelled) {
+          setInfo(infoData);
+        }
       } catch (error) {
         console.error("Error fetching level data:", error);
       }
     };
 
     fetchData();
-  }, [levelId]);
+    return () => {
+      cancelled = true;
+    };
+  }, [levelId, isCurrentLevel, storeBriefing, storeSuspects.length]);
 
   useEffect(() => {
     const handleClose = () => {
@@ -94,7 +121,15 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
     <>
       <aside className="mt-6 ml-6 rounded-2xl z-100 absolute left-0 top-0 w-[480px] max-w-[calc(100vw-3rem)] backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] z-20 text-[#FFF3C7] overflow-hidden">
         <button
-          onClick={() => setIsOpen((prev) => !prev)}
+          onClick={() =>
+            setIsOpen((prev) => {
+              const next = !prev;
+              if (next) {
+                audioManager.play("opencasefile");
+              }
+              return next;
+            })
+          }
           className="w-full flex items-center justify-between px-5 py-3.5 border-b border-[rgba(255,243,199,0.12)] hover:bg-[rgba(255,243,199,0.06)] transition-colors duration-200 cursor-pointer gap-3"
         >
           <div className="flex flex-col text-left shrink-0">
@@ -184,9 +219,9 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
                   Informe del caso
                 </span>
               </div>
-              {info ? (
+              {displayBriefing ? (
                 <p className="text-xs text-[#FFF3C7]/90 leading-relaxed font-mono">
-                  {info.info}
+                  {displayBriefing}
                 </p>
               ) : (
                 <div className="space-y-1.5 animate-pulse">
@@ -202,7 +237,10 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
               {MENU_ACTIONS.map((action) => (
                 <button
                   key={action.id}
-                  onClick={() => setActiveModal(action)}
+                  onClick={() => {
+                    audioManager.play("opencasefile");
+                    setActiveModal(action);
+                  }}
                   onMouseEnter={playTypewriter}
                   className="w-16 p-1 rounded-2xl bg-[rgba(20,30,42,0.6)] hover:bg-[rgba(28,42,58,0.85)] border border-[rgba(255,243,199,0.18)] hover:border-[#E1C380]/40 backdrop-blur-xs shadow-[0_10px_30px_rgba(0,0,0,0.4)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.6)] transition-all duration-200 flex items-center group cursor-pointer"
                 >
@@ -211,6 +249,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
                       src={action.icon}
                       alt={action.title}
                       fill
+                      sizes="56px"
                       className="object-cover group-hover:scale-105 transition-transform duration-200"
                     />
                   </div>
@@ -261,6 +300,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
                 src={activeModal.icon}
                 alt={activeModal.title}
                 fill
+                sizes="112px"
                 className="object-cover"
               />
             </div>
@@ -301,18 +341,18 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
                     </div>
 
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-300 font-bold">
-                      {(info?.initialClues?.length ?? 0) + discoveredClues.length} PISTAS
+                      {displayInitialClues.length + discoveredClues.length} PISTAS
                     </span>
                   </div>
 
                   <div className="flex flex-col gap-2 p-3.5 rounded-xl bg-[rgba(10,15,25,0.6)] border border-[rgba(255,243,199,0.12)] shadow-inner max-h-56 overflow-y-auto">
                     {/* Pistas iniciales */}
-                    {info?.initialClues && info.initialClues.length > 0 && (
+                    {displayInitialClues.length > 0 && (
                       <div className="flex flex-col gap-1.5 mb-1">
                         <span className="text-[9px] uppercase font-mono tracking-widest text-[#E1C380]/60 font-semibold">
                           Pistas del Informe Inicial:
                         </span>
-                        {info.initialClues.map((clue, idx) => (
+                        {displayInitialClues.map((clue, idx) => (
                           <div
                             key={`initial-${idx}`}
                             className="flex items-start gap-2 text-xs font-mono text-[#FFF3C7]/90 leading-relaxed bg-[rgba(20,30,42,0.4)] p-2 rounded-lg border border-[rgba(255,243,199,0.06)]"
@@ -342,7 +382,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
                       </div>
                     )}
 
-                    {(!info?.initialClues || info.initialClues.length === 0) &&
+                    {displayInitialClues.length === 0 &&
                       discoveredClues.length === 0 && (
                         <p className="text-xs font-mono text-[#FFF3C7]/50 italic text-center py-2">
                           No hay pistas registradas todavía.
@@ -353,7 +393,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
               </div>
             ) : activeModal.id === "suspects" ? (
               <LevelSuspects
-                suspects={info?.suspects}
+                suspects={displaySuspects}
                 detail={activeModal.detail}
               />
             ) : (

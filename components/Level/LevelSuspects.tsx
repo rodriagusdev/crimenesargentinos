@@ -51,7 +51,7 @@ export default function LevelSuspects({
 
     try {
       setSubmitting(true);
-      playSfx("stamp");
+      playSfx("arrest");
       await issueArrestWarrant(selectedSuspect.id);
       onEmitArrest?.(selectedSuspect);
       setSelectedSuspect(null);
@@ -147,6 +147,7 @@ export default function LevelSuspects({
                           src={suspect.image}
                           alt={suspect.name}
                           fill
+                          sizes="(max-width: 640px) 96px, 112px"
                           className="object-cover group-hover:scale-105 transition-transform duration-200"
                         />
                       ) : (
@@ -222,6 +223,7 @@ export default function LevelSuspects({
                           src="/images/icons/icon_arrestorder.jpg"
                           alt="Orden de arresto"
                           fill
+                          sizes="20px"
                           className="object-cover group-hover/btn:scale-110 transition-transform duration-200"
                         />
                       </div>
@@ -281,6 +283,7 @@ export default function LevelSuspects({
                         src="/images/icons/icon_arrestorder.jpg"
                         alt="Orden de arresto"
                         fill
+                        sizes="20px"
                         className="object-cover group-hover/btn:scale-110 transition-transform duration-200"
                       />
                     </div>
@@ -311,6 +314,7 @@ export default function LevelSuspects({
                   src="/images/icons/icon_arrestorder.jpg"
                   alt="Orden de Arresto"
                   fill
+                  sizes="80px"
                   className="object-cover"
                 />
               </div>

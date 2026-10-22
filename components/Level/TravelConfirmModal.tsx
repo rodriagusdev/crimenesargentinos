@@ -44,9 +44,7 @@ export default function TravelConfirmModal({
     return null;
   }
 
-  const hasEnoughTime = currentResources.time >= cost.time;
-  const hasEnoughPI = currentResources.pi >= cost.pi;
-  const canTravel = hasEnoughTime && hasEnoughPI;
+  const canTravel = currentResources.time > 0 && currentResources.pi > 0;
 
   return createPortal(
     <div
@@ -73,6 +71,7 @@ export default function TravelConfirmModal({
               src={destinationIcon}
               alt={destinationName}
               fill
+              sizes="80px"
               className="object-cover"
             />
           ) : (
@@ -155,12 +154,6 @@ export default function TravelConfirmModal({
               </span>
             </div>
           </div>
-
-          {!canTravel && (
-            <div className="p-2 rounded-lg bg-red-950/60 border border-red-500/40 text-red-400 text-[11px] font-mono">
-              ⚠️ No tienes suficientes recursos para realizar este viaje.
-            </div>
-          )}
         </div>
 
         {/* Botones de Confirmación y Cancelación */}

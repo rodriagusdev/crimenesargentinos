@@ -10,6 +10,7 @@ import ILocation from "@/models/ILocation";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { useGameSession } from "@/hooks/useGameSession";
 import TravelConfirmModal from "./TravelConfirmModal";
+import TravelAnimationOverlay from "./TravelAnimationOverlay";
 import SuspectProvinceWarning from "./SuspectProvinceWarning";
 
 interface LevelDataProps {
@@ -30,11 +31,20 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<ILocation | null>(null);
+  const [travelingTo, setTravelingTo] = useState<ILocation | null>(null);
   const [traveling, setTraveling] = useState(false);
   const [travelError, setTravelError] = useState<string | null>(null);
 
   const locationCost = useGameSessionStore((state) => state.costs?.travelLocation);
   const travelHours = useGameSessionStore((state) => state.session?.travelHours);
+
+  // Coordenadas tácticas en el mapa provincial para animación de patrullaje
+  const LOCATION_COORDS = [
+    { left: "34%", top: "42%" },
+    { left: "60%", top: "34%" },
+    { left: "45%", top: "68%" },
+    { left: "66%", top: "58%" },
+  ];
 
   useEffect(() => {
     let cancelled = false;
@@ -83,19 +93,25 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
     );
   }
 
-  // El servidor cobra el traslado y mueve al jugador; recién después se navega
+  // El servidor cobra el traslado y mueve al jugador; recién después se navega con animación de patrulla
   const handleConfirmLocation = async () => {
     if (!selectedLocation || traveling) return;
-    const targetId = selectedLocation.id;
+    const targetLocation = selectedLocation;
+    const targetId = targetLocation.id;
 
     setTraveling(true);
+    setTravelingTo(targetLocation);
     setTravelError(null);
+    setSelectedLocation(null);
+
     try {
-      await travelLocation(targetId);
-      setSelectedLocation(null);
+      await Promise.all([
+        travelLocation(targetId),
+        new Promise((resolve) => setTimeout(resolve, 1400)),
+      ]);
       router.push(`/level/${levelId}/${provinceId}/${targetId}`);
     } catch (err) {
-      setSelectedLocation(null);
+      setTravelingTo(null);
       setTravelError(err instanceof Error ? err.message : "No se pudo ir a la locación");
     } finally {
       setTraveling(false);
@@ -103,15 +119,31 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
   };
 
   const currentLocation = data?.locations.find((l) => l.id === currentLocationId);
+  const fromIndex = data?.locations.findIndex((l) => l.id === currentLocationId) ?? -1;
+  const toIndex = travelingTo ? (data?.locations.findIndex((l) => l.id === travelingTo.id) ?? -1) : -1;
+  const fromCoord = LOCATION_COORDS[fromIndex >= 0 ? fromIndex % LOCATION_COORDS.length : 0];
+  const toCoord = LOCATION_COORDS[toIndex >= 0 ? toIndex % LOCATION_COORDS.length : 1];
 
   return (
     <>
+      {/* Animación táctica de patrullero policial entre locaciones */}
+      {travelingTo && (
+        <TravelAnimationOverlay
+          mode="car"
+          fromName={currentLocation?.name ?? "Punto Operativo"}
+          toName={travelingTo.name}
+          fromCoord={fromCoord}
+          toCoord={toCoord}
+        />
+      )}
+
       {/* Fondo del mapa */}
       <div className="absolute inset-0 -z-10">
         <Image
           src={data.backgroundUrl}
           alt={`Fondo nivel ${provinceId}`}
           fill
+          sizes="100vw"
           className="object-cover"
           priority
         />
