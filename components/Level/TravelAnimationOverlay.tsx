@@ -45,8 +45,11 @@ export default function TravelAnimationOverlay({
   const playSfx = useAudioStore((state) => state.playSfx);
 
   // Normalize inputs between new generic API and legacy province API
-  const originName = fromName ?? fromProvince?.name ?? "Base Operativa";
+  let originName = fromName ?? fromProvince?.name ?? (mode === "plane" ? "Base de Despegue" : "Punto Operativo");
   const destName = toName ?? toProvince?.name ?? "Destino";
+  if (originName.trim().toLowerCase() === destName.trim().toLowerCase()) {
+    originName = mode === "plane" ? "Base de Despegue" : "Punto de Partida";
+  }
 
   const startX = parsePercent(fromCoord?.left ?? fromProvince?.left, 42);
   const startY = parsePercent(fromCoord?.top ?? fromProvince?.top, 58);

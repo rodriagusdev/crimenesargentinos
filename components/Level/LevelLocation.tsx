@@ -8,7 +8,6 @@ import DialogBox from "../dialog/DialogBox";
 import { useGameSession } from "@/hooks/useGameSession";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import LocationIntro from "./LocationIntro";
-import FacingCriminalModal from "./FacingCriminalModal";
 
 interface Props {
   levelId: number;
@@ -124,9 +123,6 @@ export default function LevelLocation({
       ) : (
         <DialogBox dialog={locationDialog} onClose={onCloseDialog} />
       )}
-
-      {/* Llegó al escondite sin orden: el backend solo le deja emitirla */}
-      <FacingCriminalModal />
     </>
   );
 }

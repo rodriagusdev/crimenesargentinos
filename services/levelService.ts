@@ -3,6 +3,7 @@ import ILevelLocations from "@/models/ILevelLocations";
 import IDialog from "@/models/IDialog";
 import { IGameData } from "@/models/IGameData";
 import { API_URL, authHeaders, handleUnauthorized } from "@/lib/api";
+import { resolveSuspectImage } from "@/lib/suspectImages";
 
 async function fetchFromApi<T>(path: string, notFoundMessage: string, failMessage: string): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {
@@ -68,6 +69,12 @@ export async function getGameData(levelId: number): Promise<IGameData> {
     "Failed to fetch game data",
   )
     .then((data) => {
+      if (data?.suspects && Array.isArray(data.suspects)) {
+        data.suspects = data.suspects.map((s) => ({
+          ...s,
+          image: resolveSuspectImage(s.name, s.image),
+        }));
+      }
       gameDataCache.set(levelId, data);
       return data;
     })

@@ -34,6 +34,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
   const [error, setError] = useState<string | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<ILocation | null>(null);
   const [travelingTo, setTravelingTo] = useState<ILocation | null>(null);
+  const [travelFrom, setTravelFrom] = useState<{ id: string; name: string } | null>(null);
   const [traveling, setTraveling] = useState(false);
   const [travelError, setTravelError] = useState<string | null>(null);
 
@@ -95,12 +96,16 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
     );
   }
 
+  const currentLocation = data?.locations.find((l) => l.id === currentLocationId);
+
   // El servidor cobra el traslado y mueve al jugador; recién después se navega con animación de patrulla
   const handleConfirmLocation = async () => {
     if (!selectedLocation || traveling) return;
     const targetLocation = selectedLocation;
     const targetId = targetLocation.id;
 
+    // Guardar origen antes de llamar al backend para que el cambio de currentLocationId no sobreescriba el origen
+    setTravelFrom(currentLocation ?? null);
     setTraveling(true);
     setTravelingTo(targetLocation);
     setTravelError(null);
@@ -114,14 +119,15 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
       router.push(`/level/${levelId}/${provinceId}/${targetId}`);
     } catch (err) {
       setTravelingTo(null);
+      setTravelFrom(null);
       setTravelError(err instanceof Error ? err.message : "No se pudo ir a la locación");
     } finally {
       setTraveling(false);
     }
   };
 
-  const currentLocation = data?.locations.find((l) => l.id === currentLocationId);
-  const fromIndex = data?.locations.findIndex((l) => l.id === currentLocationId) ?? -1;
+  const originLocation = travelFrom ?? currentLocation;
+  const fromIndex = data?.locations.findIndex((l) => l.id === originLocation?.id) ?? -1;
   const toIndex = travelingTo ? (data?.locations.findIndex((l) => l.id === travelingTo.id) ?? -1) : -1;
   const fromCoord = LOCATION_COORDS[fromIndex >= 0 ? fromIndex % LOCATION_COORDS.length : 0];
   const toCoord = LOCATION_COORDS[toIndex >= 0 ? toIndex % LOCATION_COORDS.length : 1];
@@ -132,7 +138,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
       {travelingTo && (
         <TravelAnimationOverlay
           mode="car"
-          fromName={currentLocation?.name ?? "Punto Operativo"}
+          fromName={originLocation?.name ?? "Punto Operativo"}
           toName={travelingTo.name}
           fromCoord={fromCoord}
           toCoord={toCoord}

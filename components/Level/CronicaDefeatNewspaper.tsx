@@ -53,7 +53,7 @@ export default function CronicaDefeatNewspaper({
         return {
           kicker: "PAPELÓN EN EL ESCONDITE · NEGLIGENCIA JUDICIAL",
           headline: "¡CARA A CARA SIN ORDEN!",
-          lead: "El detective acorraló al criminal pero no tenía las pistas suficientes para la orden judicial. El sospechoso escapó burlándose de la ley.",
+          lead: "El detective llegó al escondite pero no tenía una orden de arresto emitida. El sospechoso escapó burlándose de la ley.",
           statusText: "SIN ORDEN JUDICIAL",
           reasonText: "ORDEN INEXISTENTE",
           stampText: "LIBRE",

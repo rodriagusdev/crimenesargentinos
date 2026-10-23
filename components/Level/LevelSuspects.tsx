@@ -6,6 +6,7 @@ import Image from "next/image";
 import { ISuspect } from "@/models/ISuspect";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { useAudioStore } from "@/stores/useAudioStore";
+import { resolveSuspectImage } from "@/lib/suspectImages";
 
 interface LevelSuspectsProps {
   suspects?: ISuspect[];
@@ -141,36 +142,41 @@ export default function LevelSuspects({
                     )}
 
                     {/* Photo frame */}
-                    <div className="relative w-20 h-20 sm:w-22 sm:h-22 md:w-24 md:h-24 rounded-xl overflow-hidden bg-black/50 border border-[rgba(255,243,199,0.2)] mb-2 flex items-center justify-center shrink-0 shadow-inner">
-                      {suspect.image ? (
-                        <Image
-                          src={suspect.image}
-                          alt={suspect.name}
-                          fill
-                          sizes="(max-width: 640px) 80px, 96px"
-                          className="object-cover group-hover:scale-105 transition-transform duration-200"
-                        />
-                      ) : (
-                        <div className="flex flex-col items-center justify-center text-[#E1C380]/40 group-hover:text-[#E1C380]/70 transition-colors">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="size-7 stroke-1"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    {(() => {
+                      const suspectImage = resolveSuspectImage(suspect.name, suspect.image);
+                      return (
+                        <div className="relative w-20 h-20 sm:w-22 sm:h-22 md:w-24 md:h-24 rounded-xl overflow-hidden bg-black/50 border border-[rgba(255,243,199,0.2)] mb-2 flex items-center justify-center shrink-0 shadow-inner">
+                          {suspectImage ? (
+                            <Image
+                              src={suspectImage}
+                              alt={suspect.name}
+                              fill
+                              sizes="(max-width: 640px) 80px, 96px"
+                              className="object-cover group-hover:scale-105 transition-transform duration-200"
                             />
-                          </svg>
-                          <span className="text-[9px] font-mono tracking-wider mt-0.5 text-[#FFF3C7]/40">
-                            SIN FOTO
-                          </span>
+                          ) : (
+                            <div className="flex flex-col items-center justify-center text-[#E1C380]/40 group-hover:text-[#E1C380]/70 transition-colors">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="size-7 stroke-1"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                />
+                              </svg>
+                              <span className="text-[9px] font-mono tracking-wider mt-0.5 text-[#FFF3C7]/40">
+                                SIN FOTO
+                              </span>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
+                      );
+                    })()}
 
                     {/* Info & Name */}
                     <div className="w-full text-center mb-1.5">

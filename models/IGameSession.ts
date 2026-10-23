@@ -21,13 +21,13 @@ export interface IGameSession {
   currentLocationId: string | null;
   briefingSeen: boolean;
   isGameOver: boolean; // solo cuando se perdió
-  // arrest: la orden era para otro sospechoso; nowarrant: llegó al escondite sin las pistas para emitirla
+  // arrest: la orden era para otro sospechoso; nowarrant: llegó al escondite sin una orden de arresto
   gameOverReason: "time" | "pi" | "arrest" | "nowarrant" | null;
   score: number | null;
   // Orden de arresto: la resuelve el backend al llegar al escondite (o en el acto, si ya está ahí)
   warrantSuspectId: string | null; // sospechoso de la orden emitida (null si no se emitió)
   canIssueWarrant: boolean; // tiene las pistas necesarias y todavía no la emitió
-  facingCriminal: boolean; // llegó al escondite sin orden: lo único que puede hacer es emitirla
+  facingCriminal: boolean; // obsoleto: al llegar al escondite sin orden de arresto pierde en el acto
   requiredCluesForWarrant: number;
   // Horas de viaje según la distancia desde donde está el jugador: id de provincia o locación → horas.
   // Vacío si el caso no tiene coordenadas (se usan los costos fijos de game-data)

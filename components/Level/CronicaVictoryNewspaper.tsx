@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { ISuspect } from "@/models/ISuspect";
 import { useAudioStore } from "@/stores/useAudioStore";
+import { resolveSuspectImage } from "@/lib/suspectImages";
 
 interface CronicaVictoryNewspaperProps {
   levelId: number;
@@ -30,7 +31,7 @@ export default function CronicaVictoryNewspaper({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const suspectName = suspect?.name ?? "Sospechoso";
-  const suspectImage = suspect?.image ?? null;
+  const suspectImage = resolveSuspectImage(suspect?.name, suspect?.image);
 
   // Sound effect on reveal
   useEffect(() => {

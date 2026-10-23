@@ -30,6 +30,7 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
   const [error, setError] = useState<string | null>(null);
   const [selectedProvince, setSelectedProvince] = useState<IProvince | null>(null);
   const [travelingTo, setTravelingTo] = useState<IProvince | null>(null);
+  const [travelFrom, setTravelFrom] = useState<IProvince | null>(null);
   const [traveling, setTraveling] = useState(false);
   const [travelError, setTravelError] = useState<string | null>(null);
 
@@ -86,6 +87,8 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
     const targetProvince = selectedProvince;
     const targetId = targetProvince.id;
 
+    // Guardar origen antes de llamar al backend para que el cambio de currentProvinceId no sobreescriba el origen en la animación
+    setTravelFrom(currentProvince ?? null);
     setTraveling(true);
     setTravelingTo(targetProvince);
     setTravelError(null);
@@ -101,6 +104,7 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
       router.push(`/level/${levelId}/${targetId}`);
     } catch (err) {
       setTravelingTo(null);
+      setTravelFrom(null);
       setTravelError(err instanceof Error ? err.message : "No se pudo viajar a la provincia");
     } finally {
       setTraveling(false);
@@ -112,31 +116,44 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
       {/* Animación de vuelo interprovincial */}
       {travelingTo && (
         <TravelAnimationOverlay
-          fromProvince={currentProvince}
+          fromProvince={travelFrom ?? currentProvince}
           toProvince={travelingTo}
         />
       )}
 
+      {/* Indicador HUD de provincia actual en el mapa nacional */}
+      {currentProvince && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-4 py-1.5 rounded-full bg-[rgba(16,24,34,0.92)] border border-amber-400/60 shadow-[0_10px_30px_rgba(0,0,0,0.7)] backdrop-blur-md text-[#FFF3C7] text-xs font-mono pointer-events-none select-none animate-fade-in">
+          <span className="text-amber-400 animate-pulse text-sm">📍</span>
+          <span className="text-[#FFF3C7]/70 uppercase tracking-widest text-[10px]">Ubicación actual:</span>
+          <span className="font-bold text-amber-300 tracking-wider uppercase">{currentProvince.name}</span>
+        </div>
+      )}
+
       <div className="absolute inset-0 z-10">
-        {data.provinces.map((province) => (
-          <ProvinceButton
-            key={province.id}
-            label={province.name}
-            top={province.top}
-            left={province.left}
-            icon={province.icon}
-            onClick={() => {
-              if (traveling) return;
-              setTravelError(null);
-              // Volver a la provincia en la que ya está no cuesta nada: se entra directo, sin confirmar
-              if (province.id === currentProvinceId) {
-                router.push(`/level/${levelId}/${province.id}`);
-                return;
-              }
-              setSelectedProvince(province);
-            }}
-          />
-        ))}
+        {data.provinces.map((province) => {
+          const isCurrent = province.id === currentProvinceId;
+          return (
+            <ProvinceButton
+              key={province.id}
+              label={province.name}
+              top={province.top}
+              left={province.left}
+              icon={province.icon}
+              isCurrent={isCurrent}
+              onClick={() => {
+                if (traveling) return;
+                setTravelError(null);
+                // Volver a la provincia en la que ya está no cuesta nada: se entra directo, sin confirmar
+                if (province.id === currentProvinceId) {
+                  router.push(`/level/${levelId}/${province.id}`);
+                  return;
+                }
+                setSelectedProvince(province);
+              }}
+            />
+          );
+        })}
       </div>
 
       {travelError && (

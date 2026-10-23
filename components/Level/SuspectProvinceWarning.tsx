@@ -84,6 +84,30 @@ export const CASE_SUSPECT_LOCATIONS: Record<number, CaseSuspectLocation> = {
     criminalLocationId: "278ab945-2dc8-46ed-8311-b417ccf5df09",
     criminalLocationName: "Puente del Inca",
   },
+  12: {
+    provinceId: "4ae47acc-9131-4d02-92ec-bc9393fbbe4b",
+    provinceName: "Jujuy",
+    criminalLocationId: "d28fdd46-ac06-46b9-a92f-185adf559ae5",
+    criminalLocationName: "Salinas Grandes",
+  },
+  13: {
+    provinceId: "68526d1a-fc56-4067-8313-0f8fd472ebdd",
+    provinceName: "Santa Cruz",
+    criminalLocationId: "d9f9c82e-3301-4fe3-9de5-dbe67e402080",
+    criminalLocationName: "Cueva de las Manos",
+  },
+  14: {
+    provinceId: "279af790-afcb-4db0-96ca-442ac67f786f",
+    provinceName: "Santa Fe",
+    criminalLocationId: "87de74e2-deec-4000-ba3a-aa65b78e175c",
+    criminalLocationName: "Parque Arqueológico Cayastá",
+  },
+  15: {
+    provinceId: "7e8e02c0-d28b-4442-a7a2-5a4f2dfffccd",
+    provinceName: "Tucumán",
+    criminalLocationId: "24aa4a2a-373d-4f15-bcef-b03317315ea0",
+    criminalLocationName: "Ciudad Sagrada de Quilmes",
+  },
 };
 
 function normalize(text: string): string {
