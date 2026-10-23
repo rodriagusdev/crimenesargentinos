@@ -97,8 +97,10 @@ export default function Levels() {
           const prevDef = idx > 0 ? LEVEL_DEFINITIONS[idx - 1] : null;
           const prevLevelStarted = prevDef ? localCompleted.has(prevDef.subLevels[0].caseId) : true;
           const isApiPlayable = apiLevel ? apiLevel.status === "current" || apiLevel.status === "completed" : false;
-          //  const canPlayLevel = def.id === 1 || isApiPlayable || prevLevelStarted;
-          const canPlayLevel = true;
+          const canPlayLevel = def.id === 1 || isApiPlayable || prevLevelStarted;
+          // Si quiero probar todos los niveles descomentar la linea de abajo y comentar la linea de arriba
+          // Ademas, comentaru na parte en gamesession en el backend
+          // const canPlayLevel = true;
 
           // Calcular estado de cada subnivel: A, B y C
           // Todos los subcasos están disponibles y son sorteables desde el comienzo
@@ -157,6 +159,7 @@ export default function Levels() {
       <section className="w-full">
         {/* Barra diagonal de precaución */}
         <div className="h-2.5 w-full bg-[repeating-linear-gradient(45deg,#eab308,#eab308_12px,#090d16_12px,#090d16_24px)] rounded-full shadow-sm mb-6 border border-yellow-500/40" />
+
         <h2 className="mb-4 text-center font-['Press_Start_2P'] text-[#E1C380] text-sm sm:text-base tracking-widest">
           NIVELES
         </h2>
