@@ -9,27 +9,42 @@ async function optimizeFile(filePath) {
   const ext = path.extname(filePath).toLowerCase();
   const relPath = path.relative(PUBLIC_DIR, filePath);
 
-  // 1. Suspect avatars: resize to max 512x512 with high quality WebP
-  if (relPath.includes("suspects") && ext === ".webp" && stat.size > 200 * 1024) {
+  // 1. Suspect avatars & portraits: resize to max 384x384 with WebP quality 82
+  if ((relPath.includes("suspects") || relPath.includes("portraits")) && ext === ".webp" && stat.size > 80 * 1024) {
     const inputBuffer = fs.readFileSync(filePath);
     const buffer = await sharp(inputBuffer)
-      .resize(512, 512, { fit: "inside" })
-      .webp({ quality: 85 })
+      .resize(384, 384, { fit: "inside", withoutEnlargement: true })
+      .webp({ quality: 82, effort: 4 })
       .toBuffer();
 
     if (buffer.length < stat.size) {
       fs.writeFileSync(filePath, buffer);
-      console.log(`[OPTIMIZED] Suspect: ${relPath} (${formatBytes(stat.size)} -> ${formatBytes(buffer.length)})`);
+      console.log(`[OPTIMIZED] Character/Suspect: ${relPath} (${formatBytes(stat.size)} -> ${formatBytes(buffer.length)})`);
       return { original: stat.size, saved: stat.size - buffer.length };
     }
   }
 
-  // 2. Logo: resize to max width 800 with high-compression PNG
-  if (relPath === "logofinal.png" && stat.size > 300 * 1024) {
+  // 2. Location & map icons: resize to max 256x256 WebP
+  if ((relPath.includes("locations") || relPath.includes("icons")) && ext === ".webp" && stat.size > 50 * 1024) {
     const inputBuffer = fs.readFileSync(filePath);
     const buffer = await sharp(inputBuffer)
-      .resize(800, null, { fit: "inside" })
-      .png({ compressionLevel: 9, quality: 90 })
+      .resize(256, 256, { fit: "inside", withoutEnlargement: true })
+      .webp({ quality: 80, effort: 4 })
+      .toBuffer();
+
+    if (buffer.length < stat.size) {
+      fs.writeFileSync(filePath, buffer);
+      console.log(`[OPTIMIZED] Icon: ${relPath} (${formatBytes(stat.size)} -> ${formatBytes(buffer.length)})`);
+      return { original: stat.size, saved: stat.size - buffer.length };
+    }
+  }
+
+  // 3. Logo: resize to max width 800 with high-compression PNG
+  if (relPath === "logofinal.png" && stat.size > 100 * 1024) {
+    const inputBuffer = fs.readFileSync(filePath);
+    const buffer = await sharp(inputBuffer)
+      .resize(600, null, { fit: "inside", withoutEnlargement: true })
+      .png({ compressionLevel: 9, quality: 85 })
       .toBuffer();
 
     if (buffer.length < stat.size) {
@@ -39,17 +54,32 @@ async function optimizeFile(filePath) {
     }
   }
 
-  // 3. Heavy backgrounds (> 600 KB): resize to max 1920x1080 with quality 82
-  if ((ext === ".jpg" || ext === ".jpeg") && stat.size > 600 * 1024) {
+  // 4. Heavy backgrounds, provinces, and dialog scenes (> 150 KB)
+  if ((ext === ".jpg" || ext === ".jpeg" || ext === ".jfif") && stat.size > 150 * 1024) {
     const inputBuffer = fs.readFileSync(filePath);
     const buffer = await sharp(inputBuffer)
-      .resize(1920, 1080, { fit: "inside", withoutEnlargement: true })
-      .jpeg({ quality: 82, mozjpeg: true })
+      .resize(1600, 900, { fit: "inside", withoutEnlargement: true })
+      .jpeg({ quality: 80, mozjpeg: true })
       .toBuffer();
 
     if (buffer.length < stat.size) {
       fs.writeFileSync(filePath, buffer);
       console.log(`[OPTIMIZED] Background: ${relPath} (${formatBytes(stat.size)} -> ${formatBytes(buffer.length)})`);
+      return { original: stat.size, saved: stat.size - buffer.length };
+    }
+  }
+
+  // 5. Heavy WebP backgrounds (maps, dialogs > 250 KB)
+  if (ext === ".webp" && stat.size > 250 * 1024) {
+    const inputBuffer = fs.readFileSync(filePath);
+    const buffer = await sharp(inputBuffer)
+      .resize(1600, 1000, { fit: "inside", withoutEnlargement: true })
+      .webp({ quality: 80, effort: 4 })
+      .toBuffer();
+
+    if (buffer.length < stat.size) {
+      fs.writeFileSync(filePath, buffer);
+      console.log(`[OPTIMIZED] Map/Scene WebP: ${relPath} (${formatBytes(stat.size)} -> ${formatBytes(buffer.length)})`);
       return { original: stat.size, saved: stat.size - buffer.length };
     }
   }

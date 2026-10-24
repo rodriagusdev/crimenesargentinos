@@ -65,11 +65,6 @@ audioManager.setSfxVolume(initialSettings.sfxVolume);
 audioManager.setMusicVolume(initialSettings.musicVolume);
 audioManager.setMuted(initialSettings.isMuted);
 
-// Start preloading buffers in background on client
-if (typeof window !== "undefined") {
-  audioManager.preload().catch(() => {});
-}
-
 export const useAudioStore = create<AudioState>((set) => {
   return {
     masterVolume: initialSettings.masterVolume,

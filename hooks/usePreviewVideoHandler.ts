@@ -2,6 +2,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { abandonSession, GameSessionApiError, IPlayConflict, playConflictOf, sessionRoute } from "@/services/gameSessionService";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
+import { preloadCasePackage } from "@/lib/assetPreloader";
 
 // Entrada a un nivel desde su tarjeta: retoma la partida en curso o sortea el caso,
 // muestra el video de intro del caso (si tiene) y va a donde quedó el jugador.
@@ -16,10 +17,13 @@ export function usePreviewVideoHandler(previewVideoURL?: string, level?: number)
   // Partida en curso de otro nivel: se pide confirmar antes de abandonarla para rejugar
   const [pendingAbandon, setPendingAbandon] = useState<IPlayConflict | null>(null);
   const [abandoning, setAbandoning] = useState(false);
+  const [loadingLevel, setLoadingLevel] = useState(false);
   const videoSeen = useRef(false);
 
   const goToLevel = async () => {
+    if (loadingLevel) return;
     try {
+      setLoadingLevel(true);
       const session = await play(level);
 
       try {
@@ -33,11 +37,18 @@ export function usePreviewVideoHandler(previewVideoURL?: string, level?: number)
         videoSeen.current = true;
         setVideoURL(caseVideo);
         setShowVideo(true);
+        setLoadingLevel(false);
         return;
       }
 
-      router.push(sessionRoute(session));
+      // Precargar recursos del caso y prefetch de la ruta de destino
+      const targetRoute = sessionRoute(session);
+      router.prefetch(targetRoute);
+      preloadCasePackage(session.caseId);
+
+      router.push(targetRoute);
     } catch (err) {
+      setLoadingLevel(false);
       if (err instanceof GameSessionApiError && err.status === 401) {
         router.push("/login");
         return;
@@ -77,5 +88,5 @@ export function usePreviewVideoHandler(previewVideoURL?: string, level?: number)
     setShowVideo((prev) => !prev);
   };
 
-  return { showVideo, videoURL, handleShowVideo, goToLevel, pendingAbandon, abandoning, confirmAbandon, cancelAbandon };
+  return { showVideo, videoURL, handleShowVideo, goToLevel, loadingLevel, pendingAbandon, abandoning, confirmAbandon, cancelAbandon };
 }

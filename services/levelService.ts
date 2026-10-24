@@ -33,6 +33,9 @@ const inFlightProvinces = new Map<number, Promise<ILevelDataProvinces>>();
 const locationsCache = new Map<string, ILevelLocations>();
 const inFlightLocations = new Map<string, Promise<ILevelLocations>>();
 
+const dialogCache = new Map<string, IDialog>();
+const inFlightDialog = new Map<string, Promise<IDialog>>();
+
 /**
  * Clears cached level data. If levelId is passed, clears only that level.
  */
@@ -42,6 +45,12 @@ export function clearLevelCache(levelId?: number): void {
     inFlightGameData.delete(levelId);
     provincesCache.delete(levelId);
     inFlightProvinces.delete(levelId);
+    for (const key of dialogCache.keys()) {
+      if (key.startsWith(`${levelId}_`)) {
+        dialogCache.delete(key);
+        inFlightDialog.delete(key);
+      }
+    }
   } else {
     gameDataCache.clear();
     inFlightGameData.clear();
@@ -49,6 +58,8 @@ export function clearLevelCache(levelId?: number): void {
     inFlightProvinces.clear();
     locationsCache.clear();
     inFlightLocations.clear();
+    dialogCache.clear();
+    inFlightDialog.clear();
   }
 }
 
@@ -135,6 +146,14 @@ export async function getLevelLocations(
     "Failed to fetch province locations",
   )
     .then((data) => {
+      if (data?.locations && Array.isArray(data.locations)) {
+        data.locations = data.locations.map((loc) => ({
+          ...loc,
+          imageUrl: loc.imageUrl?.includes("/dialogbackground/")
+            ? loc.imageUrl.replace(/\.jpe?g$/i, ".webp")
+            : loc.imageUrl,
+        }));
+      }
       locationsCache.set(provinceId, data);
       return data;
     })
@@ -150,9 +169,36 @@ export async function getDialog(
   levelId: number,
   locationId: string,
 ): Promise<IDialog> {
-  return fetchFromApi<IDialog>(
+  const cacheKey = `${levelId}_${locationId}`;
+  const cached = dialogCache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  const inFlight = inFlightDialog.get(cacheKey);
+  if (inFlight) {
+    return inFlight;
+  }
+
+  const promise = fetchFromApi<IDialog>(
     `/Dialog/GetByLocation/${levelId}/${locationId}`,
     `Dialog for location ${locationId} not found`,
     "Failed to fetch dialog",
-  );
+  )
+    .then((data) => {
+      if (data?.overlayBackgroundUrl?.includes("/dialogbackground/")) {
+        data.overlayBackgroundUrl = data.overlayBackgroundUrl.replace(/\.jpe?g$/i, ".webp");
+      }
+      if (data?.npcCompleteUrl?.includes("/dialogbackground/")) {
+        data.npcCompleteUrl = data.npcCompleteUrl.replace(/\.jpe?g$/i, ".webp");
+      }
+      dialogCache.set(cacheKey, data);
+      return data;
+    })
+    .finally(() => {
+      inFlightDialog.delete(cacheKey);
+    });
+
+  inFlightDialog.set(cacheKey, promise);
+  return promise;
 }

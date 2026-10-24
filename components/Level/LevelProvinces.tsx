@@ -9,8 +9,11 @@ import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { useGameSession } from "@/hooks/useGameSession";
 import IProvince from "@/models/IProvince";
 import dynamic from "next/dynamic";
+import { preloadProvincePackage } from "@/lib/assetPreloader";
 
 const TravelConfirmModal = dynamic(() => import("./TravelConfirmModal"), { ssr: false });
+import { useShallow } from "zustand/react/shallow";
+
 const TravelAnimationOverlay = dynamic(() => import("./TravelAnimationOverlay"), { ssr: false });
 
 interface LevelDataProps {
@@ -20,10 +23,18 @@ interface LevelDataProps {
 export default function LevelProvinces({ levelId }: LevelDataProps) {
   const router = useRouter();
   useGameSession(levelId);
-  const travelProvince = useGameSessionStore((state) => state.travelProvince);
-  const currentProvinceId = useGameSessionStore((state) => state.session?.currentProvinceId);
-  const currentTime = useGameSessionStore((state) => state.currentTime);
-  const currentPI = useGameSessionStore((state) => state.currentPI);
+
+  const { travelProvince, currentProvinceId, currentTime, currentPI, travelCost, travelHours } =
+    useGameSessionStore(
+      useShallow((state) => ({
+        travelProvince: state.travelProvince,
+        currentProvinceId: state.session?.currentProvinceId,
+        currentTime: state.currentTime,
+        currentPI: state.currentPI,
+        travelCost: state.costs?.travelProvince,
+        travelHours: state.session?.travelHours,
+      }))
+    );
 
   const [data, setData] = useState<ILevelDataProvinces | null>(null);
   const [loading, setLoading] = useState(true);
@@ -33,9 +44,6 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
   const [travelFrom, setTravelFrom] = useState<IProvince | null>(null);
   const [traveling, setTraveling] = useState(false);
   const [travelError, setTravelError] = useState<string | null>(null);
-
-  const travelCost = useGameSessionStore((state) => state.costs?.travelProvince);
-  const travelHours = useGameSessionStore((state) => state.session?.travelHours);
 
   useEffect(() => {
     let cancelled = false;
@@ -95,9 +103,13 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
     setSelectedProvince(null);
 
     try {
-      // Lanzar petición y esperar al menos 1.6s para que la animación de vuelo se aprecie
+      // 1. Prefetch Next.js route in background
+      router.prefetch(`/level/${levelId}/${targetId}`);
+
+      // 2. Lanzar petición y PRECARGAR el paquete de la provincia de destino durante el vuelo de 1.6s
       const [result] = await Promise.all([
         travelProvince(targetId),
+        preloadProvincePackage(targetId),
         new Promise((resolve) => setTimeout(resolve, 1600)),
       ]);
 
@@ -141,6 +153,7 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
               left={province.left}
               icon={province.icon}
               isCurrent={isCurrent}
+              onMouseEnter={() => preloadProvincePackage(province.id)}
               onClick={() => {
                 if (traveling) return;
                 setTravelError(null);

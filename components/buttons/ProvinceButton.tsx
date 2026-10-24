@@ -7,6 +7,7 @@ interface Props {
   left?: string;
   isCurrent?: boolean;
   onClick: () => void;
+  onMouseEnter?: () => void;
 }
 
 export function ProvinceButton({
@@ -16,10 +17,12 @@ export function ProvinceButton({
   left,
   isCurrent = false,
   onClick,
+  onMouseEnter,
 }: Props) {
   return (
     <div
       style={{ top, left }}
+      onMouseEnter={onMouseEnter}
       className="
         absolute
         -translate-x-1/2 -translate-y-1/2
@@ -44,8 +47,8 @@ export function ProvinceButton({
           flex items-center justify-center
           rounded-full
           backdrop-blur-sm
-          transition-transform
-          hover:scale-110
+          transition-transform duration-150
+          hover:scale-110 active:scale-95
           cursor-pointer
           ${
             isCurrent
@@ -74,7 +77,8 @@ export function ProvinceButton({
           px-3 py-1.5
           rounded-md
           text-[11px]
-          transition-all
+          transition-all duration-150
+          active:scale-95
           shadow-md
           whitespace-nowrap
           cursor-pointer

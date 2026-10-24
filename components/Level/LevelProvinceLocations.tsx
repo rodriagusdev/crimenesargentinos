@@ -10,6 +10,9 @@ import ILocation from "@/models/ILocation";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { useGameSession } from "@/hooks/useGameSession";
 import dynamic from "next/dynamic";
+import { preloadLocationPackage } from "@/lib/assetPreloader";
+
+import { useShallow } from "zustand/react/shallow";
 
 const TravelConfirmModal = dynamic(() => import("./TravelConfirmModal"), { ssr: false });
 const TravelAnimationOverlay = dynamic(() => import("./TravelAnimationOverlay"), { ssr: false });
@@ -24,10 +27,18 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
   const router = useRouter();
   // Si el jugador no está en esta provincia, se lo redirige a donde quedó
   const { ready, error: sessionError } = useGameSession(levelId, { provinceId });
-  const travelLocation = useGameSessionStore((state) => state.travelLocation);
-  const currentLocationId = useGameSessionStore((state) => state.session?.currentLocationId);
-  const currentTime = useGameSessionStore((state) => state.currentTime);
-  const currentPI = useGameSessionStore((state) => state.currentPI);
+
+  const { travelLocation, currentLocationId, currentTime, currentPI, locationCost, travelHours } =
+    useGameSessionStore(
+      useShallow((state) => ({
+        travelLocation: state.travelLocation,
+        currentLocationId: state.session?.currentLocationId,
+        currentTime: state.currentTime,
+        currentPI: state.currentPI,
+        locationCost: state.costs?.travelLocation,
+        travelHours: state.session?.travelHours,
+      }))
+    );
 
   const [data, SetData] = useState<ILevelLocations | null>(null);
   const [loading, setLoading] = useState(true);
@@ -37,9 +48,6 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
   const [travelFrom, setTravelFrom] = useState<{ id: string; name: string } | null>(null);
   const [traveling, setTraveling] = useState(false);
   const [travelError, setTravelError] = useState<string | null>(null);
-
-  const locationCost = useGameSessionStore((state) => state.costs?.travelLocation);
-  const travelHours = useGameSessionStore((state) => state.session?.travelHours);
 
   // Coordenadas tácticas en el mapa provincial para animación de patrullaje
   const LOCATION_COORDS = [
@@ -80,6 +88,13 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
     };
   }, [provinceId]);
 
+  // Precargar anticipadamente los recursos de la locación actual en segundo plano
+  useEffect(() => {
+    if (currentLocationId) {
+      preloadLocationPackage(levelId, provinceId, currentLocationId);
+    }
+  }, [levelId, provinceId, currentLocationId]);
+
   if (loading || (!ready && !sessionError)) {
     return (
       <div className="flex items-center justify-center min-h-screen text-[#FFF3C7]">
@@ -99,6 +114,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
   const currentLocation = data?.locations.find((l) => l.id === currentLocationId);
 
   // El servidor cobra el traslado y mueve al jugador; recién después se navega con animación de patrulla
+  // Durante el viaje en patrullero (1400ms), precargamos el diálogo y fondo de la locación destino
   const handleConfirmLocation = async () => {
     if (!selectedLocation || traveling) return;
     const targetLocation = selectedLocation;
@@ -112,8 +128,13 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
     setSelectedLocation(null);
 
     try {
+      // 1. Prefetch de la ruta en Next.js
+      router.prefetch(`/level/${levelId}/${provinceId}/${targetId}`);
+
+      // 2. Cobro de viaje + PRELOAD del diálogo y fondo de la locación durante la animación de patrulla (1.4s)
       await Promise.all([
         travelLocation(targetId),
+        preloadLocationPackage(levelId, provinceId, targetId),
         new Promise((resolve) => setTimeout(resolve, 1400)),
       ]);
       router.push(`/level/${levelId}/${provinceId}/${targetId}`);
@@ -208,6 +229,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
                 label={isCurrent ? `${location.name} (ESTÁS ACÁ)` : location.name}
                 variant={isCurrent ? "primary" : "secondary"}
                 disabled={traveling}
+                onMouseEnter={() => preloadLocationPackage(levelId, provinceId, location.id)}
                 onClick={() => {
                   if (traveling) return;
                   setTravelError(null);

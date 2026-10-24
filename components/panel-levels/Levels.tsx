@@ -1,68 +1,42 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ICardLevelPreview, ISubLevel } from "@/models/ICardLevelPreview";
+import { ICardLevelPreview } from "@/models/ICardLevelPreview";
 import { getLevels } from "@/services/gameSessionService";
 import { ILevelOverview } from "@/models/IGameSession";
-import { getCompletedCases } from "@/lib/completedCases";
 import LevelCard from "./LevelCard";
 
-// Definición canónica de los 6 niveles y sus respectivos 3 subniveles (A, B, C)
+// Definición canónica de los 5 niveles del juego
 const LEVEL_DEFINITIONS = [
   {
     id: 1,
     title: "ROBO A LAS ESTRELLAS",
     description: "El trofeo nacional desapareció en pleno centro porteño tras los festejos.",
     imageURL: "/images/levelcardspreview/level_1_preview.png",
-    subLevels: [
-      { code: "A" as const, caseId: 1, title: "El Obelisco" },
-      { code: "B" as const, caseId: 6, title: "Pista Misionera" },
-      { code: "C" as const, caseId: 7, title: "Rumbo Colonial" },
-    ],
   },
   {
     id: 2,
     title: "DESAPARECEN LOS MAÑANEROS",
     description: "Fanáticos desaparecieron misteriosamente tras ganar el sorteo del tren nocturno.",
     imageURL: "/images/levelcardspreview/level_2_preview.png",
-    subLevels: [
-      { code: "A" as const, caseId: 2, title: "El Tren Nocturno" },
-      { code: "B" as const, caseId: 8, title: "Pista Norte" },
-      { code: "C" as const, caseId: 9, title: "Pista Austral" },
-    ],
   },
   {
     id: 3,
     title: "CASO PATAGONIA",
     description: "Sombras en la cordillera y sospechas en la fría estepa patagónica.",
     imageURL: "/images/levelcardspreview/level_3_preview.png",
-    subLevels: [
-      { code: "A" as const, caseId: 3, title: "Refugio Nevado" },
-      { code: "B" as const, caseId: 10, title: "Sombras en la Cordillera" },
-      { code: "C" as const, caseId: 11, title: "Secreto en las Alturas" },
-    ],
   },
   {
     id: 4,
     title: "RUTA NACIONAL 40",
     description: "Misterio a lo largo de la mítica ruta y sus rascacielos al anochecer.",
     imageURL: "/images/levelcardspreview/level_4_preview.png",
-    subLevels: [
-      { code: "A" as const, caseId: 4, title: "Cruce Desértico" },
-      { code: "B" as const, caseId: 12, title: "Sombra Urbana" },
-      { code: "C" as const, caseId: 13, title: "El Destino Final" },
-    ],
   },
   {
     id: 5,
     title: "EL ASESINO DE LAS PROVINCIAS",
     description: "El río bajo la luna esconde el escape del audaz robo de diamantes.",
     imageURL: "/images/levelcardspreview/level_5_preview.png",
-    subLevels: [
-      { code: "A" as const, caseId: 5, title: "Río de Luna" },
-      { code: "B" as const, caseId: 14, title: "Ribera del Carnaval" },
-      { code: "C" as const, caseId: 15, title: "Fuga Fluvial" },
-    ],
   },
 ];
 
@@ -78,53 +52,13 @@ export default function Levels() {
       .then((apiLevels: ILevelOverview[]) => {
         if (cancelled) return;
 
-        // 1. Obtener casos completados guardados en cliente
-        const localCompleted = new Set<number>(getCompletedCases());
-
-        // Complementar con los casos que la API ya reporte como completados
-        apiLevels.forEach((al) => {
-          if (al.status === "completed" && al.caseId) {
-            localCompleted.add(al.caseId);
-          }
-        });
-
-        // 2. Mapear cada nivel con sus subniveles dinámicos
-        const mappedLevels: ICardLevelPreview[] = LEVEL_DEFINITIONS.map((def, idx) => {
+        // Mapear cada nivel según el estado devuelto por el backend
+        const mappedLevels: ICardLevelPreview[] = LEVEL_DEFINITIONS.map((def) => {
           const apiLevel = apiLevels.find((l) => l.level === def.id);
-
-          // Nivel 1 siempre es accesible; niveles subsiguientes se desbloquean si el nivel previo
-          // tiene su subnivel A resuelto o si la API lo habilita
-          const prevDef = idx > 0 ? LEVEL_DEFINITIONS[idx - 1] : null;
-          const prevLevelStarted = prevDef ? localCompleted.has(prevDef.subLevels[0].caseId) : true;
-          const isApiPlayable = apiLevel ? apiLevel.status === "current" || apiLevel.status === "completed" : false;
-          const canPlayLevel = def.id === 1 || isApiPlayable || prevLevelStarted;
-          // Si quiero probar todos los niveles descomentar la linea de abajo y comentar la linea de arriba
-          // Ademas, comentaru na parte en gamesession en el backend
-          // const canPlayLevel = true;
-
-          // Calcular estado de cada subnivel: A, B y C
-          // Todos los subcasos están disponibles y son sorteables desde el comienzo
-          const subLevels: ISubLevel[] = def.subLevels.map((subDef) => {
-            if (!canPlayLevel) {
-              return { ...subDef, status: "locked" as const };
-            }
-
-            const isDone = localCompleted.has(subDef.caseId);
-            if (isDone) {
-              return { ...subDef, status: "completed" as const };
-            }
-
-            // Todos los casos del 1 al 15 están disponibles en la BD
-            if (subDef.caseId <= 15) {
-              return { ...subDef, status: "current" as const };
-            }
-
-            return { ...subDef, status: "locked" as const };
-          });
-
-          // Un nivel SOLO se considera completado (RESUELTO ✓) si TODOS los subniveles disponibles están ganados
-          const playableSublevels = subLevels.filter((s) => s.caseId <= 15);
-          const allSublevelsCompleted = playableSublevels.length > 0 && playableSublevels.every((s) => s.status === "completed");
+          const isCompleted = apiLevel?.status === "completed";
+          const isCurrent = apiLevel?.status === "current";
+          // Nivel 1 siempre es accesible; niveles subsiguientes se habilitan según la API
+          const canPlayLevel = def.id === 1 || isCompleted || isCurrent;
 
           return {
             id: def.id,
@@ -133,8 +67,7 @@ export default function Levels() {
             imageURL: def.imageURL,
             videoURL: undefined,
             canPlay: canPlayLevel,
-            completed: allSublevelsCompleted,
-            subLevels,
+            completed: isCompleted,
           };
         });
 

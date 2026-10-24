@@ -1,4 +1,4 @@
-import { ICardLevelPreview, ISubLevel } from "@/models/ICardLevelPreview";
+import { ICardLevelPreview } from "@/models/ICardLevelPreview";
 import Image from "next/image";
 import { createPortal } from "react-dom";
 import { usePreviewVideoHandler } from "@/hooks/usePreviewVideoHandler";
@@ -6,16 +6,16 @@ import { OverlayVideo } from "../overlays/OverlayVideo";
 
 type LevelCardProps = {
   preview: ICardLevelPreview;
-  onPlaySubLevel?: (subLevel: ISubLevel) => void;
 };
 
-export default function LevelCard({ preview, onPlaySubLevel }: LevelCardProps) {
+export default function LevelCard({ preview }: LevelCardProps) {
   // Cada tarjeta pide su nivel: retoma la partida en curso o sortea el caso
   const {
     handleShowVideo,
     showVideo,
     videoURL,
     goToLevel,
+    loadingLevel,
     pendingAbandon,
     abandoning,
     confirmAbandon,
@@ -23,25 +23,8 @@ export default function LevelCard({ preview, onPlaySubLevel }: LevelCardProps) {
   } = usePreviewVideoHandler(preview.videoURL, preview.id);
 
   const handleCardClick = () => {
-    if (!preview.canPlay) return;
+    if (!preview.canPlay || loadingLevel) return;
 
-    if (preview.videoURL) {
-      handleShowVideo();
-    } else {
-      goToLevel();
-    }
-  };
-
-  const handleSubLevelClick = (e: React.MouseEvent, sub: ISubLevel) => {
-    e.stopPropagation();
-    if (sub.status === "locked") return;
-
-    if (onPlaySubLevel) {
-      onPlaySubLevel(sub);
-      return;
-    }
-
-    // Si tiene video intro lo muestra, de lo contrario inicia nivel
     if (preview.videoURL) {
       handleShowVideo();
     } else {
@@ -54,10 +37,12 @@ export default function LevelCard({ preview, onPlaySubLevel }: LevelCardProps) {
       onClick={handleCardClick}
       className={`
         group relative flex flex-col rounded-2xl overflow-hidden
-        border-2 transition-all duration-300
-        ${preview.canPlay
-          ? "border-[#1c2c3e] bg-[#0c1421] hover:border-amber-400/60 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(0,0,0,0.85),0_0_20px_rgba(245,158,11,0.15)] cursor-pointer"
-          : "border-[#141e2b] bg-[#080d15] opacity-60 cursor-not-allowed"
+        border-2 transition-all duration-200
+        ${preview.canPlay && !loadingLevel
+          ? "border-[#1c2c3e] bg-[#0c1421] hover:border-amber-400/60 hover:-translate-y-1 active:scale-[0.98] hover:shadow-[0_20px_45px_rgba(0,0,0,0.85),0_0_20px_rgba(245,158,11,0.15)] cursor-pointer"
+          : loadingLevel
+            ? "border-amber-400/80 bg-[#0c1421] shadow-[0_0_25px_rgba(245,158,11,0.3)] cursor-wait"
+            : "border-[#141e2b] bg-[#080d15] opacity-60 cursor-not-allowed"
         }
         shadow-[0_12px_32px_rgba(0,0,0,0.65)]
       `}
@@ -107,6 +92,21 @@ export default function LevelCard({ preview, onPlaySubLevel }: LevelCardProps) {
 
         {/* OVERLAYS SEGÚN ESTADO */}
 
+        {/* Estado: Iniciando caso (feedback de click instantáneo) */}
+        {loadingLevel && (
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-[2px] flex flex-col items-center justify-center gap-2.5 select-none animate-fade-in z-10">
+            <span className="inline-flex items-center animate-spin text-amber-400">
+              <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+              </svg>
+            </span>
+            <span className="font-mono text-[10px] font-bold tracking-widest text-amber-300 uppercase bg-black/70 px-3 py-1 rounded-full border border-amber-500/40">
+              INICIANDO CASO...
+            </span>
+          </div>
+        )}
+
         {/* Estado B: Bloqueado - Candado */}
         {!preview.canPlay && (
           <div className="absolute inset-0 bg-black/75 backdrop-blur-[2px] flex flex-col items-center justify-center gap-2 select-none">
@@ -120,48 +120,28 @@ export default function LevelCard({ preview, onPlaySubLevel }: LevelCardProps) {
         )}
       </div>
 
-      {/* 3. Subniveles A, B y C */}
-      <div className="p-3 bg-[#0c1421] border-t border-[#1c2c3e]/80">
-        <div className="grid grid-cols-3 gap-2">
-          {preview.subLevels.map((sub) => {
-            const isCompleted = sub.status === "completed";
-            const isCurrent = sub.status === "current";
-            const isLocked = sub.status === "locked";
+      {/* 3. Descripción y acción del caso */}
+      <div className="p-3.5 bg-[#0c1421] border-t border-[#1c2c3e]/80 flex flex-col justify-between gap-3 flex-1">
+        <p className="text-xs text-[#FFF3C7]/75 font-mono line-clamp-2 leading-relaxed">
+          {preview.description}
+        </p>
 
-            return (
-              <button
-                key={sub.code}
-                type="button"
-                disabled={isLocked}
-                onClick={(e) => handleSubLevelClick(e, sub)}
-                title={`${sub.title} - ${isCompleted ? "Completado" : isCurrent ? "Disponible" : "Bloqueado"}`}
-                className={`
-                  flex flex-col items-center justify-center py-2 px-1 rounded-xl border transition-all duration-200 select-none
-                  ${isCompleted
-                    ? "border-[#c68a26] bg-gradient-to-b from-[#1b2536] to-[#121a26] hover:border-amber-400 text-amber-300 hover:bg-[#202c40] cursor-pointer"
-                    : isCurrent
-                      ? "border-amber-400 bg-amber-500/15 hover:bg-amber-500/25 shadow-[0_0_12px_rgba(245,158,11,0.25)] text-amber-200 cursor-pointer"
-                      : "border-[#1c2c3e]/50 bg-[#080d15]/60 text-slate-600 cursor-not-allowed"
-                  }
-                `}
-              >
-                {/* Código de subnivel [ A ], [ B ], [ C ] */}
-                <span
-                  className={`font-mono font-black text-xs ${isCompleted ? "text-amber-300" : isCurrent ? "text-amber-200" : "text-slate-500"
-                    }`}
-                >
-                  [ {sub.code} ]
-                </span>
-
-                {/* Ícono de estado con altura uniforme */}
-                <div className="h-4 flex items-center justify-center my-0.5">
-                  {isCompleted && (
-                    <span className="text-amber-400 text-sm drop-shadow-[0_0_6px_rgba(245,158,11,0.6)]">★</span>
-                  )}
-                </div>
-              </button>
-            );
-          })}
+        <div className="pt-1">
+          {preview.completed ? (
+            <div className="w-full py-2 px-3 rounded-xl border border-emerald-500/40 bg-emerald-950/40 text-emerald-300 font-mono font-bold text-xs flex items-center justify-center gap-2 group-hover:bg-emerald-900/60 transition-colors">
+              <span>★ RESUELTO</span>
+              <span className="text-[10px] text-emerald-400/70 font-normal">· REJUGAR ➔</span>
+            </div>
+          ) : preview.canPlay ? (
+            <div className="w-full py-2 px-3 rounded-xl border border-amber-400/60 bg-amber-500/15 text-amber-200 font-mono font-bold text-xs flex items-center justify-center gap-2 group-hover:bg-amber-500/25 group-hover:border-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.15)] transition-all">
+              <span>INVESTIGAR</span>
+              <span className="text-amber-400">➔</span>
+            </div>
+          ) : (
+            <div className="w-full py-2 px-3 rounded-xl border border-[#1c2c3e]/50 bg-[#080d15]/60 text-slate-600 font-mono font-bold text-xs flex items-center justify-center gap-2">
+              <span>BLOQUEADO</span>
+            </div>
+          )}
         </div>
       </div>
 

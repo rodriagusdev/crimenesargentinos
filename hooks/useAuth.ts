@@ -1,6 +1,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getTokenClaims, isTokenExpired } from "@/lib/auth";
+import { useGameSessionStore } from "@/stores/useGameSessionStore";
 
 export function useAuth() {
   const router = useRouter();
@@ -16,7 +17,13 @@ export function useAuth() {
   }, []);
 
   const logout = () => {
-    localStorage.removeItem("auth_token");
+    try {
+      localStorage.removeItem("auth_token");
+      sessionStorage.clear();
+    } catch {
+      // sin acceso a storage
+    }
+    useGameSessionStore.getState().resetSession();
     setIsAuthenticated(false);
     router.push("/login");
   };

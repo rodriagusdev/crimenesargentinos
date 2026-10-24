@@ -37,8 +37,9 @@ export const PUBLIC_PATHS = ["/", "/login", "/reglas"];
 export function redirectToLogin() {
   try {
     localStorage.removeItem("auth_token");
+    sessionStorage.clear();
   } catch {
-    // sin acceso a localStorage
+    // sin acceso a storage
   }
 
   if (typeof window !== "undefined" && !PUBLIC_PATHS.includes(window.location.pathname)) {
@@ -71,4 +72,17 @@ export function getUserIdentity(claims: TokenClaims | null = getTokenClaims()): 
 
 export function isAdmin(claims: TokenClaims | null = getTokenClaims()): boolean {
   return getUserRoles(claims).includes("Admin");
+}
+
+export function getUserId(claims: TokenClaims | null = getTokenClaims()): string | null {
+  if (!claims) return null;
+  const id =
+    claims["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] ||
+    claims.nameid ||
+    claims.sub ||
+    claims.jti ||
+    claims.id ||
+    claims["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"] ||
+    claims.email;
+  return typeof id === "string" && id ? id : null;
 }

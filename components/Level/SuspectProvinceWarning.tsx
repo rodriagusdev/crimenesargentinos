@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { useAudioStore } from "@/stores/useAudioStore";
+import { useGameSessionStore } from "@/stores/useGameSessionStore";
 
 interface SuspectProvinceWarningProps {
   levelId: number;
@@ -123,13 +124,15 @@ export default function SuspectProvinceWarning({
   provinceName,
 }: SuspectProvinceWarningProps) {
   const playSfx = useAudioStore((state) => state.playSfx);
+  const activeCaseId = useGameSessionStore((state) => state.session?.caseId);
+  const effectiveCaseId = activeCaseId ?? levelId;
 
   const [dismissed, setDismissed] = useState(false);
   const [hasPlayedSound, setHasPlayedSound] = useState(false);
 
   // Check if current province is where the suspect is located for this case/level
   const isSuspectInThisProvince = useMemo(() => {
-    const target = CASE_SUSPECT_LOCATIONS[levelId];
+    const target = CASE_SUSPECT_LOCATIONS[effectiveCaseId] ?? CASE_SUSPECT_LOCATIONS[levelId];
     if (!target) return false;
 
     const matchId = target.provinceId.toLowerCase() === provinceId.toLowerCase();
@@ -138,7 +141,7 @@ export default function SuspectProvinceWarning({
       normalize(target.provinceName) === normalize(provinceName);
 
     return matchId || matchName;
-  }, [levelId, provinceId, provinceName]);
+  }, [effectiveCaseId, levelId, provinceId, provinceName]);
 
   // Reset dismissal when navigating to another province
   useEffect(() => {

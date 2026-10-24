@@ -11,7 +11,9 @@ export type SfxType =
   | "defeat"
   | "warning"
   | "opencasefile"
-  | "arrest";
+  | "arrest"
+  | "winning"
+  | "victory";
 
 interface SoundOptions {
   volume?: number;       // 0.0 to 1.0 multiplier for this play instance
@@ -42,12 +44,14 @@ class AudioManager {
   private isMusicDesired: boolean = false;
 
   private soundUrls: Partial<Record<SfxType, string>> = {
-    typewriter: "/sounds/typewriter.wav",
-    hint: "/sounds/hint.wav",
-    plane: "/sounds/plane.wav",
+    typewriter: "/sounds/typewriter.ogg",
+    hint: "/sounds/hint.ogg",
+    plane: "/sounds/plane.ogg",
     defeat: "/sounds/defeat.mp3",
     opencasefile: "/sounds/opencasefile.ogg",
     arrest: "/sounds/arrest.ogg",
+    winning: "/sounds/winning.ogg",
+    victory: "/sounds/winning.ogg",
   };
 
   constructor() {
@@ -96,6 +100,15 @@ class AudioManager {
       }
       if (this.isMusicDesired && this.musicAudio && this.musicAudio.paused) {
         this.musicAudio.play().catch(() => {});
+      }
+      // Schedule audio preloading during idle cycles so it doesn't stutter the first click
+      if (typeof window !== "undefined") {
+        const scheduleIdle = (window as unknown as { requestIdleCallback?: (cb: () => void) => void }).requestIdleCallback;
+        if (typeof scheduleIdle === "function") {
+          scheduleIdle(() => this.preload().catch(() => {}));
+        } else {
+          setTimeout(() => this.preload().catch(() => {}), 150);
+        }
       }
       window.removeEventListener("pointerdown", resumeOnInteraction);
       window.removeEventListener("keydown", resumeOnInteraction);
@@ -212,7 +225,11 @@ class AudioManager {
     if (!ctx) return;
 
     const urls = Object.values(this.soundUrls).filter(Boolean) as string[];
-    await Promise.all(urls.map((url) => this.loadBuffer(url)));
+    for (const url of urls) {
+      if (!this.bufferCache.has(url)) {
+        await this.loadBuffer(url);
+      }
+    }
   }
 
   private async loadBuffer(url: string): Promise<AudioBuffer | null> {
@@ -280,11 +297,14 @@ class AudioManager {
         return;
       }
 
-      // If not yet cached, attempt to load it and play via fallback in the meantime
+      // If not yet cached, attempt to load it in background
       this.loadBuffer(url).then((b) => {
         if (!b) this.playSynthesized(type, options);
       });
-      this.playHtmlAudioFallback(type);
+      // Do not use HTML audio fallback for typewriter hover sounds
+      if (type !== "typewriter") {
+        this.playHtmlAudioFallback(type);
+      }
       return;
     }
 
@@ -323,6 +343,10 @@ class AudioManager {
           break;
         case "arrest":
           baseVolume = 0.9;
+          break;
+        case "winning":
+        case "victory":
+          baseVolume = 0.95;
           break;
       }
 

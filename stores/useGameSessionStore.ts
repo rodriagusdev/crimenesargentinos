@@ -15,6 +15,11 @@ import {
 import { IGameCosts } from "@/models/IGameData";
 import { ISuspect } from "@/models/ISuspect";
 import { IAskQuestionResult, IGameSession } from "@/models/IGameSession";
+import {
+  preloadCasePackage,
+  preloadProvincePackage,
+  preloadLocationPackage,
+} from "@/lib/assetPreloader";
 
 // El progreso lo guarda el backend (/api/GameSessions): este store es solo la copia del último estado recibido
 interface GameSessionState {
@@ -136,6 +141,16 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
             briefing: gameData.info ?? null,
             initialClues: gameData.initialClues ?? [],
           });
+
+          // Preload automático en background fuera del ciclo de vida de React
+          preloadCasePackage(newSession.caseId, gameData.suspects);
+          if (newSession.currentProvinceId) {
+            preloadProvincePackage(newSession.currentProvinceId);
+            if (newSession.currentLocationId) {
+              preloadLocationPackage(newSession.caseId, newSession.currentProvinceId, newSession.currentLocationId);
+            }
+          }
+
           return newSession;
         })
         .finally(() => {
@@ -146,11 +161,20 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
       return promise;
     },
 
-    travelProvince: (provinceId: string) =>
-      act((sessionId) => travelToProvince(sessionId, provinceId), (session) => session),
+    travelProvince: (provinceId: string) => {
+      // Disparar precarga del paquete de provincia antes de que termine el viaje
+      preloadProvincePackage(provinceId);
+      return act((sessionId) => travelToProvince(sessionId, provinceId), (session) => session);
+    },
 
-    travelLocation: (locationId: string) =>
-      act((sessionId) => travelToLocation(sessionId, locationId), (session) => session),
+    travelLocation: (locationId: string) => {
+      const { session } = get();
+      if (session?.currentProvinceId) {
+        // Disparar precarga del diálogo y fondo de la locación
+        preloadLocationPackage(session.caseId, session.currentProvinceId, locationId);
+      }
+      return act((sessionId) => travelToLocation(sessionId, locationId), (session) => session);
+    },
 
     markIntroSeen: (locationId: string) =>
       act((sessionId) => markIntroSeenApi(sessionId, locationId), (session) => session),
@@ -175,6 +199,13 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
         briefing: gameData.info ?? null,
         initialClues: gameData.initialClues ?? [],
       });
+
+      // Preload automático
+      preloadCasePackage(newSession.caseId, gameData.suspects);
+      if (newSession.currentProvinceId) {
+        preloadProvincePackage(newSession.currentProvinceId);
+      }
+
       return newSession;
     },
 

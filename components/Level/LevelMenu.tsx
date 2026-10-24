@@ -15,9 +15,9 @@ import { audioManager } from "@/lib/audioManager";
 
 import dynamic from "next/dynamic";
 import GameButton from "../buttons/GameButton";
+import CaseDossierModal, { DossierTab } from "./CaseDossierModal";
 
-// Lazy loading de modales grandes
-const LevelSuspects = dynamic(() => import("./LevelSuspects"), { ssr: false });
+import { useShallow } from "zustand/react/shallow";
 
 interface LevelMenuProps {
   levelId: number;
@@ -26,21 +26,34 @@ interface LevelMenuProps {
 export default function LevelMenu({ levelId }: LevelMenuProps) {
   const router = useRouter();
   const playTypewriter = useTypewriterSound();
-  const [activeModal, setActiveModal] = useState<IMenuAction | null>(null);
+  const [dossierOpen, setDossierOpen] = useState(false);
+  const [dossierTab, setDossierTab] = useState<DossierTab>("clues");
   const [info, setInfo] = useState<IGameData | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
   const [isRestarting, setIsRestarting] = useState(false);
 
-  const discoveredClues = useGameSessionStore((state) => state.discoveredClues);
-  const resetSession = useGameSessionStore((state) => state.resetSession);
-  const currentTime = useGameSessionStore((state) => state.currentTime);
-  const currentPI = useGameSessionStore((state) => state.currentPI);
-
-  const storeLevelId = useGameSessionStore((state) => state.levelId);
-  const storeBriefing = useGameSessionStore((state) => state.briefing);
-  const storeInitialClues = useGameSessionStore((state) => state.initialClues);
-  const storeSuspects = useGameSessionStore((state) => state.suspects);
+  const {
+    discoveredClues,
+    resetSession,
+    currentTime,
+    currentPI,
+    storeLevelId,
+    storeBriefing,
+    storeInitialClues,
+    storeSuspects,
+  } = useGameSessionStore(
+    useShallow((state) => ({
+      discoveredClues: state.discoveredClues,
+      resetSession: state.resetSession,
+      currentTime: state.currentTime,
+      currentPI: state.currentPI,
+      storeLevelId: state.levelId,
+      storeBriefing: state.briefing,
+      storeInitialClues: state.initialClues,
+      storeSuspects: state.suspects,
+    }))
+  );
 
   const isCurrentLevel = storeLevelId === levelId;
   const displayBriefing = (isCurrentLevel && storeBriefing) ? storeBriefing : info?.info;
@@ -110,7 +123,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
   useEffect(() => {
     const handleClose = () => {
       setIsOpen(false);
-      setActiveModal(null);
+      setDossierOpen(false);
     };
 
     window.addEventListener("close-investigation-menu", handleClose);
@@ -242,9 +255,11 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
                   onClick={() => {
                     audioManager.play("opencasefile");
                     setIsOpen(false);
-                    setActiveModal(action);
+                    setDossierTab(action.id === "suspects" ? "suspects" : "clues");
+                    setDossierOpen(true);
                   }}
                   onMouseEnter={playTypewriter}
+                  title={`Abrir ${action.title}`}
                   className="w-16 p-1 rounded-2xl bg-[rgba(20,30,42,0.6)] hover:bg-[rgba(28,42,58,0.85)] border border-[rgba(255,243,199,0.18)] hover:border-[#E1C380]/40 backdrop-blur-xs shadow-[0_10px_30px_rgba(0,0,0,0.4)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.6)] transition-all duration-200 flex items-center group cursor-pointer"
                 >
                   <div className="relative w-14 h-14 rounded-xl overflow-hidden border border-[rgba(255,243,199,0.12)] bg-black/40 shrink-0">
@@ -275,154 +290,16 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
         </div>
       </aside>
 
-      {/* Modal interactivo al pulsar una acción */}
-      {activeModal && typeof window !== "undefined" && createPortal(
-        <div
-          className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in select-none"
-          onClick={() => setActiveModal(null)}
-        >
-          <div
-            className={`relative w-full ${
-              activeModal.id === "suspects" ? "max-w-4xl" : "max-w-xl"
-            } max-h-[96vh] sm:max-h-[92vh] overflow-y-auto backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] rounded-2xl p-3.5 sm:p-5 flex flex-col items-center text-center text-[#FFF3C7]`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Modal Header Bar */}
-            <div className="w-full flex items-center justify-between pb-2.5 mb-2 sm:mb-3 border-b border-[rgba(255,243,199,0.12)] shrink-0">
-              <div className="flex items-center gap-2.5 sm:gap-3">
-                <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl overflow-hidden border border-[rgba(255,243,199,0.2)] bg-black/50 shrink-0">
-                  <Image
-                    src={activeModal.icon}
-                    alt={activeModal.title}
-                    fill
-                    sizes="36px"
-                    className="object-cover"
-                  />
-                </div>
-                <div className="text-left">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-sm sm:text-base font-bold font-mono text-[#FFF3C7]">
-                      {activeModal.title}
-                    </h3>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/15 border border-amber-500/30 text-amber-300 font-bold">
-                      CASO #{levelId.toString().padStart(2, "0")}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setActiveModal(null)}
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[rgba(255,243,199,0.06)] border border-[rgba(255,243,199,0.15)] flex items-center justify-center text-[#FFF3C7]/70 hover:text-white hover:border-[#E1C380] transition-colors cursor-pointer text-xs"
-                title="Cerrar (Esc)"
-              >
-                ✕
-              </button>
-            </div>
-
-            {activeModal.id === "clues" ? (
-              <div className="w-full flex flex-col gap-2.5 mb-2 text-left">
-                <p className="text-[11px] sm:text-xs text-[#FFF3C7]/80 leading-relaxed bg-[rgba(10,15,25,0.5)] p-2.5 rounded-xl border border-[rgba(255,243,199,0.12)]">
-                  {activeModal.detail}
-                </p>
-
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="size-3.5 text-[#E1C380]"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                        />
-                      </svg>
-                      <span className="text-[11px] uppercase tracking-wider text-[#E1C380]/90 font-mono font-semibold">
-                        Pistas en el Expediente
-                      </span>
-                    </div>
-
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-300 font-bold">
-                      {displayInitialClues.length + discoveredClues.length} PISTAS
-                    </span>
-                  </div>
-
-                  <div className="flex flex-col gap-2 p-3 rounded-xl bg-[rgba(10,15,25,0.6)] border border-[rgba(255,243,199,0.12)] shadow-inner max-h-56 overflow-y-auto">
-                    {/* Pistas iniciales */}
-                    {displayInitialClues.length > 0 && (
-                      <div className="flex flex-col gap-1.5 mb-1">
-                        <span className="text-[9px] uppercase font-mono tracking-widest text-[#E1C380]/60 font-semibold">
-                          Pistas del Informe Inicial:
-                        </span>
-                        {displayInitialClues.map((clue, idx) => (
-                          <div
-                            key={`initial-${idx}`}
-                            className="flex items-start gap-2 text-xs font-mono text-[#FFF3C7]/90 leading-relaxed bg-[rgba(20,30,42,0.4)] p-2 rounded-lg border border-[rgba(255,243,199,0.06)]"
-                          >
-                            <span className="text-[#E1C380] font-bold shrink-0">›</span>
-                            <span>{clue}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Pistas descubiertas en interrogatorios */}
-                    {discoveredClues.length > 0 && (
-                      <div className="flex flex-col gap-1.5 mt-1">
-                        <span className="text-[9px] uppercase font-mono tracking-widest text-emerald-400/80 font-semibold flex items-center gap-1">
-                          <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                          Evidencias Obtenidas de Testigos:
-                        </span>
-                        {discoveredClues.map((clue, idx) => (
-                          <div
-                            key={`disc-${idx}`}
-                            className="flex items-start gap-2 text-xs font-mono text-emerald-200/95 leading-relaxed bg-[rgba(10,35,25,0.5)] p-2 rounded-lg border border-emerald-500/25"
-                          >
-                            <span>{clue}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {displayInitialClues.length === 0 &&
-                      discoveredClues.length === 0 && (
-                        <p className="text-xs font-mono text-[#FFF3C7]/50 italic text-center py-2">
-                          No hay pistas registradas todavía.
-                        </p>
-                      )}
-                  </div>
-                </div>
-              </div>
-            ) : activeModal.id === "suspects" ? (
-              <LevelSuspects
-                suspects={displaySuspects}
-                detail={activeModal.detail}
-              />
-            ) : (
-              <p className="text-sm text-[#FFF3C7]/90 leading-relaxed mb-4 bg-[rgba(10,15,25,0.5)] p-4 rounded-2xl border border-[rgba(255,243,199,0.12)] shadow-inner">
-                {activeModal.detail}
-              </p>
-            )}
-
-            <div className="w-full mt-1 sm:mt-2 pt-2 border-t border-[rgba(255,243,199,0.1)]">
-              <GameButton
-                icon="✕"
-                label="CERRAR EXPEDIENTE"
-                variant="secondary"
-                onClick={() => setActiveModal(null)}
-              />
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
+      {/* Modal unificado estilo ventana Google con pestañas Pistas y Sospechosos */}
+      <CaseDossierModal
+        isOpen={dossierOpen}
+        onClose={() => setDossierOpen(false)}
+        initialTab={dossierTab}
+        levelId={levelId}
+        briefing={displayBriefing}
+        initialClues={displayInitialClues}
+        suspects={displaySuspects}
+      />
 
       {/* Modal de confirmación para volver al menú principal */}
       {showRestartConfirm && typeof window !== "undefined" && createPortal(

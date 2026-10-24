@@ -6,6 +6,7 @@ import { ReactNode, useMemo } from "react";
 import { adminTables } from "@/lib/adminTables";
 import { getUserIdentity } from "@/lib/auth";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
+import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import AdminIcon, { AdminIconName } from "./AdminIcon";
 
 const groupIcons: Record<string, AdminIconName> = {
@@ -35,7 +36,13 @@ export default function AdminShell({ children }: { children: ReactNode }) {
   const current = adminTables.find((t) => pathname === `/admin/${t.key}`);
 
   const logout = () => {
-    localStorage.removeItem("auth_token");
+    try {
+      localStorage.removeItem("auth_token");
+      sessionStorage.clear();
+    } catch {
+      // sin acceso a storage
+    }
+    useGameSessionStore.getState().resetSession();
     router.push("/login");
   };
 

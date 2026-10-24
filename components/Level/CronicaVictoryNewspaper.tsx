@@ -36,7 +36,7 @@ export default function CronicaVictoryNewspaper({
   // Sound effect on reveal
   useEffect(() => {
     try {
-      playSfx("arrest");
+      playSfx("winning");
     } catch { }
   }, [playSfx]);
 
@@ -45,13 +45,13 @@ export default function CronicaVictoryNewspaper({
       {/* Top Floating Action Bar */}
       <div className="w-full max-w-3xl lg:max-w-4xl flex items-center justify-between mb-2 shrink-0">
         <div className="flex items-center gap-2 text-yellow-300/80 font-mono text-xs tracking-wider uppercase">
-          <span className="inline-block w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-          <span>CASO #{String(levelId).padStart(2, "0")} CLAUSURADO</span>
+          <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-emerald-400 font-bold">✓ CASO #{String(levelId).padStart(2, "0")} RESUELTO</span>
         </div>
 
         <button
           onClick={onClose}
-          className="flex items-center gap-2 rounded-xl border border-red-500/50 bg-gradient-to-b from-red-950/90 to-black/90 px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold tracking-wider text-red-200 shadow-[0_10px_25px_rgba(0,0,0,0.6)] hover:border-red-400 hover:scale-105 active:scale-95 transition-all"
+          className="flex items-center gap-2 rounded-xl border border-emerald-500/50 bg-gradient-to-b from-emerald-950/90 to-black/90 px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold tracking-wider text-emerald-200 shadow-[0_10px_25px_rgba(0,0,0,0.6)] hover:border-emerald-400 hover:scale-105 active:scale-95 transition-all"
         >
           <span>✕</span>
           <span>VOLVER AL MENÚ</span>
@@ -85,17 +85,17 @@ export default function CronicaVictoryNewspaper({
 
         {/* Sub-bar / Division Bar */}
         <div className="flex items-center justify-between border-y border-[#1c1815] py-0.5 sm:py-1 text-[9px] sm:text-[10px] md:text-xs font-bold uppercase tracking-wider text-[#1c1815] shrink-0">
-          <span>CASO #{String(levelId).padStart(2, "0")} RESUELTO</span>
+          <span className="text-emerald-800 font-black">✓ CASO #{String(levelId).padStart(2, "0")} RESUELTO</span>
           <span className="text-[#c51c1c] font-black">POLICÍA FEDERAL ARGENTINA</span>
-          <span>COMUNICADO OFICIAL</span>
+          <span className="text-emerald-800 font-bold">¡OPERATIVO EXITOSO!</span>
         </div>
 
         {/* Giant Main Headline */}
-        <div className="text-center py-0.5 sm:py-1 shrink-0">
-          <span className="text-[9px] sm:text-[10px] md:text-xs font-black tracking-widest text-[#c51c1c] uppercase block">
-            ÚLTIMO MOMENTO · JUSTICIA FEDERAL
+        <div className="text-center py-1 sm:py-1.5 shrink-0 bg-emerald-600/[0.08] border-y border-emerald-700/30 px-2 rounded-sm my-0.5 shadow-[inset_0_0_15px_rgba(16,185,129,0.06)]">
+          <span className="text-[9px] sm:text-[10px] md:text-xs font-black tracking-widest text-emerald-800 uppercase block">
+            ★ ¡VICTORIA DE LA JUSTICIA FEDERAL! · CASO RESUELTO ★
           </span>
-          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black tracking-tight leading-tight uppercase text-black mt-0.5">
+          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black tracking-tight leading-tight uppercase text-emerald-700 sm:text-emerald-800 mt-0.5 drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
             ¡ATRAPADO EN {provinceName}!
           </h2>
           <p className="text-[11px] sm:text-xs md:text-sm italic font-serif text-[#44403c] mt-0.5 max-w-2xl mx-auto line-clamp-1">
