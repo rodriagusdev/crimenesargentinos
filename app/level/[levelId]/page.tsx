@@ -1,6 +1,5 @@
 import LevelProvinces from "@/components/Level/LevelProvinces";
 import LevelMenu from "@/components/Level/LevelMenu";
-import BackToPrincipalButton from "@/components/Level/BackToPrincipalButton";
 import LevelTimer from "@/components/Level/LevelTimer";
 import Image from "next/image";
 
@@ -15,25 +14,44 @@ export default async function Level({ params }: Props) {
   const id = Number(levelId);
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-black">
-      {/* Mapa de fondo - ocupa toda la pantalla */}
-      <Image
-        src="/images/test_map.jpg"
-        alt="Mapa de Argentina"
-        fill
-        priority
-        className="object-cover"
-        sizes="100vw"
-      />
+    <main className="relative w-screen h-screen overflow-hidden select-none bg-[#05070a]">
+      {/* ========================================================================= */}
+      {/* SALA DE INVESTIGACIÓN POLICIAL (100% PANTALLA COMPLETA SIN BORDES OSCUROS) */}
+      {/* ========================================================================= */}
+      <div className="relative w-full h-full overflow-hidden">
+        {/* Ilustración de la central de detectives ocupando toda la pantalla */}
+        <Image
+          src="/images/test_composite.webp"
+          alt="Centro de Mando de Investigación Policial"
+          fill
+          priority
+          className="object-fill"
+          sizes="100vw"
+        />
 
-      {/* Temporizador central superior */}
-      <LevelTimer levelId={id} />
+        {/* ========================================================================= */}
+        {/* MONITOR TÁCTICO: CAPA INTERACTIVA DE PROVINCIAS                           */}
+        {/* Calibrado con el área de la pantalla del mapa en la escena:              */}
+        {/* left: 19.186%, top: 6.510%, width: 61.773%, height: 74.219%               */}
+        {/* ========================================================================= */}
+        <div
+          className="absolute z-10 pointer-events-auto"
+          style={{
+            left: "19.186%",
+            top: "6.510%",
+            width: "61.773%",
+            height: "74.219%",
+          }}
+        >
+          <LevelProvinces levelId={id} />
+        </div>
 
-      {/* Botones encima del mapa */}
-      <LevelProvinces levelId={id} />
+        {/* Menú de investigación desplegable (Arriba a la izquierda) */}
+        <LevelMenu levelId={id} />
 
-      {/* Menú lateral de investigación */}
-      <LevelMenu levelId={id} />
+        {/* Modales de victoria / derrota / sesión */}
+        <LevelTimer levelId={id} />
+      </div>
     </main>
   );
 }

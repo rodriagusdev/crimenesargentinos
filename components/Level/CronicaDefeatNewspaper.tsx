@@ -24,7 +24,7 @@ export default function CronicaDefeatNewspaper({
   // Sound effect on defeat reveal
   useEffect(() => {
     try {
-      playSfx("defeat");
+      playSfx("losing");
     } catch {}
   }, [playSfx]);
 

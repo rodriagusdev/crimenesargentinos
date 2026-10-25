@@ -15,7 +15,7 @@ import { audioManager } from "@/lib/audioManager";
 
 import dynamic from "next/dynamic";
 import GameButton from "../buttons/GameButton";
-import CaseDossierModal, { DossierTab } from "./CaseDossierModal";
+import CaseDossierModal from "./CaseDossierModal";
 
 import { useShallow } from "zustand/react/shallow";
 
@@ -27,7 +27,6 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
   const router = useRouter();
   const playTypewriter = useTypewriterSound();
   const [dossierOpen, setDossierOpen] = useState(false);
-  const [dossierTab, setDossierTab] = useState<DossierTab>("clues");
   const [info, setInfo] = useState<IGameData | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
@@ -247,32 +246,61 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
               )}
             </div>
 
-            {/* Lista de acciones */}
-            <div className="flex flex-row gap-3 justify-center">
-              {MENU_ACTIONS.map((action) => (
-                <button
-                  key={action.id}
-                  onClick={() => {
-                    audioManager.play("opencasefile");
-                    setIsOpen(false);
-                    setDossierTab(action.id === "suspects" ? "suspects" : "clues");
-                    setDossierOpen(true);
-                  }}
-                  onMouseEnter={playTypewriter}
-                  title={`Abrir ${action.title}`}
-                  className="w-16 p-1 rounded-2xl bg-[rgba(20,30,42,0.6)] hover:bg-[rgba(28,42,58,0.85)] border border-[rgba(255,243,199,0.18)] hover:border-[#E1C380]/40 backdrop-blur-xs shadow-[0_10px_30px_rgba(0,0,0,0.4)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.6)] transition-all duration-200 flex items-center group cursor-pointer"
-                >
-                  <div className="relative w-14 h-14 rounded-xl overflow-hidden border border-[rgba(255,243,199,0.12)] bg-black/40 shrink-0">
-                    <Image
-                      src={action.icon}
-                      alt={action.title}
-                      fill
-                      sizes="56px"
-                      className="object-cover group-hover:scale-105 transition-transform duration-200"
-                    />
-                  </div>
-                </button>
-              ))}
+            {/* Botón principal unificado de investigación */}
+            <div className="flex flex-col gap-2">
+              {MENU_ACTIONS.map((action) => {
+                const totalCluesCount = discoveredClues.length + displayInitialClues.length;
+                return (
+                  <button
+                    key={action.id}
+                    type="button"
+                    onClick={() => {
+                      audioManager.play("opencasefile");
+                      setIsOpen(false);
+                      setDossierOpen(true);
+                    }}
+                    onMouseEnter={playTypewriter}
+                    title={`Abrir ${action.title}`}
+                    className="
+                      w-full p-3 rounded-2xl
+                      bg-gradient-to-r from-[rgba(20,30,42,0.85)] via-[rgba(28,42,58,0.9)] to-[rgba(36,26,18,0.85)]
+                      hover:from-[rgba(28,44,66,0.95)] hover:to-[rgba(52,36,22,0.95)]
+                      border-2 border-amber-500/40 hover:border-amber-400
+                      backdrop-blur-md shadow-[0_10px_30px_rgba(0,0,0,0.6)]
+                      hover:shadow-[0_14px_36px_rgba(0,0,0,0.8),0_0_20px_rgba(245,158,11,0.25)]
+                      hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between group cursor-pointer select-none
+                    "
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-amber-400/40 bg-black/40 shrink-0 shadow-inner group-hover:scale-105 transition-transform duration-200">
+                        <Image
+                          src={action.icon}
+                          alt={action.title}
+                          fill
+                          sizes="48px"
+                          className="object-cover"
+                        />
+                        <span className="absolute bottom-0 right-0 text-xs">📌</span>
+                      </div>
+                      <div className="flex flex-col text-left">
+                        <span className="font-mono font-bold text-xs text-amber-200 group-hover:text-amber-100 uppercase tracking-wider">
+                          {action.title}
+                        </span>
+                        <span className="text-[10px] text-[#FFF3C7]/65 font-mono line-clamp-1">
+                          {action.description}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-full bg-amber-400/20 border border-amber-400/40 text-[10px] font-mono font-bold text-amber-300">
+                        {totalCluesCount}
+                      </span>
+                      <span className="text-amber-400 text-xs group-hover:translate-x-1 transition-transform">➔</span>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
 
             {/* Volver al menú principal */}
@@ -290,11 +318,10 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
         </div>
       </aside>
 
-      {/* Modal unificado estilo ventana Google con pestañas Pistas y Sospechosos */}
+      {/* Modal unificado del Tablero de Investigación */}
       <CaseDossierModal
         isOpen={dossierOpen}
         onClose={() => setDossierOpen(false)}
-        initialTab={dossierTab}
         levelId={levelId}
         briefing={displayBriefing}
         initialClues={displayInitialClues}

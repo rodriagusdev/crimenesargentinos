@@ -133,14 +133,6 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
         />
       )}
 
-      {/* Indicador HUD de provincia actual en el mapa nacional */}
-      {currentProvince && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-4 py-1.5 rounded-full bg-[rgba(16,24,34,0.92)] border border-amber-400/60 shadow-[0_10px_30px_rgba(0,0,0,0.7)] backdrop-blur-md text-[#FFF3C7] text-xs font-mono pointer-events-none select-none animate-fade-in">
-          <span className="text-amber-400 animate-pulse text-sm">📍</span>
-          <span className="text-[#FFF3C7]/70 uppercase tracking-widest text-[10px]">Ubicación actual:</span>
-          <span className="font-bold text-amber-300 tracking-wider uppercase">{currentProvince.name}</span>
-        </div>
-      )}
 
       <div className="absolute inset-0 z-10">
         {data.provinces.map((province) => {

@@ -12,31 +12,31 @@ const LEVEL_DEFINITIONS = [
     id: 1,
     title: "ROBO A LAS ESTRELLAS",
     description: "El trofeo nacional desapareció en pleno centro porteño tras los festejos.",
-    imageURL: "/images/levelcardspreview/level_1_preview.png",
+    imageURL: "/images/levelcardspreview/level_1_preview.jpg",
   },
   {
     id: 2,
     title: "DESAPARECEN LOS MAÑANEROS",
     description: "Fanáticos desaparecieron misteriosamente tras ganar el sorteo del tren nocturno.",
-    imageURL: "/images/levelcardspreview/level_2_preview.png",
+    imageURL: "/images/levelcardspreview/level_2_preview.jpg",
   },
   {
     id: 3,
     title: "CASO PATAGONIA",
     description: "Sombras en la cordillera y sospechas en la fría estepa patagónica.",
-    imageURL: "/images/levelcardspreview/level_3_preview.png",
+    imageURL: "/images/levelcardspreview/level_3_preview.jpg",
   },
   {
     id: 4,
     title: "RUTA NACIONAL 40",
     description: "Misterio a lo largo de la mítica ruta y sus rascacielos al anochecer.",
-    imageURL: "/images/levelcardspreview/level_4_preview.png",
+    imageURL: "/images/levelcardspreview/level_4_preview.jpg",
   },
   {
     id: 5,
     title: "EL ASESINO DE LAS PROVINCIAS",
     description: "El río bajo la luna esconde el escape del audaz robo de diamantes.",
-    imageURL: "/images/levelcardspreview/level_5_preview.png",
+    imageURL: "/images/levelcardspreview/level_5_preview.jpg",
   },
 ];
 

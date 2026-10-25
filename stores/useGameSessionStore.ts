@@ -20,6 +20,7 @@ import {
   preloadProvincePackage,
   preloadLocationPackage,
 } from "@/lib/assetPreloader";
+import { useInvestigationBoardStore } from "./useInvestigationBoardStore";
 
 // El progreso lo guarda el backend (/api/GameSessions): este store es solo la copia del último estado recibido
 interface GameSessionState {
@@ -217,6 +218,7 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
     // Solo limpia la copia local: la partida sigue guardada en el servidor para continuarla
     resetSession: () => {
       pendingInit = null;
+      useInvestigationBoardStore.getState().resetBoard();
       set(emptySession);
     },
   };

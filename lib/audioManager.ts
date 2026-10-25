@@ -9,6 +9,7 @@ export type SfxType =
   | "stamp"
   | "swoosh"
   | "defeat"
+  | "losing"
   | "warning"
   | "opencasefile"
   | "arrest"
@@ -47,7 +48,9 @@ class AudioManager {
     typewriter: "/sounds/typewriter.ogg",
     hint: "/sounds/hint.ogg",
     plane: "/sounds/plane.ogg",
-    defeat: "/sounds/defeat.mp3",
+    defeat: "/sounds/losing.ogg",
+    losing: "/sounds/losing.ogg",
+    warning: "/sounds/warning.ogg",
     opencasefile: "/sounds/opencasefile.ogg",
     arrest: "/sounds/arrest.ogg",
     winning: "/sounds/winning.ogg",
@@ -336,7 +339,11 @@ class AudioManager {
           baseVolume = 0.8;
           break;
         case "defeat":
-          baseVolume = 0.8;
+        case "losing":
+          baseVolume = 0.85;
+          break;
+        case "warning":
+          baseVolume = 0.85;
           break;
         case "opencasefile":
           baseVolume = 0.85;

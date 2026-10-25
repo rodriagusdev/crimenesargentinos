@@ -25,7 +25,6 @@ export default function FacingCriminalModal() {
       <CaseDossierModal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        initialTab="suspects"
         levelId={levelId}
         briefing={briefing}
         initialClues={initialClues}

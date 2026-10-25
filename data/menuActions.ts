@@ -2,19 +2,10 @@ import IMenuAction from "@/models/IMenuAction";
 
 export const MENU_ACTIONS: IMenuAction[] = [
   {
-    id: "clues",
-    title: "Pistas",
-    description: "Cuaderno de notas y evidencias",
+    id: "board",
+    title: "Tablero del Caso",
+    description: "Mural de investigación, pistas y sospechosos",
     icon: "/images/icons/icon_clues.jpg",
-    detail:
-      "Colección de pistas",
-  },
-  {
-    id: "suspects",
-    title: "Sospechosos",
-    description: "Perfiles y antecedentes",
-    icon: "/images/icons/icon_suspects.jpg",
-    detail:
-      "Consulta los expedientes y rasgos particulares de los posibles sospechosos involucrados en este caso.",
+    detail: "Mural interactivo con todas las evidencias recolectadas, los perfiles de sospechosos e hilos de deducción.",
   },
 ];
