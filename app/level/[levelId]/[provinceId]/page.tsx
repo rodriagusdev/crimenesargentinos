@@ -1,23 +1,7 @@
 import LevelProvinceLocations from "@/components/Level/LevelProvinceLocations";
-import LevelMenu from "@/components/Level/LevelMenu";
-import LevelTimer from "@/components/Level/LevelTimer";
 
-interface Props {
-  params: Promise<{
-    levelId: string;
-    provinceId: string;
-  }>;
-}
-
-export default async function Province({ params }: Props) {
+export default async function Province({ params }: PageProps<"/level/[levelId]/[provinceId]">) {
   const { levelId, provinceId } = await params;
-  const levelIdNum = Number(levelId);
 
-  return (
-    <main className="relative min-h-screen overflow-hidden">
-      <LevelTimer levelId={levelIdNum} />
-      <LevelProvinceLocations levelId={levelIdNum} provinceId={provinceId} />
-      <LevelMenu levelId={levelIdNum} />
-    </main>
-  );
-}
+  return <LevelProvinceLocations levelId={Number(levelId)} provinceId={provinceId} />;
+}

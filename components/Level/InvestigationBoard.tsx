@@ -59,19 +59,6 @@ export default function InvestigationBoard({
     setSpecificStatus(suspectId, "discarded");
   };
 
-  // Verifica si una pista coincide textualmente con un sospechoso para efecto de hover
-  const doesClueMatchSuspect = (clueText: string, suspect: ISuspect) => {
-    if (!suspect.description) return false;
-    const cleanClue = clueText.toLowerCase();
-    return suspect.description.some((trait) => {
-      const cleanTrait = trait.toLowerCase().trim();
-      return (
-        cleanClue.includes(cleanTrait) ||
-        cleanTrait.split(" ").filter((w) => w.length > 3).some((word) => cleanClue.includes(word))
-      );
-    });
-  };
-
   return (
     <div className="w-full flex flex-col gap-4 animate-fade-in select-none">
       {/* Header de Evidencias e Hipótesis */}
@@ -81,26 +68,37 @@ export default function InvestigationBoard({
         </h3>
       </div>
 
-      {/* 2. El Tablero de Corcho con Textura y Marco de Madera */}
+      {/* 2. Pizarra Táctica / Pizarra Negra de Investigación */}
       <div
         className="
           relative w-full rounded-2xl p-4 sm:p-6 md:p-8
-          bg-[#2b1810] border-4 border-[#4a2e1b]
-          shadow-[inset_0_0_80px_rgba(0,0,0,0.85),0_20px_50px_rgba(0,0,0,0.8)]
+          border-[8px] sm:border-[12px] border-[#1e2430]
+          ring-1 ring-[#334155]/80
+          shadow-[inset_0_0_80px_rgba(0,0,0,0.95),0_25px_60px_rgba(0,0,0,0.85)]
           overflow-hidden
         "
         style={{
           backgroundImage: `
-            radial-gradient(circle at 50% 50%, rgba(68, 40, 24, 0.4) 0%, rgba(20, 10, 5, 0.85) 100%),
-            repeating-linear-gradient(45deg, rgba(0,0,0,0.06) 0px, rgba(0,0,0,0.06) 2px, transparent 2px, transparent 4px)
+            linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+            radial-gradient(circle at 50% 50%, rgba(18, 24, 38, 0.25) 0%, rgba(6, 10, 18, 0.75) 100%),
+            url('/images/slate_board.webp')
           `,
+          backgroundSize: "36px 36px, 36px 36px, 100% 100%, cover",
+          backgroundPosition: "center",
         }}
       >
+        {/* Escuadras tácticas de acero en las 4 esquinas */}
+        <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-slate-500/60 pointer-events-none z-10 rounded-tl" />
+        <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-slate-500/60 pointer-events-none z-10 rounded-tr" />
+        <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-slate-500/60 pointer-events-none z-10 rounded-bl" />
+        <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-slate-500/60 pointer-events-none z-10 rounded-br" />
+
         {/* Tornillos de metal decorativos en las 4 esquinas */}
-        <span className="absolute top-2 left-2 size-3.5 rounded-full bg-zinc-600 border border-zinc-400 shadow-inner flex items-center justify-center text-[8px] text-zinc-900 font-bold">+</span>
-        <span className="absolute top-2 right-2 size-3.5 rounded-full bg-zinc-600 border border-zinc-400 shadow-inner flex items-center justify-center text-[8px] text-zinc-900 font-bold">+</span>
-        <span className="absolute bottom-2 left-2 size-3.5 rounded-full bg-zinc-600 border border-zinc-400 shadow-inner flex items-center justify-center text-[8px] text-zinc-900 font-bold">+</span>
-        <span className="absolute bottom-2 right-2 size-3.5 rounded-full bg-zinc-600 border border-zinc-400 shadow-inner flex items-center justify-center text-[8px] text-zinc-900 font-bold">+</span>
+        <span className="absolute top-2.5 left-2.5 size-3.5 rounded-full bg-gradient-to-br from-slate-300 via-slate-600 to-slate-900 border border-slate-400 shadow-md flex items-center justify-center text-[7px] text-slate-950 font-bold z-10 select-none">✕</span>
+        <span className="absolute top-2.5 right-2.5 size-3.5 rounded-full bg-gradient-to-br from-slate-300 via-slate-600 to-slate-900 border border-slate-400 shadow-md flex items-center justify-center text-[7px] text-slate-950 font-bold z-10 select-none">✕</span>
+        <span className="absolute bottom-2.5 left-2.5 size-3.5 rounded-full bg-gradient-to-br from-slate-300 via-slate-600 to-slate-900 border border-slate-400 shadow-md flex items-center justify-center text-[7px] text-slate-950 font-bold z-10 select-none">✕</span>
+        <span className="absolute bottom-2.5 right-2.5 size-3.5 rounded-full bg-gradient-to-br from-slate-300 via-slate-600 to-slate-900 border border-slate-400 shadow-md flex items-center justify-center text-[7px] text-slate-950 font-bold z-10 select-none">✕</span>
 
         {/* Layout de 2 Secciones: Fichas de Pistas (Izquierda) y Fotos Polaroid de Sospechosos con Rasgos (Derecha) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
@@ -111,7 +109,7 @@ export default function InvestigationBoard({
             {/* INFORME INICIAL DEL CASO (Manila Paper Pinned) */}
             {briefing && (
               <div
-                onMouseEnter={() => playSfx("typewriter")}
+                onMouseEnter={() => playSfx("opencasefile")}
                 className="relative p-4 rounded-xl bg-[#f0e8d5] text-zinc-900 border-2 border-[#cbb793] shadow-lg font-mono text-xs rotate-[-0.5deg]"
               >
                 {/* Chincheta dorada */}
@@ -134,7 +132,7 @@ export default function InvestigationBoard({
             )}
 
             {/* HEADER DE PISTAS */}
-            <div className="flex items-center justify-between pb-1 border-b border-[rgba(255,243,199,0.15)]">
+            <div className="flex items-center justify-between pb-1.5 px-3 py-1.5 rounded-lg bg-[rgba(15,23,42,0.8)] backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-sm">
               <div className="flex items-center gap-2">
                 <span className="text-amber-400 text-sm">📍</span>
                 <h4 className="font-mono font-bold text-xs uppercase tracking-wider text-[#E1C380]">
@@ -147,26 +145,21 @@ export default function InvestigationBoard({
               <div className="flex flex-col gap-3">
                 {allClues.map((clue, idx) => {
                   const isHovered = activeHoverClue === idx;
-                  const isMatchingHoveredSuspect =
-                    activeHoverSuspect !== null &&
-                    doesClueMatchSuspect(clue.text, suspects.find((s) => s.id === activeHoverSuspect) || ({} as ISuspect));
 
                   return (
                     <div
                       key={clue.id}
                       onMouseEnter={() => {
                         setActiveHoverClue(idx);
-                        playSfx("typewriter");
+                        playSfx("opencasefile");
                       }}
                       onMouseLeave={() => setActiveHoverClue(null)}
                       className={`
                         relative p-3.5 rounded-lg border shadow-md font-mono text-xs transition-all duration-200 cursor-pointer
                         ${idx % 2 === 0 ? "rotate-[-1deg]" : "rotate-[1deg]"}
-                        ${isMatchingHoveredSuspect
-                          ? "bg-[#fffbeb] text-zinc-900 border-amber-500 scale-[1.03] shadow-[0_0_20px_rgba(245,158,11,0.5)] z-20"
-                          : isHovered
-                            ? "bg-[#fef9c3] text-zinc-900 border-amber-400 scale-[1.02] z-20"
-                            : "bg-[#f5eee0] text-zinc-900/90 border-[#d4c3a3] hover:scale-[1.01]"
+                        ${isHovered
+                          ? "bg-[#fef9c3] text-zinc-900 border-amber-400 scale-[1.02] z-20"
+                          : "bg-[#f5eee0] text-zinc-900/90 border-[#d4c3a3] hover:scale-[1.01]"
                         }
                       `}
                     >
@@ -202,7 +195,7 @@ export default function InvestigationBoard({
                 })}
               </div>
             ) : (
-              <div className="p-6 rounded-xl bg-black/40 border border-dashed border-[rgba(255,243,199,0.2)] text-center text-xs font-mono text-[#FFF3C7]/50 italic">
+              <div className="p-6 rounded-xl bg-[rgba(15,23,42,0.7)] backdrop-blur-xs border border-dashed border-slate-600/50 text-center text-xs font-mono text-[#E1C380]/70 italic">
                 Aún no has recolectado testimonios ni pistas en esta investigación.
               </div>
             )}
@@ -212,7 +205,7 @@ export default function InvestigationBoard({
           {/* COLUMNA DERECHA (7 de 12): POLAROIDS Y RASGOS DE SOSPECHOSOS */}
           {/* ========================================================= */}
           <div className="lg:col-span-7 flex flex-col gap-3.5">
-            <div className="flex items-center justify-between pb-1 border-b border-[rgba(255,243,199,0.15)]">
+            <div className="flex items-center justify-between pb-1.5 px-3 py-1.5 rounded-lg bg-[rgba(15,23,42,0.8)] backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-sm">
               <h4 className="font-mono font-bold text-xs uppercase tracking-wider text-[#E1C380]">
                 SOSPECHOSOS DEL CASO
               </h4>
@@ -235,7 +228,7 @@ export default function InvestigationBoard({
                     key={suspect.id || idx}
                     onMouseEnter={() => {
                       setActiveHoverSuspect(suspect.id);
-                      playSfx("typewriter");
+                      playSfx("opencasefile");
                     }}
                     onMouseLeave={() => setActiveHoverSuspect(null)}
                     className={`

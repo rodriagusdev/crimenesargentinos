@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { getLevelProvinces } from "@/services/levelService";
 import CronicaVictoryNewspaper from "./CronicaVictoryNewspaper";
+import { clearAllBriefingSeenFlags } from "@/lib/briefingStorage";
 
 interface VictoryModalProps {
   levelId: number;
@@ -87,15 +88,7 @@ export default function VictoryModal({ levelId }: VictoryModalProps) {
 
   const handleBackToPrincipal = () => {
     useGameSessionStore.getState().resetSession();
-    try {
-      Object.keys(sessionStorage).forEach((key) => {
-        if (key.endsWith("_briefing_seen")) {
-          sessionStorage.removeItem(key);
-        }
-      });
-    } catch {
-      // Ignorar errores en SSR
-    }
+    clearAllBriefingSeenFlags();
     router.push("/principal");
   };
 

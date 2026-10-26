@@ -15,7 +15,7 @@ export default function CostFeedbackToast({
   if (!cost && !unlockedClue) return null;
 
   return (
-    <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[70] pointer-events-none select-none transition-all duration-300 flex flex-col items-center gap-2">
+    <div className="fixed top-20 left-1/2 -translate-x-1/2 z-60 pointer-events-none select-none transition-all duration-300 flex flex-col items-center gap-2">
       {cost && (
         <div className="px-5 py-2.5 rounded-2xl backdrop-blur-md bg-[rgba(20,10,15,0.92)] border border-red-500/50 shadow-[0_12px_35px_rgba(0,0,0,0.85)] flex items-center gap-3 animate-pulse">
           <div className="flex items-center gap-2 font-bold text-xs sm:text-sm">

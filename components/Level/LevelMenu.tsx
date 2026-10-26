@@ -1,17 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTypewriterSound } from "@/hooks/useTypewriterSound";
-import IMenuAction from "@/models/IMenuAction";
 import { MENU_ACTIONS } from "@/data/menuActions";
 import { IGameData } from "@/models/IGameData";
 import { getGameData } from "@/services/levelService";
 import { abandonSession } from "@/services/gameSessionService";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { audioManager } from "@/lib/audioManager";
+import { clearAllBriefingSeenFlags } from "@/lib/briefingStorage";
 
 import dynamic from "next/dynamic";
 import GameButton from "../buttons/GameButton";
@@ -25,10 +25,10 @@ interface LevelMenuProps {
 
 export default function LevelMenu({ levelId }: LevelMenuProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const playTypewriter = useTypewriterSound();
   const [dossierOpen, setDossierOpen] = useState(false);
   const [info, setInfo] = useState<IGameData | null>(null);
-  const [isOpen, setIsOpen] = useState(false);
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
   const [isRestarting, setIsRestarting] = useState(false);
 
@@ -41,6 +41,9 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
     storeBriefing,
     storeInitialClues,
     storeSuspects,
+    isOpen,
+    setIsOpen,
+    closeMenu,
   } = useGameSessionStore(
     useShallow((state) => ({
       discoveredClues: state.discoveredClues,
@@ -51,8 +54,18 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
       storeBriefing: state.briefing,
       storeInitialClues: state.initialClues,
       storeSuspects: state.suspects,
+      isOpen: state.isInvestigationMenuOpen,
+      setIsOpen: state.setInvestigationMenuOpen,
+      closeMenu: state.closeInvestigationMenu,
     }))
   );
+
+  // El menú vive en el layout y no se desmonta al navegar: se cierran sus paneles al cambiar de pantalla
+  useEffect(() => {
+    closeMenu();
+    setDossierOpen(false);
+    setShowRestartConfirm(false);
+  }, [pathname, closeMenu]);
 
   const isCurrentLevel = storeLevelId === levelId;
   const displayBriefing = (isCurrentLevel && storeBriefing) ? storeBriefing : info?.info;
@@ -75,16 +88,8 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
         }
       }
       resetSession();
-      try {
-        Object.keys(sessionStorage).forEach((key) => {
-          if (key.endsWith("_briefing_seen")) {
-            sessionStorage.removeItem(key);
-          }
-        });
-      } catch {
-        // Ignorar errores en SSR
-      }
-      setIsOpen(false);
+      clearAllBriefingSeenFlags();
+      closeMenu();
       setShowRestartConfirm(false);
       router.push("/principal");
     } catch (err) {
@@ -119,31 +124,19 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
     };
   }, [levelId, isCurrentLevel, storeBriefing, storeSuspects.length]);
 
-  useEffect(() => {
-    const handleClose = () => {
-      setIsOpen(false);
-      setDossierOpen(false);
-    };
 
-    window.addEventListener("close-investigation-menu", handleClose);
-    return () => {
-      window.removeEventListener("close-investigation-menu", handleClose);
-    };
-  }, []);
 
   return (
     <>
-      <aside className="mt-4 md:mt-4 xl:mt-6 ml-4 md:ml-4 xl:ml-6 rounded-2xl z-100 absolute left-0 top-0 w-[360px] md:w-[380px] xl:w-[480px] max-w-[calc(100vw-2rem)] backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] z-20 text-[#FFF3C7] overflow-hidden">
+      <aside className="mt-4 md:mt-4 xl:mt-6 ml-4 md:ml-4 xl:ml-6 rounded-2xl z-30 absolute left-0 top-0 w-[360px] md:w-[380px] xl:w-[480px] max-w-[calc(100vw-2rem)] backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] text-[#FFF3C7] overflow-hidden">
         <button
-          onClick={() =>
-            setIsOpen((prev) => {
-              const next = !prev;
-              if (next) {
-                audioManager.play("opencasefile");
-              }
-              return next;
-            })
-          }
+          onClick={() => {
+            const next = !isOpen;
+            if (next) {
+              audioManager.play("opencasefile");
+            }
+            setIsOpen(next);
+          }}
           className="w-full flex items-center justify-between px-5 py-3.5 border-b border-[rgba(255,243,199,0.12)] hover:bg-[rgba(255,243,199,0.06)] transition-colors duration-200 cursor-pointer gap-3"
         >
           <div className="flex flex-col text-left shrink-0">
@@ -330,7 +323,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
 
       {/* Modal de confirmación para volver al menú principal */}
       {showRestartConfirm && typeof window !== "undefined" && createPortal(
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in select-none">
+        <div className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in select-none">
           <div className="relative w-full max-w-md backdrop-blur-xs border border-red-500/30 bg-[rgba(18,22,32,0.95)] shadow-[0_25px_60px_rgba(0,0,0,0.8)] rounded-2xl p-6 sm:p-7 flex flex-col items-center text-center text-[#FFF3C7] gap-4">
             <div className="w-16 h-16 rounded-2xl bg-red-950/60 border border-red-500/40 flex items-center justify-center text-3xl shadow-inner">
               ↩

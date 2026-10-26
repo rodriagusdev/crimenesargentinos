@@ -2,7 +2,6 @@ import { ICardLevelPreview } from "@/models/ICardLevelPreview";
 import Image from "next/image";
 import { createPortal } from "react-dom";
 import { usePreviewVideoHandler } from "@/hooks/usePreviewVideoHandler";
-import { OverlayVideo } from "../overlays/OverlayVideo";
 
 type LevelCardProps = {
   preview: ICardLevelPreview;
@@ -135,7 +134,6 @@ export default function LevelCard({ preview }: LevelCardProps) {
           ) : preview.canPlay ? (
             <div className="w-full py-2 px-3 rounded-xl border border-amber-400/60 bg-amber-500/15 text-amber-200 font-mono font-bold text-xs flex items-center justify-center gap-2 group-hover:bg-amber-500/25 group-hover:border-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.15)] transition-all">
               <span>INVESTIGAR</span>
-              <span className="text-amber-400">➔</span>
             </div>
           ) : (
             <div className="w-full py-2 px-3 rounded-xl border border-[#1c2c3e]/50 bg-[#080d15]/60 text-slate-600 font-mono font-bold text-xs flex items-center justify-center gap-2">
@@ -144,8 +142,6 @@ export default function LevelCard({ preview }: LevelCardProps) {
           )}
         </div>
       </div>
-
-      {showVideo && <OverlayVideo videoURL={videoURL} onSkip={goToLevel} />}
 
       {/* Partida en curso de otro nivel: confirmar abandono */}
       {pendingAbandon &&

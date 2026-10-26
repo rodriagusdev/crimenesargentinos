@@ -133,7 +133,7 @@ export default function TravelAnimationOverlay({
   const pathD = `M ${startX} ${startY} Q ${ctrlX} ${ctrlY} ${endX} ${endY}`;
 
   return (
-    <div className="fixed inset-0 z-[999999] pointer-events-auto bg-black/65 backdrop-blur-[3px] flex flex-col justify-between p-4 sm:p-6 select-none animate-fade-in font-sans">
+    <div className="fixed inset-0 z-50 pointer-events-auto bg-black/65 backdrop-blur-[3px] flex flex-col justify-between p-4 sm:p-6 select-none animate-fade-in font-sans">
       {/* Top Tactical Telemetry HUD */}
       <div className="w-full max-w-xl mx-auto flex flex-col items-center gap-2 p-3 sm:p-4 rounded-2xl bg-[rgba(16,24,34,0.95)] border border-[#E1C380]/40 shadow-[0_25px_60px_rgba(0,0,0,0.85)] text-[#FFF3C7] text-center">
         <div className="flex items-center gap-2 text-xs font-mono font-bold tracking-widest text-[#E1C380] uppercase">

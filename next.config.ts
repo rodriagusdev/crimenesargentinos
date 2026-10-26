@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
     // Evita que Turbopack tome C:\Desarrollo\crimenesarg como raíz por el package-lock.json de la carpeta padre
     root: path.resolve(__dirname),
   },
+  devIndicators: false,
   images: {
     // En desarrollo servimos directamente las imágenes estáticas para evitar bloqueos de CPU con Sharp
     unoptimized: isDev,

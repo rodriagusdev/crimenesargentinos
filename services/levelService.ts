@@ -4,6 +4,7 @@ import IDialog from "@/models/IDialog";
 import { IGameData } from "@/models/IGameData";
 import { API_URL, authHeaders, handleUnauthorized } from "@/lib/api";
 import { resolveSuspectImage } from "@/lib/suspectImages";
+import { getCalibratedProvinceCoordinates } from "@/lib/mapCalibration";
 
 async function fetchFromApi<T>(path: string, notFoundMessage: string, failMessage: string): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {
@@ -116,6 +117,16 @@ export async function getLevelProvinces(
     "Failed to fetch level provinces",
   )
     .then((data) => {
+      if (data?.provinces && Array.isArray(data.provinces)) {
+        data.provinces = data.provinces.map((p) => {
+          const cal = getCalibratedProvinceCoordinates(p);
+          return {
+            ...p,
+            top: cal.top,
+            left: cal.left,
+          };
+        });
+      }
       provincesCache.set(levelId, data);
       return data;
     })

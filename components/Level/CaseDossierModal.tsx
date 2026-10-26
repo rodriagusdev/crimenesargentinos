@@ -103,7 +103,7 @@ export default function CaseDossierModal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[99999] flex items-center justify-center p-2 sm:p-3 bg-black/85 backdrop-blur-md animate-fade-in select-none"
+      className="fixed inset-0 z-40 flex items-center justify-center p-2 sm:p-3 bg-black/85 backdrop-blur-md animate-fade-in select-none"
       onClick={onClose}
     >
       <div
@@ -198,7 +198,7 @@ export default function CaseDossierModal({
       {/* ========================================================================= */}
       {selectedSuspect && (
         <div
-          className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in select-none"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in select-none"
           onClick={handleCancelArrest}
         >
           <div

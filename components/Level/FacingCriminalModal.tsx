@@ -34,7 +34,7 @@ export default function FacingCriminalModal() {
 
       {/* Si el jugador cierra el modal para revisar la pantalla, botón flotante de emergencia para reabrirlo */}
       {!isOpen && (
-        <div className="fixed bottom-6 right-6 z-[99999] animate-bounce">
+        <div className="fixed bottom-6 right-6 z-20 animate-bounce">
           <button
             type="button"
             onClick={() => setIsOpen(true)}

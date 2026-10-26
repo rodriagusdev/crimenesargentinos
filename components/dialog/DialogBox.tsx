@@ -2,6 +2,7 @@
 
 import IDialog, { IDialogQuestion } from "@/models/IDialog";
 import GameButton from "../buttons/GameButton";
+import { LevelScreenTopBar } from "../Level/LevelScreenTopBar";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
@@ -75,9 +76,7 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
     askingRef.current = true;
     setAskingQuestionId(q.id);
 
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent("close-investigation-menu"));
-    }
+    useGameSessionStore.getState().closeInvestigationMenu();
 
     try {
       const result = await askQuestion(q.id);
@@ -121,31 +120,20 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
     dialog.npcCompleteUrl ?? "/images/default-dialog-overlay.jpg";
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#080e18] select-none">
+    <div className="relative w-screen h-screen flex flex-col bg-[#080e18] select-none overflow-hidden">
       {/* Toast de Feedback de Costo y Pista Desbloqueada */}
       <CostFeedbackToast cost={costToast} unlockedClue={clueToast} />
       {/* ── Top Bar ── */}
-      <div className="relative z-20 p-4 md:p-6 flex items-center justify-end">
-        {onClose ? (
-          <div className="flex flex-row gap-2 md:gap-4 flex-row-reverse">
-            <GameButton
-              icon=""
-              label="VOLVER AL MAPA DE LA PROVINCIA"
-              onClick={onClose}
-              variant="secondary"
-            />
-
-            <div className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-2xl backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] text-[#FFF3C7]">
-              <span className="size-2 rounded-full bg-amber-400 animate-pulse" />
-              <span className="text-xs uppercase tracking-widest text-[#E1C380] font-semibold">
-                Interrogatorio
-              </span>
-            </div>
-          </div>
-        ) : (
-          <div />
-        )}
-      </div>
+      {onClose ? (
+        <LevelScreenTopBar
+          label="VOLVER AL MAPA DE LA PROVINCIA"
+          badgeText="Interrogatorio"
+          onBack={onClose}
+          showDot
+        />
+      ) : (
+        <div className="relative z-20 p-4 md:p-6" />
+      )}
 
       {/* ── Content area (Dialog panel + Background Scene) ── */}
       <div className="flex-1 flex flex-col-reverse xl:flex-row-reverse min-h-0 px-4 md:px-6 pb-4 md:pb-6 gap-4 md:gap-6">

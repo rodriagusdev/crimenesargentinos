@@ -9,7 +9,6 @@ interface InvestigationBoardState {
   suspectStatuses: Record<string, SuspectBoardStatus>;
 
   toggleTrait: (suspectId: string, traitIdx: number) => void;
-  toggleSuspectStatus: (suspectId: string) => void;
   setSpecificStatus: (suspectId: string, targetStatus: "suspect" | "discarded") => void;
   resetBoard: () => void;
 }
@@ -30,20 +29,6 @@ export const useInvestigationBoardStore = create<InvestigationBoardState>()((set
         markedTraits: {
           ...state.markedTraits,
           [suspectId]: updated,
-        },
-      };
-    }),
-
-  toggleSuspectStatus: (suspectId) =>
-    set((state) => {
-      const current = state.suspectStatuses[suspectId] || "neutral";
-      const next: SuspectBoardStatus =
-        current === "neutral" ? "suspect" : current === "suspect" ? "discarded" : "neutral";
-
-      return {
-        suspectStatuses: {
-          ...state.suspectStatuses,
-          [suspectId]: next,
         },
       };
     }),

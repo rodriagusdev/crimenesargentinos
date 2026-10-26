@@ -10,10 +10,11 @@ import { useGameSession } from "@/hooks/useGameSession";
 import IProvince from "@/models/IProvince";
 import dynamic from "next/dynamic";
 import { preloadProvincePackage } from "@/lib/assetPreloader";
+import { useShallow } from "zustand/react/shallow";
+import { useTravelFlow } from "@/hooks/useTravelFlow";
+import { getCalibratedProvinceCoordinates, monitorCoordToScreen } from "@/lib/mapCalibration";
 
 const TravelConfirmModal = dynamic(() => import("./TravelConfirmModal"), { ssr: false });
-import { useShallow } from "zustand/react/shallow";
-
 const TravelAnimationOverlay = dynamic(() => import("./TravelAnimationOverlay"), { ssr: false });
 
 interface LevelDataProps {
@@ -39,11 +40,6 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
   const [data, setData] = useState<ILevelDataProvinces | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedProvince, setSelectedProvince] = useState<IProvince | null>(null);
-  const [travelingTo, setTravelingTo] = useState<IProvince | null>(null);
-  const [travelFrom, setTravelFrom] = useState<IProvince | null>(null);
-  const [traveling, setTraveling] = useState(false);
-  const [travelError, setTravelError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -71,6 +67,18 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
     };
   }, [levelId]);
 
+  const currentProvince = data?.provinces.find((p) => p.id === currentProvinceId);
+
+  const travel = useTravelFlow<IProvince>({
+    current: currentProvince,
+    currentId: currentProvinceId,
+    onTravel: (prov) => travelProvince(prov.id),
+    onPreload: (prov) => preloadProvincePackage(prov.id),
+    getRoute: (prov) => `/level/${levelId}/${prov.id}`,
+    durationMs: 1600,
+    errorMessageFallback: "No se pudo viajar a la provincia",
+  });
+
   if (loading) {
     return (
       <div className="absolute inset-0 z-20 flex items-center justify-center text-[#FFF3C7]">
@@ -87,49 +95,15 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
     );
   }
 
-  const currentProvince = data.provinces.find((p) => p.id === currentProvinceId);
-
-  // El servidor cobra el viaje y mueve al jugador con animación de vuelo
-  const handleConfirmTravel = async () => {
-    if (!selectedProvince || traveling) return;
-    const targetProvince = selectedProvince;
-    const targetId = targetProvince.id;
-
-    // Guardar origen antes de llamar al backend para que el cambio de currentProvinceId no sobreescriba el origen en la animación
-    setTravelFrom(currentProvince ?? null);
-    setTraveling(true);
-    setTravelingTo(targetProvince);
-    setTravelError(null);
-    setSelectedProvince(null);
-
-    try {
-      // 1. Prefetch Next.js route in background
-      router.prefetch(`/level/${levelId}/${targetId}`);
-
-      // 2. Lanzar petición y PRECARGAR el paquete de la provincia de destino durante el vuelo de 1.6s
-      const [result] = await Promise.all([
-        travelProvince(targetId),
-        preloadProvincePackage(targetId),
-        new Promise((resolve) => setTimeout(resolve, 1600)),
-      ]);
-
-      router.push(`/level/${levelId}/${targetId}`);
-    } catch (err) {
-      setTravelingTo(null);
-      setTravelFrom(null);
-      setTravelError(err instanceof Error ? err.message : "No se pudo viajar a la provincia");
-    } finally {
-      setTraveling(false);
-    }
-  };
-
   return (
     <>
       {/* Animación de vuelo interprovincial */}
-      {travelingTo && (
+      {travel.travelingTo && (
         <TravelAnimationOverlay
-          fromProvince={travelFrom ?? currentProvince}
-          toProvince={travelingTo}
+          fromProvince={travel.travelFrom ?? currentProvince}
+          toProvince={travel.travelingTo}
+          fromCoord={monitorCoordToScreen(travel.travelFrom ?? currentProvince)}
+          toCoord={monitorCoordToScreen(travel.travelingTo)}
         />
       )}
 
@@ -137,49 +111,41 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
       <div className="absolute inset-0 z-10">
         {data.provinces.map((province) => {
           const isCurrent = province.id === currentProvinceId;
+          const coords = getCalibratedProvinceCoordinates(province);
           return (
             <ProvinceButton
               key={province.id}
               label={province.name}
-              top={province.top}
-              left={province.left}
+              top={coords.top}
+              left={coords.left}
               icon={province.icon}
               isCurrent={isCurrent}
               onMouseEnter={() => preloadProvincePackage(province.id)}
-              onClick={() => {
-                if (traveling) return;
-                setTravelError(null);
-                // Volver a la provincia en la que ya está no cuesta nada: se entra directo, sin confirmar
-                if (province.id === currentProvinceId) {
-                  router.push(`/level/${levelId}/${province.id}`);
-                  return;
-                }
-                setSelectedProvince(province);
-              }}
+              onClick={() => travel.select(province)}
             />
           );
         })}
       </div>
 
-      {travelError && (
+      {travel.error && (
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 px-5 py-3 rounded-2xl bg-red-950/80 border border-red-400/40 text-red-200 text-sm">
-          {travelError}
+          {travel.error}
         </div>
       )}
 
       {/* Modal de confirmación de viaje entre provincias */}
       {travelCost && (
         <TravelConfirmModal
-          isOpen={Boolean(selectedProvince)}
+          isOpen={Boolean(travel.selected)}
           title="¿Viajar a otra Provincia?"
-          destinationName={selectedProvince?.name ?? ""}
-          destinationIcon={selectedProvince?.icon}
+          destinationName={travel.selected?.name ?? ""}
+          destinationIcon={travel.selected?.icon}
           // Las horas dependen de la distancia a esa provincia; los PI son fijos
-          cost={{ ...travelCost, time: (selectedProvince && travelHours?.[selectedProvince.id]) ?? travelCost.time }}
+          cost={{ ...travelCost, time: (travel.selected && travelHours?.[travel.selected.id]) ?? travelCost.time }}
           currentResources={{ time: currentTime, pi: currentPI }}
-          loading={traveling}
-          onConfirm={handleConfirmTravel}
-          onCancel={() => !traveling && setSelectedProvince(null)}
+          loading={travel.isTraveling}
+          onConfirm={travel.confirm}
+          onCancel={() => !travel.isTraveling && travel.cancel()}
         />
       )}
     </>

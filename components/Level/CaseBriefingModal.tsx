@@ -6,6 +6,7 @@ import GameButton from "../buttons/GameButton";
 import { getGameData } from "@/services/levelService";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { audioManager } from "@/lib/audioManager";
+import { isBriefingSeen, markBriefingSeen } from "@/lib/briefingStorage";
 
 interface CaseBriefingModalProps {
   levelId: number;
@@ -27,8 +28,7 @@ export default function CaseBriefingModal({
   // Verificar si ya fue visto en esta sesión del nivel
   useEffect(() => {
     setMounted(true);
-    const seen = sessionStorage.getItem(`level_${levelId}_briefing_seen`);
-    if (!seen) {
+    if (!isBriefingSeen(levelId)) {
       setShouldShow(true);
       audioManager.play("opencasefile");
     } else {
@@ -100,11 +100,7 @@ export default function CaseBriefingModal({
   }, [fullText, shouldShow]);
 
   const handleClose = useCallback(() => {
-    try {
-      sessionStorage.setItem(`level_${levelId}_briefing_seen`, "true");
-    } catch {
-      // Ignorar
-    }
+    markBriefingSeen(levelId);
     onClose();
   }, [levelId, onClose]);
 
@@ -119,7 +115,7 @@ export default function CaseBriefingModal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 bg-black/25 backdrop-blur-md animate-fade-in select-none"
+      className="fixed inset-0 z-40 flex items-center justify-center p-4 sm:p-6 bg-black/25 backdrop-blur-md animate-fade-in select-none"
       onClick={handleSkipTyping}
     >
       <div

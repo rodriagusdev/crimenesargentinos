@@ -80,11 +80,6 @@ export function playLevel(level?: number): Promise<IGameSession> {
   return request("POST", level === undefined ? "/play" : `/play?level=${level}`);
 }
 
-// Partida en curso del caso, sin crear una (404 si no hay)
-export function getCurrentSession(caseId: number): Promise<IGameSession> {
-  return request("GET", `/current/${caseId}`);
-}
-
 // Solo retoma la partida en curso de ese caso (las nuevas se crean con playLevel)
 export function startOrResumeSession(caseId: number): Promise<IGameSession> {
   return request("POST", `/start-or-resume?caseId=${caseId}`);
@@ -94,16 +89,8 @@ export function getSession(sessionId: string): Promise<IGameSession> {
   return request("GET", `/${sessionId}`);
 }
 
-export function restartSession(sessionId: string): Promise<IGameSession> {
-  return request("POST", `/${sessionId}/restart`);
-}
-
 export function abandonSession(sessionId: string): Promise<IGameSession> {
   return request("POST", `/${sessionId}/abandon`);
-}
-
-export function markBriefingSeen(sessionId: string): Promise<IGameSession> {
-  return request("POST", `/${sessionId}/briefing-seen`);
 }
 
 export function travelToProvince(sessionId: string, provinceId: string): Promise<IGameSession> {

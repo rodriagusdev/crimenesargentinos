@@ -1,17 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import UserInfo from "./UserInfo";
 import { useAuth } from "@/hooks/useAuth";
 import { useAudioStore } from "@/stores/useAudioStore";
-import MuseumModal from "@/components/museum/MuseumModal";
 
 export default function PlayerPanel() {
   const { logout } = useAuth();
   const playSfx = useAudioStore((state) => state.playSfx);
-
-  const [isMuseumOpen, setIsMuseumOpen] = useState(false);
 
   const handleLogout = () => {
     playSfx("click");
@@ -25,39 +21,7 @@ export default function PlayerPanel() {
         <UserInfo />
       </div>
 
-      {/* 2. BOTON MUSEO DE BIENES RECUPERADOS */}
-      <div>
-        <button
-          type="button"
-          onClick={() => {
-            playSfx("opencasefile");
-            setIsMuseumOpen(true);
-          }}
-          onMouseEnter={() => playSfx("typewriter")}
-          className="
-            group w-full flex items-center justify-between py-3 px-4 rounded-xl
-            border-2 border-amber-600/40 bg-gradient-to-r from-amber-950/40 via-[#0c1421] to-amber-950/20
-            hover:border-amber-400 hover:from-amber-900/60 hover:to-amber-950/40
-            text-amber-200 hover:text-amber-100
-            font-mono font-bold text-xs tracking-wider uppercase
-            shadow-[0_12px_32px_rgba(0,0,0,0.65),0_0_15px_rgba(245,158,11,0.1)]
-            hover:shadow-[0_16px_36px_rgba(0,0,0,0.8),0_0_20px_rgba(245,158,11,0.3)]
-            hover:-translate-y-0.5
-            transition-all duration-200 cursor-pointer select-none
-          "
-        >
-          <div className="flex items-center gap-2.5">
-            <span className="text-base transition-transform duration-200 group-hover:scale-125">🏛️</span>
-            <div className="flex flex-col text-left">
-              <span className="leading-tight">MUSEO DE BIENES</span>
-              <span className="text-[10px] text-amber-400/70 font-sans tracking-normal normal-case font-normal">Tesoros y reliquias recuperadas</span>
-            </div>
-          </div>
-          <span className="text-amber-400 text-xs group-hover:translate-x-1 transition-transform">➔</span>
-        </button>
-      </div>
-
-      {/* 3. BOTON SALIR / CERRAR SESION */}
+      {/* 2. BOTON SALIR / CERRAR SESION */}
       <div>
         <button
           type="button"
@@ -75,7 +39,6 @@ export default function PlayerPanel() {
             transition-all duration-200 cursor-pointer select-none
           "
         >
-          <span className="text-sm transition-transform duration-200 group-hover:scale-110">🚪</span>
           <span>CERRAR SESIÓN</span>
         </button>
       </div>
@@ -101,12 +64,6 @@ export default function PlayerPanel() {
           "
         />
       </div>
-
-      {/* MODAL DEL MUSEO DE BIENES RECUPERADOS */}
-      <MuseumModal
-        isOpen={isMuseumOpen}
-        onClose={() => setIsMuseumOpen(false)}
-      />
     </div>
   );
-}
+}

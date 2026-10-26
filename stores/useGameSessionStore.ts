@@ -44,6 +44,7 @@ interface GameSessionState {
   askedQuestions: string[];
   flags: string[];
   initialRoute: string | null; // pantalla donde quedó el jugador
+  isInvestigationMenuOpen: boolean;
 
   // Métodos
   initSession: (levelId: number) => Promise<IGameSession>;
@@ -55,6 +56,8 @@ interface GameSessionState {
   issueArrestWarrant: (suspectId: string) => Promise<IGameSession>;
   restartLevel: (levelId: number) => Promise<void>;
   resetSession: () => void;
+  setInvestigationMenuOpen: (open: boolean) => void;
+  closeInvestigationMenu: () => void;
 }
 
 const emptySession = {
@@ -76,6 +79,7 @@ const emptySession = {
   askedQuestions: [],
   flags: [],
   initialRoute: null,
+  isInvestigationMenuOpen: false,
 };
 
 const fromSession = (session: IGameSession) => ({
@@ -221,5 +225,8 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
       useInvestigationBoardStore.getState().resetBoard();
       set(emptySession);
     },
+
+    setInvestigationMenuOpen: (open: boolean) => set({ isInvestigationMenuOpen: open }),
+    closeInvestigationMenu: () => set({ isInvestigationMenuOpen: false }),
   };
 });

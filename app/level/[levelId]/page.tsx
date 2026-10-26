@@ -1,20 +1,12 @@
 import LevelProvinces from "@/components/Level/LevelProvinces";
-import LevelMenu from "@/components/Level/LevelMenu";
-import LevelTimer from "@/components/Level/LevelTimer";
 import Image from "next/image";
 
-interface Props {
-  params: Promise<{
-    levelId: string;
-  }>;
-}
-
-export default async function Level({ params }: Props) {
+export default async function Level({ params }: PageProps<"/level/[levelId]">) {
   const { levelId } = await params;
   const id = Number(levelId);
 
   return (
-    <main className="relative w-screen h-screen overflow-hidden select-none bg-[#05070a]">
+    <div className="relative w-screen h-screen overflow-hidden select-none bg-[#05070a]">
       {/* ========================================================================= */}
       {/* SALA DE INVESTIGACIÓN POLICIAL (100% PANTALLA COMPLETA SIN BORDES OSCUROS) */}
       {/* ========================================================================= */}
@@ -45,13 +37,7 @@ export default async function Level({ params }: Props) {
         >
           <LevelProvinces levelId={id} />
         </div>
-
-        {/* Menú de investigación desplegable (Arriba a la izquierda) */}
-        <LevelMenu levelId={id} />
-
-        {/* Modales de victoria / derrota / sesión */}
-        <LevelTimer levelId={id} />
       </div>
-    </main>
+    </div>
   );
 }

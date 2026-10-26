@@ -72,7 +72,7 @@ export default function CronicaDefeatNewspaper({
   })();
 
   return (
-    <div className="fixed inset-0 z-[999999] flex flex-col items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md overflow-hidden select-none font-sans animate-fade-in">
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md overflow-hidden select-none font-sans animate-fade-in">
       {/* Top Floating Action Bar */}
       <div className="w-full max-w-3xl lg:max-w-4xl flex items-center justify-between mb-2 shrink-0">
         <div className="flex items-center gap-2 text-red-400 font-mono text-xs tracking-wider uppercase">

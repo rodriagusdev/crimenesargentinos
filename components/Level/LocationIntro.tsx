@@ -23,11 +23,13 @@ export default function LocationIntro({
 }: LocationIntroProps) {
   const [showBriefing, setShowBriefing] = useState<boolean>(true);
 
-  const imageUrl =
-    dialog.overlayBackgroundUrl ?? "/images/test_map.jpg";
+  const rawImageUrl = dialog.overlayBackgroundUrl || dialog.npcCompleteUrl;
+  const [imageUrl, setImageUrl] = useState<string>(
+    rawImageUrl || "/images/slate_board.webp"
+  );
 
   return (
-    <div className="fixed inset-0 z-30 flex flex-col justify-between overflow-hidden bg-black select-none">
+    <div className="relative w-screen h-screen flex flex-col justify-between overflow-hidden bg-[#080e18] select-none">
       {/* Modal de Información del Caso / Máquina de escribir */}
       {showBriefing && (
         <CaseBriefingModal
@@ -37,7 +39,7 @@ export default function LocationIntro({
       )}
 
       {/* ── Background full-screen image ── */}
-      <div className="absolute inset-0 -z-10">
+      <div className="absolute inset-0 z-0">
         <Image
           src={imageUrl}
           alt={locationName ?? "Ubicación"}
@@ -45,13 +47,18 @@ export default function LocationIntro({
           priority
           sizes="100vw"
           className="object-cover object-center"
+          onError={() => {
+            if (dialog.npcCompleteUrl && imageUrl !== dialog.npcCompleteUrl) {
+              setImageUrl(dialog.npcCompleteUrl);
+            }
+          }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#080e18]/90 via-[#080e18]/40 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#080e18]/50 via-transparent to-[#080e18]/60" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#080e18]/85 via-[#080e18]/40 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#080e18]/90 via-[#080e18]/25 to-[#080e18]/60 pointer-events-none" />
       </div>
 
       {/* ── Top Bar: GameButtons (Top Left) ── */}
-      <div className="relative z-40 p-6 flex items-center justify-between flex-row-reverse">
+      <div className="relative z-20 p-6 flex items-center justify-between flex-row-reverse">
         <div className="flex items-center gap-2">
           {onBack && (
 
@@ -71,17 +78,10 @@ export default function LocationIntro({
           />
         </div>
 
-        {/* Badge Escena del Crimen */}
-        <div className="hidden sm:flex absolute top-28 left-6 items-center gap-2 p-4 rounded-2xl backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] text-[#FFF3C7]">
-          <span className="size-2 rounded-full bg-emerald-400 animate-ping" />
-          <span className="text-xs uppercase tracking-widest text-[#E1C380] font-semibold">
-            Ubicación
-          </span>
-        </div>
       </div>
 
       {/* ── Bottom Description Card ── */}
-      <div className="relative z-40 p-6 md:p-8 w-full">
+      <div className="relative z-10 p-6 md:p-8 w-full">
         <div
           className="
             p-6 rounded-2xl

@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import { abandonSession, GameSessionApiError, IPlayConflict, playConflictOf, sessionRoute } from "@/services/gameSessionService";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { preloadCasePackage } from "@/lib/assetPreloader";
+import { clearBriefingSeen } from "@/lib/briefingStorage";
 
 // Entrada a un nivel desde su tarjeta: retoma la partida en curso o sortea el caso,
 // muestra el video de intro del caso (si tiene) y va a donde quedó el jugador.
@@ -26,10 +27,7 @@ export function usePreviewVideoHandler(previewVideoURL?: string, level?: number)
       setLoadingLevel(true);
       const session = await play(level);
 
-      try {
-        sessionStorage.removeItem(`level_${session.caseId}_briefing_seen`);
-      } catch {
-      }
+      clearBriefingSeen(session.caseId);
 
       // Caso recién sorteado con video: se muestra antes de entrar
       const caseVideo = useGameSessionStore.getState().videoUrl;

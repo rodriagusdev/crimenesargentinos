@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import CronicaDefeatNewspaper from "./CronicaDefeatNewspaper";
+import { clearAllBriefingSeenFlags } from "@/lib/briefingStorage";
 
 interface GameOverModalProps {
   levelId: number;
@@ -43,15 +44,7 @@ export default function GameOverModal({ levelId }: GameOverModalProps) {
 
   const handleBackToPrincipal = () => {
     useGameSessionStore.getState().resetSession();
-    try {
-      Object.keys(sessionStorage).forEach((key) => {
-        if (key.endsWith("_briefing_seen")) {
-          sessionStorage.removeItem(key);
-        }
-      });
-    } catch {
-      // Ignorar errores en SSR
-    }
+    clearAllBriefingSeenFlags();
     router.push("/principal");
   };
 
