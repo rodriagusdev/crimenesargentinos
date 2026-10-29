@@ -82,7 +82,7 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
   if (loading) {
     return (
       <div className="absolute inset-0 z-20 flex items-center justify-center text-[#FFF3C7]">
-        Cargando nivel {levelId}...
+        Cargando ...
       </div>
     );
   }

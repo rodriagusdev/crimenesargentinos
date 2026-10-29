@@ -329,14 +329,9 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
               ↩
             </div>
 
-            <div>
-              <span className="text-[10px] uppercase font-mono tracking-widest text-red-400 font-semibold px-2.5 py-0.5 rounded-full bg-red-950/60 border border-red-500/30">
-                Nivel #{levelId.toString().padStart(2, "0")}
-              </span>
-              <h3 className="text-lg sm:text-xl font-bold font-mono text-[#FFF3C7] mt-2">
-                ¿Volver al menú principal?
-              </h3>
-            </div>
+            <h3 className="text-lg sm:text-xl font-bold font-mono text-[#FFF3C7]">
+              ¿Volver al menú principal?
+            </h3>
 
             <p className="text-xs text-[#FFF3C7]/80 font-mono bg-[rgba(10,15,25,0.6)] p-3.5 rounded-xl border border-[rgba(255,243,199,0.12)] leading-relaxed">
               Esta acción abandonará el caso actual y te llevará al menú principal. Podrás comenzar una nueva investigación desde cero.

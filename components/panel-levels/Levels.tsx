@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { ICardLevelPreview } from "@/models/ICardLevelPreview";
 import { getLevels } from "@/services/gameSessionService";
 import { ILevelOverview } from "@/models/IGameSession";
-import LevelCard from "./LevelCard";
+import LevelsCarousel from "./LevelsCarousel";
 
 // Definición canónica de los 5 niveles del juego
 const LEVEL_DEFINITIONS = [
@@ -62,12 +62,14 @@ export default function Levels() {
 
           return {
             id: def.id,
-            title: apiLevel?.title ? `NIVEL ${def.id} · ${apiLevel.title.toUpperCase()}` : def.title,
+            title: apiLevel?.title ? apiLevel.title.toUpperCase() : def.title,
             description: apiLevel?.description || def.description,
             imageURL: def.imageURL,
             videoURL: undefined,
             canPlay: canPlayLevel,
             completed: isCompleted,
+            variantsTotal: apiLevel?.variantsTotal ?? 0,
+            variantsWon: apiLevel?.variantsWon ?? 0,
           };
         });
 
@@ -129,19 +131,8 @@ export default function Levels() {
         </h2>
       </div>
 
-      {/* 3. Grilla de tarjetas con imagen como protagonista visual */}
-      <div
-        className="
-          grid gap-6
-          grid-cols-1
-          md:grid-cols-2
-          2xl:grid-cols-3
-        "
-      >
-        {levels.map((level) => (
-          <LevelCard key={level.id} preview={level} />
-        ))}
-      </div>
+      {/* 3. Tarjetas: carrusel entre 600px y 1920px, grilla en celular y pantallas muy anchas */}
+      <LevelsCarousel levels={levels} />
     </section>
   );
 }

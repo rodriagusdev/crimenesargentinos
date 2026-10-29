@@ -73,6 +73,9 @@ export interface ILevelOverview {
   description: string | null;
   imageUrl: string | null;
   videoUrl: string | null;
+  // Variantes del nivel y cuántas ganó alguna vez (en cualquier vuelta): con todas ganadas el nivel está cerrado
+  variantsTotal: number;
+  variantsWon: number;
 }
 
 // Una línea del chat guardado de una locación
