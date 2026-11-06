@@ -4,10 +4,8 @@ import Image from "next/image";
 import { useState } from "react";
 import IDialog from "@/models/IDialog";
 import GameButton from "../buttons/GameButton";
-import CaseBriefingModal from "./CaseBriefingModal";
 
 interface LocationIntroProps {
-  levelId?: number;
   dialog: IDialog;
   locationName?: string;
   onAdvance: () => void;
@@ -15,14 +13,11 @@ interface LocationIntroProps {
 }
 
 export default function LocationIntro({
-  levelId = 1,
   dialog,
   locationName,
   onAdvance,
   onBack,
 }: LocationIntroProps) {
-  const [showBriefing, setShowBriefing] = useState<boolean>(true);
-
   const rawImageUrl = dialog.overlayBackgroundUrl || dialog.npcCompleteUrl;
   const [imageUrl, setImageUrl] = useState<string>(
     rawImageUrl || "/images/slate_board.webp"
@@ -30,14 +25,6 @@ export default function LocationIntro({
 
   return (
     <div className="relative w-screen h-screen flex flex-col justify-between overflow-hidden bg-[#080e18] select-none">
-      {/* Modal de Información del Caso / Máquina de escribir */}
-      {showBriefing && (
-        <CaseBriefingModal
-          levelId={levelId}
-          onClose={() => setShowBriefing(false)}
-        />
-      )}
-
       {/* ── Background full-screen image ── */}
       <div className="absolute inset-0 z-0">
         <Image

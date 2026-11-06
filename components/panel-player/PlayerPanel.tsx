@@ -39,7 +39,7 @@ export default function PlayerPanel() {
             transition-all duration-200 cursor-pointer select-none
           "
         >
-          <span>CERRAR SESIÓN</span>
+          <span>CERRAR SESION</span>
         </button>
       </div>
 

@@ -10,8 +10,10 @@ export default function SoundtrackPlayer() {
   const musicVolume = useAudioStore((state) => state.musicVolume);
 
   useEffect(() => {
-    // Start background music loop on client mount (respects volume and autoplay rules)
-    audioManager.startMusic("/sounds/songdefault.mp3");
+    // Start background music loop on client mount: starts with songdefault.mp3 and alternates with songdefault2.mp3 and songdefault3.mp3
+    audioManager.startMusic();
+    // Start subtle ambient soundscape: raindrops against window + occasional distant police radio & sirens
+    audioManager.startAmbient();
   }, []);
 
   return null;

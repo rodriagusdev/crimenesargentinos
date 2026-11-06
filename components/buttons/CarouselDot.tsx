@@ -5,14 +5,26 @@ export type CarouselDotState = "completed" | "current" | "locked";
 interface Props {
   number: number;
   state: CarouselDotState;
-  active: boolean; // la tarjeta está en la vista del carrusel
+  active: boolean; // solo el nivel seleccionado/clicado actualmente
   onClick: () => void;
 }
 
-const stateClass: Record<CarouselDotState, string> = {
-  completed: "border-emerald-500/70 bg-emerald-950/70 text-emerald-300 hover:border-emerald-400",
-  current: "border-amber-400 bg-amber-400/15 text-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.45)] hover:bg-amber-400/25",
-  locked: "border-slate-700 bg-[#0a111c] text-slate-500 hover:border-slate-500",
+const baseStyles: Record<CarouselDotState, { idle: string; active: string }> = {
+  completed: {
+    idle: "border-emerald-600/70 bg-[#0c1421] text-emerald-400 hover:border-emerald-400 hover:text-emerald-300",
+    active:
+      "border-emerald-400 bg-[#0c1421] text-emerald-300 ring-2 ring-emerald-400 ring-offset-2 ring-offset-[#0c1421] shadow-[0_0_14px_rgba(16,185,129,0.5)] font-bold z-10",
+  },
+  current: {
+    idle: "border-amber-500/60 bg-[#0c1421] text-amber-300/80 hover:border-amber-400 hover:text-amber-200",
+    active:
+      "border-amber-400 bg-[#0c1421] text-amber-300 ring-2 ring-amber-400 ring-offset-2 ring-offset-[#0c1421] shadow-[0_0_14px_rgba(245,158,11,0.55)] font-bold z-10",
+  },
+  locked: {
+    idle: "border-slate-800 bg-[#0c1421] text-slate-600 hover:border-slate-700 hover:text-slate-500",
+    active:
+      "border-slate-600 bg-[#0c1421] text-slate-400 ring-2 ring-slate-600 ring-offset-2 ring-offset-[#0c1421] shadow-[0_0_10px_rgba(148,163,184,0.3)] font-bold z-10",
+  },
 };
 
 const stateLabel: Record<CarouselDotState, string> = {
@@ -21,23 +33,24 @@ const stateLabel: Record<CarouselDotState, string> = {
   locked: "bloqueado",
 };
 
-// Ficha del paginador de niveles: ✓ resuelto, número dorado el habilitado, candado los bloqueados.
-// La que está en la vista se marca con un borde exterior y se agranda
+// Ficha del paginador de niveles: tamaño uniforme, sin iconos, números retro.
+// Verde para resueltos, amarillo para jugables, gris para bloqueados.
+// Solo la ficha activa (clicada o visible actual) muestra el anillo de selección exterior.
 export default function CarouselDot({ number, state, active, onClick }: Props) {
+  const styles = baseStyles[state];
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label={`Ir al (${stateLabel[state]})`}
+      aria-label={`Ir al Nivel ${number} (${stateLabel[state]})`}
       aria-current={active}
       className={`
-        relative flex items-center justify-center size-8 rounded-md border-2 cursor-pointer
-        font-['Press_Start_2P'] text-[9px] transition-all duration-200
-        ${stateClass[state]}
-        ${active ? "scale-110 ring-2 ring-offset-2 ring-offset-[#080e18] ring-amber-200/60" : "opacity-75 hover:opacity-100"}
+        relative flex items-center justify-center size-11 shrink-0 rounded-xl border-2 cursor-pointer
+        font-['Press_Start_2P'] text-xs sm:text-sm transition-all duration-150 select-none
+        ${active ? styles.active : styles.idle}
       `}
     >
-      {state === "completed" ? "✓" : state === "locked" ? "🔒" : number}
+      <span>{number}</span>
     </button>
   );
 }

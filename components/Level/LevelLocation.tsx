@@ -115,7 +115,6 @@ export default function LevelLocation({
     <>
       {!showDialog && !introSeen ? (
         <LocationIntro
-          levelId={levelId}
           dialog={locationDialog}
           locationName={locationName}
           onAdvance={onAdvance}

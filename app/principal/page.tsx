@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Leaderboard from "@/components/panel-leaderboard/Leaderboard";
 import Levels from "@/components/panel-levels/Levels";
 import PlayerPanel from "@/components/panel-player/PlayerPanel";
@@ -10,8 +11,25 @@ export default function Principal() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <div className="text-[#E1C380] text-2xl">Cargando...</div>
+      <div className="relative min-h-screen w-full flex items-center justify-center bg-[#070c16] font-mono select-none overflow-hidden">
+        {/* Fondo táctico tenue de la sala de detectives */}
+        <Image
+          src="/images/principal_background.webp"
+          alt="Central de Investigaciones Policiales"
+          fill
+          priority
+          className="object-cover object-center opacity-30 blur-xs pointer-events-none select-none"
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 bg-[#070c16]/85 pointer-events-none" />
+
+        {/* Indicador de acceso al cuartel */}
+        <div className="relative z-10 flex items-center gap-3 px-6 py-4 rounded-2xl bg-[#0c1421]/95 border border-amber-400/40 text-[#FFF3C7] shadow-[0_20px_50px_rgba(0,0,0,0.8)] backdrop-blur-md">
+          <span className="size-2 rounded-full bg-amber-400 animate-ping" />
+          <span className="text-xs sm:text-sm tracking-widest uppercase font-bold">
+            Accediendo a la Central de Investigaciones...
+          </span>
+        </div>
       </div>
     );
   }
@@ -21,22 +39,54 @@ export default function Principal() {
   }
 
   return (
-    <div className="min-h-screen bg-[#080e18] p-4 md:p-6 xl:p-8">
-      <div className="mx-auto grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-[300px_minmax(0,1fr)_320px]">
-        {/* PANEL IZQUIERDO / COLUMNA 1 TABLET */}
-        <aside className="order-1 md:order-1 xl:order-1 md:col-span-1 xl:col-span-1">
-          <PlayerPanel />
-        </aside>
+    <div className="relative min-h-screen w-full overflow-x-hidden select-none bg-[#070c16]">
+      {/* ========================================================================= */}
+      {/* FONDO AMBIENTAL: SALA CENTRAL DE INVESTIGACIÓN POLICIAL (z-0)              */}
+      {/* Ilustración dedicada de la comisaría porteña con tratamiento táctico retro */}
+      {/* ========================================================================= */}
+      <div className="fixed inset-0 pointer-events-none select-none overflow-hidden z-0">
+        {/* Ilustración de la oficina de investigaciones */}
+        <Image
+          src="/images/principal_background.webp"
+          alt="Central de Investigaciones Policiales"
+          fill
+          priority
+          className="object-cover object-center pointer-events-none select-none"
+          sizes="100vw"
+        />
 
-        {/* PANEL DERECHO / COLUMNA 2 TABLET */}
-        <aside className="order-3 md:order-2 xl:order-3 md:col-span-1 xl:col-span-1">
-          <Leaderboard />
-        </aside>
 
-        {/* NIVELES / ANCHO COMPLETO EN TABLET */}
-        <main className="order-2 md:order-3 xl:order-2 md:col-span-2 xl:col-span-1">
-          <Levels />
-        </main>
+
+        {/* Viñeta radial profunda que centra la atención en los casos activos */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(8,14,24,0.4)_0%,_#03060c_90%)]" />
+
+        {/* Resplandor ámbar superior proyectado sobre el encabezado de casos */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 max-w-4xl h-52 bg-gradient-to-b from-amber-500/15 via-amber-500/5 to-transparent blur-3xl" />
+
+        {/* Sombra de apoyo en la base */}
+        <div className="absolute bottom-0 inset-x-0 h-44 bg-gradient-to-t from-[#03060c] via-[#03060c]/60 to-transparent" />
+      </div>
+
+      {/* ========================================================================= */}
+      {/* CONTENIDO PRINCIPAL: DISTRIBUCIÓN DE PANELES DE INVESTIGACIÓN (z-10)       */}
+      {/* ========================================================================= */}
+      <div className="relative z-10 min-h-screen p-4 md:p-6 xl:p-8">
+        <div className="mx-auto grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-[300px_minmax(0,1fr)_320px]">
+          {/* PANEL IZQUIERDO / COLUMNA 1 TABLET: FICHA POLICIAL Y CERRAR SESIÓN */}
+          <aside className="order-1 md:order-1 xl:order-1 md:col-span-1 xl:col-span-1">
+            <PlayerPanel />
+          </aside>
+
+          {/* PANEL DERECHO / COLUMNA 2 TABLET: RANKING DE AGENTES */}
+          <aside className="order-3 md:order-2 xl:order-3 md:col-span-1 xl:col-span-1">
+            <Leaderboard />
+          </aside>
+
+          {/* NIVELES / ANCHO COMPLETO EN TABLET: EXPEDIENTES DISPONIBLES */}
+          <main className="order-2 md:order-3 xl:order-2 md:col-span-2 xl:col-span-1">
+            <Levels />
+          </main>
+        </div>
       </div>
     </div>
   );

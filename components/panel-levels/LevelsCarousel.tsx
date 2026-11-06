@@ -1,6 +1,6 @@
 "use client";
 
-import { KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
+import { KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ICardLevelPreview } from "@/models/ICardLevelPreview";
 import { audioManager } from "@/lib/audioManager";
 import CarouselDot, { CarouselDotState } from "../buttons/CarouselDot";
@@ -39,7 +39,17 @@ function dotState(level: ICardLevelPreview): CarouselDotState {
 // Excepción a la regla de overflow-x: un carrusel horizontal lo necesita; la barra está oculta y p-3.5 deja lugar al hover.
 export default function LevelsCarousel({ levels }: Props) {
   const trackRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState<CarouselPosition>({ active: 0, visible: [0], atStart: true, atEnd: false });
+  const initialIndex = useMemo(() => {
+    const idx = levels.findIndex((l) => l.canPlay && !l.completed);
+    return idx >= 0 ? idx : 0;
+  }, [levels]);
+
+  const [position, setPosition] = useState<CarouselPosition>(() => ({
+    active: initialIndex,
+    visible: [initialIndex],
+    atStart: initialIndex === 0,
+    atEnd: false,
+  }));
   const { active, visible, atStart, atEnd } = position;
 
   // Lee la geometría del track: qué tarjeta está más a la izquierda y cuáles se ven enteras
@@ -81,19 +91,23 @@ export default function LevelsCarousel({ levels }: Props) {
   const page = (direction: 1 | -1) => {
     const track = trackRef.current;
     if (!track) return;
-    audioManager.play("click");
+    audioManager.play("slide");
     track.scrollBy({ left: direction * track.clientWidth * 0.9, behavior: "smooth" });
   };
 
   const jump = (index: number) => {
-    audioManager.play("click");
+    audioManager.play("mechanickey");
+    setPosition((prev) => ({ ...prev, active: index }));
     goTo(index);
   };
 
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
     e.preventDefault();
-    jump(e.key === "ArrowRight" ? Math.min(active + 1, levels.length - 1) : Math.max(active - 1, 0));
+    audioManager.play("slide");
+    const next = e.key === "ArrowRight" ? Math.min(active + 1, levels.length - 1) : Math.max(active - 1, 0);
+    setPosition((prev) => ({ ...prev, active: next }));
+    goTo(next);
   };
 
   // Al cargar, el carrusel arranca en el nivel habilitado (el primero que se puede jugar y no está resuelto)
@@ -153,7 +167,7 @@ export default function LevelsCarousel({ levels }: Props) {
                 min-[600px]:max-[1921px]:basis-[85%]
                 @2xl:min-[600px]:max-[1921px]:basis-[calc(50%-12px)]
                 @5xl:min-[600px]:max-[1921px]:basis-[calc(33.333%-16px)]
-                ${visible.includes(i) ? "" : "min-[600px]:max-[1921px]:opacity-40 min-[600px]:max-[1921px]:scale-[0.96]"}
+                ${visible.includes(i) ? "" : "min-[600px]:max-[1921px]:brightness-75 min-[600px]:max-[1921px]:scale-[0.98]"}
               `}
             >
               <LevelCard preview={level} />
@@ -162,11 +176,13 @@ export default function LevelsCarousel({ levels }: Props) {
         </div>
       </div>
 
-      {/* Paginador: una ficha por nivel, marca cuáles están en la vista y permite saltar */}
-      <nav aria-label="Niveles" className="hidden min-[600px]:max-[1921px]:flex items-center justify-center gap-3 mt-3">
-        {levels.map((level, i) => (
-          <CarouselDot key={level.id} number={level.id} state={dotState(level)} active={visible.includes(i)} onClick={() => jump(i)} />
-        ))}
+      {/* Paginador: una ficha por nivel, marca cuál está activo/clicado actualmente y permite saltar */}
+      <nav aria-label="Niveles" className="hidden min-[600px]:max-[1921px]:flex items-center justify-center mt-4">
+        <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-[#0c1421] border-2 border-[#1c2c3e] shadow-[0_12px_32px_rgba(0,0,0,0.85)]">
+          {levels.map((level, i) => (
+            <CarouselDot key={level.id} number={level.id} state={dotState(level)} active={active === i} onClick={() => jump(i)} />
+          ))}
+        </div>
       </nav>
     </div>
   );

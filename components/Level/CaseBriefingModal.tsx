@@ -1,17 +1,16 @@
 "use client";
 
 import { createPortal } from "react-dom";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import GameButton from "../buttons/GameButton";
 import { getGameData } from "@/services/levelService";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { audioManager } from "@/lib/audioManager";
-import { isBriefingSeen, markBriefingSeen } from "@/lib/briefingStorage";
 
 interface CaseBriefingModalProps {
   levelId: number;
   initialInfo?: string;
-  onClose: () => void;
+  onClose?: () => void;
 }
 
 export default function CaseBriefingModal({
@@ -20,23 +19,32 @@ export default function CaseBriefingModal({
   onClose,
 }: CaseBriefingModalProps) {
   const [mounted, setMounted] = useState<boolean>(false);
-  const [shouldShow, setShouldShow] = useState<boolean>(false);
+  const [closedLocally, setClosedLocally] = useState<boolean>(false);
   const [fullText, setFullText] = useState<string>(initialInfo ?? "");
   const [displayedText, setDisplayedText] = useState<string>("");
   const [isTyping, setIsTyping] = useState<boolean>(true);
+  const soundPlayedRef = useRef<boolean>(false);
 
-  // Verificar si ya fue visto en esta sesión del nivel
+  const session = useGameSessionStore((state) => state.session);
+  const storeBriefing = useGameSessionStore((state) => state.briefing);
+  const markBriefingSeen = useGameSessionStore((state) => state.markBriefingSeen);
+
   useEffect(() => {
     setMounted(true);
-    if (!isBriefingSeen(levelId)) {
-      setShouldShow(true);
-      audioManager.play("opencasefile");
-    } else {
-      onClose();
-    }
-  }, [levelId, onClose]);
+  }, []);
 
-  // Cargar info del nivel: primero desde el store; si no está, via servicio deduplicado
+  // Se muestra únicamente cuando la sesión de la partida indica que el briefing NO ha sido visto todavía
+  const shouldShow = mounted && Boolean(session && !session.briefingSeen && !closedLocally);
+
+  // Reproducir sonido de expediente abierto al mostrarse
+  useEffect(() => {
+    if (shouldShow && !soundPlayedRef.current) {
+      soundPlayedRef.current = true;
+      audioManager.play("opencasefile");
+    }
+  }, [shouldShow]);
+
+  // Cargar info del nivel desde el store o vía servicio
   useEffect(() => {
     if (!shouldShow) return;
 
@@ -45,9 +53,8 @@ export default function CaseBriefingModal({
       return;
     }
 
-    const storeState = useGameSessionStore.getState();
-    if (storeState.briefing && storeState.levelId === levelId) {
-      setFullText(storeState.briefing);
+    if (storeBriefing) {
+      setFullText(storeBriefing);
       return;
     }
 
@@ -67,7 +74,7 @@ export default function CaseBriefingModal({
     return () => {
       cancelled = true;
     };
-  }, [levelId, initialInfo, shouldShow]);
+  }, [levelId, initialInfo, storeBriefing, shouldShow]);
 
   // Efecto máquina de escribir (letra por letra con audioManager)
   useEffect(() => {
@@ -84,7 +91,6 @@ export default function CaseBriefingModal({
         const nextChar = fullText.charAt(currentIndex);
         setDisplayedText((prev) => prev + nextChar);
 
-        // Reproducir sonido de tecla periódicamente mediante el AudioManager centralizado
         if (currentIndex % 3 === 0) {
           audioManager.play("typewriter", { volume: 0.3 });
         }
@@ -99,10 +105,15 @@ export default function CaseBriefingModal({
     return () => clearInterval(interval);
   }, [fullText, shouldShow]);
 
-  const handleClose = useCallback(() => {
-    markBriefingSeen(levelId);
-    onClose();
-  }, [levelId, onClose]);
+  const handleClose = useCallback(async () => {
+    setClosedLocally(true);
+    try {
+      await markBriefingSeen();
+    } catch (err) {
+      console.error("No se pudo marcar el briefing como visto:", err);
+    }
+    onClose?.();
+  }, [markBriefingSeen, onClose]);
 
   const handleSkipTyping = () => {
     if (isTyping) {
@@ -111,11 +122,11 @@ export default function CaseBriefingModal({
     }
   };
 
-  if (!mounted || !shouldShow || typeof window === "undefined") return null;
+  if (!shouldShow || typeof window === "undefined") return null;
 
   return createPortal(
     <div
-      className="fixed inset-0 z-40 flex items-center justify-center p-4 sm:p-6 bg-black/25 backdrop-blur-md animate-fade-in select-none"
+      className="fixed inset-0 z-40 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-md animate-fade-in select-none"
       onClick={handleSkipTyping}
     >
       <div

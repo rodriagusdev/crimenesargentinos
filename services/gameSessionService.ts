@@ -105,6 +105,10 @@ export function markIntroSeen(sessionId: string, locationId: string): Promise<IG
   return request("POST", `/${sessionId}/intro-seen`, { locationId });
 }
 
+export function markBriefingSeen(sessionId: string): Promise<IGameSession> {
+  return request("POST", `/${sessionId}/briefing-seen`);
+}
+
 export function askQuestion(sessionId: string, questionCode: string): Promise<IAskQuestionResult> {
   return request("POST", `/${sessionId}/ask`, { questionCode });
 }

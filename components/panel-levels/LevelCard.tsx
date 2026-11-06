@@ -13,48 +13,40 @@ type LevelCardProps = {
 // closed: ganó todas las variantes del nivel; completed: ganó alguna pero quedan variantes por jugar
 type CardState = "closed" | "completed" | "available" | "locked";
 
-// Estilo por estado: franja superior, ficha de estado y botón de acción
+// Estilo por estado: franja superior y botón de acción
 const theme: Record<
   CardState,
-  { card: string; stripe: string; badge: string; badgeText: string; cta: string; ctaLabel: string; ctaIcon: string; report: string }
+  { card: string; stripe: string; cta: string; ctaLabel: string; ctaIcon: string; report: string }
 > = {
   closed: {
-    card: "border-emerald-900/70 hover:border-emerald-400/60",
-    stripe: "bg-emerald-500",
-    badge: "bg-emerald-950/85 border-emerald-500/60 text-emerald-300",
-    badgeText: "✓ CERRADO",
-    cta: "border-emerald-500/50 bg-emerald-950/50 text-emerald-300 group-hover:bg-emerald-900/70 group-hover:border-emerald-400",
+    card: "border-emerald-600/60 hover:border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.15)]",
+    stripe: "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]",
+    cta: "border-emerald-500/70 bg-emerald-950/60 text-emerald-300 group-hover:bg-emerald-500 group-hover:text-[#0c1421] group-hover:border-emerald-300 shadow-sm",
     ctaLabel: "REJUGAR",
     ctaIcon: "↻",
     report: "INFORME DEL CASO · ARCHIVADO",
   },
   completed: {
-    card: "border-emerald-900/70 hover:border-emerald-400/60",
-    stripe: "bg-emerald-500/70",
-    badge: "bg-emerald-950/85 border-emerald-500/60 text-emerald-300",
-    badgeText: "✓ RESUELTO",
-    cta: "border-emerald-500/50 bg-emerald-950/50 text-emerald-300 group-hover:bg-emerald-500 group-hover:text-[#0c1421] group-hover:border-emerald-300",
+    card: "border-emerald-600/60 hover:border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.15)]",
+    stripe: "bg-emerald-500/80 shadow-[0_0_10px_rgba(16,185,129,0.4)]",
+    cta: "border-emerald-500/70 bg-emerald-950/60 text-emerald-300 group-hover:bg-emerald-500 group-hover:text-[#0c1421] group-hover:border-emerald-300 shadow-sm",
     ctaLabel: "JUGAR",
     ctaIcon: "▶",
     report: "INFORME DEL CASO",
   },
   available: {
-    card: "border-amber-400/45 shadow-[0_0_0_1px_rgba(245,158,11,0.15),0_0_28px_rgba(245,158,11,0.18)] hover:border-amber-400",
+    card: "border-amber-400/55 shadow-[0_0_0_1px_rgba(245,158,11,0.2),0_0_28px_rgba(245,158,11,0.2)] hover:border-amber-400",
     stripe: "bg-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.7)]",
-    badge: "bg-amber-950/85 border-amber-400/70 text-amber-300 animate-pulse",
-    badgeText: "● DISPONIBLE",
-    cta: "border-amber-400/70 bg-amber-500/15 text-amber-200 shadow-[0_0_14px_rgba(245,158,11,0.2)] group-hover:bg-amber-400 group-hover:text-[#0c1421] group-hover:border-amber-300",
+    cta: "border-amber-400/80 bg-amber-500/20 text-amber-200 shadow-[0_0_14px_rgba(245,158,11,0.25)] group-hover:bg-amber-400 group-hover:text-[#0c1421] group-hover:border-amber-300",
     ctaLabel: "INVESTIGAR",
     ctaIcon: "▶",
     report: "INFORME DEL CASO",
   },
   locked: {
-    card: "border-[#141e2b] bg-[#080d15]",
+    card: "border-[#1a2536] bg-[#080d15]",
     stripe: "bg-[repeating-linear-gradient(45deg,#eab308,#eab308_6px,#111827_6px,#111827_12px)] opacity-60",
-    badge: "bg-slate-950/85 border-slate-700 text-slate-400",
-    badgeText: "BLOQUEADO",
-    cta: "border-slate-800 bg-[#080d15]/70 text-slate-500",
-    ctaLabel: "RESOLVÉ EL NIVEL ANTERIOR",
+    cta: "border-slate-700/80 bg-[#0c1421] text-slate-300 shadow-sm",
+    ctaLabel: "RESOLVE EL NIVEL ANTERIOR",
     ctaIcon: "🔒",
     report: "INFORME CLASIFICADO",
   },
@@ -76,7 +68,6 @@ export default function LevelCard({ preview }: LevelCardProps) {
   const state: CardState = preview.completed ? (allVariantsWon ? "closed" : "completed") : preview.canPlay ? "available" : "locked";
   const style = theme[state];
   const pending = variantsTotal - variantsWon;
-  const badgeText = variantsTotal > 0 && preview.completed ? `${style.badgeText} ${variantsWon}/${variantsTotal}` : style.badgeText;
   const report =
     state === "completed" && pending > 0 ? `${style.report} · ${pending === 1 ? "QUEDA 1 VARIANTE" : `QUEDAN ${pending} VARIANTES`}` : style.report;
   const playable = preview.canPlay && !loadingLevel;
@@ -109,12 +100,11 @@ export default function LevelCard({ preview }: LevelCardProps) {
         group relative flex flex-col h-full rounded-2xl overflow-hidden border-2 outline-none
         bg-[#0c1421] shadow-[0_12px_32px_rgba(0,0,0,0.65)] transition-all duration-200
         focus-visible:ring-2 focus-visible:ring-amber-400/70
-        ${
-          loadingLevel
-            ? "border-amber-400/80 shadow-[0_0_25px_rgba(245,158,11,0.3)] cursor-wait"
-            : preview.canPlay
-              ? `${style.card} hover:-translate-y-1 active:scale-[0.98] hover:shadow-[0_20px_45px_rgba(0,0,0,0.85),0_0_26px_rgba(245,158,11,0.22)] cursor-pointer`
-              : `${style.card} cursor-not-allowed`
+        ${loadingLevel
+          ? "border-amber-400/80 shadow-[0_0_25px_rgba(245,158,11,0.3)] cursor-wait"
+          : preview.canPlay
+            ? `${style.card} hover:shadow-[0_20px_45px_rgba(0,0,0,0.85),0_0_26px_rgba(245,158,11,0.22)] cursor-pointer`
+            : `${style.card} cursor-not-allowed`
         }
       `}
     >
@@ -127,42 +117,33 @@ export default function LevelCard({ preview }: LevelCardProps) {
           src={preview.imageURL}
           alt={title}
           fill
-          className={`object-cover transition-all duration-500 ${
-            state === "locked"
-              ? "grayscale brightness-[0.35] contrast-125"
-              : state === "closed" || state === "completed"
-                ? "saturate-[0.6] group-hover:saturate-100 group-hover:scale-105"
-                : "group-hover:scale-105"
-          }`}
+          className={`object-cover transition-all duration-500 ${state === "locked"
+            ? "grayscale brightness-[0.35] contrast-125"
+            : ""
+            }`}
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
 
-        {/* Degradé para que el título se lea, viñeta y líneas de monitor CRT */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0c1421] via-[#0c1421]/20 to-black/40 pointer-events-none" />
-        <div className="absolute inset-0 shadow-[inset_0_0_60px_rgba(0,0,0,0.75)] pointer-events-none" />
-        <div className="absolute inset-0 opacity-30 mix-blend-multiply pointer-events-none bg-[repeating-linear-gradient(0deg,rgba(0,0,0,0.35)_0px,rgba(0,0,0,0.35)_1px,transparent_1px,transparent_3px)]" />
+        {/* Degradé en la base para nitidez del título inferior sin oscurecer el encabezado */}
+        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#0c1421] via-[#0c1421]/75 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 shadow-[inset_0_0_60px_rgba(0,0,0,0.6)] pointer-events-none" />
+        <div className="absolute inset-0 opacity-20 mix-blend-multiply pointer-events-none bg-[repeating-linear-gradient(0deg,rgba(0,0,0,0.35)_0px,rgba(0,0,0,0.35)_1px,transparent_1px,transparent_3px)]" />
 
         {/* Reflejo que barre la imagen y esquinas de visor al apuntar */}
         {preview.canPlay && (
           <>
             <div className="absolute inset-y-0 -left-1/2 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/15 to-transparent pointer-events-none transition-transform duration-700 group-hover:translate-x-[300%]" />
-            <span className={`${corner} top-2 left-2 border-t-2 border-l-2 rounded-tl group-hover:top-1.5 group-hover:left-1.5`} />
-            <span className={`${corner} top-2 right-2 border-t-2 border-r-2 rounded-tr group-hover:top-1.5 group-hover:right-1.5`} />
-            <span className={`${corner} bottom-2 left-2 border-b-2 border-l-2 rounded-bl group-hover:bottom-1.5 group-hover:left-1.5`} />
-            <span className={`${corner} bottom-2 right-2 border-b-2 border-r-2 rounded-br group-hover:bottom-1.5 group-hover:right-1.5`} />
           </>
         )}
 
-        {/* Estado del nivel */}
-        <span className={`absolute top-3.5 right-3.5 px-2 py-1 rounded-md border font-mono text-[10px] font-bold tracking-widest backdrop-blur-sm ${style.badge}`}>
-          {badgeText}
-        </span>
-
-        {/* Sello de caso cerrado: solo con todas las variantes del nivel ganadas */}
-        {state === "closed" && (
-          <span className="absolute top-[42%] left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-12 px-4 py-2 rounded-md border-4 border-double border-emerald-400/85 font-['Press_Start_2P'] text-[11px] sm:text-xs text-emerald-300/90 tracking-widest bg-black/35 shadow-[0_0_18px_rgba(16,185,129,0.35)] pointer-events-none transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-105">
-            CASO CERRADO
-          </span>
+        {/* Sello de caso resuelto: sello de archivo policial sutil en la esquina superior */}
+        {(state === "closed" || state === "completed") && (
+          <div className="absolute top-3 left-3 z-10 pointer-events-none">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border-2 border-emerald-400/80 bg-[#071610]/95 text-emerald-300 font-mono font-black text-[11px] tracking-wider shadow-[0_4px_12px_rgba(0,0,0,0.6)] backdrop-blur-xs -rotate-2">
+              <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span>{state === "closed" ? "✓ CASO CERRADO" : "✓ RESUELTO"}</span>
+            </span>
+          </div>
         )}
 
         {/* Cinta policial de los niveles bloqueados */}
@@ -183,9 +164,8 @@ export default function LevelCard({ preview }: LevelCardProps) {
 
         {/* Título del caso sobre el degradé */}
         <h3
-          className={`absolute bottom-3 left-3.5 right-3.5 font-mono font-bold text-sm sm:text-base leading-snug tracking-wide uppercase line-clamp-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] transition-colors ${
-            preview.canPlay ? "text-[#f8f3e3] group-hover:text-amber-300" : "text-slate-500"
-          }`}
+          className={`absolute bottom-3 left-3.5 right-3.5 font-mono font-bold text-sm sm:text-base leading-snug tracking-wide uppercase line-clamp-2 drop-shadow-[0_2px_6px_rgba(0,0,0,1)] transition-colors ${preview.canPlay ? "text-[#f8f3e3] group-hover:text-amber-300" : "text-slate-400"
+            }`}
         >
           {title}
         </h3>
@@ -197,7 +177,7 @@ export default function LevelCard({ preview }: LevelCardProps) {
           <span className={`font-mono text-[9px] font-bold tracking-[0.25em] ${preview.canPlay ? "text-amber-400/70" : "text-slate-600"}`}>
             {report}
           </span>
-          <p className={`text-xs leading-relaxed line-clamp-3 ${preview.canPlay ? "text-slate-300" : "text-slate-500 blur-[3px] select-none"}`}>
+          <p className={`text-xs leading-relaxed line-clamp-3 ${preview.canPlay ? "text-slate-200" : "text-slate-400 blur-[2px] select-none"}`}>
             {preview.description}
           </p>
         </div>

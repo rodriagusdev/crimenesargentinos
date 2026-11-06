@@ -14,7 +14,9 @@ export type SfxType =
   | "opencasefile"
   | "arrest"
   | "winning"
-  | "victory";
+  | "victory"
+  | "slide"
+  | "mechanickey";
 
 interface SoundOptions {
   volume?: number;       // 0.0 to 1.0 multiplier for this play instance
@@ -40,9 +42,31 @@ class AudioManager {
   private musicVolume: number = 0.3; // Default 0.3 as requested
   private isMuted: boolean = false;
 
-  // Background Music
+  // Background Music & Soundtrack Playlist
   private musicAudio: HTMLAudioElement | null = null;
   private isMusicDesired: boolean = false;
+  private musicPlaylist: string[] = [
+    "/sounds/songdefault.mp3",
+    "/sounds/songdefault2.mp3",
+    "/sounds/songdefault3.mp3",
+  ];
+  private currentTrackIndex: number = 0;
+
+  // Ambient Soundscape Layer (Rain & Distant Police Dispatch)
+  // Both rain and atmospheric events run on Web Audio API for 100% gapless looping and reliable autoplay
+  private rainSource: AudioBufferSourceNode | null = null;
+  private rainGain: GainNode | null = null;
+  private currentAmbientSource: AudioBufferSourceNode | null = null;
+  private isAmbientDesired: boolean = false;
+  private ambientEventTimer: ReturnType<typeof setTimeout> | null = null;
+  private ambientEventIndex: number = 0;
+  private isRaining: boolean = false;
+  private rainCycleTimer: ReturnType<typeof setTimeout> | null = null;
+  private seamlessRainCache: AudioBuffer | null = null;
+  private readonly ambientEvents: string[] = [
+    "/sounds/radiodistante.ogg",
+    "/sounds/sirenadistante.ogg",
+  ];
 
   private soundUrls: Partial<Record<SfxType, string>> = {
     typewriter: "/sounds/typewriter.ogg",
@@ -55,6 +79,8 @@ class AudioManager {
     arrest: "/sounds/arrest.ogg",
     winning: "/sounds/winning.ogg",
     victory: "/sounds/winning.ogg",
+    slide: "/sounds/slide.ogg",
+    mechanickey: "/sounds/mechanickey.ogg",
   };
 
   constructor() {
@@ -104,6 +130,9 @@ class AudioManager {
       if (this.isMusicDesired && this.musicAudio && this.musicAudio.paused) {
         this.musicAudio.play().catch(() => {});
       }
+      if (this.isAmbientDesired && !this.rainSource) {
+        this.startAmbient();
+      }
       // Schedule audio preloading during idle cycles so it doesn't stutter the first click
       if (typeof window !== "undefined") {
         const scheduleIdle = (window as unknown as { requestIdleCallback?: (cb: () => void) => void }).requestIdleCallback;
@@ -136,6 +165,19 @@ class AudioManager {
     }
 
     this.applyMusicVolume();
+    this.applyAmbientVolume();
+  }
+
+  private applyAmbientVolume(): void {
+    const effectiveMaster = this.isMuted ? 0 : this.masterVolume;
+
+    // Rain loop volume via Web Audio GainNode: smooth ambient room tone when a shower is active
+    if (this.ctx && this.rainGain) {
+      const now = this.ctx.currentTime;
+      const targetGain = this.isRaining ? Math.max(0, Math.min(1, effectiveMaster * 0.28)) : 0;
+      this.rainGain.gain.setValueAtTime(this.rainGain.gain.value, now);
+      this.rainGain.gain.linearRampToValueAtTime(targetGain, now + 0.1);
+    }
   }
 
   private applyMusicVolume(): void {
@@ -175,16 +217,56 @@ class AudioManager {
 
   // --- Background Music / Soundtrack Management ---
 
-  public startMusic(url = "/sounds/songdefault.mp3"): void {
+  public startMusic(playlistOrUrl?: string | string[]): void {
     if (typeof window === "undefined") return;
     this.isMusicDesired = true;
 
+    // If music is already playing, keep going without restarting
+    if (this.musicAudio && !this.musicAudio.paused) {
+      return;
+    }
+
+    if (Array.isArray(playlistOrUrl) && playlistOrUrl.length > 0) {
+      this.musicPlaylist = playlistOrUrl;
+      this.currentTrackIndex = 0; // songdefault is always first
+    } else if (typeof playlistOrUrl === "string") {
+      const foundIdx = this.musicPlaylist.indexOf(playlistOrUrl);
+      this.currentTrackIndex = foundIdx !== -1 ? foundIdx : 0;
+    } else if (!this.musicAudio) {
+      // First startup: songdefault is always the first to play
+      this.currentTrackIndex = 0;
+    }
+
+    this.playCurrentTrack();
+  }
+
+  private playCurrentTrack(): void {
+    if (typeof window === "undefined" || !this.isMusicDesired) return;
+
+    const currentUrl = this.musicPlaylist[this.currentTrackIndex] || "/sounds/songdefault.mp3";
+
     if (!this.musicAudio) {
-      this.musicAudio = new Audio(url);
-      this.musicAudio.loop = true;
+      this.musicAudio = new Audio(currentUrl);
+      this.musicAudio.loop = false; // Alternates tracks via "ended" listener
       this.musicAudio.preload = "auto";
-    } else if (this.musicAudio.src !== window.location.origin + url && !this.musicAudio.src.endsWith(url)) {
-      this.musicAudio.src = url;
+
+      this.musicAudio.addEventListener("ended", () => {
+        this.playNextTrack();
+      });
+
+      this.musicAudio.addEventListener("error", () => {
+        console.warn(`[AudioManager] Error playing track: ${this.musicAudio?.src}, skipping to next`);
+        setTimeout(() => {
+          if (this.isMusicDesired) {
+            this.playNextTrack();
+          }
+        }, 1500);
+      });
+    } else {
+      if (!this.musicAudio.src.endsWith(currentUrl)) {
+        this.musicAudio.src = currentUrl;
+      }
+      this.musicAudio.loop = false;
     }
 
     this.applyMusicVolume();
@@ -195,6 +277,21 @@ class AudioManager {
         // Autoplay policy prevented playback until first user gesture; listener is already attached
       });
     }
+
+    // Preload next track in background for seamless transition
+    if (this.musicPlaylist.length > 1) {
+      const nextIndex = (this.currentTrackIndex + 1) % this.musicPlaylist.length;
+      const nextUrl = this.musicPlaylist[nextIndex];
+      const preloadAudio = new Audio();
+      preloadAudio.src = nextUrl;
+      preloadAudio.preload = "auto";
+    }
+  }
+
+  public playNextTrack(): void {
+    if (this.musicPlaylist.length === 0) return;
+    this.currentTrackIndex = (this.currentTrackIndex + 1) % this.musicPlaylist.length;
+    this.playCurrentTrack();
   }
 
   public stopMusic(): void {
@@ -203,6 +300,8 @@ class AudioManager {
       this.musicAudio.pause();
       this.musicAudio.currentTime = 0;
     }
+    // songdefault is always the first to play when restarted
+    this.currentTrackIndex = 0;
   }
 
   public pauseMusic(): void {
@@ -218,6 +317,341 @@ class AudioManager {
     }
   }
 
+  // --- Ambient Soundscape Management (Rain & Police Dispatch) ---
+
+  public async startAmbient(): Promise<void> {
+    if (typeof window === "undefined") return;
+    this.isAmbientDesired = true;
+
+    const ctx = this.initContext();
+    if (!ctx) return;
+
+    if (!this.rainGain) {
+      this.rainGain = ctx.createGain();
+      this.rainGain.connect(this.masterGain ?? ctx.destination);
+    }
+    this.applyAmbientVolume();
+
+    // 1. Weather cycle: rain arrives in periodic showers with smooth fade-in/fade-out
+    if (!this.isRaining && !this.rainCycleTimer) {
+      this.scheduleNextRainShower(1500); // First rain shower starts gently after 1.5s
+    }
+
+    // 2. Schedule first police event (distant siren / radio after 4s)
+    if (!this.ambientEventTimer && !this.currentAmbientSource) {
+      this.scheduleNextAmbientEvent(4000);
+    }
+  }
+
+  // --- Rain Weather Cycle (Rain showers that come and go, never endless) ---
+
+  private scheduleNextRainShower(delayMs?: number): void {
+    if (!this.isAmbientDesired) return;
+    if (this.rainCycleTimer) {
+      clearTimeout(this.rainCycleTimer);
+      this.rainCycleTimer = null;
+    }
+
+    // Dry window between rain showers: 25 to 50 seconds of calm/dry room atmosphere
+    const delay = delayMs ?? (25000 + Math.random() * 25000);
+
+    this.rainCycleTimer = setTimeout(() => {
+      this.startRainShower();
+    }, delay);
+  }
+
+  private async startRainShower(): Promise<void> {
+    if (!this.isAmbientDesired || this.isRaining) return;
+    const ctx = this.initContext();
+    if (!ctx) return;
+
+    if (!this.rainGain) {
+      this.rainGain = ctx.createGain();
+      this.rainGain.connect(this.masterGain ?? ctx.destination);
+    }
+
+    try {
+      const buffer = await this.getSeamlessRainBuffer("/sounds/raindrops.ogg");
+      if (!buffer || !this.isAmbientDesired) return;
+
+      if (this.rainSource) {
+        try {
+          this.rainSource.stop();
+          this.rainSource.disconnect();
+        } catch {}
+        this.rainSource = null;
+      }
+
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.loop = true;
+      source.connect(this.rainGain);
+
+      // Smooth fade-in over 3.0s so rain arrives organically against the window
+      const now = ctx.currentTime;
+      const effectiveMaster = this.isMuted ? 0 : this.masterVolume;
+      const targetGain = Math.max(0, Math.min(1, effectiveMaster * 0.28));
+
+      this.rainGain.gain.cancelScheduledValues(now);
+      this.rainGain.gain.setValueAtTime(0, now);
+      this.rainGain.gain.linearRampToValueAtTime(targetGain, now + 3.0);
+
+      source.start(0);
+      this.rainSource = source;
+      this.isRaining = true;
+
+      // Rain shower duration: 20 to 35 seconds of rain, then fades away
+      const showerDuration = 20000 + Math.random() * 15000;
+      this.rainCycleTimer = setTimeout(() => {
+        this.stopRainShower();
+      }, showerDuration);
+    } catch (err) {
+      console.warn("[AudioManager] Error starting rain shower", err);
+      this.scheduleNextRainShower(15000);
+    }
+  }
+
+  private stopRainShower(): void {
+    if (!this.isRaining && !this.rainSource) return;
+    this.isRaining = false;
+
+    if (this.rainCycleTimer) {
+      clearTimeout(this.rainCycleTimer);
+      this.rainCycleTimer = null;
+    }
+
+    if (this.ctx && this.rainGain && this.rainSource) {
+      const now = this.ctx.currentTime;
+      // Smooth fade-out over 3.5s so rain gently tapers off into quiet calm
+      this.rainGain.gain.cancelScheduledValues(now);
+      this.rainGain.gain.setValueAtTime(this.rainGain.gain.value, now);
+      this.rainGain.gain.linearRampToValueAtTime(0, now + 3.5);
+
+      const oldSource = this.rainSource;
+      this.rainSource = null;
+
+      setTimeout(() => {
+        try {
+          oldSource.stop();
+          oldSource.disconnect();
+        } catch {}
+      }, 3700);
+    }
+
+    // Schedule next shower after calm window
+    this.scheduleNextRainShower();
+  }
+
+  /**
+   * Genera un buffer de lluvia 100% libre de saltos o pausas mediante equal-power crossfading.
+   * La cola del audio se funde con la cabeza, eliminando cualquier discontinuidad al loopear.
+   */
+  private async getSeamlessRainBuffer(url: string): Promise<AudioBuffer | null> {
+    if (this.seamlessRainCache) return this.seamlessRainCache;
+    const src = await this.loadBuffer(url);
+    if (!src || !this.ctx) return src;
+
+    const numChannels = src.numberOfChannels;
+    const channelData = Array.from({ length: numChannels }, (_, c) => src.getChannelData(c));
+    const len = src.length;
+
+    let start = 0;
+    while (start < len - 1 && channelData.every((d) => Math.abs(d[start]) < 0.0005)) {
+      start++;
+    }
+
+    let end = len;
+    while (end > start + 1 && channelData.every((d) => Math.abs(d[end - 1]) < 0.0005)) {
+      end--;
+    }
+
+    const activeLen = end - start;
+    const crossfadeLen = Math.min(Math.floor(src.sampleRate * 0.5), Math.floor(activeLen * 0.25));
+
+    if (crossfadeLen <= 0 || activeLen <= crossfadeLen * 2) {
+      this.seamlessRainCache = src;
+      return src;
+    }
+
+    const loopLen = activeLen - crossfadeLen;
+    const out = this.ctx.createBuffer(numChannels, loopLen, src.sampleRate);
+
+    for (let c = 0; c < numChannels; c++) {
+      const srcData = channelData[c];
+      const outData = out.getChannelData(c);
+
+      // Funde la cola con el inicio para continuidad matemática perfecta
+      for (let i = 0; i < crossfadeLen; i++) {
+        const t = i / crossfadeLen;
+        const fadeIn = Math.sin(t * Math.PI * 0.5);
+        const fadeOut = Math.cos(t * Math.PI * 0.5);
+
+        const headSample = srcData[start + i];
+        const tailSample = srcData[start + loopLen + i];
+
+        outData[i] = headSample * fadeIn + tailSample * fadeOut;
+      }
+
+      // Cuerpo del audio
+      for (let i = crossfadeLen; i < loopLen; i++) {
+        outData[i] = srcData[start + i];
+      }
+    }
+
+    this.seamlessRainCache = out;
+    return out;
+  }
+
+  // --- Atmospheric Police Dispatch & Distant Sirens ---
+
+  private scheduleNextAmbientEvent(delayMs?: number): void {
+    if (!this.isAmbientDesired) return;
+    if (this.ambientEventTimer) {
+      clearTimeout(this.ambientEventTimer);
+      this.ambientEventTimer = null;
+    }
+
+    // Delay between 14 and 28 seconds between distant atmospheric calls
+    const delay = delayMs ?? (14000 + Math.random() * 14000);
+
+    this.ambientEventTimer = setTimeout(() => {
+      this.playAmbientEvent();
+    }, delay);
+  }
+
+  private async playAmbientEvent(): Promise<void> {
+    if (!this.isAmbientDesired) return;
+    const ctx = this.initContext();
+    if (!ctx) {
+      this.scheduleNextAmbientEvent(4000);
+      return;
+    }
+
+    const eventUrl = this.ambientEvents[this.ambientEventIndex];
+    this.ambientEventIndex = (this.ambientEventIndex + 1) % this.ambientEvents.length;
+
+    try {
+      const buffer = await this.loadBuffer(eventUrl);
+      if (!buffer || !this.isAmbientDesired) {
+        this.scheduleNextAmbientEvent();
+        return;
+      }
+
+      if (this.currentAmbientSource) {
+        try {
+          this.currentAmbientSource.stop();
+          this.currentAmbientSource.disconnect();
+        } catch {}
+        this.currentAmbientSource = null;
+      }
+
+      const isSiren = eventUrl.includes("siren");
+      const effectiveMaster = this.isMuted ? 0 : this.masterVolume;
+      const duration = buffer.duration;
+
+      // Cada evento tiene su propio GainNode para envelopes independientes
+      const eventGain = ctx.createGain();
+      eventGain.connect(this.masterGain ?? ctx.destination);
+
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(eventGain);
+
+      const now = ctx.currentTime;
+
+      if (isSiren) {
+        // Sirena lejana: arranque suave progresivo (fade-in 3.5s) y desvanecimiento (fade-out 3.5s)
+        // Elimina por completo el corte abrupto al inicio
+        const maxSirenGain = Math.max(0, Math.min(1, effectiveMaster * 0.32));
+        const fadeInTime = Math.min(3.5, duration * 0.35);
+        const fadeOutTime = Math.min(3.5, duration * 0.35);
+
+        eventGain.gain.setValueAtTime(0, now);
+        eventGain.gain.linearRampToValueAtTime(maxSirenGain, now + fadeInTime);
+        eventGain.gain.setValueAtTime(maxSirenGain, Math.max(now + fadeInTime, now + duration - fadeOutTime));
+        eventGain.gain.linearRampToValueAtTime(0, now + duration);
+      } else {
+        // Radio policial lejana: ataque suave de 0.4s (sin chasquidos digitales) y cola natural
+        const maxRadioGain = Math.max(0, Math.min(1, effectiveMaster * 0.42));
+        eventGain.gain.setValueAtTime(0, now);
+        eventGain.gain.linearRampToValueAtTime(maxRadioGain, now + 0.4);
+        eventGain.gain.setValueAtTime(maxRadioGain, Math.max(now + 0.4, now + duration - 0.5));
+        eventGain.gain.linearRampToValueAtTime(0, now + duration);
+      }
+
+      source.onended = () => {
+        try {
+          source.disconnect();
+          eventGain.disconnect();
+        } catch {}
+        if (this.currentAmbientSource === source) {
+          this.currentAmbientSource = null;
+        }
+        this.scheduleNextAmbientEvent();
+      };
+
+      source.start(0);
+      this.currentAmbientSource = source;
+    } catch (err) {
+      console.warn("[AudioManager] Error playing ambient event", err);
+      this.scheduleNextAmbientEvent();
+    }
+  }
+
+  public stopAmbient(): void {
+    this.isAmbientDesired = false;
+    this.isRaining = false;
+
+    if (this.rainCycleTimer) {
+      clearTimeout(this.rainCycleTimer);
+      this.rainCycleTimer = null;
+    }
+    if (this.ambientEventTimer) {
+      clearTimeout(this.ambientEventTimer);
+      this.ambientEventTimer = null;
+    }
+    if (this.rainSource) {
+      try {
+        this.rainSource.stop();
+        this.rainSource.disconnect();
+      } catch {}
+      this.rainSource = null;
+    }
+    if (this.currentAmbientSource) {
+      try {
+        this.currentAmbientSource.stop();
+        this.currentAmbientSource.disconnect();
+      } catch {}
+      this.currentAmbientSource = null;
+    }
+  }
+
+  public pauseAmbient(): void {
+    if (this.rainGain && this.ctx) {
+      this.rainGain.gain.setValueAtTime(0, this.ctx.currentTime);
+    }
+    if (this.rainCycleTimer) {
+      clearTimeout(this.rainCycleTimer);
+      this.rainCycleTimer = null;
+    }
+    if (this.ambientEventTimer) {
+      clearTimeout(this.ambientEventTimer);
+      this.ambientEventTimer = null;
+    }
+  }
+
+  public resumeAmbient(): void {
+    if (this.isAmbientDesired) {
+      this.applyAmbientVolume();
+      if (!this.isRaining && !this.rainCycleTimer) {
+        this.scheduleNextRainShower(3000);
+      }
+      if (!this.ambientEventTimer && !this.currentAmbientSource) {
+        this.scheduleNextAmbientEvent(4000);
+      }
+    }
+  }
+
   // --- SFX Management ---
 
   /**
@@ -227,7 +661,11 @@ class AudioManager {
     const ctx = this.initContext();
     if (!ctx) return;
 
-    const urls = Object.values(this.soundUrls).filter(Boolean) as string[];
+    const urls = [
+      ...Object.values(this.soundUrls).filter(Boolean),
+      "/sounds/raindrops.ogg",
+      ...this.ambientEvents,
+    ] as string[];
     for (const url of urls) {
       if (!this.bufferCache.has(url)) {
         await this.loadBuffer(url);
@@ -354,6 +792,14 @@ class AudioManager {
         case "winning":
         case "victory":
           baseVolume = 0.95;
+          break;
+        case "slide":
+          baseVolume = 0.65;
+          source.playbackRate.value = 0.96 + Math.random() * 0.08;
+          break;
+        case "mechanickey":
+          baseVolume = 0.7;
+          source.playbackRate.value = 0.98 + Math.random() * 0.04;
           break;
       }
 

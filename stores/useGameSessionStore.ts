@@ -5,6 +5,7 @@ import {
   GameSessionApiError,
   getSession,
   issueWarrant,
+  markBriefingSeen as markBriefingSeenApi,
   markIntroSeen as markIntroSeenApi,
   playLevel,
   sessionRoute,
@@ -52,6 +53,7 @@ interface GameSessionState {
   travelProvince: (provinceId: string) => Promise<IGameSession>;
   travelLocation: (locationId: string) => Promise<IGameSession>;
   markIntroSeen: (locationId: string) => Promise<IGameSession>;
+  markBriefingSeen: () => Promise<IGameSession | null>;
   askQuestion: (questionCode: string) => Promise<IAskQuestionResult>;
   issueArrestWarrant: (suspectId: string) => Promise<IGameSession>;
   restartLevel: (levelId: number) => Promise<void>;
@@ -183,6 +185,12 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
 
     markIntroSeen: (locationId: string) =>
       act((sessionId) => markIntroSeenApi(sessionId, locationId), (session) => session),
+
+    markBriefingSeen: () => {
+      const session = get().session;
+      if (!session || session.briefingSeen) return Promise.resolve(session);
+      return act((sessionId) => markBriefingSeenApi(sessionId), (session) => session);
+    },
 
     askQuestion: (questionCode: string) =>
       act((sessionId) => askQuestionApi(sessionId, questionCode), (result) => result.state),
