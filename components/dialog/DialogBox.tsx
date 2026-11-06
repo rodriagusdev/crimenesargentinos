@@ -9,6 +9,7 @@ import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { getDialogLog } from "@/services/gameSessionService";
 import { useHintSound } from "@/hooks/useHintSound";
 import CostFeedbackToast from "../Level/CostFeedbackToast";
+import { useAvatarStore } from "@/stores/useAvatarStore";
 
 interface DialogProps {
   dialog: IDialog;
@@ -38,12 +39,16 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
   const sessionId = useGameSessionStore((state) => state.session?.sessionId);
   const askQuestion = useGameSessionStore((state) => state.askQuestion);
 
+  const currentAvatar = useAvatarStore((state) => state.currentAvatar);
+  const initAvatar = useAvatarStore((state) => state.initAvatar);
+
   useEffect(() => {
+    initAvatar();
     return () => {
       if (costTimeoutRef.current) clearTimeout(costTimeoutRef.current);
       if (clueTimeoutRef.current) clearTimeout(clueTimeoutRef.current);
     };
-  }, []);
+  }, [initAvatar]);
 
   // La conversación guardada de esta locación: se retoma donde había quedado
   useEffect(() => {
@@ -183,6 +188,26 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
                 <div className="mt-2 px-2.5 md:px-3 py-1 rounded-xl bg-[rgba(255,243,199,0.06)] backdrop-blur-xs border border-[rgba(255,243,199,0.12)] text-[9px] md:text-[10px] text-[#E1C380]/80 uppercase tracking-widest font-mono">
                   Testigo
                 </div>
+
+                {/* Detective Interrogator Portrait at bottom of sidebar */}
+                <div className="mt-auto pt-4 hidden sm:flex flex-col items-center w-full border-t border-[rgba(255,243,199,0.12)]">
+                  <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden border-2 border-amber-400/50 shadow-[0_12px_30px_rgba(0,0,0,0.7)] bg-black/40 flex items-center justify-center">
+                    {currentAvatar ? (
+                      <Image
+                        src={currentAvatar}
+                        alt="Detective"
+                        fill
+                        sizes="128px"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <span className="text-3xl md:text-4xl text-amber-300/60">👤</span>
+                    )}
+                  </div>
+                  <p className="mt-2 text-center tracking-widest text-[#E1C380] font-semibold uppercase text-xs md:text-sm font-mono">
+                    Detective
+                  </p>
+                </div>
               </div>
 
               {/* Right column: log + questions */}
@@ -205,14 +230,29 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
 
                     if (msg.speaker === "player") {
                       return (
-                        <div key={`intro-${idx}`} className="flex flex-col items-end gap-1">
-                          <span className="text-[8px] tracking-widest text-[#FFF3C7]/50">
-                            Vos
-                          </span>
-                          <div className="bg-[rgba(28,42,58,0.7)] backdrop-blur-xs border border-[rgba(255,243,199,0.22)] shadow-[0_10px_30px_rgba(0,0,0,0.4)] rounded-2xl rounded-tr-none px-4 py-2.5 max-w-[85%]">
-                            <p className="text-[#E1C380]/90 text-xs leading-relaxed">
-                              {msg.text}
-                            </p>
+                        <div key={`intro-${idx}`} className="flex items-start justify-end gap-2.5 sm:gap-3">
+                          <div className="flex flex-col items-end gap-1 max-w-[80%] sm:max-w-[85%]">
+                            <span className="text-[10px] tracking-widest text-[#FFF3C7]/70 font-mono font-semibold">
+                              Vos
+                            </span>
+                            <div className="bg-[rgba(28,42,58,0.7)] backdrop-blur-xs border border-[rgba(255,243,199,0.22)] shadow-[0_10px_30px_rgba(0,0,0,0.4)] rounded-2xl rounded-tr-none px-4 py-2.5">
+                              <p className="text-[#E1C380]/90 text-xs leading-relaxed">
+                                {msg.text}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-xl overflow-hidden border-2 border-amber-400/60 bg-gradient-to-b from-[#1b2536] to-[#0e1724] shadow-md flex items-center justify-center shrink-0 mt-2">
+                            {currentAvatar ? (
+                              <Image
+                                src={currentAvatar}
+                                alt="Vos"
+                                fill
+                                sizes="48px"
+                                className="object-cover"
+                              />
+                            ) : (
+                              <span className="text-xl text-amber-300/70">👤</span>
+                            )}
                           </div>
                         </div>
                       );
@@ -236,14 +276,29 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
                   {log.map((entry, i) => (
                     <div key={i} className="flex flex-col gap-3">
                       {/* Player question — right-aligned */}
-                      <div className="flex flex-col items-end gap-1">
-                        <span className="text-[8px] tracking-widest text-[#FFF3C7]/50 ">
-                          Vos
-                        </span>
-                        <div className="bg-[rgba(28,42,58,0.7)] backdrop-blur-xs border border-[rgba(255,243,199,0.22)] shadow-[0_10px_30px_rgba(0,0,0,0.4)] rounded-2xl rounded-tr-none px-4 py-2.5 max-w-[85%]">
-                          <p className="text-[#E1C380]/90 text-xs leading-relaxed">
-                            {entry.question}
-                          </p>
+                      <div className="flex items-start justify-end gap-2.5 sm:gap-3">
+                        <div className="flex flex-col items-end gap-1 max-w-[80%] sm:max-w-[85%]">
+                          <span className="text-[10px] tracking-widest text-[#FFF3C7]/70 font-mono font-semibold">
+                            Vos
+                          </span>
+                          <div className="bg-[rgba(28,42,58,0.7)] backdrop-blur-xs border border-[rgba(255,243,199,0.22)] shadow-[0_10px_30px_rgba(0,0,0,0.4)] rounded-2xl rounded-tr-none px-4 py-2.5">
+                            <p className="text-[#E1C380]/90 text-xs leading-relaxed">
+                              {entry.question}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-xl overflow-hidden border-2 border-amber-400/60 bg-gradient-to-b from-[#1b2536] to-[#0e1724] shadow-md flex items-center justify-center shrink-0 mt-2">
+                          {currentAvatar ? (
+                            <Image
+                              src={currentAvatar}
+                              alt="Vos"
+                              fill
+                              sizes="48px"
+                              className="object-cover"
+                            />
+                          ) : (
+                            <span className="text-xl text-amber-300/70">👤</span>
+                          )}
                         </div>
                       </div>
                       {/* NPC answer — left-aligned */}
