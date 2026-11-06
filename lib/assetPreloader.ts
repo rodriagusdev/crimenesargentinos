@@ -63,7 +63,7 @@ export async function preloadCasePackage(levelId: number, suspects?: ISuspect[])
   try {
     const promises: Promise<unknown>[] = [
       // 1. National map base
-      preloadImage("/images/test_map.jpg"),
+      preloadImage("/images/maps/level1/Mapa_buenos_aires.jpg"),
       // 2. Core UI icons
       preloadImages([
         "/images/icons/icon_clues.jpg",

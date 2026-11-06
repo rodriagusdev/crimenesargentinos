@@ -14,7 +14,7 @@ export default function Login() {
 			{/* Seamless Looping Video Background */}
 			<SeamlessBackgroundVideo
 				src="/videos/introvid.mp4"
-				poster="/images/backgroundlogin.jpeg"
+				poster="/images/principal_background.webp"
 				fadeDuration={0.8}
 			/>
 

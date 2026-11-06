@@ -587,7 +587,7 @@ export default function RulesBook() {
       {/* Background Seamless Looping Video */}
       <SeamlessBackgroundVideo
         src="/videos/introvid.mp4"
-        poster="/images/backgroundlogin.jpeg"
+        poster="/images/principal_background.webp"
         fadeDuration={0.8}
       />
 

@@ -117,7 +117,7 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
   }, [log]);
 
   const background =
-    dialog.npcCompleteUrl ?? "/images/default-dialog-overlay.jpg";
+    dialog.npcCompleteUrl ?? "/images/slate_board.webp";
 
   return (
     <div className="relative w-screen h-screen flex flex-col bg-[#080e18] select-none overflow-hidden">
