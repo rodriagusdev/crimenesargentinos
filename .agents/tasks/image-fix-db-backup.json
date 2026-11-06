@@ -1,0 +1,254 @@
+﻿[
+    {
+        "table":  "dialogs",
+        "id":  "0f117735-4fc5-4236-94af-f4d75becdddc",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_buenosaires_ezeiza.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_buenosaires_ezeiza.webp"
+    },
+    {
+        "table":  "dialogs",
+        "id":  "12b0ca72-0c12-48df-96f6-58364075ff13",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_buenosaires_kiosco.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_buenosaires_kiosco.webp"
+    },
+    {
+        "table":  "dialogs",
+        "id":  "15b42335-e499-59b8-8d66-062618c6fc07",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_cordoba_plazasanmartin.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_cordoba_plazasanmartin.webp"
+    },
+    {
+        "table":  "dialogs",
+        "id":  "2317532e-6af1-598e-8ac5-6199db4f6b79",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_cordoba_manzanajesuitica.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_cordoba_manzanajesuitica.webp"
+    },
+    {
+        "table":  "dialogs",
+        "id":  "3936b7c3-a3fa-4f9e-b808-9e812931c61d",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_misiones_costanera.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_misiones_costanera.webp"
+    },
+    {
+        "table":  "dialogs",
+        "id":  "458614bf-ec37-4bbe-ad59-67217270ad91",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_misiones_playaselbrete.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_misiones_playaselbrete.webp"
+    },
+    {
+        "table":  "dialogs",
+        "id":  "4bfb4940-50cb-58a3-a7ef-20c59948116b",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_misiones_jardinalbertoroth.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_misiones_jardinalbertoroth.webp"
+    },
+    {
+        "table":  "dialogs",
+        "id":  "4fb83995-a515-5316-b92b-68446ed7a889",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_cordoba_restoguemes.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_cordoba_restoguemes.webp"
+    },
+    {
+        "table":  "dialogs",
+        "id":  "50230880-6543-5536-bfed-935535b4fa75",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_misiones_playaselbrete.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_misiones_playaselbrete.webp"
+    },
+    {
+        "table":  "dialogs",
+        "id":  "5331533f-4def-598d-9494-1e57e8977c9a",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_buenosaires_verduleria.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_buenosaires_verduleria.webp"
+    },
+    {
+        "table":  "dialogs",
+        "id":  "71aab3af-e3ee-4bd8-926a-2bff8632a683",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_misiones_jardinalbertoroth.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_misiones_jardinalbertoroth.webp"
+    },
+    {
+        "table":  "dialogs",
+        "id":  "7490496d-1bf2-574f-8609-66c1c0946f2d",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_misiones_costanera.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_misiones_costanera.webp"
+    },
+    {
+        "table":  "dialogs",
+        "id":  "7bcdbdbb-0116-49dc-a6a8-d086f3803f2e",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_cordoba_plazasanmartin.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_cordoba_plazasanmartin.webp"
+    },
+    {
+        "table":  "dialogs",
+        "id":  "7ca3d299-0360-5e9f-9169-34e61d91e8b7",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_buenosaires_kiosco.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_buenosaires_kiosco.webp"
+    },
+    {
+        "table":  "dialogs",
+        "id":  "7e815e79-9818-5c7d-89d0-eff9f7b46bed",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_misiones_jardinalbertoroth.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_misiones_jardinalbertoroth.webp"
+    },
+    {
+        "table":  "dialogs",
+        "id":  "82f7d045-c83d-53a3-a37a-430299fcdeaa",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_buenosaires_kiosco.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_buenosaires_kiosco.webp"
+    },
+    {
+        "table":  "dialogs",
+        "id":  "8edbf9a0-7171-51fb-8f4b-0e10726360b2",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_cordoba_manzanajesuitica.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_cordoba_manzanajesuitica.webp"
+    },
+    {
+        "table":  "dialogs",
+        "id":  "8f42867a-39cd-5a60-ae2b-ea5e1d9756ae",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_buenosaires_verduleria.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_buenosaires_verduleria.webp"
+    },
+    {
+        "table":  "dialogs",
+        "id":  "a7e44bdf-07f9-59ea-be98-218a508e0edb",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_cordoba_restoguemes.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_cordoba_restoguemes.webp"
+    },
+    {
+        "table":  "dialogs",
+        "id":  "ac178d7b-4106-5e21-aecc-af62803f0412",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_cordoba_plazasanmartin.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_cordoba_plazasanmartin.webp"
+    },
+    {
+        "table":  "dialogs",
+        "id":  "aedad806-6d7f-5006-b130-5ce64708aaaa",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_misiones_playaselbrete.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_misiones_playaselbrete.webp"
+    },
+    {
+        "table":  "dialogs",
+        "id":  "b339f9ac-7c97-5cb8-9ede-4dbff274e635",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_buenosaires_ezeiza.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_buenosaires_ezeiza.webp"
+    },
+    {
+        "table":  "dialogs",
+        "id":  "b6d34f9c-896e-4f13-b9fb-487beaaf2d3f",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_cordoba_manzanajesuitica.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_cordoba_manzanajesuitica.webp"
+    },
+    {
+        "table":  "dialogs",
+        "id":  "bfd79108-3aca-5cc8-a7f9-7351d2b19734",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_buenosaires_ezeiza.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_buenosaires_ezeiza.webp"
+    },
+    {
+        "table":  "dialogs",
+        "id":  "c7310b50-5d99-4c79-b330-75d3f250d7b0",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_cordoba_restoguemes.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_cordoba_restoguemes.webp"
+    },
+    {
+        "table":  "dialogs",
+        "id":  "eba8573f-b0b9-41dd-ae72-79db0c9ecf8a",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_buenosaires_verduleria.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_buenosaires_verduleria.webp"
+    },
+    {
+        "table":  "dialogs",
+        "id":  "fbdbac24-73a5-50c4-befb-61a249b36b1e",
+        "col":  "NpcCompleteUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_misiones_costanera.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_misiones_costanera.webp"
+    },
+    {
+        "table":  "locations",
+        "id":  "0784d236-3297-4c4a-9e31-1e3fbc89ec4a",
+        "col":  "ImageUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_cordoba_restoguemes.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_cordoba_restoguemes.webp"
+    },
+    {
+        "table":  "locations",
+        "id":  "0df17773-27ee-4dc0-8aba-83aeaf28dc7f",
+        "col":  "ImageUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_buenosaires_kiosco.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_buenosaires_kiosco.webp"
+    },
+    {
+        "table":  "locations",
+        "id":  "0e47cf7f-bd34-41a0-a535-995ef01d69d6",
+        "col":  "ImageUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_misiones_costanera.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_misiones_costanera.webp"
+    },
+    {
+        "table":  "locations",
+        "id":  "4bf1089f-4df6-4a8a-9096-30e54cba7c05",
+        "col":  "ImageUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_misiones_jardinalbertoroth.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_misiones_jardinalbertoroth.webp"
+    },
+    {
+        "table":  "locations",
+        "id":  "532fc8d8-1c54-4b6a-9667-03d91e6b100f",
+        "col":  "ImageUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_cordoba_manzanajesuitica.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_cordoba_manzanajesuitica.webp"
+    },
+    {
+        "table":  "locations",
+        "id":  "7ffbce9c-adca-415a-9493-514389fe1d09",
+        "col":  "ImageUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_buenosaires_ezeiza.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_buenosaires_ezeiza.webp"
+    },
+    {
+        "table":  "locations",
+        "id":  "cf7f9e56-6149-4e68-ae5a-2bba9829dfa3",
+        "col":  "ImageUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_buenosaires_verduleria.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_buenosaires_verduleria.webp"
+    },
+    {
+        "table":  "locations",
+        "id":  "e7e724ae-895e-44f3-929d-625fe969ce04",
+        "col":  "ImageUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_misiones_playaselbrete.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_misiones_playaselbrete.webp"
+    },
+    {
+        "table":  "locations",
+        "id":  "f537dc22-dbd2-4011-8dec-92b74f520f8e",
+        "col":  "ImageUrl",
+        "oldValue":  "/images/dialogbackground/level1/dialogo_cordoba_plazasanmartin.jpg",
+        "newValue":  "/images/dialogbackground/level1/dialogo_cordoba_plazasanmartin.webp"
+    }
+]

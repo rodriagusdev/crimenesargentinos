@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ICardLevelPreview } from "@/models/ICardLevelPreview";
 import { getLevels } from "@/services/gameSessionService";
 import { ILevelOverview } from "@/models/IGameSession";
+import { resolveAssetLevel } from "@/lib/caseAssetPaths";
 import LevelsCarousel from "./LevelsCarousel";
 
 // Definición canónica del catálogo de niveles del juego. Se mantiene el listado
@@ -60,6 +61,21 @@ const LEVEL_DEFINITIONS = [
   },
 ];
 
+function getLevelPreviewImageUrl(level: number): string {
+  if (level >= 16 && level <= 18) {
+    const bonusImageByLevel: Record<number, string> = {
+      16: "/images/levelcardspreview/alfajor.webp",
+      17: "/images/levelcardspreview/camiseta86.webp",
+      18: "/images/levelcardspreview/bandoneon.webp",
+    };
+
+    return bonusImageByLevel[level] ?? "/images/levelcardspreview/level_1_preview.jpg";
+  }
+
+  const resolvedLevel = resolveAssetLevel(level);
+  return `/images/levelcardspreview/level_${resolvedLevel}_preview.jpg`;
+}
+
 export default function Levels() {
   const [levels, setLevels] = useState<ICardLevelPreview[]>([]);
   const [loading, setLoading] = useState(true);
@@ -89,7 +105,7 @@ export default function Levels() {
               id: apiLevel.level,
               title: apiLevel.title?.toUpperCase() ?? `NIVEL ${apiLevel.level}`,
               description: apiLevel.description ?? "Caso policial disponible.",
-              imageURL: `/images/levelcardspreview/level_${apiLevel.level}_preview.jpg`,
+              imageURL: getLevelPreviewImageUrl(apiLevel.level),
             })),
         ]
           .filter((def) => def.id >= 1 && def.id <= 5 || def.id >= 16 && def.id <= 18)
