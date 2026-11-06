@@ -14,5 +14,5 @@ New values were derived from the existing calibrated pins (Cordoba 29/45, Mendoz
 
 Localities inside a province (/level/16/<provinceId>) are rendered as polaroid cards with no coordinates, so no positioning issue exists there.
 
-Checks: `npx tsc --noEmit` passes (exit 0).
+Checks: `npx tsc --noEmit` passes (exit 0), re-run in the review iteration.
 Not done: no visual/screenshot check. The API returns 401 without a login session, and I did not run the dev server, so the positions are not confirmed on screen. Please open /level/16 to confirm and nudge values if needed.
