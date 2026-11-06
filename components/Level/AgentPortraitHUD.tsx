@@ -13,7 +13,7 @@ export default function AgentPortraitHUD() {
 
   useEffect(() => {
     setMounted(true);
-    initAvatar();
+    void initAvatar();
   }, [initAvatar]);
 
   if (!mounted) return null;

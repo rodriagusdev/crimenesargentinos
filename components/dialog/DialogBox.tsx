@@ -43,7 +43,7 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
   const initAvatar = useAvatarStore((state) => state.initAvatar);
 
   useEffect(() => {
-    initAvatar();
+    void initAvatar();
     return () => {
       if (costTimeoutRef.current) clearTimeout(costTimeoutRef.current);
       if (clueTimeoutRef.current) clearTimeout(clueTimeoutRef.current);

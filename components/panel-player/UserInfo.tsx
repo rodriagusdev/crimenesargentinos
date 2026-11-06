@@ -30,7 +30,7 @@ export default function UserInfo() {
   });
 
   useEffect(() => {
-    initAvatar();
+    void initAvatar();
 
     // Decodificar JWT para obtener el username
     const token = localStorage.getItem("auth_token");

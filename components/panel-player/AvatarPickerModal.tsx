@@ -25,7 +25,7 @@ export default function AvatarPickerModal({ isOpen, onClose }: AvatarPickerModal
 
   const handleSelect = (src: string | null) => {
     audioManager.play("click");
-    setAvatar(src);
+    void setAvatar(src);
   };
 
   return createPortal(
