@@ -7,6 +7,7 @@ import { AdminApiError, AdminRow, createRow, deleteRow, listRows, updateRow } fr
 import AdminFieldInput, { adminInputClass, ReferenceOption } from "./AdminFieldInput";
 import AdminIcon from "./AdminIcon";
 import AdminImagePreview, { AdminImage } from "./AdminImagePreview";
+import CaseCreateWizard from "./CaseCreateWizard";
 
 interface Props {
   tableKey: string;
@@ -45,6 +46,7 @@ export default function AdminTablePage({ tableKey }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [form, setForm] = useState<FormState | null>(null);
+  const [showCaseWizard, setShowCaseWizard] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
@@ -181,6 +183,13 @@ export default function AdminTablePage({ tableKey }: Props) {
   }, [rows, filter, search, table, display]);
 
   const openCreate = () => {
+    if (table.key === "cases") {
+      setForm(null);
+      setShowCaseWizard(true);
+      setFormError(null);
+      return;
+    }
+
     const values: AdminRow = {};
     table.fields.forEach((f) => (values[f.name] = f.type === "boolean" ? false : null));
     // Si hay un filtro activo, el registro nuevo queda dentro de ese filtro
@@ -444,6 +453,9 @@ export default function AdminTablePage({ tableKey }: Props) {
           </aside>
         </div>
       )}
+
+      {/* ── Wizard multistep para casos ── */}
+      {showCaseWizard && <CaseCreateWizard onClose={async () => { setShowCaseWizard(false); await load(); }} />}
 
       {/* ── Preview de imágenes ── */}
       {preview && <AdminImagePreview title={preview.title} images={preview.images} onClose={() => setPreview(null)} />}

@@ -6,7 +6,9 @@ import { getLevels } from "@/services/gameSessionService";
 import { ILevelOverview } from "@/models/IGameSession";
 import LevelsCarousel from "./LevelsCarousel";
 
-// Definición canónica de los 5 niveles del juego
+// Definición canónica del catálogo de niveles del juego. Se mantiene el listado
+// conocido de casos antiguos y se agregan los nuevos casos 16, 17 y 18 para que
+// la pantalla principal no queden limitada a los primeros 5 IDs.
 const LEVEL_DEFINITIONS = [
   {
     id: 1,
@@ -38,6 +40,24 @@ const LEVEL_DEFINITIONS = [
     description: "El río bajo la luna esconde el escape del audaz robo de diamantes.",
     imageURL: "/images/levelcardspreview/level_5_preview.jpg",
   },
+  {
+    id: 16,
+    title: "EL GRAN ROBO DEL ALFAJOR",
+    description: "Desapareció el camión con la producción de alfajores de toda la temporada.",
+    imageURL: "/images/levelcardspreview/alfajor.webp",
+  },
+  {
+    id: 17,
+    title: "LA CAMISETA DEL 86",
+    description: "La camiseta firmada del Mundial 86 desapareció de una muestra itinerante.",
+    imageURL: "/images/levelcardspreview/camiseta86.webp",
+  },
+  {
+    id: 18,
+    title: "EL BANDONEÓN DE ORO",
+    description: "Le robaron el bandoneón de oro a un tanguero histórico en plena milonga.",
+    imageURL: "/images/levelcardspreview/bandoneon.webp",
+  },
 ];
 
 export default function Levels() {
@@ -52,12 +72,34 @@ export default function Levels() {
       .then((apiLevels: ILevelOverview[]) => {
         if (cancelled) return;
 
-        // Mapear cada nivel según el estado devuelto por el backend
-        const mappedLevels: ICardLevelPreview[] = LEVEL_DEFINITIONS.map((def) => {
+        const definitionsById = new Map(
+          LEVEL_DEFINITIONS.map((def) => [def.id, def] as const)
+        );
+
+        const mergedDefinitions = [
+          ...LEVEL_DEFINITIONS,
+          ...apiLevels
+            .filter(
+              (apiLevel) =>
+                !definitionsById.has(apiLevel.level) &&
+                apiLevel.level >= 16 &&
+                apiLevel.level <= 18
+            )
+            .map((apiLevel) => ({
+              id: apiLevel.level,
+              title: apiLevel.title?.toUpperCase() ?? `NIVEL ${apiLevel.level}`,
+              description: apiLevel.description ?? "Caso policial disponible.",
+              imageURL: `/images/levelcardspreview/level_${apiLevel.level}_preview.jpg`,
+            })),
+        ]
+          .filter((def) => def.id >= 1 && def.id <= 5 || def.id >= 16 && def.id <= 18)
+          .sort((a, b) => a.id - b.id);
+
+        // Mapear cada nivel según el estado devuelto por el backend.
+        const mappedLevels: ICardLevelPreview[] = mergedDefinitions.map((def) => {
           const apiLevel = apiLevels.find((l) => l.level === def.id);
           const isCompleted = apiLevel?.status === "completed";
           const isCurrent = apiLevel?.status === "current";
-          // Nivel 1 siempre es accesible; niveles subsiguientes se habilitan según la API
           const canPlayLevel = def.id === 1 || isCompleted || isCurrent;
 
           return {

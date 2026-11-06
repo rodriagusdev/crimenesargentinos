@@ -99,7 +99,7 @@ export default function LevelCard({ preview }: LevelCardProps) {
       className={`
         group relative flex flex-col h-full rounded-2xl overflow-hidden border-2 outline-none
         bg-[#0c1421] shadow-[0_12px_32px_rgba(0,0,0,0.65)] transition-all duration-200
-        focus-visible:ring-2 focus-visible:ring-amber-400/70
+        focus-visible:ring-2 focus-visible:ring-amber-400/70 scale-[0.96]
         ${loadingLevel
           ? "border-amber-400/80 shadow-[0_0_25px_rgba(245,158,11,0.3)] cursor-wait"
           : preview.canPlay
@@ -172,17 +172,17 @@ export default function LevelCard({ preview }: LevelCardProps) {
       </div>
 
       {/* Informe (clasificado si está bloqueado) y acción */}
-      <div className="flex flex-col gap-3 flex-1 p-3.5 border-t border-[#1c2c3e]/80 bg-gradient-to-b from-[#0e1724] to-[#0c1421]">
-        <div className="flex flex-col gap-1.5 flex-1">
+      <div className="flex flex-col gap-3 flex-1 p-3 border-t border-[#1c2c3e]/80 bg-gradient-to-b from-[#0e1724] to-[#0c1421]">
+        <div className="flex flex-col gap-1 flex-1">
           <span className={`font-mono text-[9px] font-bold tracking-[0.25em] ${preview.canPlay ? "text-amber-400/70" : "text-slate-600"}`}>
             {report}
           </span>
-          <p className={`text-xs leading-relaxed line-clamp-3 ${preview.canPlay ? "text-slate-200" : "text-slate-400 blur-[2px] select-none"}`}>
+          <p className={`text-[11px] leading-relaxed line-clamp-3 ${preview.canPlay ? "text-slate-200" : "text-slate-400 blur-[2px] select-none"}`}>
             {preview.description}
           </p>
         </div>
         <div
-          className={`flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-xl border-2 font-mono font-bold text-xs tracking-widest transition-all duration-200 ${style.cta}`}
+          className={`flex items-center justify-center gap-2 w-full py-2 px-3 rounded-xl border-2 font-mono font-bold text-[10px] tracking-widest transition-all duration-200 ${style.cta}`}
         >
           {state === "available" || state === "completed" ? (
             <>

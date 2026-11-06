@@ -20,10 +20,10 @@ interface CarouselPosition {
 
 // Modo carrusel: solo entre 600px y 1920px de pantalla (el prefijo se repite literal porque Tailwind no arma clases dinámicas)
 const arrowClass =
-  "hidden min-[600px]:max-[1921px]:flex absolute top-1/2 -translate-y-1/2 z-20 size-12 items-center justify-center rounded-lg " +
-  "border-2 border-amber-400/70 bg-[#0c1421]/95 text-amber-300 font-['Press_Start_2P'] text-xs cursor-pointer " +
+  "absolute top-1/2 -translate-y-1/2 z-20 size-11 items-center justify-center rounded-full " +
+  "border border-amber-300/80 bg-[#0d1724]/95 text-amber-200 text-lg font-bold cursor-pointer " +
   "shadow-[0_10px_28px_rgba(0,0,0,0.75)] transition-all duration-200 " +
-  "hover:bg-amber-400 hover:text-[#0c1421] hover:shadow-[0_0_22px_rgba(245,158,11,0.55)] active:scale-95 " +
+  "hover:bg-amber-300 hover:text-[#0d1724] hover:shadow-[0_0_20px_rgba(245,158,11,0.5)] active:scale-95 " +
   "disabled:opacity-0 disabled:pointer-events-none";
 
 const fadeClass = "hidden min-[600px]:max-[1921px]:block pointer-events-none absolute top-0 bottom-0 w-12 z-10 transition-opacity duration-300";
@@ -39,6 +39,8 @@ function dotState(level: ICardLevelPreview): CarouselDotState {
 // Excepción a la regla de overflow-x: un carrusel horizontal lo necesita; la barra está oculta y p-3.5 deja lugar al hover.
 export default function LevelsCarousel({ levels }: Props) {
   const trackRef = useRef<HTMLDivElement>(null);
+  const isCarousel = true;
+
   const initialIndex = useMemo(() => {
     const idx = levels.findIndex((l) => l.canPlay && !l.completed);
     return idx >= 0 ? idx : 0;
@@ -129,18 +131,16 @@ export default function LevelsCarousel({ levels }: Props) {
   return (
     <div className="@container relative">
       <div className="relative">
-        {/* Bordes difuminados: avisan que hay más niveles hacia ese lado */}
         <div className={`${fadeClass} left-0 bg-gradient-to-r from-[#080e18] to-transparent ${atStart ? "opacity-0" : "opacity-100"}`} />
         <div className={`${fadeClass} right-0 bg-gradient-to-l from-[#080e18] to-transparent ${atEnd ? "opacity-0" : "opacity-100"}`} />
 
-        <button type="button" className={`${arrowClass} -left-4`} onClick={() => page(-1)} disabled={atStart} aria-label="Niveles anteriores">
-          ◀
+        <button type="button" className={`${arrowClass} -left-5`} onClick={() => page(-1)} disabled={atStart} aria-label="Niveles anteriores">
+          ‹
         </button>
-        <button type="button" className={`${arrowClass} -right-4`} onClick={() => page(1)} disabled={atEnd} aria-label="Niveles siguientes">
-          ▶
+        <button type="button" className={`${arrowClass} -right-5`} onClick={() => page(1)} disabled={atEnd} aria-label="Niveles siguientes">
+          ›
         </button>
 
-        {/* Grilla en celular y pantallas muy anchas; carrusel con scroll snap entre 600px y 1920px */}
         <div
           ref={trackRef}
           onScroll={updatePosition}
@@ -149,26 +149,15 @@ export default function LevelsCarousel({ levels }: Props) {
           role="region"
           aria-roledescription="carrusel"
           aria-label="Niveles de investigación"
-          className="
-            grid gap-6 grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 outline-none rounded-2xl
-            min-[600px]:max-[1921px]:flex min-[600px]:max-[1921px]:overflow-x-auto min-[600px]:max-[1921px]:overflow-y-hidden
-            min-[600px]:max-[1921px]:snap-x min-[600px]:max-[1921px]:snap-mandatory min-[600px]:max-[1921px]:scroll-smooth
-            min-[600px]:max-[1921px]:p-3.5 min-[600px]:max-[1921px]:scroll-px-3.5
-            [scrollbar-width:none] [&::-webkit-scrollbar]:hidden
-            focus-visible:ring-2 focus-visible:ring-amber-400/50
-          "
+          className="flex gap-6 overflow-x-auto overflow-y-hidden snap-x snap-mandatory scroll-smooth p-3.5 scroll-px-3.5 outline-none rounded-2xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden focus-visible:ring-2 focus-visible:ring-amber-400/50"
         >
           {levels.map((level, i) => (
             <div
               key={level.id}
-              className={`
-                min-w-0 transition-all duration-300
-                min-[600px]:max-[1921px]:shrink-0 min-[600px]:max-[1921px]:snap-start
-                min-[600px]:max-[1921px]:basis-[85%]
-                @2xl:min-[600px]:max-[1921px]:basis-[calc(50%-12px)]
-                @5xl:min-[600px]:max-[1921px]:basis-[calc(33.333%-16px)]
-                ${visible.includes(i) ? "" : "min-[600px]:max-[1921px]:brightness-75 min-[600px]:max-[1921px]:scale-[0.98]"}
-              `}
+              className={
+                "min-w-0 shrink-0 snap-start basis-[300px] max-w-[300px] transition-all duration-300" +
+                (visible.includes(i) ? "" : " brightness-75 scale-[0.98]")
+              }
             >
               <LevelCard preview={level} />
             </div>
@@ -176,8 +165,7 @@ export default function LevelsCarousel({ levels }: Props) {
         </div>
       </div>
 
-      {/* Paginador: una ficha por nivel, marca cuál está activo/clicado actualmente y permite saltar */}
-      <nav aria-label="Niveles" className="hidden min-[600px]:max-[1921px]:flex items-center justify-center mt-4">
+      <nav aria-label="Niveles" className="flex items-center justify-center mt-4">
         <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-[#0c1421] border-2 border-[#1c2c3e] shadow-[0_12px_32px_rgba(0,0,0,0.85)]">
           {levels.map((level, i) => (
             <CarouselDot key={level.id} number={level.id} state={dotState(level)} active={active === i} onClick={() => jump(i)} />
