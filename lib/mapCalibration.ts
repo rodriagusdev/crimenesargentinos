@@ -50,9 +50,9 @@ const PROVINCE_COORDINATES_BY_NAME: Record<string, IProvinceCoordinates> = {
   "entre rios":        { top: "35%", left: "58%" },
 
   // Caso 16
-  "san juan":          { top: "28%", left: "36%" },
-  "san luis":          { top: "35%", left: "41%" },
-  "la pampa":          { top: "44%", left: "42%" },
+  "san juan":          { top: "27%", left: "39%" },
+  "san luis":          { top: "36%", left: "44%" },
+  "la pampa":          { top: "46%", left: "46%" },
 };
 
 // Coordenadas calibradas por ID (GUID) de la base de datos
@@ -83,9 +83,9 @@ const PROVINCE_COORDINATES_BY_ID: Record<string, IProvinceCoordinates> = {
   "279af790-afcb-4db0-96ca-442ac67f786f": { top: "27%", left: "49%" }, // Santa Fe
 
   // Caso 16
-  "ac889e85-0343-561d-8ee0-9909f8bd2df7": { top: "28%", left: "36%" }, // San Juan
-  "6b4f1a9e-0d65-5a62-916b-2c57ad5adb8c": { top: "35%", left: "41%" }, // San Luis
-  "b99237a6-e55e-54fe-93bf-06e2d8fcde96": { top: "44%", left: "42%" }, // La Pampa
+  "ac889e85-0343-561d-8ee0-9909f8bd2df7": { top: "27%", left: "39%" }, // San Juan
+  "6b4f1a9e-0d65-5a62-916b-2c57ad5adb8c": { top: "36%", left: "44%" }, // San Luis
+  "b99237a6-e55e-54fe-93bf-06e2d8fcde96": { top: "46%", left: "46%" }, // La Pampa
 };
 
 /**
