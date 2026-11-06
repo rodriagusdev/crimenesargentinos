@@ -1,8 +1,12 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import InfoItem from "./UserInfoItem";
 import { getPlayerStats } from "@/services/gameSessionService";
+import { useAvatarStore } from "@/stores/useAvatarStore";
+import { audioManager } from "@/lib/audioManager";
+import AvatarPickerModal from "./AvatarPickerModal";
 
 interface UserData {
   username: string;
@@ -13,6 +17,10 @@ interface UserData {
 }
 
 export default function UserInfo() {
+  const currentAvatar = useAvatarStore((state) => state.currentAvatar);
+  const initAvatar = useAvatarStore((state) => state.initAvatar);
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+
   const [user, setUser] = useState<UserData>({
     username: "Cargando...",
     level: 0,
@@ -22,6 +30,8 @@ export default function UserInfo() {
   });
 
   useEffect(() => {
+    initAvatar();
+
     // Decodificar JWT para obtener el username
     const token = localStorage.getItem("auth_token");
     if (token) {
@@ -83,24 +93,69 @@ export default function UserInfo() {
       </div>
 
       {/* 2. Cuerpo de perfil y avatar */}
-      <div className="p-5 flex flex-col items-center justify-center bg-[#0c1421]">
-        <div className="relative mb-3 w-20 h-20 rounded-2xl flex items-center justify-center bg-gradient-to-b from-[#1b2536] to-[#0e1724] border-2 border-amber-400/50 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
-          <span className="font-mono font-black text-2xl text-amber-300 tracking-wider">
-            {user.username
-              .split(" ")
-              .map((word) => word.charAt(0).toUpperCase())
-              .join("")
-              .slice(0, 2) || "AG"}
-          </span>
-          <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#0c1421] border border-amber-400/60 flex items-center justify-center text-[10px] shadow-sm select-none">
+      <div className="p-4 sm:p-5 flex flex-col items-center justify-center bg-[#0c1421]">
+        {/* Foto de perfil del detective: tamaño equilibrado (~175px / w-44 h-44) */}
+        <div
+          onClick={() => {
+            audioManager.play("click");
+            setIsPickerOpen(true);
+          }}
+          className="group/avatar relative mb-3 w-44 h-44 rounded-2xl overflow-hidden flex flex-col items-center justify-center bg-gradient-to-b from-[#1b2536] to-[#0e1724] border-2 border-amber-400/50 hover:border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:shadow-[0_0_30px_rgba(245,158,11,0.35)] transition-all duration-200 cursor-pointer"
+          title="Cambiar fotografía del detective"
+        >
+          {currentAvatar ? (
+            <Image
+              src={currentAvatar}
+              alt="Avatar del detective"
+              fill
+              sizes="176px"
+              priority
+              className="object-cover rounded-2xl transition-transform duration-200 group-hover/avatar:scale-105"
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center text-slate-500 group-hover/avatar:text-amber-300 transition-colors">
+              <svg className="w-20 h-20 opacity-75" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+              </svg>
+              <span className="font-mono text-[9px] tracking-widest uppercase mt-1.5 opacity-80 text-amber-300/80 font-bold">
+                SIN FOTO
+              </span>
+            </div>
+          )}
+
+          <div className="absolute bottom-2 right-2 w-7 h-7 rounded-full bg-[#0c1421] border border-amber-400/70 flex items-center justify-center text-xs shadow-md select-none z-20">
             ⭐
           </div>
         </div>
+
+        {/* Botón CAMBIAR ubicado abajo de la tarjeta de foto */}
+        <button
+          type="button"
+          onClick={() => {
+            audioManager.play("click");
+            setIsPickerOpen(true);
+          }}
+          className="
+            mb-3 w-44 py-2 px-4 rounded-xl border border-amber-400/60 bg-[#0e1724]
+            hover:border-amber-400 hover:bg-amber-400/15 hover:text-amber-200
+            text-amber-400 font-mono text-xs font-bold tracking-widest uppercase
+            shadow-sm hover:shadow-[0_0_14px_rgba(245,158,11,0.3)]
+            transition-all duration-150 cursor-pointer flex items-center justify-center gap-2
+          "
+        >
+          <span>📸</span>
+          <span>CAMBIAR</span>
+        </button>
 
         <h3 className="font-mono font-bold text-sm sm:text-base tracking-wider uppercase text-[#f1f5f9] text-center truncate max-w-full">
           {user.username}
         </h3>
       </div>
+
+      <AvatarPickerModal
+        isOpen={isPickerOpen}
+        onClose={() => setIsPickerOpen(false)}
+      />
 
       {/* 3. Estadísticas del jugador */}
       <div className="p-3 bg-[#080d15]/60 border-t border-[#1c2c3e]/80">
