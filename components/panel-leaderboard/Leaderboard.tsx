@@ -108,7 +108,7 @@ export default function Leaderboard() {
                   <span className="font-mono font-black text-xs sm:text-sm tracking-wider text-amber-300 drop-shadow-[0_0_6px_rgba(245,158,11,0.2)]">
                     {user.points.toLocaleString()}
                   </span>
-                  <span className="font-mono text-[9px] font-bold text-slate-400">
+                  <span className="font-mono text-[10px] sm:text-[9px] font-bold text-slate-400">
                     PTS
                   </span>
                 </div>

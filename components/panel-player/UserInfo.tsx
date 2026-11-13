@@ -100,7 +100,7 @@ export default function UserInfo() {
             audioManager.play("click");
             setIsPickerOpen(true);
           }}
-          className="group/avatar relative mb-3 w-44 h-44 rounded-2xl overflow-hidden flex flex-col items-center justify-center bg-gradient-to-b from-[#1b2536] to-[#0e1724] border-2 border-amber-400/50 hover:border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:shadow-[0_0_30px_rgba(245,158,11,0.35)] transition-all duration-200 cursor-pointer"
+          className="group/avatar relative mb-3 w-36 h-36 sm:w-44 sm:h-44 rounded-2xl overflow-hidden flex flex-col items-center justify-center bg-gradient-to-b from-[#1b2536] to-[#0e1724] border-2 border-amber-400/50 hover:border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:shadow-[0_0_30px_rgba(245,158,11,0.35)] transition-all duration-200 cursor-pointer"
           title="Cambiar fotografía del detective"
         >
           {currentAvatar ? (
@@ -117,7 +117,7 @@ export default function UserInfo() {
               <svg className="w-20 h-20 opacity-75" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
               </svg>
-              <span className="font-mono text-[9px] tracking-widest uppercase mt-1.5 opacity-80 text-amber-300/80 font-bold">
+              <span className="font-mono text-[10px] sm:text-[9px] tracking-widest uppercase mt-1.5 opacity-80 text-amber-300/80 font-bold">
                 SIN FOTO
               </span>
             </div>
@@ -136,7 +136,7 @@ export default function UserInfo() {
             setIsPickerOpen(true);
           }}
           className="
-            mb-3 w-44 py-2 px-4 rounded-xl border border-amber-400/60 bg-[#0e1724]
+            mb-3 w-36 sm:w-44 py-2.5 sm:py-2 px-4 rounded-xl border border-amber-400/60 bg-[#0e1724]
             hover:border-amber-400 hover:bg-amber-400/15 hover:text-amber-200
             text-amber-400 font-mono text-xs font-bold tracking-widest uppercase
             shadow-sm hover:shadow-[0_0_14px_rgba(245,158,11,0.3)]

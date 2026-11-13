@@ -174,7 +174,7 @@ export default function LevelCard({ preview }: LevelCardProps) {
       {/* Informe (clasificado si está bloqueado) y acción */}
       <div className="flex flex-col gap-3 flex-1 p-3 border-t border-[#1c2c3e]/80 bg-gradient-to-b from-[#0e1724] to-[#0c1421]">
         <div className="flex flex-col gap-1 flex-1">
-          <span className={`font-mono text-[9px] font-bold tracking-[0.25em] ${preview.canPlay ? "text-amber-400/70" : "text-slate-600"}`}>
+          <span className={`font-mono text-[10px] sm:text-[9px] font-bold tracking-[0.2em] sm:tracking-[0.25em] ${preview.canPlay ? "text-amber-400/70" : "text-slate-600"}`}>
             {report}
           </span>
           <p className={`text-[11px] leading-relaxed line-clamp-3 ${preview.canPlay ? "text-slate-200" : "text-slate-400 blur-[2px] select-none"}`}>

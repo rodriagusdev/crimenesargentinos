@@ -31,7 +31,7 @@ export default function GlobalAudioControl() {
       {/* Floating Audio Gadget */}
       <div
         className={`
-          fixed bottom-4 ${isAdmin ? "right-4" : "left-4"} z-20
+          fixed bottom-[max(1rem,env(safe-area-inset-bottom))] ${isAdmin ? "right-4" : "left-4"} z-20
           flex items-center gap-1 p-1 rounded-2xl
           bg-[rgba(12,19,31,0.85)] hover:bg-[rgba(16,25,40,0.95)]
           border border-[rgba(255,243,199,0.2)] hover:border-[#E1C380]

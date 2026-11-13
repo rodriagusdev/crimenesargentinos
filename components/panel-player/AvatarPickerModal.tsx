@@ -39,18 +39,19 @@ export default function AvatarPickerModal({ isOpen, onClose }: AvatarPickerModal
       <div
         className="
           relative w-full max-w-2xl
-          p-6 sm:p-8 rounded-2xl
+          max-h-[90svh] overflow-y-auto overflow-x-hidden
+          p-4 sm:p-8 rounded-2xl
           backdrop-blur-xs bg-[#0c1421]
           border-2 border-[#1c2c3e]
           shadow-[0_20px_60px_rgba(0,0,0,0.85),0_0_35px_rgba(245,158,11,0.2)]
           text-[#FFF3C7]
-          flex flex-col gap-6
+          flex flex-col gap-4 sm:gap-6
           cursor-default
         "
         onClick={(e) => e.stopPropagation()}
       >
         {/* Encabezado táctico */}
-        <div className="flex items-center justify-between border-b border-[#1c2c3e]/90 pb-4">
+        <div className="flex items-center justify-between gap-2 border-b border-[#1c2c3e]/90 pb-4">
           <div className="flex items-center gap-3">
             <span className="text-2xl">📸</span>
             <div>
@@ -66,7 +67,7 @@ export default function AvatarPickerModal({ isOpen, onClose }: AvatarPickerModal
           <button
             type="button"
             onClick={onClose}
-            className="size-8 rounded-lg border border-[#1c2c3e] bg-[#0e1724] hover:border-amber-400/60 text-slate-400 hover:text-amber-300 font-mono text-sm flex items-center justify-center transition-all cursor-pointer"
+            className="size-9 sm:size-8 shrink-0 rounded-lg border border-[#1c2c3e] bg-[#0e1724] hover:border-amber-400/60 text-slate-400 hover:text-amber-300 font-mono text-sm flex items-center justify-center transition-all cursor-pointer"
             aria-label="Cerrar selección de avatar"
           >
             ✕
@@ -74,7 +75,7 @@ export default function AvatarPickerModal({ isOpen, onClose }: AvatarPickerModal
         </div>
 
         {/* Lista de Avatares Grandes */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 justify-items-center">
+        <div className="grid grid-cols-2 gap-3 sm:gap-6 justify-items-center">
           {AVAILABLE_AVATARS.map((avatar) => {
             const isSelected = currentAvatar === avatar.src;
             return (
@@ -85,7 +86,7 @@ export default function AvatarPickerModal({ isOpen, onClose }: AvatarPickerModal
                 disabled={saving}
                 className={`
                   disabled:cursor-wait disabled:opacity-70
-                  group relative flex flex-col items-center gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all duration-200 w-full max-w-[270px]
+                  group relative flex flex-col items-center gap-2 sm:gap-4 p-2.5 sm:p-5 rounded-2xl border-2 cursor-pointer transition-all duration-200 w-full max-w-[270px]
                   ${
                     isSelected
                       ? "border-amber-400 bg-amber-400/10 shadow-[0_0_25px_rgba(245,158,11,0.4)] ring-2 ring-amber-400/50 scale-[1.02]"
@@ -99,7 +100,7 @@ export default function AvatarPickerModal({ isOpen, onClose }: AvatarPickerModal
                     src={avatar.src}
                     alt={avatar.name}
                     fill
-                    sizes="(max-width: 640px) 240px, 260px"
+                    sizes="(max-width: 640px) 180px, 260px"
                     priority
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
                   />
@@ -108,13 +109,13 @@ export default function AvatarPickerModal({ isOpen, onClose }: AvatarPickerModal
                 <div className="flex flex-col items-center gap-1">
                   <span
                     className={`
-                      font-mono text-sm tracking-wider uppercase font-bold
+                      font-mono text-xs sm:text-sm tracking-wider uppercase font-bold
                       ${isSelected ? "text-amber-300" : "text-slate-200 group-hover:text-amber-200"}
                     `}
                   >
                     {avatar.name}
                   </span>
-                  <span className="text-[10px] font-mono tracking-widest text-[#E1C380]/60 uppercase">
+                  <span className="text-[10px] font-mono tracking-wider sm:tracking-widest text-center text-[#E1C380]/60 uppercase">
                     {isSelected ? "ACTUALMENTE ASIGNADO" : "CLIC PARA SELECCIONAR"}
                   </span>
                 </div>
@@ -135,7 +136,7 @@ export default function AvatarPickerModal({ isOpen, onClose }: AvatarPickerModal
               type="button"
               onClick={() => handleSelect(null)}
               disabled={saving}
-              className="disabled:cursor-waittext-xs font-mono text-slate-400 hover:text-red-300 underline underline-offset-4 transition-colors cursor-pointer"
+              className="disabled:cursor-wait text-xs font-mono text-slate-400 hover:text-red-300 underline underline-offset-4 transition-colors cursor-pointer"
             >
               Restablecer a sin foto
             </button>

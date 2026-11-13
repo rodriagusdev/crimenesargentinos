@@ -90,7 +90,7 @@ export default function LoginForm({ onRegisterClick }: LoginFormProps) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           disabled={loading}
-          className="px-4 py-3 rounded-2xl text-sm"
+          className="px-4 py-3 rounded-2xl text-base sm:text-sm"
           style={{
             background: "rgba(255, 243, 199, 0.85)",
             border: "1px solid #5D584D",
@@ -117,7 +117,7 @@ export default function LoginForm({ onRegisterClick }: LoginFormProps) {
             onChange={(e) => setPassword(e.target.value)}
             disabled={loading}
             autoComplete="current-password"
-            className="w-full pl-4 pr-12 py-3 rounded-2xl text-sm"
+            className="w-full pl-4 pr-12 py-3 rounded-2xl text-base sm:text-sm"
             style={{
               background: "rgba(255, 243, 199, 0.85)",
               border: "1px solid #5D584D",

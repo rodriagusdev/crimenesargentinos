@@ -185,7 +185,7 @@ export default function Levels() {
 
       {/* 2. Cabecera táctica retro */}
       <div className="mb-6 text-center">
-        <h2 className="font-['Press_Start_2P'] text-[#E1C380] text-sm sm:text-base tracking-widest drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+        <h2 className="font-['Press_Start_2P'] text-[#E1C380] text-[11px] sm:text-base tracking-widest drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
           NIVELES DE INVESTIGACION
         </h2>
       </div>

@@ -19,9 +19,10 @@ interface CarouselPosition {
 }
 
 // Modo carrusel: solo entre 600px y 1920px de pantalla (el prefijo se repite literal porque Tailwind no arma clases dinámicas)
+// En celular las flechas van adentro y más chicas (no se salen de la pantalla); desde sm, afuera del track
 const arrowClass =
-  "absolute top-1/2 -translate-y-1/2 z-20 size-11 items-center justify-center rounded-full " +
-  "border border-amber-300/80 bg-[#0d1724]/95 text-amber-200 text-lg font-bold cursor-pointer " +
+  "absolute top-1/2 -translate-y-1/2 z-20 flex size-9 sm:size-11 items-center justify-center rounded-full " +
+  "border border-amber-300/80 bg-[#0d1724]/95 text-amber-200 text-base sm:text-lg font-bold cursor-pointer " +
   "shadow-[0_10px_28px_rgba(0,0,0,0.75)] transition-all duration-200 " +
   "hover:bg-amber-300 hover:text-[#0d1724] hover:shadow-[0_0_20px_rgba(245,158,11,0.5)] active:scale-95 " +
   "disabled:opacity-0 disabled:pointer-events-none";
@@ -134,10 +135,10 @@ export default function LevelsCarousel({ levels }: Props) {
         <div className={`${fadeClass} left-0 bg-gradient-to-r from-[#080e18] to-transparent ${atStart ? "opacity-0" : "opacity-100"}`} />
         <div className={`${fadeClass} right-0 bg-gradient-to-l from-[#080e18] to-transparent ${atEnd ? "opacity-0" : "opacity-100"}`} />
 
-        <button type="button" className={`${arrowClass} -left-5`} onClick={() => page(-1)} disabled={atStart} aria-label="Niveles anteriores">
+        <button type="button" className={`${arrowClass} left-1 sm:-left-5`} onClick={() => page(-1)} disabled={atStart} aria-label="Niveles anteriores">
           ‹
         </button>
-        <button type="button" className={`${arrowClass} -right-5`} onClick={() => page(1)} disabled={atEnd} aria-label="Niveles siguientes">
+        <button type="button" className={`${arrowClass} right-1 sm:-right-5`} onClick={() => page(1)} disabled={atEnd} aria-label="Niveles siguientes">
           ›
         </button>
 
@@ -149,13 +150,13 @@ export default function LevelsCarousel({ levels }: Props) {
           role="region"
           aria-roledescription="carrusel"
           aria-label="Niveles de investigación"
-          className="flex gap-6 overflow-x-auto overflow-y-hidden snap-x snap-mandatory scroll-smooth p-3.5 scroll-px-3.5 outline-none rounded-2xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden focus-visible:ring-2 focus-visible:ring-amber-400/50"
+          className="flex gap-4 sm:gap-6 overflow-x-auto overflow-y-hidden snap-x snap-mandatory scroll-smooth p-3.5 scroll-px-3.5 outline-none rounded-2xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden focus-visible:ring-2 focus-visible:ring-amber-400/50"
         >
           {levels.map((level, i) => (
             <div
               key={level.id}
               className={
-                "min-w-0 shrink-0 snap-start basis-[300px] max-w-[300px] transition-all duration-300" +
+                "min-w-0 shrink-0 snap-start basis-[min(300px,82cqw)] max-w-[300px] transition-all duration-300" +
                 (visible.includes(i) ? "" : " brightness-75 scale-[0.98]")
               }
             >
@@ -165,8 +166,8 @@ export default function LevelsCarousel({ levels }: Props) {
         </div>
       </div>
 
-      <nav aria-label="Niveles" className="flex items-center justify-center mt-4">
-        <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-[#0c1421] border-2 border-[#1c2c3e] shadow-[0_12px_32px_rgba(0,0,0,0.85)]">
+      <nav aria-label="Niveles" className="flex justify-center mt-4">
+        <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 p-1.5 sm:p-2 max-w-full rounded-2xl bg-[#0c1421] border-2 border-[#1c2c3e] shadow-[0_12px_32px_rgba(0,0,0,0.85)]">
           {levels.map((level, i) => (
             <CarouselDot key={level.id} number={level.id} state={dotState(level)} active={active === i} onClick={() => jump(i)} />
           ))}

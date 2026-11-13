@@ -106,6 +106,11 @@ let pendingInit: { levelId: number; promise: Promise<IGameSession> } | null = nu
 export const useGameSessionStore = create<GameSessionState>()((set, get) => {
   const applySession = (session: IGameSession) => set(fromSession(session));
 
+  // Las marcas del tablero son de una partida: si llega otra (reinicio, caso nuevo) se borran
+  const resetBoardIfNewSession = (next: IGameSession) => {
+    if (get().session?.sessionId !== next.sessionId) useInvestigationBoardStore.getState().resetBoard();
+  };
+
   // Ejecuta una acción sobre la partida y guarda el estado que devuelve el servidor
   const act = async <T>(call: (sessionId: string) => Promise<T>, stateOf: (result: T) => IGameSession): Promise<T> => {
     const { session } = get();
@@ -140,6 +145,7 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
       // La partida va primero: si falla (401, 403) ese es el error que se reporta
       const promise = Promise.all([startOrResumeSession(levelId), getGameData(levelId)])
         .then(([newSession, gameData]) => {
+          resetBoardIfNewSession(newSession);
           set({
             ...fromSession(newSession),
             costs: gameData.costs,
@@ -204,6 +210,7 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
       const gameData = await getGameData(newSession.caseId);
 
       pendingInit = null;
+      resetBoardIfNewSession(newSession);
       set({
         ...fromSession(newSession),
         costs: gameData.costs,

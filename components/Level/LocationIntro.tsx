@@ -24,7 +24,7 @@ export default function LocationIntro({
   );
 
   return (
-    <div className="relative w-screen h-screen flex flex-col justify-between overflow-hidden bg-[#080e18] select-none">
+    <div className="relative w-screen h-dvh flex flex-col justify-between overflow-hidden bg-[#080e18] select-none">
       {/* ── Background full-screen image ── */}
       <div className="absolute inset-0 z-0">
         <Image
@@ -45,8 +45,8 @@ export default function LocationIntro({
       </div>
 
       {/* ── Top Bar: GameButtons (Top Left) ── */}
-      <div className="relative z-20 p-6 flex items-center justify-between flex-row-reverse">
-        <div className="flex items-center gap-2">
+      <div className="relative z-20 px-4 pb-4 pt-24 md:p-6 flex items-center justify-between flex-row-reverse">
+        <div className="flex flex-wrap items-center justify-end gap-2">
           {onBack && (
 
             <GameButton
@@ -68,10 +68,10 @@ export default function LocationIntro({
       </div>
 
       {/* ── Bottom Description Card ── */}
-      <div className="relative z-10 p-6 md:p-8 w-full">
+      <div className="relative z-10 p-4 sm:p-6 md:p-8 w-full">
         <div
           className="
-            p-6 rounded-2xl
+            p-4 sm:p-6 rounded-2xl
             backdrop-blur-xs
             border border-[rgba(255,243,199,0.18)]
             shadow-[0_20px_50px_rgba(0,0,0,0.6)]
@@ -96,7 +96,7 @@ export default function LocationIntro({
 
           <div className="h-px w-full bg-[rgba(255,243,199,0.12)] my-1" />
 
-          <p className="text-xs md:text-sm text-[#FFF3C7]/90 leading-relaxed max-h-[40vh] overflow-y-auto pr-1">
+          <p className="text-xs md:text-sm text-[#FFF3C7]/90 leading-relaxed max-h-[40svh] overflow-y-auto pr-1">
             {dialog.infoBackground}
           </p>
         </div>

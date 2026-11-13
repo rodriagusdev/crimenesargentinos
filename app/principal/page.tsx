@@ -11,7 +11,7 @@ export default function Principal() {
 
   if (loading) {
     return (
-      <div className="relative min-h-screen w-full flex items-center justify-center bg-[#070c16] font-mono select-none overflow-hidden">
+      <div className="relative min-h-svh w-full flex items-center justify-center bg-[#070c16] font-mono select-none overflow-hidden">
         {/* Fondo táctico tenue de la sala de detectives */}
         <Image
           src="/images/principal_background.webp"
@@ -39,7 +39,7 @@ export default function Principal() {
   }
 
   return (
-    <div className="relative min-h-screen w-full overflow-x-hidden select-none bg-[#070c16]">
+    <div className="relative min-h-svh w-full overflow-x-hidden select-none bg-[#070c16]">
       {/* ========================================================================= */}
       {/* FONDO AMBIENTAL: SALA CENTRAL DE INVESTIGACIÓN POLICIAL (z-0)              */}
       {/* Ilustración dedicada de la comisaría porteña con tratamiento táctico retro */}
@@ -70,7 +70,7 @@ export default function Principal() {
       {/* ========================================================================= */}
       {/* CONTENIDO PRINCIPAL: DISTRIBUCIÓN DE PANELES DE INVESTIGACIÓN (z-10)       */}
       {/* ========================================================================= */}
-      <div className="relative z-10 min-h-screen p-4 md:p-6 xl:p-8">
+      <div className="relative z-10 min-h-svh p-4 pb-20 md:p-6 md:pb-6 xl:p-8 xl:pb-8">
         <div className="mx-auto grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-[300px_minmax(0,1fr)_320px]">
           {/* PANEL IZQUIERDO / COLUMNA 1 TABLET: FICHA POLICIAL Y CERRAR SESIÓN */}
           <aside className="order-1 md:order-1 xl:order-1 md:col-span-1 xl:col-span-1">

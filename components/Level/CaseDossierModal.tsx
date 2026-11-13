@@ -109,7 +109,7 @@ export default function CaseDossierModal({
       <div
         className={`
           relative w-[95vw] max-w-[95vw]
-          max-h-[96vh] sm:max-h-[94vh]
+          max-h-[96svh] sm:max-h-[94vh]
           flex flex-col
           rounded-2xl
           bg-[#0a111a]
@@ -125,9 +125,9 @@ export default function CaseDossierModal({
         {/* ========================================================================= */}
         {/* 1. CHROME / TERMINAL RETRO TITLE BAR (NO TABS)                            */}
         {/* ========================================================================= */}
-        <div className="w-full bg-[#060b12] border-b border-[rgba(255,243,199,0.14)] py-3 px-4 sm:px-6 flex items-center justify-between gap-3 shrink-0 select-none">
+        <div className="w-full bg-[#060b12] border-b border-[rgba(255,243,199,0.14)] py-2 sm:py-3 px-3 sm:px-6 flex items-center justify-between gap-2 sm:gap-3 shrink-0 select-none">
           {/* Left section: Window Controls & Title */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0">
             <div className="flex items-center gap-2">
               <h2 className="font-mono font-bold text-xs sm:text-sm text-amber-200 uppercase tracking-wider">
                 Tablero de Investigacion del Caso
@@ -140,7 +140,7 @@ export default function CaseDossierModal({
             {isFacingCriminal ? (
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-mono font-bold tracking-wider uppercase bg-red-950/80 border border-red-500/70 text-red-300 animate-pulse">
                 <span className="size-2 rounded-full bg-red-500 animate-ping" />
-                🚨 FRENTE AL CRIMINAL
+                🚨<span className="hidden sm:inline">FRENTE AL CRIMINAL</span>
               </span>
             ) : (
               <span className="inline-flex px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-mono font-bold tracking-wider uppercase bg-amber-500/15 border border-amber-500/35 text-amber-300">
@@ -152,7 +152,7 @@ export default function CaseDossierModal({
               type="button"
               onClick={onClose}
               onMouseEnter={() => playSfx("typewriter")}
-              className="size-8 sm:size-9 rounded-xl bg-[rgba(255,243,199,0.06)] hover:bg-red-950/60 border border-[rgba(255,243,199,0.15)] hover:border-red-500/50 flex items-center justify-center text-[#FFF3C7]/70 hover:text-white transition-all duration-150 cursor-pointer shadow-sm active:scale-95"
+              className="size-10 sm:size-9 rounded-xl bg-[rgba(255,243,199,0.06)] hover:bg-red-950/60 border border-[rgba(255,243,199,0.15)] hover:border-red-500/50 flex items-center justify-center text-[#FFF3C7]/70 hover:text-white transition-all duration-150 cursor-pointer shadow-sm active:scale-95"
               title="Cerrar Tablero (Esc)"
             >
               ✕
@@ -163,7 +163,7 @@ export default function CaseDossierModal({
         {/* ========================================================================= */}
         {/* 2. BODY CONTENT: EL TABLERO UNIFICADO DE INVESTIGACIÓN                    */}
         {/* ========================================================================= */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[#0f1a28] custom-scrollbar flex flex-col gap-4">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden p-2 sm:p-6 bg-[#0f1a28] custom-scrollbar flex flex-col gap-4">
           {/* Facing Criminal Critical Notice */}
           {isFacingCriminal && (
             <div className="flex items-start sm:items-center gap-3 p-3.5 sm:p-4 rounded-xl bg-gradient-to-r from-red-950/90 via-red-900/80 to-red-950/90 border border-red-500/70 shadow-[0_0_20px_rgba(239,68,68,0.3)] animate-pulse shrink-0">
@@ -202,7 +202,7 @@ export default function CaseDossierModal({
           onClick={handleCancelArrest}
         >
           <div
-            className="relative w-full max-w-md p-6 sm:p-7 rounded-2xl backdrop-blur-xs border border-red-500/40 bg-[rgba(18,22,32,0.98)] shadow-[0_25px_60px_rgba(0,0,0,0.8)] text-[#FFF3C7] flex flex-col items-center text-center gap-4"
+            className="relative w-full max-w-md max-h-[90svh] overflow-y-auto p-5 sm:p-7 rounded-2xl backdrop-blur-xs border border-red-500/40 bg-[rgba(18,22,32,0.98)] shadow-[0_25px_60px_rgba(0,0,0,0.8)] text-[#FFF3C7] flex flex-col items-center text-center gap-4"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="relative size-20 rounded-2xl overflow-hidden border-2 border-red-500/60 bg-black/60 shadow-[0_10px_25px_rgba(239,68,68,0.3)] flex items-center justify-center">
@@ -219,7 +219,7 @@ export default function CaseDossierModal({
               <span className="text-[10px] font-mono tracking-widest text-red-400 font-semibold px-2.5 py-0.5 rounded-full bg-red-950/60 border border-red-500/30">
                 Orden Judicial de Captura
               </span>
-              <h3 className="text-lg sm:text-xl font-bold font-mono text-[#FFF3C7] mt-2">
+              <h3 className="text-lg sm:text-xl font-bold font-mono text-[#FFF3C7] mt-2 break-words">
                 ¿Emitir orden de captura para {selectedSuspect.name}?
               </h3>
             </div>

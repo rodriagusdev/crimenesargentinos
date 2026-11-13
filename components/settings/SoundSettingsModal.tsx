@@ -38,7 +38,8 @@ export default function SoundSettingsModal({ isOpen, onClose }: SoundSettingsMod
       <div
         className="
           relative w-full max-w-md
-          p-6 sm:p-7 rounded-2xl
+          max-h-[90svh] overflow-y-auto
+          p-5 sm:p-7 rounded-2xl
           border border-[rgba(255,243,199,0.2)]
           bg-[rgba(15,23,34,0.95)]
           shadow-[0_20px_50px_rgba(0,0,0,0.8)]
@@ -48,7 +49,7 @@ export default function SoundSettingsModal({ isOpen, onClose }: SoundSettingsMod
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[rgba(255,243,199,0.12)] pb-3">
+        <div className="flex items-center justify-between gap-2 border-b border-[rgba(255,243,199,0.12)] pb-3">
           <div className="flex items-center gap-2.5">
             <span className="text-2xl">⚙️</span>
             <div>
@@ -62,14 +63,14 @@ export default function SoundSettingsModal({ isOpen, onClose }: SoundSettingsMod
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg bg-[rgba(255,243,199,0.06)] border border-[rgba(255,243,199,0.15)] flex items-center justify-center text-[#FFF3C7]/70 hover:text-white hover:border-[#E1C380] transition-colors cursor-pointer"
+            className="w-9 h-9 sm:w-8 sm:h-8 shrink-0 rounded-lg bg-[rgba(255,243,199,0.06)] border border-[rgba(255,243,199,0.15)] flex items-center justify-center text-[#FFF3C7]/70 hover:text-white hover:border-[#E1C380] transition-colors cursor-pointer"
           >
             ✕
           </button>
         </div>
 
         {/* Mute Master Toggle */}
-        <div className="flex items-center justify-between p-3 rounded-xl bg-[rgba(255,243,199,0.04)] border border-[rgba(255,243,199,0.1)]">
+        <div className="flex items-center justify-between gap-2 p-3 rounded-xl bg-[rgba(255,243,199,0.04)] border border-[rgba(255,243,199,0.1)]">
           <div className="flex items-center gap-3">
             <span className="text-xl">{isMuted ? "🔇" : "🔊"}</span>
             <div>
@@ -84,7 +85,7 @@ export default function SoundSettingsModal({ isOpen, onClose }: SoundSettingsMod
           <button
             onClick={toggleMute}
             className={`
-              px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold uppercase transition-all cursor-pointer
+              shrink-0 px-3.5 py-2 sm:py-1.5 rounded-lg text-xs font-mono font-bold uppercase transition-all cursor-pointer
               ${
                 isMuted
                   ? "bg-red-900/80 border border-red-500 text-red-200 shadow-[0_0_15px_rgba(239,68,68,0.3)]"
@@ -163,32 +164,32 @@ export default function SoundSettingsModal({ isOpen, onClose }: SoundSettingsMod
         </div>
 
         {/* Test Sounds */}
-        <div className="grid grid-cols-4 gap-2 pt-0.5">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-0.5">
           <button
             onClick={() => playSfx("opencasefile")}
             disabled={isMuted}
-            className="px-2 py-2 rounded-lg bg-[rgba(255,243,199,0.06)] border border-[rgba(255,243,199,0.15)] text-[10px] font-mono hover:border-[#E1C380] hover:text-[#FFF3C7] transition-all cursor-pointer disabled:opacity-40"
+            className="px-2 py-2.5 sm:py-2 rounded-lg bg-[rgba(255,243,199,0.06)] border border-[rgba(255,243,199,0.15)] text-[10px] font-mono hover:border-[#E1C380] hover:text-[#FFF3C7] transition-all cursor-pointer disabled:opacity-40"
           >
             📁 Carpeta
           </button>
           <button
             onClick={() => playSfx("arrest")}
             disabled={isMuted}
-            className="px-2 py-2 rounded-lg bg-[rgba(255,243,199,0.06)] border border-[rgba(255,243,199,0.15)] text-[10px] font-mono hover:border-[#E1C380] hover:text-[#FFF3C7] transition-all cursor-pointer disabled:opacity-40"
+            className="px-2 py-2.5 sm:py-2 rounded-lg bg-[rgba(255,243,199,0.06)] border border-[rgba(255,243,199,0.15)] text-[10px] font-mono hover:border-[#E1C380] hover:text-[#FFF3C7] transition-all cursor-pointer disabled:opacity-40"
           >
             ⚖️ Arresto
           </button>
           <button
             onClick={() => playSfx("hint")}
             disabled={isMuted}
-            className="px-2 py-2 rounded-lg bg-[rgba(255,243,199,0.06)] border border-[rgba(255,243,199,0.15)] text-[10px] font-mono hover:border-[#E1C380] hover:text-[#FFF3C7] transition-all cursor-pointer disabled:opacity-40"
+            className="px-2 py-2.5 sm:py-2 rounded-lg bg-[rgba(255,243,199,0.06)] border border-[rgba(255,243,199,0.15)] text-[10px] font-mono hover:border-[#E1C380] hover:text-[#FFF3C7] transition-all cursor-pointer disabled:opacity-40"
           >
             🔍 Pista
           </button>
           <button
             onClick={() => playSfx("plane")}
             disabled={isMuted}
-            className="px-2 py-2 rounded-lg bg-[rgba(255,243,199,0.06)] border border-[rgba(255,243,199,0.15)] text-[10px] font-mono hover:border-[#E1C380] hover:text-[#FFF3C7] transition-all cursor-pointer disabled:opacity-40"
+            className="px-2 py-2.5 sm:py-2 rounded-lg bg-[rgba(255,243,199,0.06)] border border-[rgba(255,243,199,0.15)] text-[10px] font-mono hover:border-[#E1C380] hover:text-[#FFF3C7] transition-all cursor-pointer disabled:opacity-40"
           >
             ✈️ Avión
           </button>

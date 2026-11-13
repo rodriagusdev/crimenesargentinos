@@ -125,10 +125,11 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
     dialog.npcCompleteUrl ?? "/images/slate_board.webp";
 
   return (
-    <div className="relative w-screen h-screen flex flex-col bg-[#080e18] select-none overflow-hidden">
+    <div className="relative w-screen h-dvh flex flex-col bg-[#080e18] select-none overflow-hidden">
       {/* Toast de Feedback de Costo y Pista Desbloqueada */}
       <CostFeedbackToast cost={costToast} unlockedClue={clueToast} />
-      {/* ── Top Bar ── */}
+      {/* ── Top Bar ── (en celular baja por debajo de la barra del menú de investigación) */}
+      <div className="shrink-0 pt-[68px] md:pt-0">
       {onClose ? (
         <LevelScreenTopBar
           label="VOLVER AL MAPA DE LA PROVINCIA"
@@ -139,9 +140,10 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
       ) : (
         <div className="relative z-20 p-4 md:p-6" />
       )}
+      </div>
 
       {/* ── Content area (Dialog panel + Background Scene) ── */}
-      <div className="flex-1 flex flex-col-reverse xl:flex-row-reverse min-h-0 px-4 md:px-6 pb-4 md:pb-6 gap-4 md:gap-6">
+      <div className="flex-1 flex flex-col-reverse xl:flex-row-reverse min-h-0 px-3 sm:px-4 md:px-6 pb-3 sm:pb-4 md:pb-6 gap-3 sm:gap-4 md:gap-6">
         {/* Right / Bottom on tablet: Dialog panel */}
         <div className="flex-1 flex items-center justify-center min-h-0 w-full xl:flex-1">
           <div
@@ -156,13 +158,13 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
             "
           >
             {/* Body: portrait + content */}
-            <div className="flex flex-1 min-h-0">
+            <div className="flex flex-col sm:flex-row flex-1 min-h-0">
               {/* Portrait column */}
-              <div className="w-36 md:w-44 shrink-0 flex flex-col items-center pt-4 md:pt-6 pb-4 px-3 md:px-4 border-r border-[rgba(255,243,199,0.12)]">
+              <div className="w-full sm:w-36 md:w-44 shrink-0 flex flex-row sm:flex-col items-center gap-3 sm:gap-0 py-2 sm:pt-4 md:pt-6 sm:pb-4 px-4 sm:px-3 md:px-4 border-b sm:border-b-0 sm:border-r border-[rgba(255,243,199,0.12)]">
                 <div
                   className="
-                    relative w-24 h-24 md:w-32 md:h-32
-                    rounded-2xl overflow-hidden
+                    relative shrink-0 w-12 h-12 sm:w-24 sm:h-24 md:w-32 md:h-32
+                    rounded-xl sm:rounded-2xl overflow-hidden
                     border-2 border-[rgba(255,243,199,0.25)]
                     shadow-[0_12px_30px_rgba(0,0,0,0.7)]
                     bg-black/40
@@ -179,18 +181,18 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
                 </div>
 
                 {/* NPC name */}
-                <p className="mt-3 md:mt-4 text-center tracking-widest text-[#E1C380] font-semibold uppercase text-xs md:text-sm">
+                <p className="min-w-0 sm:mt-3 md:mt-4 text-left sm:text-center tracking-widest text-[#E1C380] font-semibold uppercase text-xs md:text-sm">
                   {dialog.npc}
                 </p>
 
                 {/* Decorative divider + label */}
-                <div className="mt-2 md:mt-3 w-8 md:w-10 h-px bg-[rgba(255,243,199,0.18)]" />
-                <div className="mt-2 px-2.5 md:px-3 py-1 rounded-xl bg-[rgba(255,243,199,0.06)] backdrop-blur-xs border border-[rgba(255,243,199,0.12)] text-[9px] md:text-[10px] text-[#E1C380]/80 uppercase tracking-widest font-mono">
+                <div className="hidden sm:block mt-2 md:mt-3 w-8 md:w-10 h-px bg-[rgba(255,243,199,0.18)]" />
+                <div className="ml-auto sm:ml-0 shrink-0 sm:mt-2 px-2.5 md:px-3 py-1 rounded-xl bg-[rgba(255,243,199,0.06)] backdrop-blur-xs border border-[rgba(255,243,199,0.12)] text-[10px] sm:text-[9px] md:text-[10px] text-[#E1C380]/80 uppercase tracking-widest font-mono">
                   Testigo
                 </div>
 
                 {/* Detective Interrogator Portrait at bottom of sidebar */}
-                <div className="mt-auto pt-4 hidden sm:flex flex-col items-center w-full border-t border-[rgba(255,243,199,0.12)]">
+                <div className="mt-auto pt-4 hidden sm:flex [@media(orientation:landscape)_and_(max-height:500px)]:hidden flex-col items-center w-full border-t border-[rgba(255,243,199,0.12)]">
                   <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden border-2 border-amber-400/50 shadow-[0_12px_30px_rgba(0,0,0,0.7)] bg-black/40 flex items-center justify-center">
                     {currentAvatar ? (
                       <Image
@@ -213,7 +215,7 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
               {/* Right column: log + questions */}
               <div className="flex-1 flex flex-col min-h-0">
                 {/* Conversation log — scrollable, grows to fill space */}
-                <div className="flex-1 overflow-y-auto px-5 pt-5 pb-3 flex flex-col gap-4">
+                <div className="flex-1 overflow-y-auto px-3 sm:px-5 pt-3 sm:pt-5 pb-3 flex flex-col gap-4">
                   {/* Structured Intro messages */}
                   {dialog.intro?.map((msg, idx) => {
                     if (msg.speaker === "narrator") {
@@ -303,7 +305,7 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
                       </div>
                       {/* NPC answer — left-aligned */}
                       <div className="flex flex-col gap-1">
-                        <span className="text-[8px]  tracking-widest text-[#E1C380]/70 font-semibold">
+                        <span className="text-[10px] sm:text-[8px]  tracking-widest text-[#E1C380]/70 font-semibold">
                           {dialog.npc}
                         </span>
                         <div className="bg-[rgba(20,30,42,0.6)] backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_10px_30px_rgba(0,0,0,0.4)] rounded-2xl rounded-tl-none px-4 py-3 max-w-[90%]">
@@ -320,10 +322,10 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
                 </div>
 
                 {/* Divider */}
-                <div className="h-px bg-[rgba(255,243,199,0.12)] mx-5" />
+                <div className="h-px bg-[rgba(255,243,199,0.12)] mx-3 sm:mx-5" />
 
                 {/* Questions — pinned to bottom */}
-                <div className="px-5 py-4 flex flex-col gap-2">
+                <div className="px-3 sm:px-5 py-3 sm:py-4 flex flex-col gap-2 shrink-0 max-h-[30svh] overflow-y-auto overflow-x-hidden sm:max-h-none sm:overflow-visible">
                   {availableQuestions.map((q) => {
                     const isAsked = askedQuestions.includes(q.id);
                     const isThisAsking = askingQuestionId === q.id;
@@ -347,7 +349,7 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
         </div>
 
         {/* Left / Top on tablet: Background image box */}
-        <div className="h-44 md:h-52 xl:h-auto xl:flex-[2] p-3 md:p-4 xl:p-6 backdrop-blur-xs flex items-center justify-center border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] rounded-2xl shrink-0 xl:shrink">
+        <div className="h-28 sm:h-44 md:h-52 xl:h-auto [@media(orientation:landscape)_and_(max-height:500px)]:hidden xl:flex-[2] p-3 md:p-4 xl:p-6 backdrop-blur-xs flex items-center justify-center border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] rounded-2xl shrink-0 xl:shrink">
           <div className="relative w-full h-full rounded-2xl overflow-hidden border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
             <Image
               src={background}
