@@ -1,0 +1,141 @@
+/* Expedientes censurados: lámpara de escritorio, carpetas que se levantan, sellos que golpean,
+   el parte que sale de la carpeta y barras negras que se despegan apenas */
+
+/* Cono de luz de la lámpara de escritorio (titila de vez en cuando) */
+.cone {
+  clip-path: polygon(6% 0, 16% 0, 100% 100%, 0 100%);
+  background: radial-gradient(ellipse at 10% 0%, rgba(255, 222, 140, 0.34), rgba(255, 222, 140, 0.1) 45%, transparent 80%);
+  mix-blend-mode: screen;
+  animation: flicker 11s infinite;
+}
+.bulb {
+  animation: flicker 11s infinite;
+}
+@keyframes flicker {
+  0%, 70%, 100% { opacity: 1; }
+  71% { opacity: 0.5; }
+  72% { opacity: 1; }
+  74% { opacity: 0.7; }
+  75% { opacity: 1; }
+}
+
+/* Humo del café */
+.steam {
+  animation: steam 4.5s ease-in-out infinite;
+}
+@keyframes steam {
+  0% { transform: translateY(0) scaleX(1); opacity: 0; }
+  30% { opacity: 0.45; }
+  100% { transform: translateY(-34px) scaleX(1.8); opacity: 0; }
+}
+
+/* Carpeta: se levanta y asoma el parte */
+.folder {
+  transform: rotate(var(--rot, 0deg));
+  transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.25), filter 0.25s;
+}
+.folder:hover,
+.folder:focus-visible {
+  transform: translateY(-8px) rotate(0deg) scale(1.03);
+  filter: drop-shadow(0 18px 18px rgba(0, 0, 0, 0.55));
+}
+.peek {
+  transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.3);
+}
+.folder:hover .peek,
+.folder:focus-visible .peek {
+  transform: translateY(-16px) rotate(-2deg);
+}
+
+/* Sello que cae de golpe */
+.stamp {
+  transform: rotate(var(--srot, -12deg));
+  animation: thump 0.45s cubic-bezier(0.3, 1.6, 0.5, 1) backwards;
+}
+@keyframes thump {
+  0% { transform: scale(3.2) rotate(-30deg); opacity: 0; }
+  60% { transform: scale(0.9) rotate(var(--srot, -12deg)); opacity: 1; }
+  100% { transform: rotate(var(--srot, -12deg)); }
+}
+/* Tinta del sello: un poco gastada */
+.ink {
+  mask-image: radial-gradient(circle at 30% 40%, #000 55%, rgba(0, 0, 0, 0.55) 75%, #000 90%);
+}
+
+/* El parte sale de la carpeta */
+.sheetIn {
+  animation: sheetIn 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
+}
+.sheetOut {
+  animation: sheetOut 0.35s cubic-bezier(0.5, 0, 0.7, 0.4) both;
+}
+@keyframes sheetIn {
+  from { transform: translateY(70px) rotate(5deg) scale(0.94); opacity: 0; }
+  to { transform: rotate(-0.6deg); opacity: 1; }
+}
+@keyframes sheetOut {
+  from { transform: rotate(-0.6deg); }
+  to { transform: translateY(60px) rotate(-4deg) scale(0.95); opacity: 0; }
+}
+.dimIn {
+  animation: dim 0.35s ease-out both;
+}
+.dimOut {
+  animation: dim 0.35s ease-in reverse both;
+}
+@keyframes dim {
+  from { opacity: 0; }
+}
+
+/* Cursor de la máquina de escribir */
+.cursor {
+  animation: blink 0.8s steps(1) infinite;
+}
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* Barra de censura: se despega apenas y deja ver el aviso de abajo */
+.bar {
+  transform-origin: 0 100%;
+  transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.3), box-shadow 0.22s;
+}
+.barWrap:hover .bar,
+.barWrap:focus-visible .bar,
+.barWrap[data-lifted="true"] .bar {
+  transform: translateY(-62%) rotate(-2.5deg);
+  box-shadow: 0 8px 10px rgba(0, 0, 0, 0.35);
+}
+.barIn {
+  animation: barIn 0.35s ease-out backwards;
+}
+@keyframes barIn {
+  from { transform: scaleX(0); }
+}
+.barIn {
+  transform-origin: 0 50%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cone,
+  .bulb,
+  .steam,
+  .stamp,
+  .sheetIn,
+  .sheetOut,
+  .dimIn,
+  .dimOut,
+  .cursor,
+  .barIn {
+    animation-duration: 0.01s;
+    animation-iteration-count: 1;
+  }
+  .steam {
+    display: none;
+  }
+  .folder,
+  .peek,
+  .bar {
+    transition: none;
+  }
+}

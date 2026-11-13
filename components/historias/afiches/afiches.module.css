@@ -1,0 +1,63 @@
+/* Hall del cine: lamparitas de la marquesina, brillo de los afiches y la caja del DVD que se da vuelta */
+
+/* Lamparitas que se prenden en cadena (pares e impares alternados) */
+.bulb {
+  animation: bulb 1.2s steps(1) infinite;
+}
+.bulb:nth-child(even) {
+  animation-delay: 0.6s;
+}
+@keyframes bulb {
+  0% { opacity: 1; box-shadow: 0 0 8px 2px rgba(255, 214, 120, 0.9); }
+  50% { opacity: 0.35; box-shadow: none; }
+}
+
+/* Reflejo que cruza el vidrio del exhibidor */
+.shine {
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.18) 48%, transparent 60%);
+  background-size: 250% 100%;
+  background-position: 120% 0;
+  transition: background-position 0.9s ease;
+}
+.poster:hover .shine,
+.poster:focus-visible .shine {
+  background-position: -60% 0;
+}
+
+/* Afiches que entran de a uno */
+.posterIn {
+  animation: posterIn 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
+}
+@keyframes posterIn {
+  from { transform: translateY(24px) scale(0.96); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+/* Contratapa del DVD: la caja gira y queda de frente */
+.dimIn {
+  animation: dimIn 0.25s ease-out both;
+}
+@keyframes dimIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.caseIn {
+  animation: caseIn 0.6s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+@keyframes caseIn {
+  from { transform: perspective(1400px) rotateY(-100deg) scale(0.85); opacity: 0; }
+  50% { opacity: 1; }
+  to { transform: none; opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bulb,
+  .posterIn,
+  .dimIn,
+  .caseIn {
+    animation: none;
+  }
+  .shine {
+    transition: none;
+  }
+}

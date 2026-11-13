@@ -1,0 +1,136 @@
+/* Se busca: carteles de recompensa pegados en un corcho, con tipografía de afiche viejo hecha en CSS */
+
+/* Letras de afiche: egipcia gruesa (slab) y cursiva de imprenta */
+.slab {
+  font-family: "Rockwell Extra Bold", "Rockwell", "Clarendon", "Roboto Slab", "Georgia", serif;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+.tall {
+  display: inline-block;
+  transform: scaleY(1.35);
+  transform-origin: 50% 100%;
+}
+.serif {
+  font-family: "Georgia", "Times New Roman", serif;
+}
+.italic {
+  font-family: "Georgia", "Times New Roman", serif;
+  font-style: italic;
+}
+
+/* Papel viejo: manchas, bordes tostados */
+.paper {
+  background-color: #efe0bb;
+  background-image:
+    radial-gradient(circle at 18% 22%, rgba(150, 100, 40, 0.18), transparent 22%),
+    radial-gradient(circle at 82% 70%, rgba(150, 100, 40, 0.16), transparent 26%),
+    radial-gradient(circle at 60% 12%, rgba(120, 80, 30, 0.1), transparent 14%),
+    radial-gradient(ellipse at center, transparent 55%, rgba(110, 70, 25, 0.35) 100%);
+  box-shadow: inset 0 0 22px rgba(110, 70, 25, 0.45);
+}
+
+/* Corcho */
+.cork {
+  background-color: #a8743f;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(60, 30, 10, 0.35) 0 1px, transparent 2px),
+    radial-gradient(circle at 70% 60%, rgba(255, 220, 160, 0.25) 0 1px, transparent 2px),
+    radial-gradient(circle at 45% 85%, rgba(60, 30, 10, 0.3) 0 1.5px, transparent 2.5px);
+  background-size: 13px 13px, 17px 17px, 23px 23px;
+}
+
+/* Cartel en el corcho: torcido, se endereza y viene al frente al pasar */
+.poster {
+  transform: rotate(var(--rot, 0deg));
+  transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.25), filter 0.25s;
+  animation: slap 0.5s cubic-bezier(0.3, 1.5, 0.5, 1) backwards;
+}
+.poster:hover,
+.poster:focus-visible {
+  transform: rotate(0deg) scale(1.07) translateY(-6px);
+  filter: drop-shadow(0 22px 22px rgba(0, 0, 0, 0.6));
+}
+@keyframes slap {
+  0% { transform: scale(1.35) rotate(calc(var(--rot, 0deg) + 9deg)); opacity: 0; }
+  70% { transform: scale(0.97) rotate(var(--rot, 0deg)); opacity: 1; }
+  100% { transform: rotate(var(--rot, 0deg)); }
+}
+
+/* Esquina despegada que se mueve con la corriente de aire */
+.corner {
+  transform-origin: 100% 100%;
+  animation: flutter 3.8s ease-in-out infinite;
+}
+@keyframes flutter {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-9deg); }
+}
+
+/* Farol de la calle que titila */
+.lamp {
+  animation: flicker 7s infinite;
+}
+@keyframes flicker {
+  0%, 58%, 100% { opacity: 1; }
+  59% { opacity: 0.4; }
+  60% { opacity: 1; }
+  62% { opacity: 0.55; }
+  64% { opacity: 1; }
+}
+
+/* Cartel grande: se despliega desde la chinche y cae el sello de recompensa */
+.unroll {
+  transform-origin: 50% 0;
+  animation: unroll 0.65s cubic-bezier(0.2, 0.9, 0.3, 1.15) both;
+}
+@keyframes unroll {
+  0% { transform: perspective(900px) rotateX(-75deg) scaleY(0.2); opacity: 0; }
+  60% { transform: perspective(900px) rotateX(8deg) scaleY(1.02); opacity: 1; }
+  100% { transform: rotate(-0.8deg); }
+}
+.rollUp {
+  transform-origin: 50% 0;
+  animation: rollUp 0.35s cubic-bezier(0.5, 0, 0.7, 0.4) both;
+}
+@keyframes rollUp {
+  from { transform: rotate(-0.8deg); }
+  to { transform: perspective(900px) rotateX(-70deg) scaleY(0.2); opacity: 0; }
+}
+.stamp {
+  transform: rotate(-12deg);
+  animation: thump 0.45s cubic-bezier(0.3, 1.6, 0.5, 1) 0.6s backwards;
+}
+@keyframes thump {
+  0% { transform: scale(3) rotate(-30deg); opacity: 0; }
+  60% { transform: scale(0.9) rotate(-12deg); opacity: 1; }
+  100% { transform: rotate(-12deg); }
+}
+.dimIn {
+  animation: dim 0.35s ease-out both;
+}
+.dimOut {
+  animation: dim 0.35s ease-in reverse both;
+}
+@keyframes dim {
+  from { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .poster,
+  .unroll,
+  .rollUp,
+  .stamp,
+  .dimIn,
+  .dimOut {
+    animation-duration: 0.01s;
+    animation-delay: 0s !important;
+  }
+  .corner,
+  .lamp {
+    animation: none;
+  }
+  .poster {
+    transition: none;
+  }
+}

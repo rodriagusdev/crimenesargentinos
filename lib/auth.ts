@@ -33,7 +33,7 @@ export function msUntilTokenExpires(claims: TokenClaims | null = getTokenClaims(
 // Pantallas que se ven sin sesión
 export const PUBLIC_PATHS = ["/", "/login", "/reglas"];
 // Secciones enteras que se ven sin sesión (la galería de portadas y cada una de sus variantes)
-const PUBLIC_PREFIXES = ["/portadas"];
+const PUBLIC_PREFIXES = ["/portadas", "/historias"];
 
 export function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.includes(pathname) || PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));

@@ -1,0 +1,88 @@
+/* Mapa del delito: barrido de radar, líneas de monitor, pines que laten y entrada de la ficha */
+
+.radar {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 180%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  pointer-events: none;
+  background: conic-gradient(from 0deg, rgba(56, 232, 255, 0.22), rgba(56, 232, 255, 0.04) 40deg, transparent 70deg, transparent 360deg);
+  mix-blend-mode: screen;
+  animation: sweep 6s linear infinite;
+}
+@keyframes sweep {
+  to {
+    rotate: 360deg;
+  }
+}
+
+.scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.28) 0 1px, transparent 1px 3px);
+}
+.scanlines::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  height: 18%;
+  background: linear-gradient(180deg, transparent, rgba(56, 232, 255, 0.08), transparent);
+  animation: roll 7s linear infinite;
+}
+@keyframes roll {
+  from {
+    top: -18%;
+  }
+  to {
+    top: 100%;
+  }
+}
+
+.pulse {
+  animation: pulse 1.8s ease-out infinite;
+}
+@keyframes pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+.sheetIn {
+  animation: sheetIn 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes sheetIn {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+}
+
+.blink {
+  animation: blink 1.2s steps(2, start) infinite;
+}
+@keyframes blink {
+  to {
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .radar,
+  .scanlines::after,
+  .pulse,
+  .sheetIn,
+  .blink {
+    animation: none;
+  }
+  .radar {
+    opacity: 0.5;
+  }
+}

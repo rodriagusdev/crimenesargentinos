@@ -1,0 +1,108 @@
+/* Radioteatro policial: gabinete de madera, parlante que late, vúmetro, luz AL AIRE y cursor de máquina */
+
+.cabinet {
+  background:
+    repeating-linear-gradient(92deg, rgba(0, 0, 0, 0.12) 0 2px, transparent 2px 9px),
+    linear-gradient(180deg, #8a5a2b 0%, #6b4220 55%, #4a2c14 100%);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 220, 160, 0.35),
+    inset 0 -6px 0 rgba(0, 0, 0, 0.35),
+    0 24px 50px rgba(0, 0, 0, 0.75);
+}
+
+.grille {
+  background-color: #2b1d10;
+  background-image: radial-gradient(circle, #120a04 38%, transparent 42%);
+  background-size: 9px 9px;
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.9);
+}
+.grilleOn {
+  animation: thump 0.42s ease-in-out infinite alternate;
+}
+@keyframes thump {
+  from {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  to {
+    transform: scale(1.025);
+    filter: brightness(1.25);
+  }
+}
+
+.dialGlass {
+  background: linear-gradient(180deg, #f5dd9c 0%, #e6c06a 100%);
+  box-shadow:
+    inset 0 0 14px rgba(120, 70, 10, 0.55),
+    0 0 18px rgba(255, 200, 90, 0.35);
+}
+
+.needle {
+  transition: left 0.6s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+.onAir {
+  animation: onAir 1.6s ease-in-out infinite;
+}
+@keyframes onAir {
+  50% {
+    box-shadow: 0 0 28px rgba(255, 40, 40, 1);
+  }
+}
+
+.vuBar {
+  transform-origin: bottom;
+  transform: scaleY(0.12);
+}
+.vuOn {
+  animation: vu 0.5s ease-in-out infinite alternate;
+}
+@keyframes vu {
+  0% {
+    transform: scaleY(0.15);
+  }
+  40% {
+    transform: scaleY(0.9);
+  }
+  70% {
+    transform: scaleY(0.45);
+  }
+  100% {
+    transform: scaleY(0.75);
+  }
+}
+
+.caret {
+  animation: caret 0.8s steps(2, start) infinite;
+}
+@keyframes caret {
+  to {
+    visibility: hidden;
+  }
+}
+
+.lineIn {
+  animation: lineIn 0.3s ease-out;
+}
+@keyframes lineIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grilleOn,
+  .onAir,
+  .vuOn,
+  .caret,
+  .lineIn {
+    animation: none;
+  }
+  .needle {
+    transition: none;
+  }
+  .vuOn {
+    transform: scaleY(0.6);
+  }
+}
