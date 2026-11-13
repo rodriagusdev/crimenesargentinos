@@ -32,24 +32,49 @@ export function clearSplashPending(): void {
   }
 }
 
-const LAST_VARIANT_KEY = "post_login_splash_last";
+const SEEN_VARIANTS_KEY = "post_login_splash_seen";
 
-/** Elige un splash al azar, sin repetir el último que se mostró en este navegador */
-export function pickSplashVariant<T extends string>(ids: readonly T[]): T {
-  let last: string | null = null;
+/** Splash que este navegador ya vio en la ronda actual (en orden) */
+function getSeenSplashVariants(): string[] {
   try {
-    last = localStorage.getItem(LAST_VARIANT_KEY);
+    const parsed: unknown = JSON.parse(localStorage.getItem(SEEN_VARIANTS_KEY) ?? "[]");
+    return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Elige al azar un splash que todavía no se vio. Cuando ya se vieron todos, arranca una ronda nueva
+ * evitando repetir el último. No escribe nada: el guardado lo hace markSplashVariantSeen.
+ */
+export function chooseSplashVariant<T extends string>(ids: readonly T[]): T {
+  const seen = getSeenSplashVariants();
+  const unseen = ids.filter((id) => !seen.includes(id));
+  const last = seen[seen.length - 1];
+  const pool = unseen.length > 0 ? unseen : ids.length > 1 ? ids.filter((id) => id !== last) : ids;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+/** Registra que se mostró un splash; si con él ya se vieron todos, la próxima ronda empieza de cero */
+export function markSplashVariantSeen(id: string, allIds: readonly string[]): void {
+  const seen = getSeenSplashVariants().filter((s) => allIds.includes(s));
+  const roundComplete = allIds.every((s) => seen.includes(s));
+  const next = roundComplete ? [id] : seen.includes(id) ? seen : [...seen, id];
+  try {
+    localStorage.setItem(SEEN_VARIANTS_KEY, JSON.stringify(next));
   } catch {
     // sin acceso a storage
   }
+}
 
-  const pool = ids.length > 1 ? ids.filter((id) => id !== last) : ids;
-  const chosen = pool[Math.floor(Math.random() * pool.length)];
-
-  try {
-    localStorage.setItem(LAST_VARIANT_KEY, chosen);
-  } catch {
-    // sin acceso a storage
-  }
-  return chosen;
+/**
+ * Splash pedido para esta carga de página: el id forzado por `?splash=<id>` (vista previa),
+ * "random" si quedó pendiente del login, o null si no hay que mostrar nada.
+ */
+export function getSplashRequest(): string | null {
+  if (typeof window === "undefined") return null;
+  const forced = new URLSearchParams(window.location.search).get("splash");
+  if (forced) return forced;
+  return isSplashPending() ? "random" : null;
 }

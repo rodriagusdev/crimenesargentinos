@@ -1,17 +1,22 @@
 "use client";
 
-import { useCallback, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { useSplashSequence } from "@/hooks/useSplashSequence";
-import { clearSplashPending, isSplashPending, pickSplashVariant } from "@/lib/splashStorage";
+import {
+  chooseSplashVariant,
+  clearSplashPending,
+  getSplashRequest,
+  markSplashVariantSeen,
+} from "@/lib/splashStorage";
 import { getUserIdentity } from "@/lib/auth";
 import { SPLASH_VARIANTS, SPLASH_VARIANT_IDS } from "./variants";
 import type { SplashVariant } from "./variants/types";
 
 const noopSubscribe = () => () => {};
 
-// Muestra un splash al azar una sola vez, justo después del login
+// Muestra un splash al azar una sola vez, justo después del login (o el de `?splash=<id>` como vista previa)
 export default function PostLoginSplash() {
-  const pending = useSyncExternalStore(noopSubscribe, isSplashPending, () => false);
+  const request = useSyncExternalStore(noopSubscribe, getSplashRequest, () => null);
   const [done, setDone] = useState(false);
 
   const finish = useCallback(() => {
@@ -19,12 +24,20 @@ export default function PostLoginSplash() {
     setDone(true);
   }, []);
 
-  if (!pending || done) return null;
-  return <SplashShell onFinish={finish} />;
+  if (!request || done) return null;
+  return <SplashShell onFinish={finish} variantId={request} />;
 }
 
-function SplashShell({ onFinish }: { onFinish: () => void }) {
-  const [variant] = useState<SplashVariant>(() => SPLASH_VARIANTS[pickSplashVariant(SPLASH_VARIANT_IDS)]);
+function SplashShell({ onFinish, variantId }: { onFinish: () => void; variantId: string }) {
+  // Elección pura (en modo estricto React puede llamarla dos veces); el guardado va en un efecto
+  const [variant] = useState<SplashVariant>(
+    () => SPLASH_VARIANTS[variantId] ?? SPLASH_VARIANTS[chooseSplashVariant(SPLASH_VARIANT_IDS)],
+  );
+  const isPreview = variantId in SPLASH_VARIANTS;
+
+  useEffect(() => {
+    if (!isPreview) markSplashVariantSeen(variant.id, SPLASH_VARIANT_IDS);
+  }, [isPreview, variant.id]);
   const [agentName] = useState(() => getUserIdentity().name.toUpperCase() || "DETECTIVE");
   const [steps] = useState(() => variant.steps(agentName));
   const { state, progress, advance } = useSplashSequence(steps, onFinish);
