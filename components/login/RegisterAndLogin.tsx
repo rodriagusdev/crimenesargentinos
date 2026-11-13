@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
 
@@ -11,7 +12,9 @@ type RegisterAndLoginProps = {
 export default function RegisterAndLogin({
   setIsMenuOpen,
 }: RegisterAndLoginProps) {
-  const [showRegister, setShowRegister] = useState<boolean>(false);
+  // /login?registro abre directo el formulario de registro (lo usa el botón REGISTRARSE de la home)
+  const searchParams = useSearchParams();
+  const [showRegister, setShowRegister] = useState<boolean>(() => searchParams.has("registro"));
 
   return (
     <div

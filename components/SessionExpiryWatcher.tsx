@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { msUntilTokenExpires, PUBLIC_PATHS, redirectToLogin } from "@/lib/auth";
+import { isPublicPath, msUntilTokenExpires, redirectToLogin } from "@/lib/auth";
 
 // Límite de setTimeout (~24 días): más allá, el navegador lo dispara de inmediato
 const MAX_TIMEOUT = 2 ** 31 - 1;
@@ -12,7 +12,7 @@ export default function SessionExpiryWatcher() {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (PUBLIC_PATHS.includes(pathname)) return;
+    if (isPublicPath(pathname)) return;
 
     const check = () => {
       const hasToken = Boolean(localStorage.getItem("auth_token"));

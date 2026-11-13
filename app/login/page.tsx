@@ -4,7 +4,7 @@ import PrincipalMenu from "@/components/login/PrincipalMenu";
 import RegisterAndLogin from "@/components/login/RegisterAndLogin";
 import SeamlessBackgroundVideo from "@/components/login/SeamlessBackgroundVideo";
 import Link from "next/link";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 
 export default function Login() {
 	const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
@@ -34,7 +34,10 @@ export default function Login() {
 				{isMenuOpen ? (
 					<PrincipalMenu />
 				) : (
-					<RegisterAndLogin setIsMenuOpen={setIsMenuOpen} />
+					// Suspense: RegisterAndLogin lee ?registro con useSearchParams
+					<Suspense fallback={null}>
+						<RegisterAndLogin setIsMenuOpen={setIsMenuOpen} />
+					</Suspense>
 				)}
 			</div>
 		</div>
