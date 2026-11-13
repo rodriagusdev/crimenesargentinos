@@ -4,6 +4,7 @@ import PrincipalMenu from "@/components/login/PrincipalMenu";
 import RegisterAndLogin from "@/components/login/RegisterAndLogin";
 import SeamlessBackgroundVideo from "@/components/login/SeamlessBackgroundVideo";
 import Link from "next/link";
+import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
 import { audioManager } from "@/lib/audioManager";
 import { Suspense, useState } from "react";
 
@@ -30,6 +31,9 @@ export default function Login() {
 			>
 				← INICIO
 			</Link>
+
+			{/* Idioma */}
+			<LanguageSwitcher className="absolute top-5 right-5 z-20" />
 
 			{/* Reglas del juego (se ven sin sesión) */}
 			<Link

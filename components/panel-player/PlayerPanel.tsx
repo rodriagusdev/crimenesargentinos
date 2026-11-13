@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import UserInfo from "./UserInfo";
+import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
 import { useAuth } from "@/hooks/useAuth";
 import { useAudioStore } from "@/stores/useAudioStore";
 
@@ -42,6 +43,11 @@ export default function PlayerPanel() {
         >
           <span>¿CÓMO SE JUEGA?</span>
         </Link>
+      </div>
+
+      {/* IDIOMA */}
+      <div className="flex justify-center">
+        <LanguageSwitcher />
       </div>
 
       {/* 3. BOTON SALIR / CERRAR SESION */}

@@ -1,4 +1,5 @@
 import { getTokenClaims, isTokenExpired, redirectToLogin } from "./auth";
+import { readLocaleCookie } from "./i18n/localeStorage";
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
@@ -15,6 +16,8 @@ export function authHeaders(): HeadersInit {
   return {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
+    // La API devuelve el contenido de los casos en este idioma (si no hay traducción, en castellano)
+    "Accept-Language": readLocaleCookie(),
   };
 }
 
