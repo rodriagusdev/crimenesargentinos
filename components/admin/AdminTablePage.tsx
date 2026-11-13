@@ -7,7 +7,7 @@ import { AdminApiError, AdminRow, createRow, deleteRow, listRows, updateRow } fr
 import AdminFieldInput, { adminInputClass, ReferenceOption } from "./AdminFieldInput";
 import AdminIcon from "./AdminIcon";
 import AdminImagePreview, { AdminImage } from "./AdminImagePreview";
-import CaseCreateWizard from "./CaseCreateWizard";
+import CaseWizard from "./case-wizard/CaseWizard";
 
 interface Props {
   tableKey: string;
@@ -455,7 +455,14 @@ export default function AdminTablePage({ tableKey }: Props) {
       )}
 
       {/* ── Wizard multistep para casos ── */}
-      {showCaseWizard && <CaseCreateWizard onClose={async () => { setShowCaseWizard(false); await load(); }} />}
+      {showCaseWizard && (
+        <CaseWizard
+          onClose={async (created) => {
+            setShowCaseWizard(false);
+            if (created) await load();
+          }}
+        />
+      )}
 
       {/* ── Preview de imágenes ── */}
       {preview && <AdminImagePreview title={preview.title} images={preview.images} onClose={() => setPreview(null)} />}

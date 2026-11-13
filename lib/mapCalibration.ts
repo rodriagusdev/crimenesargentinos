@@ -78,6 +78,13 @@ const PROVINCE_NAME_BY_ID: Record<string, string> = {
   "0e42d54b-b0ef-5da5-9f07-b720a116a1d2": "formosa",
 };
 
+// Misma proyección que la tabla de arriba: para ubicar el pin de una provincia nueva a partir de su lat/lon
+export function projectLatLonToMap(latitude: number, longitude: number): IProvinceCoordinates {
+  const top = 4.5 + 2.59 * (-latitude - 22);
+  const left = 45 + 1.8 * (longitude + 65.6);
+  return { top: `${top.toFixed(1)}%`, left: `${left.toFixed(1)}%` };
+}
+
 /**
  * Normaliza el nombre de una provincia para búsquedas sin diacríticos ni mayúsculas.
  */
