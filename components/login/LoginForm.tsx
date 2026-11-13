@@ -14,6 +14,7 @@ export default function LoginForm({ onRegisterClick }: LoginFormProps) {
   const router = useRouter();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
@@ -102,20 +103,34 @@ export default function LoginForm({ onRegisterClick }: LoginFormProps) {
           <span>🔑</span>
           Contraseña
         </label>
-        <input
-          type="password"
-          placeholder="Ingrese contraseña"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          disabled={loading}
-          className="px-4 py-3 rounded-2xl text-sm"
-          style={{
-            background: "rgba(255, 243, 199, 0.85)",
-            border: "1px solid #5D584D",
-            color: "#2A2A2A",
-            opacity: loading ? 0.5 : 1,
-          }}
-        />
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Ingrese contraseña"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={loading}
+            autoComplete="current-password"
+            className="w-full pl-4 pr-12 py-3 rounded-2xl text-sm"
+            style={{
+              background: "rgba(255, 243, 199, 0.85)",
+              border: "1px solid #5D584D",
+              color: "#2A2A2A",
+              opacity: loading ? 0.5 : 1,
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((v) => !v)}
+            disabled={loading}
+            aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+            aria-pressed={showPassword}
+            title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+            className="absolute inset-y-0 right-2 my-auto size-9 flex items-center justify-center rounded-xl text-lg cursor-pointer hover:bg-black/10 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {showPassword ? "🙈" : "👁️"}
+          </button>
+        </div>
       </div>
 
       {/* BOTONES DE ACCIÓN */}
