@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { adminTables } from "@/lib/adminTables";
 import AdminIcon from "@/components/admin/AdminIcon";
+import NewCaseButton from "@/components/admin/NewCaseButton";
 
 // Inicio del panel: las tablas de jugabilidad agrupadas
 export default function AdminHome() {
@@ -8,9 +9,12 @@ export default function AdminHome() {
 
   return (
     <div className="flex flex-col gap-10">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-50">Panel de administración</h1>
-        <p className="mt-1 text-sm text-slate-400">Contenido del juego: casos, mapa, diálogos y sospechosos.</p>
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-50">Panel de administración</h1>
+          <p className="mt-1 text-sm text-slate-400">Contenido del juego: casos, mapa, diálogos y sospechosos.</p>
+        </div>
+        <NewCaseButton />
       </header>
 
       {groups.map((group) => (

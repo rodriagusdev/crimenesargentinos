@@ -1,15 +1,19 @@
 "use client";
 
-import { useState } from "react";
 import AdminIcon from "@/components/admin/AdminIcon";
 import WitnessEditor from "./WitnessEditor";
 import { caseLocations, type StepProps } from "./types";
 
+interface Props extends StepProps {
+  selectedId: string | null; // la elige el asistente para que la vista previa muestre la misma locación
+  onSelect: (locationId: string) => void;
+}
+
 // Paso 6: un testigo por locación de las provincias del caso, con sus preguntas
-export default function StepWitnesses({ draft, update, catalog }: StepProps) {
+export default function StepWitnesses({ draft, update, catalog, selectedId, onSelect }: Props) {
   const locations = caseLocations(draft, catalog);
-  const [selectedId, setSelectedId] = useState<string | null>(locations[0]?.id ?? null);
   const selected = locations.find((l) => l.id === selectedId) ?? locations[0];
+  const setSelectedId = onSelect;
   const dialog = draft.dialogs.find((d) => d.locationId === selected?.id);
 
   const clueKeysGiven = new Set(draft.dialogs.flatMap((d) => d.questions.map((q) => q.clueKey)).filter(Boolean));

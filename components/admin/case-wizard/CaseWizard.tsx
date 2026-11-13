@@ -13,6 +13,7 @@ import StepReview, { type CheckState } from "./StepReview";
 import StepRoute from "./StepRoute";
 import StepSuspects from "./StepSuspects";
 import StepWitnesses from "./StepWitnesses";
+import GamePreview from "./preview/GamePreview";
 import { stepError, WIZARD_STEPS } from "./steps";
 import { caseLocations } from "./types";
 
@@ -46,8 +47,11 @@ export default function CaseWizard({ onClose }: Props) {
   const [stepMessage, setStepMessage] = useState<string | null>(null);
   const [check, setCheck] = useState<CheckState>({ kind: "idle" });
   const [submit, setSubmit] = useState<SubmitState>({ kind: "idle" });
+  const [witnessId, setWitnessId] = useState<string | null>(null);
+  const [showPreview, setShowPreview] = useState(true);
 
   const catalog = catalogState.kind === "ready" ? catalogState.catalog : null;
+  const witnessLocationId = witnessId ?? draft.dialogs[0]?.locationId ?? null;
 
   // Cada cambio deja un testigo por locación de las provincias elegidas (se agregan y se quitan con las provincias)
   const update = useCallback(
@@ -110,16 +114,26 @@ export default function CaseWizard({ onClose }: Props) {
   const canCreate = check.kind === "checked" && check.result.isValid && submit.kind !== "saving";
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 p-2 sm:p-4">
-      <div className="flex max-h-[95vh] w-full max-w-5xl flex-col rounded-2xl border border-white/10 bg-[#0d1421] shadow-2xl">
-        <header className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+    <div className="fixed inset-0 z-40 flex flex-col bg-[#0d1421]">
+      <div className="flex min-h-0 flex-1 flex-col">
+        <header className="flex items-center justify-between gap-3 border-b border-white/10 px-5 py-4">
           <div>
             <p className="text-xs uppercase tracking-[0.14em] text-slate-500">Nuevo caso · paso {step + 1} de {WIZARD_STEPS.length}</p>
             <h3 className="mt-1 text-xl font-semibold text-slate-50">{WIZARD_STEPS[step].title}</h3>
           </div>
-          <button className="inline-flex size-8 items-center justify-center rounded-full text-slate-400 hover:bg-white/[0.06] hover:text-slate-100" onClick={() => onClose(submit.kind === "saved")} aria-label="Cerrar">
-            <AdminIcon name="close" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowPreview((v) => !v)}
+              className="hidden items-center gap-1.5 rounded-md border border-white/10 px-3 py-1.5 text-xs text-slate-300 hover:bg-white/[0.04] lg:inline-flex"
+            >
+              <AdminIcon name="image" className="size-3.5" />
+              {showPreview ? "Ocultar vista previa" : "Ver vista previa"}
+            </button>
+            <button className="inline-flex size-8 items-center justify-center rounded-full text-slate-400 hover:bg-white/[0.06] hover:text-slate-100" onClick={() => onClose(submit.kind === "saved")} aria-label="Cerrar">
+              <AdminIcon name="close" />
+            </button>
+          </div>
         </header>
 
         <ol className="flex gap-1 overflow-x-auto border-b border-white/10 px-5 py-3">
@@ -134,7 +148,8 @@ export default function CaseWizard({ onClose }: Props) {
           ))}
         </ol>
 
-        <main className="flex-1 overflow-y-auto px-5 py-4">
+        <div className="flex min-h-0 flex-1">
+        <main className="min-w-0 flex-1 overflow-y-auto px-5 py-4">
           {catalogState.kind === "loading" && <p className="text-sm text-slate-400">Cargando provincias, locaciones y sospechosos...</p>}
           {catalogState.kind === "error" && <p className="text-sm text-red-300">{catalogState.message}</p>}
           {submit.kind === "saved" ? (
@@ -149,7 +164,7 @@ export default function CaseWizard({ onClose }: Props) {
               {step === 2 && <StepRoute {...stepProps} />}
               {step === 3 && <StepSuspects {...stepProps} />}
               {step === 4 && <StepClues {...stepProps} />}
-              {step === 5 && <StepWitnesses {...stepProps} />}
+              {step === 5 && <StepWitnesses {...stepProps} selectedId={witnessLocationId} onSelect={setWitnessId} />}
               {step === 6 && <StepReview {...stepProps} check={check} onCheck={runCheck} />}
             </>
           )}
@@ -162,6 +177,14 @@ export default function CaseWizard({ onClose }: Props) {
             </div>
           )}
         </main>
+
+        {/* Vista previa del juego: se actualiza a medida que se completa el paso */}
+        {showPreview && catalog && submit.kind !== "saved" && (
+          <aside className="hidden w-[46%] shrink-0 overflow-y-auto border-l border-white/10 bg-[#0a0f18] px-5 py-4 lg:block">
+            <GamePreview step={step} draft={draft} catalog={catalog} witnessLocationId={witnessLocationId} />
+          </aside>
+        )}
+        </div>
 
         <footer className="flex items-center justify-between gap-2 border-t border-white/10 px-5 py-4">
           {submit.kind === "saved" ? (
