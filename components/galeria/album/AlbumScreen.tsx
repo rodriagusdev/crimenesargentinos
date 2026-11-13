@@ -3,40 +3,40 @@
 import { useEffect, useRef, useState } from "react";
 import ReleasePreviewToggle from "../ReleasePreviewToggle";
 import AlbumCover from "./AlbumCover";
+import AlbumNav from "./AlbumNav";
 import AlbumPage, { type PacketState } from "./AlbumPage";
 import AlbumTab from "./AlbumTab";
+import { buildLeaves } from "./albumPages";
+import { useAlbumPager } from "./useAlbumPager";
 import { audioManager } from "@/lib/audioManager";
 import { useGalleryReleases } from "@/hooks/useGalleryReleases";
 
 // Tiempos del sobre: cuánto tarda en romperse y cuánto duran las figuritas pegándose
 const OPEN_MS = 750;
 const PASTE_MS = 1400;
+// Distancia mínima del deslizamiento con el dedo para dar vuelta la hoja
+const SWIPE_PX = 50;
 
-type View = { selectedId: number | null; turn: "next" | "prev" };
-
-// Propuesta "Álbum de figuritas": tapa con contador, una página por release y un sobrecito para el release nuevo
+// Propuesta "Álbum de figuritas": tapa con contador, 10 figuritas por hoja que se dan vuelta sobre el lomo,
+// pestañas por release y un sobrecito para el release nuevo
 export default function AlbumScreen() {
   const { preview, togglePreview, releases, isNew, firstNumber } = useGalleryReleases();
-  const [view, setView] = useState<View>({ selectedId: null, turn: "next" });
   const [packet, setPacket] = useState<PacketState>("cerrado");
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const touchX = useRef<number | null>(null);
 
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
-  // Sin elección, se abre la página más nueva (al simular el release 2, salta sola a esa)
-  const page = releases.find((r) => r.id === view.selectedId) ?? releases[0];
-  // Páginas en orden de álbum (release 1 primero)
-  const ordered = [...releases].sort((a, b) => a.id - b.id);
-  const pageIndex = ordered.findIndex((r) => r.id === page.id);
+  const leaves = buildLeaves(releases, firstNumber);
+  // Se abre en la primera hoja del release más nuevo (al simular el release 2, salta sola a esa)
+  const firstLeafOf = (id: number) => leaves.findIndex((l) => l.release.id === id);
+  const pager = useAlbumPager(leaves.length, firstLeafOf(releases[0].id));
+  const { state, current } = pager;
+  const leaf = leaves[current];
+
   const newRelease = releases.find(isNew);
   const total = releases.reduce((sum, r) => sum + r.suspects.length, 0);
   const sealedCount = newRelease && (packet === "cerrado" || packet === "abriendo") ? newRelease.suspects.length : 0;
-
-  const goTo = (id: number) => {
-    if (id === page.id) return;
-    audioManager.play("slide");
-    setView({ selectedId: id, turn: id > page.id ? "next" : "prev" });
-  };
 
   const openPacket = () => {
     audioManager.play("opencasefile");
@@ -52,9 +52,14 @@ export default function AlbumScreen() {
     timers.current = [];
     if (!preview) audioManager.play("hint");
     setPacket("cerrado");
-    setView({ selectedId: null, turn: "next" });
+    pager.reset();
     togglePreview();
   };
+
+  // Mientras gira una hoja: abajo queda la que se descubre (siguiente) o la que se tapa (anterior)
+  const turning = state.kind === "turning" ? state : null;
+  const underIndex = turning ? (turning.dir === "next" ? turning.to : turning.from) : current;
+  const flipIndex = turning ? (turning.dir === "next" ? turning.from : turning.to) : null;
 
   return (
     <div className="min-h-svh overflow-x-hidden bg-[#123a6b] bg-[radial-gradient(circle_at_20%_10%,rgba(255,255,255,0.12),transparent_45%)] px-3 sm:px-6 py-8 sm:py-12 pb-24 text-[#1b1813]">
@@ -74,28 +79,48 @@ export default function AlbumScreen() {
           </p>
         )}
 
-        {/* Pestañas: una por release, la más nueva primero */}
+        {/* Pestañas: saltan a la primera hoja de cada release, el más nuevo primero */}
         <div className="flex gap-1.5 px-3 pt-3 overflow-x-auto overflow-y-hidden [scrollbar-width:none]" role="tablist">
           {releases.map((r) => (
-            <AlbumTab key={r.id} label={r.name} active={r.id === page.id} isNew={isNew(r)} onSelect={() => goTo(r.id)} />
+            <AlbumTab key={r.id} label={r.name} active={r.id === leaf.release.id} isNew={isNew(r)} onSelect={() => pager.go(firstLeafOf(r.id))} />
           ))}
         </div>
 
-        <AlbumPage
-          key={page.id}
-          page={page}
-          start={firstNumber(page)}
-          isNew={isNew(page)}
-          packet={packet}
-          turn={view.turn}
-          pageNumber={pageIndex + 1}
-          pageCount={ordered.length}
-          onOpenPacket={openPacket}
-          onTurn={(dir) => {
-            const target = ordered[pageIndex + (dir === "next" ? 1 : -1)];
-            if (target) goTo(target.id);
+        {/* Hojas: la de abajo en su lugar y, durante el giro, la que rota sobre el lomo encima */}
+        <div
+          className="relative touch-pan-y"
+          onTouchStart={(e) => {
+            touchX.current = e.touches[0].clientX;
           }}
-        />
+          onTouchEnd={(e) => {
+            if (touchX.current === null) return;
+            const dx = e.changedTouches[0].clientX - touchX.current;
+            touchX.current = null;
+            if (Math.abs(dx) > SWIPE_PX) pager.go(current + (dx < 0 ? 1 : -1));
+          }}
+        >
+          <AlbumPage
+            key={`hoja-${underIndex}`}
+            leaf={leaves[underIndex]}
+            isNew={isNew(leaves[underIndex].release)}
+            packet={packet}
+            onOpenPacket={openPacket}
+            cast={turning?.dir}
+          />
+          {flipIndex !== null && turning && (
+            <AlbumPage
+              key={`giro-${flipIndex}-${turning.dir}`}
+              leaf={leaves[flipIndex]}
+              isNew={isNew(leaves[flipIndex].release)}
+              packet={packet}
+              onOpenPacket={openPacket}
+              flip={turning.dir}
+              onFlipEnd={pager.finish}
+            />
+          )}
+        </div>
+
+        <AlbumNav page={current + 1} pageCount={leaves.length} onPrev={() => pager.go(current - 1)} onNext={() => pager.go(current + 1)} />
       </div>
 
       <ReleasePreviewToggle preview={preview} onToggle={onToggle} />

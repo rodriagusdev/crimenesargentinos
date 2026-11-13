@@ -1,32 +1,43 @@
+import type { AnimationEvent } from "react";
 import StickerCard from "./StickerCard";
 import StickerSlot from "./StickerSlot";
 import StickerPacket from "./StickerPacket";
 import styles from "./album.module.css";
-import type { SuspectRelease } from "@/lib/suspectReleases";
+import { PER_PAGE, type AlbumLeaf } from "./albumPages";
+import type { TurnDir } from "./useAlbumPager";
 
 export type PacketState = "cerrado" | "abriendo" | "pegando" | "pegado";
 
 type Props = {
-  page: SuspectRelease;
-  start: number;
+  leaf: AlbumLeaf;
   isNew: boolean;
-  /** Estado del sobre de esta página (solo cuenta en la del release nuevo) */
+  /** Estado del sobre (solo cuenta en las hojas del release nuevo) */
   packet: PacketState;
-  turn: "next" | "prev";
-  pageNumber: number;
-  pageCount: number;
   onOpenPacket: () => void;
-  onTurn: (dir: "next" | "prev") => void;
+  /** Hoja que está girando sobre el lomo (se dibuja encima, ocupando el mismo lugar) */
+  flip?: TurnDir;
+  /** Hoja de abajo mientras otra gira: recibe su sombra */
+  cast?: TurnDir;
+  onFlipEnd?: () => void;
 };
 
-// Página del álbum: lomo con sombra, encabezado, casilleros/figuritas y pie con número de página y flechas
-export default function AlbumPage({ page, start, isNew, packet, turn, pageNumber, pageCount, onOpenPacket, onTurn }: Props) {
+// Hoja del álbum: lomo con sombra, encabezado del release y 10 casilleros (los que sobran quedan en blanco)
+export default function AlbumPage({ leaf, isNew, packet, onOpenPacket, flip, cast, onFlipEnd }: Props) {
+  const { release, suspects, start, part, parts } = leaf;
   const sealed = isNew && (packet === "cerrado" || packet === "abriendo");
-  const count = page.suspects.length;
+  const blanks = PER_PAGE - suspects.length;
+  const flipClass = flip ? `${styles.leaf} ${flip === "next" ? styles.flipOut : styles.flipIn} absolute inset-0 z-10` : "relative";
+
+  // Solo la animación de la hoja termina el giro (las de adentro, como el brillo, también burbujean)
+  const handleEnd = (e: AnimationEvent<HTMLElement>) => {
+    if (e.target === e.currentTarget) onFlipEnd?.();
+  };
 
   return (
     <section
-      className={`${turn === "next" ? styles.turnNext : styles.turnPrev} relative rounded-xl rounded-tl-none bg-[#f3ead2] p-3 pl-5 sm:p-6 sm:pl-10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] bg-[repeating-linear-gradient(0deg,transparent,transparent_23px,rgba(29,78,137,0.06)_24px)]`}
+      onAnimationEnd={flip ? handleEnd : undefined}
+      className={`${flipClass} rounded-xl rounded-tl-none bg-[#f3ead2] p-3 pl-5 sm:p-6 sm:pl-10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] bg-[repeating-linear-gradient(0deg,transparent,transparent_23px,rgba(29,78,137,0.06)_24px)]`}
+      aria-hidden={flip === "next" ? true : undefined}
     >
       {/* Sombra del lomo y agujeritos de la encuadernación */}
       <div className="pointer-events-none absolute inset-y-0 left-0 w-4 sm:w-7 bg-[linear-gradient(90deg,rgba(0,0,0,0.22),transparent)]" aria-hidden />
@@ -37,49 +48,40 @@ export default function AlbumPage({ page, start, isNew, packet, turn, pageNumber
       </div>
 
       <div className="flex flex-wrap items-end justify-between gap-2 border-b-2 border-dashed border-[#1d4e89]/30 pb-3 mb-4">
-        <h2 className="text-sm sm:text-base text-[#1d4e89]">{page.name.toUpperCase()}</h2>
+        <h2 className="text-sm sm:text-base text-[#1d4e89]">
+          {release.name.toUpperCase()}
+          {parts > 1 && <span className="ml-2 text-[10px] text-[#1d4e89]/60">({part}/{parts})</span>}
+        </h2>
         <span className="font-mono text-sm font-bold text-[#1d4e89]">
-          Figuritas {start} a {start + count - 1} · {sealed ? 0 : count}/{count}
+          Figuritas {start} a {start + suspects.length - 1}
         </span>
       </div>
 
       <div className="relative">
-        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-4">
-          {page.suspects.map((s, i) =>
+        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-4">
+          {suspects.map((s, i) =>
             sealed ? (
               <StickerSlot key={s.name} number={start + i} />
             ) : (
               <StickerCard key={s.name} suspect={s} number={start + i} isNew={isNew} pasting={isNew && packet === "pegando"} order={i} />
             ),
           )}
+          {/* Casilleros en blanco para que todas las hojas midan lo mismo */}
+          {Array.from({ length: blanks }, (_, i) => (
+            <StickerSlot key={`blank-${i}`} number={0} blank />
+          ))}
         </div>
-        {sealed && <StickerPacket count={count} opening={packet === "abriendo"} onOpen={onOpenPacket} />}
+        {sealed && <StickerPacket count={release.suspects.length} opening={packet === "abriendo"} onOpen={onOpenPacket} />}
       </div>
 
-      {/* Pie de página */}
-      <div className="mt-5 flex items-center justify-between border-t-2 border-dashed border-[#1d4e89]/30 pt-3 text-[#1d4e89]">
-        <button
-          type="button"
-          onClick={() => onTurn("prev")}
-          aria-label="Página anterior"
-          disabled={pageNumber === 1}
-          className="px-2 py-1 text-[10px] cursor-pointer disabled:opacity-25 disabled:cursor-default hover:-translate-x-0.5 transition-transform"
-        >
-          ◀<span className="hidden sm:inline"> ANTERIOR</span>
-        </button>
-        <span className="font-mono text-xs font-bold">
-          — Pág. {pageNumber} de {pageCount} —
-        </span>
-        <button
-          type="button"
-          onClick={() => onTurn("next")}
-          aria-label="Página siguiente"
-          disabled={pageNumber === pageCount}
-          className="px-2 py-1 text-[10px] cursor-pointer disabled:opacity-25 disabled:cursor-default hover:translate-x-0.5 transition-transform"
-        >
-          <span className="hidden sm:inline">SIGUIENTE </span>▶
-        </button>
-      </div>
+      {/* Sombreado de la hoja que gira y sombra que cae sobre la de abajo */}
+      {flip && <span className={`${styles.leafShade} pointer-events-none absolute inset-0 rounded-xl rounded-tl-none`} aria-hidden />}
+      {cast && (
+        <span
+          className={`${styles.castShadow} ${cast === "next" ? styles.castOut : styles.castIn} pointer-events-none absolute inset-0 rounded-xl rounded-tl-none`}
+          aria-hidden
+        />
+      )}
     </section>
   );
 }

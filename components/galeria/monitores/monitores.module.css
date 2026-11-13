@@ -1,0 +1,104 @@
+/* Sala de monitores: estática, barrido, tracking de VHS, encendido de la pared nueva y perillas */
+
+/* Ruido de estática (textura SVG que salta de posición) */
+.noise {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-size: 180px 180px;
+  animation: noise 0.35s steps(5) infinite;
+}
+@keyframes noise {
+  0% { background-position: 0 0; }
+  20% { background-position: -60px 40px; }
+  40% { background-position: 50px -70px; }
+  60% { background-position: -90px -20px; }
+  80% { background-position: 30px 80px; }
+  100% { background-position: 0 0; }
+}
+
+/* Ráfaga de estática al cambiar de canal: aparece y se va */
+.burst {
+  animation: burst 0.55s ease-out both;
+}
+@keyframes burst {
+  0% { opacity: 1; }
+  60% { opacity: 0.85; }
+  100% { opacity: 0; }
+}
+
+/* Barra clara que recorre la pantalla de arriba a abajo */
+.roll {
+  background: linear-gradient(180deg, transparent, rgba(200, 255, 214, 0.1) 45%, rgba(200, 255, 214, 0.16) 50%, transparent);
+  animation: roll 5s linear infinite;
+}
+@keyframes roll {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(400%); }
+}
+
+/* Tracking de VHS: cada tanto la imagen se corre y aparece una franja con ruido */
+.glitch {
+  animation: glitch 9s steps(1) infinite;
+}
+@keyframes glitch {
+  0%, 93%, 100% { transform: none; }
+  94% { transform: translateX(-4px) skewX(-6deg); }
+  95% { transform: translateX(5px); }
+  96% { transform: translateX(-2px) skewX(3deg); }
+  97% { transform: none; }
+}
+.trackingBand {
+  height: 14%;
+  opacity: 0;
+  animation: tracking 9s linear infinite;
+}
+@keyframes tracking {
+  0%, 92% { opacity: 0; transform: translateY(-120%); }
+  93% { opacity: 0.9; transform: translateY(80%); }
+  97% { opacity: 0.8; transform: translateY(560%); }
+  98%, 100% { opacity: 0; transform: translateY(700%); }
+}
+
+/* Encendido de un monitor: punto blanco, línea, imagen */
+.powerOn {
+  animation: powerOn 0.9s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
+}
+@keyframes powerOn {
+  0% { transform: scale(0.02, 0.01); filter: brightness(6); opacity: 0.2; }
+  30% { transform: scale(1, 0.015); filter: brightness(5); opacity: 1; }
+  65% { transform: scale(1, 1.06); filter: brightness(2); }
+  100% { transform: none; filter: none; }
+}
+
+/* Barra de progreso de la secuencia de encendido */
+.progress {
+  transform-origin: left;
+  animation: progress 2.4s steps(12) both;
+}
+@keyframes progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* Perilla que gira hacia el canal elegido */
+.knob {
+  transition: transform 0.35s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .noise,
+  .burst,
+  .roll,
+  .glitch,
+  .trackingBand,
+  .powerOn,
+  .progress {
+    animation: none;
+  }
+  .burst,
+  .trackingBand {
+    opacity: 0;
+  }
+  .knob {
+    transition: none;
+  }
+}

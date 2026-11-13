@@ -27,12 +27,9 @@ export default function WallClock() {
       className="relative size-14 sm:size-20 shrink-0 rounded-full border-4 border-[#2b2117] bg-[#f6f0de] shadow-[0_6px_14px_rgba(0,0,0,0.6),inset_0_0_8px_rgba(0,0,0,0.25)]"
     >
       {[0, 1, 2, 3].map((q) => (
-        <span
-          key={q}
-          className="absolute left-1/2 top-1 h-1.5 w-0.5 -translate-x-1/2 bg-[#2b2117] origin-[50%_calc(1.5rem-0.25rem)] sm:origin-[50%_calc(2.25rem)]"
-          style={{ rotate: `${q * 90}deg` }}
-          aria-hidden
-        />
+        <span key={q} className="absolute inset-0" style={{ rotate: `${q * 90}deg` }} aria-hidden>
+          <span className="absolute left-1/2 top-1 h-1.5 w-0.5 -translate-x-1/2 bg-[#2b2117]" />
+        </span>
       ))}
       <span
         className="absolute left-1/2 top-1/2 h-[30%] w-1 -translate-x-1/2 -translate-y-full origin-bottom rounded-full bg-[#2b2117]"

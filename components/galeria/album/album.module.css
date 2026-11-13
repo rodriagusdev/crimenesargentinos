@@ -24,37 +24,83 @@
   }
 }
 
-/* Vuelta de página: entra girando desde el lomo */
-.turnNext {
+/* Vuelta de hoja: la hoja gira sobre el lomo (izquierda) con perspectiva.
+   "Siguiente": la hoja actual se levanta y se va; "anterior": la hoja previa vuelve y se apoya */
+.leaf {
   transform-origin: left center;
-  animation: turnNext 0.55s cubic-bezier(0.25, 0.8, 0.3, 1) both;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
 }
-.turnPrev {
-  transform-origin: right center;
-  animation: turnPrev 0.55s cubic-bezier(0.25, 0.8, 0.3, 1) both;
+.flipOut {
+  animation: flipOut 0.75s cubic-bezier(0.45, 0.05, 0.35, 1) forwards;
 }
-@keyframes turnNext {
+.flipIn {
+  animation: flipIn 0.75s cubic-bezier(0.45, 0.05, 0.35, 1) forwards;
+}
+@keyframes flipOut {
   from {
-    transform: perspective(1400px) rotateY(-70deg);
-    opacity: 0.2;
-    filter: brightness(0.6);
+    transform: perspective(1600px) rotateY(0deg);
   }
   to {
-    transform: none;
-    opacity: 1;
-    filter: none;
+    transform: perspective(1600px) rotateY(-180deg);
   }
 }
-@keyframes turnPrev {
+@keyframes flipIn {
   from {
-    transform: perspective(1400px) rotateY(70deg);
-    opacity: 0.2;
-    filter: brightness(0.6);
+    transform: perspective(1600px) rotateY(-180deg);
   }
   to {
-    transform: none;
+    transform: perspective(1600px) rotateY(0deg);
+  }
+}
+/* Sombreado de la hoja que gira: se oscurece al pararse de canto */
+.leafShade {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.05) 40%, rgba(255, 255, 255, 0.15));
+  opacity: 0;
+}
+.flipOut .leafShade {
+  animation: shadeOut 0.75s ease-in forwards;
+}
+.flipIn .leafShade {
+  animation: shadeIn 0.75s ease-out forwards;
+}
+@keyframes shadeOut {
+  to {
     opacity: 1;
-    filter: none;
+  }
+}
+@keyframes shadeIn {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+/* Sombra que la hoja proyecta sobre la página de abajo */
+.castShadow {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.45), transparent 70%);
+}
+.castOut {
+  animation: castOut 0.75s ease-in-out forwards;
+}
+.castIn {
+  animation: castIn 0.75s ease-in-out forwards;
+}
+@keyframes castOut {
+  from {
+    opacity: 0.9;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes castIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.9;
   }
 }
 
@@ -150,8 +196,12 @@
   .shine,
   .sticker:hover .shine,
   .sticker:focus-visible .shine,
-  .turnNext,
-  .turnPrev,
+  .flipOut,
+  .flipIn,
+  .flipOut .leafShade,
+  .flipIn .leafShade,
+  .castOut,
+  .castIn,
   .packetIdle,
   .packetOpening,
   .flapTear,
