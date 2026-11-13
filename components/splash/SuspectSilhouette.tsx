@@ -13,21 +13,31 @@ const HEADS: Record<SilhouetteVariant, string> = {
   beret: "M33 30q2-12 19-12 14 0 15 9 0 4-6 5H36q-4 0-3-2z",
 };
 
-export default function SuspectSilhouette({ variant }: { variant: SilhouetteVariant }) {
+type SuspectSilhouetteProps = {
+  variant: SilhouetteVariant;
+  /** false: solo la figura, sin el fondo de rueda de reconocimiento */
+  backdrop?: boolean;
+};
+
+export default function SuspectSilhouette({ variant, backdrop = true }: SuspectSilhouetteProps) {
   return (
     <svg viewBox="0 0 100 100" className="absolute inset-0 size-full" aria-hidden>
-      {/* Fondo de rueda de reconocimiento con marcas de altura */}
-      <rect width="100" height="100" fill="#3a4250" />
-      {[20, 35, 50, 65, 80].map((y) => (
-        <line key={y} x1="0" x2="100" y1={y} y2={y} stroke="#cfd6e0" strokeOpacity="0.35" strokeWidth="0.8" />
-      ))}
-      <rect width="100" height="100" fill="url(#splash-spot)" />
-      <defs>
-        <radialGradient id="splash-spot" cx="50%" cy="30%" r="70%">
-          <stop offset="0%" stopColor="#fff2cf" stopOpacity="0.35" />
-          <stop offset="100%" stopColor="#000" stopOpacity="0.35" />
-        </radialGradient>
-      </defs>
+      {backdrop && (
+        <>
+          {/* Fondo de rueda de reconocimiento con marcas de altura */}
+          <rect width="100" height="100" fill="#3a4250" />
+          {[20, 35, 50, 65, 80].map((y) => (
+            <line key={y} x1="0" x2="100" y1={y} y2={y} stroke="#cfd6e0" strokeOpacity="0.35" strokeWidth="0.8" />
+          ))}
+          <rect width="100" height="100" fill="url(#splash-spot)" />
+          <defs>
+            <radialGradient id="splash-spot" cx="50%" cy="30%" r="70%">
+              <stop offset="0%" stopColor="#fff2cf" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="#000" stopOpacity="0.35" />
+            </radialGradient>
+          </defs>
+        </>
+      )}
 
       {/* Cuerpo y cabeza */}
       <g fill="#0b0d12">
@@ -38,9 +48,11 @@ export default function SuspectSilhouette({ variant }: { variant: SilhouetteVari
       </g>
 
       {/* Identidad desconocida */}
-      <text x="50" y="52" textAnchor="middle" fontSize="16" fill="#e1c380" fillOpacity="0.85" fontFamily="inherit">
-        ?
-      </text>
+      {backdrop && (
+        <text x="50" y="52" textAnchor="middle" fontSize="16" fill="#e1c380" fillOpacity="0.85" fontFamily="inherit">
+          ?
+        </text>
+      )}
     </svg>
   );
 }
