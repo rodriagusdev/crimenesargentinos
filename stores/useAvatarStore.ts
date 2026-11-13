@@ -1,7 +1,7 @@
 "use client";
 
-import { API_URL } from "@/lib/api";
-import { getTokenClaims, isTokenExpired } from "@/lib/auth";
+import { API_URL, authHeaders, handleUnauthorized } from "@/lib/api";
+import { getUserId } from "@/lib/auth";
 import { create } from "zustand";
 
 export interface AvatarOption {
@@ -15,113 +15,69 @@ export const AVAILABLE_AVATARS: AvatarOption[] = [
   { id: "avatar2", name: "Agente 2", src: "/images/avatars/avatar2.webp" },
 ];
 
-const STORAGE_KEY = "crimenes_player_avatar";
+const AVATAR_ENDPOINT = `${API_URL}/api/Auth/avatar`;
 
-function getStoredAvatar(): string | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const saved = sessionStorage.getItem(STORAGE_KEY) || localStorage.getItem(STORAGE_KEY);
-    if (saved && AVAILABLE_AVATARS.some((a) => a.src === saved)) {
-      return saved;
-    }
-  } catch {
-    // Modo privado o restricciones de almacenamiento
-  }
-  return null;
+function normalizeAvatar(src: unknown): string | null {
+  return typeof src === "string" && AVAILABLE_AVATARS.some((a) => a.src === src) ? src : null;
 }
 
-function buildAuthHeaders(): HeadersInit | null {
-  if (typeof window === "undefined") return null;
-
-  const token = localStorage.getItem("auth_token");
-  const claims = getTokenClaims();
-
-  if (!token || !claims || isTokenExpired(claims)) {
-    return null;
-  }
-
-  return {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
-  };
-}
-
-async function persistAvatarLocalFallback(src: string | null) {
-  if (typeof window === "undefined") return;
-  try {
-    if (src) {
-      sessionStorage.setItem(STORAGE_KEY, src);
-      localStorage.setItem(STORAGE_KEY, src);
-    } else {
-      sessionStorage.removeItem(STORAGE_KEY);
-      localStorage.removeItem(STORAGE_KEY);
-    }
-  } catch {
-    // Modo privado o restricciones de almacenamiento
-  }
-}
-
-async function fetchAvatarFromServer(): Promise<string | null> {
-  if (typeof window === "undefined") return getStoredAvatar();
-
-  const headers = buildAuthHeaders();
-  if (!headers) return getStoredAvatar();
-
-  try {
-    const response = await fetch(`${API_URL}/api/Auth/avatar`, {
-      method: "GET",
-      headers,
-    });
-
-    if (!response.ok) {
-      return getStoredAvatar();
-    }
-
-    const data = await response.json().catch(() => ({}));
-    const avatarUrl = typeof data?.avatarUrl === "string" ? data.avatarUrl : null;
-    if (avatarUrl && AVAILABLE_AVATARS.some((a) => a.src === avatarUrl)) {
-      await persistAvatarLocalFallback(avatarUrl);
-      return avatarUrl;
-    }
-  } catch {
-    // Ignorar y usar el valor local como respaldo
-  }
-
-  return getStoredAvatar();
+async function readAvatar(response: Response): Promise<string | null> {
+  handleUnauthorized(response);
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const data = await response.json().catch(() => ({}));
+  return normalizeAvatar(data?.avatarUrl);
 }
 
 interface AvatarStoreState {
+  // El avatar vive en la base (Users.AvatarUrl); acá solo se refleja el del usuario logueado
   currentAvatar: string | null;
-  setAvatar: (src: string | null) => Promise<void>;
+  loadedForUser: string | null;
+  saving: boolean;
+  error: string | null;
   initAvatar: () => Promise<void>;
+  setAvatar: (src: string | null) => Promise<void>;
 }
 
-export const useAvatarStore = create<AvatarStoreState>()((set) => ({
+export const useAvatarStore = create<AvatarStoreState>()((set, get) => ({
   currentAvatar: null,
+  loadedForUser: null,
+  saving: false,
+  error: null,
 
-  setAvatar: async (src: string | null) => {
-    const normalized = src && AVAILABLE_AVATARS.some((a) => a.src === src) ? src : null;
+  initAvatar: async () => {
+    const userId = getUserId();
+    if (!userId) {
+      set({ currentAvatar: null, loadedForUser: null });
+      return;
+    }
+    // Ya cargado (o cargándose) para este usuario: varios componentes lo piden al montar
+    if (get().loadedForUser === userId) return;
 
-    await persistAvatarLocalFallback(normalized);
-    set({ currentAvatar: normalized });
-
-    const headers = buildAuthHeaders();
-    if (!headers) return;
-
+    set({ currentAvatar: null, loadedForUser: userId, error: null });
     try {
-      await fetch(`${API_URL}/api/Auth/avatar`, {
-        method: "PUT",
-        headers,
-        body: JSON.stringify({ avatarUrl: normalized }),
-      });
-    } catch {
-      // El avatar sigue guardado en caché local si la API no responde.
+      const avatar = await readAvatar(await fetch(AVATAR_ENDPOINT, { headers: authHeaders() }));
+      if (get().loadedForUser === userId) set({ currentAvatar: avatar });
+    } catch (err) {
+      console.error("No se pudo cargar el avatar:", err);
+      if (get().loadedForUser === userId) set({ loadedForUser: null });
     }
   },
 
-  initAvatar: async () => {
-    const stored = await fetchAvatarFromServer();
-    set({ currentAvatar: stored });
+  setAvatar: async (src: string | null) => {
+    if (get().saving) return;
+    set({ saving: true, error: null });
+    try {
+      const response = await fetch(AVATAR_ENDPOINT, {
+        method: "PUT",
+        headers: authHeaders(),
+        body: JSON.stringify({ avatarUrl: normalizeAvatar(src) }),
+      });
+      set({ currentAvatar: await readAvatar(response), loadedForUser: getUserId() });
+    } catch (err) {
+      console.error("No se pudo guardar el avatar:", err);
+      set({ error: "No se pudo guardar el avatar. Probá de nuevo." });
+    } finally {
+      set({ saving: false });
+    }
   },
 }));
-

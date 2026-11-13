@@ -16,6 +16,8 @@ export default function AvatarPickerModal({ isOpen, onClose }: AvatarPickerModal
   const [mounted, setMounted] = useState(false);
   const currentAvatar = useAvatarStore((state) => state.currentAvatar);
   const setAvatar = useAvatarStore((state) => state.setAvatar);
+  const saving = useAvatarStore((state) => state.saving);
+  const error = useAvatarStore((state) => state.error);
 
   useEffect(() => {
     setMounted(true);
@@ -24,6 +26,7 @@ export default function AvatarPickerModal({ isOpen, onClose }: AvatarPickerModal
   if (!mounted || !isOpen || typeof window === "undefined") return null;
 
   const handleSelect = (src: string | null) => {
+    if (saving) return;
     audioManager.play("click");
     void setAvatar(src);
   };
@@ -79,7 +82,9 @@ export default function AvatarPickerModal({ isOpen, onClose }: AvatarPickerModal
                 key={avatar.id}
                 type="button"
                 onClick={() => handleSelect(avatar.src)}
+                disabled={saving}
                 className={`
+                  disabled:cursor-wait disabled:opacity-70
                   group relative flex flex-col items-center gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all duration-200 w-full max-w-[270px]
                   ${
                     isSelected
@@ -118,12 +123,19 @@ export default function AvatarPickerModal({ isOpen, onClose }: AvatarPickerModal
           })}
         </div>
 
+        {error && (
+          <p role="alert" className="text-center text-xs font-mono text-red-300">
+            {error}
+          </p>
+        )}
+
         {currentAvatar && (
           <div className="flex justify-center pt-1">
             <button
               type="button"
               onClick={() => handleSelect(null)}
-              className="text-xs font-mono text-slate-400 hover:text-red-300 underline underline-offset-4 transition-colors cursor-pointer"
+              disabled={saving}
+              className="disabled:cursor-waittext-xs font-mono text-slate-400 hover:text-red-300 underline underline-offset-4 transition-colors cursor-pointer"
             >
               Restablecer a sin foto
             </button>
