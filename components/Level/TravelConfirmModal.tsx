@@ -54,18 +54,19 @@ export default function TravelConfirmModal({
       <div
         className="
           relative w-full max-w-md
-          p-6 sm:p-7 rounded-2xl
+          max-h-[calc(100svh-2rem)] overflow-y-auto
+          p-5 sm:p-7 rounded-2xl
           backdrop-blur-xs
           border border-[rgba(255,243,199,0.18)]
           bg-[rgba(16,24,36,0.92)]
           shadow-[0_20px_50px_rgba(0,0,0,0.7)]
           text-[#FFF3C7]
-          flex flex-col items-center text-center gap-4
+          flex flex-col items-center text-center gap-3 sm:gap-4
         "
         onClick={(e) => e.stopPropagation()}
       >
         {/* Icono de Destino */}
-        <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-2 border-[rgba(255,243,199,0.25)] bg-black/40 shadow-[0_10px_25px_rgba(0,0,0,0.5)] flex items-center justify-center">
+        <div className="relative w-16 h-16 sm:w-20 sm:h-20 [@media(max-height:500px)_and_(pointer:coarse)]:w-12 [@media(max-height:500px)_and_(pointer:coarse)]:h-12 shrink-0 rounded-2xl overflow-hidden border-2 border-[rgba(255,243,199,0.25)] bg-black/40 shadow-[0_10px_25px_rgba(0,0,0,0.5)] flex items-center justify-center">
           {destinationIcon ? (
             <Image
               src={destinationIcon}
@@ -84,18 +85,18 @@ export default function TravelConfirmModal({
           <span className="text-[10px] uppercase font-mono tracking-widest text-[#E1C380]/80 font-semibold">
             {title}
           </span>
-          <h2 className="text-xl sm:text-2xl font-bold font-mono text-[#FFF3C7] mt-0.5">
+          <h2 className="text-base sm:text-2xl font-bold font-mono text-[#FFF3C7] mt-0.5 break-words leading-snug">
             {destinationName}
           </h2>
         </div>
 
         {/* Tarjeta de desglose de costos */}
-        <div className="w-full p-4 rounded-xl bg-[rgba(10,15,25,0.6)] border border-[rgba(255,243,199,0.12)] shadow-inner flex flex-col gap-3">
-          <p className="text-xs text-[#FFF3C7]/80 font-mono text-center">
+        <div className="w-full p-3 sm:p-4 rounded-xl bg-[rgba(10,15,25,0.6)] border border-[rgba(255,243,199,0.12)] shadow-inner flex flex-col gap-3">
+          <p className="text-[10px] sm:text-xs text-[#FFF3C7]/80 font-mono text-center leading-relaxed">
             El desplazamiento consumirá los siguientes recursos de investigación:
           </p>
 
-          <div className="grid grid-cols-2 gap-3 pt-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 pt-1">
             {/* Costo de Tiempo */}
             <div className="flex flex-col items-center p-2.5 rounded-lg bg-[rgba(28,42,58,0.6)] border border-[rgba(255,243,199,0.1)]">
               <div className="flex items-center gap-1.5 text-amber-400 mb-1">
@@ -120,7 +121,7 @@ export default function TravelConfirmModal({
               <span className="text-base font-bold font-mono text-red-400">
                 -{cost.time} HS
               </span>
-              <span className="text-[9px] text-[#FFF3C7]/60 font-mono mt-0.5">
+              <span className="text-[10px] sm:text-[9px] text-[#FFF3C7]/60 font-mono mt-0.5">
                 (Quedan {Math.max(0, currentResources.time - cost.time)} HS)
               </span>
             </div>
@@ -149,7 +150,7 @@ export default function TravelConfirmModal({
               <span className="text-base font-bold font-mono text-red-400">
                 -{cost.pi} PI
               </span>
-              <span className="text-[9px] text-[#FFF3C7]/60 font-mono mt-0.5">
+              <span className="text-[10px] sm:text-[9px] text-[#FFF3C7]/60 font-mono mt-0.5">
                 (Quedan {Math.max(0, currentResources.pi - cost.pi)} PI)
               </span>
             </div>
@@ -162,6 +163,7 @@ export default function TravelConfirmModal({
             icon="✈️"
             label="CONFIRMAR DESPLAZAMIENTO"
             variant="primary"
+            className="max-sm:px-3 max-sm:text-[10px]"
             onClick={onConfirm}
             loading={loading}
             disabled={!canTravel || loading}
@@ -171,6 +173,7 @@ export default function TravelConfirmModal({
             icon="✕"
             label="CANCELAR"
             variant="secondary"
+            className="max-sm:px-3 max-sm:text-[10px]"
             onClick={onCancel}
             disabled={loading}
           />

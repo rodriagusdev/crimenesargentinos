@@ -6,7 +6,7 @@ export default async function Level({ params }: PageProps<"/level/[levelId]">) {
   const id = Number(levelId);
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden select-none bg-[#05070a]">
+    <div className="relative w-screen h-dvh overflow-hidden select-none bg-[#05070a]">
       {/* ========================================================================= */}
       {/* SALA DE INVESTIGACIÓN POLICIAL (100% PANTALLA COMPLETA SIN BORDES OSCUROS) */}
       {/* ========================================================================= */}

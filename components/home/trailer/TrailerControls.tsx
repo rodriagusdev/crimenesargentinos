@@ -47,7 +47,7 @@ export default function TrailerControls({ playing, elapsed, total, starts, onTog
         {fmt(elapsed)} / {fmt(total)}
       </span>
 
-      <button type="button" onClick={onSkip} className="shrink-0 px-3 py-3 text-[8px] sm:text-[9px] text-[#FFF3C7]/70 hover:text-[#E1C380] cursor-pointer">
+      <button type="button" onClick={onSkip} className="shrink-0 px-3 py-3 text-[10px] sm:text-[9px] text-[#FFF3C7]/70 hover:text-[#E1C380] cursor-pointer">
         SALTAR ▸▸
       </button>
     </div>

@@ -41,8 +41,8 @@ export default function InvestigationBoard({
 
   const allClues = useMemo(() => {
     return [
-      ...initialClues.map((text, idx) => ({ id: `init-${idx}`, text, source: "Expediente Inicial" })),
-      ...discoveredClues.map((text, idx) => ({ id: `disc-${idx}`, text, source: "Testimonio" })),
+      ...initialClues.map((text, idx) => ({ id: `init-${idx}`, text, source: "Expediente Inicial", isTestimony: false })),
+      ...discoveredClues.map((text, idx) => ({ id: `disc-${idx}`, text, source: "Testimonio", isTestimony: true })),
     ];
   }, [initialClues, discoveredClues]);
 
@@ -168,10 +168,20 @@ export default function InvestigationBoard({
                         📍
                       </span>
 
-                      {/* Origen de la pista */}
-                      <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-zinc-300/80 text-[10px] text-zinc-600 font-bold uppercase tracking-wider">
+                      {/* Origen de la pista: las testimoniales (las que cuentan para la orden de arresto) van en azul tinta */}
+                      <div
+                        className={`flex items-center justify-between pb-1.5 mb-1.5 border-b text-[10px] font-bold uppercase tracking-wider ${clue.isTestimony
+                          ? "-mx-3.5 -mt-3.5 px-3.5 pt-2.5 rounded-t-lg bg-[#1e3a5f] border-[#14294a] text-[#dbeafe]"
+                          : "border-zinc-300/80 text-zinc-600"
+                          }`}
+                      >
                         <span>Pista #{idx + 1}</span>
-                        <span className="bg-zinc-200/80 px-2 py-0.5 rounded text-[10px] sm:text-[9px] text-zinc-700">
+                        <span
+                          className={`px-2 py-0.5 rounded text-[10px] sm:text-[9px] ${clue.isTestimony
+                            ? "bg-[#dbeafe] text-[#1e3a5f]"
+                            : "bg-zinc-200/80 text-zinc-700"
+                            }`}
+                        >
                           {clue.source}
                         </span>
                       </div>

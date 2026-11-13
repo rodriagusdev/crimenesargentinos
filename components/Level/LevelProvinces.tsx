@@ -108,7 +108,8 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
       )}
 
 
-      <div className="absolute inset-0 z-10">
+      {/* En celular los pines se achican (ProvinceButton es compartido con el admin, se ajusta desde acá) */}
+      <div className="absolute inset-0 z-10 max-sm:[&>div>div]:w-14">
         {data.provinces.map((province) => {
           const isCurrent = province.id === currentProvinceId;
           const coords = getCalibratedProvinceCoordinates(province);
@@ -128,7 +129,7 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
       </div>
 
       {travel.error && (
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 px-5 py-3 rounded-2xl bg-red-950/80 border border-red-400/40 text-red-200 text-sm">
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 w-max max-w-[calc(100vw-2rem)] text-center px-5 py-3 rounded-2xl bg-red-950/80 border border-red-400/40 text-red-200 text-xs sm:text-sm">
           {travel.error}
         </div>
       )}

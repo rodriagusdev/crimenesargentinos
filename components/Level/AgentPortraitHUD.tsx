@@ -31,11 +31,12 @@ export default function AgentPortraitHUD() {
     <aside
       aria-label="Retrato del Detective"
       className="
-        fixed bottom-8 right-8 z-30 pointer-events-none select-none
-        w-36 h-48 sm:w-44 sm:h-56 md:w-56 md:h-56
-        p-2 sm:p-2.5
+        fixed bottom-3 right-3 sm:bottom-8 sm:right-8 z-30 pointer-events-none select-none
+        w-20 h-24 sm:w-44 sm:h-56 md:w-56 md:h-56
+        p-1 sm:p-2.5
         bg-[#0c131d]
-        border-[5px] sm:border-[6px] border-[#1a2332]
+        border-[3px] sm:border-[6px] border-[#1a2332]
+        [@media(max-height:500px)_and_(pointer:coarse)]:bottom-3 [@media(max-height:500px)_and_(pointer:coarse)]:right-3 [@media(max-height:500px)_and_(pointer:coarse)]:w-20 [@media(max-height:500px)_and_(pointer:coarse)]:h-24 [@media(max-height:500px)_and_(pointer:coarse)]:p-1 [@media(max-height:500px)_and_(pointer:coarse)]:border-[3px]
         rounded-xl
         shadow-[0_20px_50px_rgba(0,0,0,0.9),inset_0_2px_4px_rgba(255,255,255,0.05),0_0_0_1px_rgba(0,0,0,0.8)]
         flex items-center justify-center
@@ -48,14 +49,14 @@ export default function AgentPortraitHUD() {
             alt="Retrato del Detective"
             fill
             priority
-            sizes="(max-width: 640px) 144px, (max-width: 768px) 176px, 224px"
+            sizes="(max-width: 640px) 80px, (max-width: 768px) 176px, 224px"
             className="object-cover object-top"
           />
         </div>
       ) : (
-        <div className="relative w-full h-full overflow-hidden rounded-sm flex flex-col items-center justify-center bg-[#070b12] text-amber-300/40 border border-black/70 p-4">
-          <span className="text-4xl sm:text-5xl mb-2">👤</span>
-          <span className="font-mono text-[9px] sm:text-[10px] uppercase tracking-widest text-[#E1C380]/60 font-semibold">
+        <div className="relative w-full h-full overflow-hidden rounded-sm flex flex-col items-center justify-center bg-[#070b12] text-amber-300/40 border border-black/70 p-1 sm:p-4">
+          <span className="text-2xl sm:text-5xl mb-1 sm:mb-2">👤</span>
+          <span className="font-mono text-[10px] text-center uppercase tracking-normal sm:tracking-widest text-[#E1C380]/60 font-semibold">
             SIN FOTO
           </span>
         </div>

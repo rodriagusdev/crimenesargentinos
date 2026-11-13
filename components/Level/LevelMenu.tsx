@@ -128,7 +128,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
 
   return (
     <>
-      <aside className="mt-4 md:mt-4 xl:mt-6 ml-4 md:ml-4 xl:ml-6 rounded-2xl z-30 absolute left-0 top-0 w-[360px] md:w-[380px] xl:w-[480px] max-w-[calc(100vw-2rem)] backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] text-[#FFF3C7] overflow-hidden">
+      <aside className="mt-3 sm:mt-4 xl:mt-6 ml-3 sm:ml-4 xl:ml-6 rounded-2xl z-30 absolute left-0 top-0 w-[360px] md:w-[380px] xl:w-[480px] max-w-[calc(100vw-2rem)] backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] text-[#FFF3C7] overflow-hidden">
         <button
           onClick={() => {
             const next = !isOpen;
@@ -137,30 +137,30 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
             }
             setIsOpen(next);
           }}
-          className="w-full flex items-center justify-between px-5 py-3.5 border-b border-[rgba(255,243,199,0.12)] hover:bg-[rgba(255,243,199,0.06)] transition-colors duration-200 cursor-pointer gap-3"
+          className="w-full flex items-center justify-between px-4 sm:px-5 py-2 sm:py-3.5 border-b border-[rgba(255,243,199,0.12)] hover:bg-[rgba(255,243,199,0.06)] transition-colors duration-200 cursor-pointer gap-3"
         >
           <div className="flex flex-col text-left shrink-0">
             <span className="text-[10px] uppercase tracking-wider text-[#E1C380]/80 font-mono font-semibold">
               CASO #{levelId.toString().padStart(2, "0")}
             </span>
-            <h1 className="text-sm font-bold text-[#FFF3C7] leading-tight">
+            <h1 className="text-[10px] sm:text-sm font-bold text-[#FFF3C7] leading-tight">
               Investigación
             </h1>
           </div>
 
           {/* Recursos de investigación siempre visibles */}
-          <div className="flex items-center gap-3 bg-[rgba(10,15,25,0.55)] px-3 py-1.5 rounded-xl border border-[rgba(255,243,199,0.12)] font-mono">
+          <div className="flex items-center gap-2 sm:gap-3 bg-[rgba(10,15,25,0.55)] px-2 sm:px-3 py-1.5 rounded-xl border border-[rgba(255,243,199,0.12)] font-mono">
             {/* TIEMPO */}
             <div className="flex items-center gap-1.5" title="Horas restantes de investigación">
               <span className="text-xs">⏳</span>
               <span
-                className={`text-xs font-bold ${
+                className={`text-[10px] sm:text-xs font-bold ${
                   currentTime <= 12
                     ? "text-red-400 animate-pulse"
                     : "text-[#FFF3C7]"
                 }`}
               >
-                {currentTime} HS
+                {currentTime}<span className="hidden sm:inline"> HS</span>
               </span>
             </div>
 
@@ -170,13 +170,13 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
             <div className="flex items-center gap-1.5" title="Puntos de Investigación (PI)">
               <span className="text-xs">🔍</span>
               <span
-                className={`text-xs font-bold ${
+                className={`text-[10px] sm:text-xs font-bold ${
                   currentPI <= 30
                     ? "text-red-400 animate-pulse"
                     : "text-[#FFF3C7]"
                 }`}
               >
-                {currentPI} PTS
+                {currentPI}<span className="hidden sm:inline"> PTS</span>
               </span>
             </div>
           </div>
@@ -197,10 +197,10 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
 
         <div
           className={`overflow-hidden transition-all duration-300 ease-in-out ${
-            isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+            isOpen ? "max-h-[min(500px,calc(100dvh-6rem))] overflow-y-auto opacity-100" : "max-h-0 opacity-0"
           }`}
         >
-          <div className="px-6 pt-4 pb-6 flex flex-col gap-4">
+          <div className="px-4 sm:px-6 pt-4 pb-5 sm:pb-6 flex flex-col gap-4">
             <h2 className="text-xs uppercase tracking-wider text-[#FFF3C7]/60 font-semibold">
               Expediente del Caso
             </h2>
@@ -227,7 +227,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
                 </span>
               </div>
               {displayBriefing ? (
-                <p className="text-xs text-[#FFF3C7]/90 leading-relaxed font-mono">
+                <p className="text-[10px] sm:text-xs text-[#FFF3C7]/90 leading-relaxed font-mono">
                   {displayBriefing}
                 </p>
               ) : (
@@ -264,7 +264,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
                       hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between group cursor-pointer select-none
                     "
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
                       <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-amber-400/40 bg-black/40 shrink-0 shadow-inner group-hover:scale-105 transition-transform duration-200">
                         <Image
                           src={action.icon}
@@ -275,8 +275,8 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
                         />
                         <span className="absolute bottom-0 right-0 text-xs">📌</span>
                       </div>
-                      <div className="flex flex-col text-left">
-                        <span className="font-mono font-bold text-xs text-amber-200 group-hover:text-amber-100 uppercase tracking-wider">
+                      <div className="flex flex-col text-left min-w-0">
+                        <span className="font-mono font-bold text-[10px] sm:text-xs text-amber-200 group-hover:text-amber-100 uppercase tracking-wider">
                           {action.title}
                         </span>
                         <span className="text-[10px] text-[#FFF3C7]/65 font-mono line-clamp-1">
@@ -285,7 +285,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 shrink-0">
                       <span className="px-2 py-0.5 rounded-full bg-amber-400/20 border border-amber-400/40 text-[10px] font-mono font-bold text-amber-300">
                         {totalCluesCount}
                       </span>
@@ -301,7 +301,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
               <button
                 type="button"
                 onClick={() => setShowRestartConfirm(true)}
-                className="w-full py-2.5 px-4 rounded-xl bg-red-950/40 hover:bg-red-900/60 border border-red-500/30 hover:border-red-400 text-red-200 hover:text-red-100 font-mono text-xs font-semibold tracking-wider flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer shadow-md group"
+                className="w-full py-2.5 px-4 rounded-xl bg-red-950/40 hover:bg-red-900/60 border border-red-500/30 hover:border-red-400 text-red-200 hover:text-red-100 font-mono text-[10px] sm:text-xs font-semibold tracking-wider flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer shadow-md group"
               >
                 <span className="text-sm group-hover:-translate-x-1 transition-transform duration-200">↩</span>
                 <span>VOLVER AL MENÚ PRINCIPAL</span>
@@ -324,20 +324,20 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
       {/* Modal de confirmación para volver al menú principal */}
       {showRestartConfirm && typeof window !== "undefined" && createPortal(
         <div className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in select-none">
-          <div className="relative w-full max-w-md backdrop-blur-xs border border-red-500/30 bg-[rgba(18,22,32,0.95)] shadow-[0_25px_60px_rgba(0,0,0,0.8)] rounded-2xl p-6 sm:p-7 flex flex-col items-center text-center text-[#FFF3C7] gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-red-950/60 border border-red-500/40 flex items-center justify-center text-3xl shadow-inner">
+          <div className="relative w-full max-w-md max-h-[calc(100svh-2rem)] overflow-y-auto backdrop-blur-xs border border-red-500/30 bg-[rgba(18,22,32,0.95)] shadow-[0_25px_60px_rgba(0,0,0,0.8)] rounded-2xl p-5 sm:p-7 flex flex-col items-center text-center text-[#FFF3C7] gap-4">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-2xl bg-red-950/60 border border-red-500/40 flex items-center justify-center text-3xl shadow-inner">
               ↩
             </div>
 
-            <h3 className="text-lg sm:text-xl font-bold font-mono text-[#FFF3C7]">
+            <h3 className="text-sm sm:text-xl font-bold font-mono text-[#FFF3C7] leading-snug">
               ¿Volver al menú principal?
             </h3>
 
-            <p className="text-xs text-[#FFF3C7]/80 font-mono bg-[rgba(10,15,25,0.6)] p-3.5 rounded-xl border border-[rgba(255,243,199,0.12)] leading-relaxed">
+            <p className="text-[10px] sm:text-xs text-[#FFF3C7]/80 font-mono bg-[rgba(10,15,25,0.6)] p-3.5 rounded-xl border border-[rgba(255,243,199,0.12)] leading-relaxed">
               Esta acción abandonará el caso actual y te llevará al menú principal. Podrás comenzar una nueva investigación desde cero.
             </p>
 
-            <div className="flex flex-row gap-3 w-full pt-1">
+            <div className="flex flex-col sm:flex-row gap-3 w-full pt-1">
               <button
                 type="button"
                 onClick={handleRestartLevel}

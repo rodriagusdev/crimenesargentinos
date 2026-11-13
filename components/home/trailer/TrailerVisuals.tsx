@@ -91,7 +91,7 @@ export function InterrogationVisual({ active }: { active: boolean }) {
           style={{ transitionDelay: `${i * 600}ms` }}
           className={`max-w-sm px-4 py-3.5 transition-all duration-500 ${
             b.who === "agente"
-              ? "self-end rounded-[14px_14px_2px_14px] bg-[#E1C380] text-[#1b1813] text-[9px] leading-loose"
+              ? "self-end rounded-[14px_14px_2px_14px] bg-[#E1C380] text-[#1b1813] text-[10px] sm:text-[9px] leading-loose"
               : "self-start rounded-[14px_14px_14px_2px] bg-[#1b2633] font-mono text-base"
           } ${active ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
         >

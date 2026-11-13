@@ -111,7 +111,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
 
   if (loading || (!ready && !sessionError)) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-[#FFF3C7] font-mono tracking-wider bg-[#080e18]">
+      <div className="flex items-center justify-center min-h-dvh px-4 text-center text-xs sm:text-base text-[#FFF3C7] font-mono tracking-wider bg-[#080e18]">
         <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping mr-3" />
         Accediendo a la red policial provincial...
       </div>
@@ -120,7 +120,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
 
   if (error || sessionError || !data) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-red-400 font-mono bg-[#080e18]">
+      <div className="flex items-center justify-center min-h-dvh px-4 text-center text-xs sm:text-base text-red-400 font-mono bg-[#080e18]">
         {error ?? sessionError ?? "Provincia no encontrada"}
       </div>
     );
@@ -132,8 +132,9 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
   const fromCoord = PATROL_WAYPOINTS[fromIndex >= 0 ? fromIndex % PATROL_WAYPOINTS.length : 0];
   const toCoord = PATROL_WAYPOINTS[toIndex >= 0 ? toIndex % PATROL_WAYPOINTS.length : 1];
 
+  // En celular vertical la pantalla scrollea entera: con paneles de alto fijo la lista de locaciones quedaba sin lugar
   return (
-    <div className="relative w-screen h-screen flex flex-col bg-[#080e18] select-none overflow-hidden">
+    <div className="relative w-full sm:w-screen min-h-dvh sm:h-dvh flex flex-col bg-[#080e18] select-none overflow-x-hidden sm:overflow-hidden [@media(max-height:500px)_and_(pointer:coarse)]:h-dvh [@media(max-height:500px)_and_(pointer:coarse)]:overflow-hidden">
       {/* Animación táctica de patrullero policial entre locaciones */}
       {travel.travelingTo && (
         <TravelAnimationOverlay
@@ -148,28 +149,31 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
       {/* Alerta si el sospechoso podría estar en esta provincia */}
       <SuspectProvinceWarning levelId={levelId} provinceName={data.name} provinceId={provinceId} />
 
-      <LevelScreenTopBar
-        label="VOLVER AL MAPA GENERAL"
-        badgeText="Sector Provincial"
-        onBack={() => {
-          if (travel.isTraveling) return;
-          audioManager.play("click");
-          router.push(`/level/${levelId}`);
-        }}
-        disabled={travel.isTraveling}
-      />
+      {/* En celular la barra baja por debajo del menú de investigación (igual que DialogBox) */}
+      <div className="shrink-0 pt-[68px] md:pt-0">
+        <LevelScreenTopBar
+          label="VOLVER AL MAPA GENERAL"
+          badgeText="Sector Provincial"
+          onBack={() => {
+            if (travel.isTraveling) return;
+            audioManager.play("click");
+            router.push(`/level/${levelId}`);
+          }}
+          disabled={travel.isTraveling}
+        />
+      </div>
 
       {/* ========================================================================= */}
       {/* ── ÁREA DE CONTENIDO (DISTRIBUCIÓN 2 PANELES COMPARTIDA CON LOCATIONID) ── */}
       {/* ========================================================================= */}
-      <div className="flex-1 flex flex-col-reverse xl:flex-row-reverse min-h-0 px-4 md:px-6 pb-4 md:pb-6 gap-4 md:gap-6">
+      <div className="flex-1 flex flex-col-reverse xl:flex-row-reverse min-h-0 px-3 sm:px-4 md:px-6 pb-32 sm:pb-4 md:pb-6 gap-3 sm:gap-4 md:gap-6 [@media(max-height:500px)_and_(pointer:coarse)]:flex-row-reverse [@media(max-height:500px)_and_(pointer:coarse)]:px-3 [@media(max-height:500px)_and_(pointer:coarse)]:pb-3 [@media(max-height:500px)_and_(pointer:coarse)]:gap-3">
         {/* ======================================================================= */}
         {/* PANEL DERECHO: MENÚ DE EXPEDIENTE / LUGARES DE INTERÉS                   */}
         {/* ======================================================================= */}
-        <div className="flex-1 flex items-center justify-center min-h-0 w-full xl:flex-1">
+        <div className="flex-1 flex items-center justify-center min-h-0 min-w-0 w-full xl:flex-1">
           <div
             className="
-              relative z-10 w-full max-w-4xl xl:max-w-2xl h-full flex flex-col
+              relative z-10 w-full max-w-4xl xl:max-w-2xl sm:h-full [@media(max-height:500px)_and_(pointer:coarse)]:h-full flex flex-col
               backdrop-blur-xs
               border border-[rgba(255,243,199,0.18)]
               shadow-[0_20px_50px_rgba(0,0,0,0.6)]
@@ -177,7 +181,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
               overflow-hidden
               text-[#FFF3C7]
               bg-[rgba(16,24,36,0.85)]
-              p-4 md:p-6
+              p-3 sm:p-4 md:p-6 [@media(max-height:500px)_and_(pointer:coarse)]:p-3
             "
           >
             {/* Cabecera del expediente provincial */}
@@ -188,16 +192,16 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
             />
 
             {/* Encabezado de la lista de puntos */}
-            <div className="flex items-center justify-between text-xs uppercase tracking-wider text-[#FFF3C7]/70 mb-3 font-mono font-semibold">
+            <div className="flex items-center justify-between gap-2 text-[10px] sm:text-xs uppercase tracking-wider text-[#FFF3C7]/70 mb-2 sm:mb-3 font-mono font-semibold">
               <span>Puntos de Inspección Disponibles</span>
-              <span className="text-[10px] text-[#E1C380]/70">
+              <span className="text-[10px] text-[#E1C380]/70 shrink-0">
                 {data.locations.length} DESTINOS
               </span>
             </div>
 
             {/* Cuadrícula de fotos Polaroid de locaciones (idéntico estilo a sospechosos) */}
-            <div className="flex-1 overflow-y-auto overflow-x-hidden px-3.5 py-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="sm:flex-1 sm:min-h-0 sm:overflow-y-auto overflow-x-hidden px-1.5 sm:px-3.5 py-3 [@media(max-height:500px)_and_(pointer:coarse)]:flex-1 [@media(max-height:500px)_and_(pointer:coarse)]:min-h-0 [@media(max-height:500px)_and_(pointer:coarse)]:overflow-y-auto">
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 {data.locations.map((loc, idx) => {
                   const isCurrent = loc.id === currentLocationId;
                   const hours = travelHours?.[loc.id] ?? locationCost?.time ?? 1;
@@ -233,7 +237,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
 
       {/* Notificación de error de viaje */}
       {travel.error && (
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 px-5 py-3 rounded-2xl bg-red-950/90 border border-red-400/50 text-red-200 text-sm shadow-2xl">
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 w-max max-w-[calc(100vw-2rem)] text-center px-5 py-3 rounded-2xl bg-red-950/90 border border-red-400/50 text-red-200 text-xs sm:text-sm shadow-2xl">
           {travel.error}
         </div>
       )}

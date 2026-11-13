@@ -33,7 +33,7 @@ export function LocationPolaroidCard({
       }}
       onClick={onClick}
       className={`
-        group relative flex flex-col justify-between p-2.5 sm:p-3 rounded-sm bg-[#faf8f5] text-zinc-900
+        group relative flex flex-col justify-between p-2 sm:p-3 rounded-sm bg-[#faf8f5] text-zinc-900
         shadow-[0_12px_28px_rgba(0,0,0,0.65)] select-none transition-all duration-200 cursor-pointer
         hover:scale-105 hover:rotate-0 hover:z-20 hover:shadow-[0_20px_40px_rgba(0,0,0,0.85)]
         active:scale-95 text-left
@@ -63,7 +63,7 @@ export function LocationPolaroidCard({
           src={location.imageUrl}
           alt={location.name}
           fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 240px"
+          sizes="(max-width: 640px) 50vw, (max-width: 768px) 100vw, (max-width: 1200px) 50vw, 240px"
           className="object-cover transition-transform duration-300 group-hover:scale-108"
         />
       </div>
@@ -76,17 +76,17 @@ export function LocationPolaroidCard({
 
         <div className="mt-1 flex items-center justify-center">
           {isCurrent ? (
-            <span className="px-2 py-0.5 rounded bg-amber-100 border border-amber-300 text-[9px] font-mono font-bold text-amber-900 tracking-wider">
+            <span className="px-1.5 sm:px-2 py-0.5 rounded bg-amber-100 border border-amber-300 text-[10px] sm:text-[9px] text-center font-mono font-bold text-amber-900 tracking-normal sm:tracking-wider">
               BASE ACTUAL
             </span>
           ) : (
-            <span className="px-2 py-0.5 rounded bg-zinc-100 border border-zinc-300 text-[9px] font-mono font-semibold text-zinc-700 tracking-wider flex items-center gap-1">
+            <span className="px-1.5 sm:px-2 py-0.5 rounded bg-zinc-100 border border-zinc-300 text-[10px] sm:text-[9px] font-mono font-semibold text-zinc-700 tracking-normal sm:tracking-wider flex items-center gap-1">
               <span className="text-cyan-700 font-bold">⏱</span> {hours} HS
             </span>
           )}
         </div>
 
-        <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest mt-1.5 opacity-70 group-hover:opacity-100 group-hover:text-amber-800 transition-opacity">
+        <span className="text-[10px] sm:text-[9px] font-mono text-zinc-500 uppercase text-center tracking-normal sm:tracking-widest mt-1.5 opacity-70 group-hover:opacity-100 group-hover:text-amber-800 transition-opacity">
           {isCurrent ? "REINGRESAR ➔" : "INSPECCIONAR ➔"}
         </span>
       </div>

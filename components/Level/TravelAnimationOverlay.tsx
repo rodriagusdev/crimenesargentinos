@@ -135,9 +135,9 @@ export default function TravelAnimationOverlay({
   return (
     <div className="fixed inset-0 z-50 pointer-events-auto bg-black/65 backdrop-blur-[3px] flex flex-col justify-between p-4 sm:p-6 select-none animate-fade-in font-sans">
       {/* Top Tactical Telemetry HUD */}
-      <div className="w-full max-w-xl mx-auto flex flex-col items-center gap-2 p-3 sm:p-4 rounded-2xl bg-[rgba(16,24,34,0.95)] border border-[#E1C380]/40 shadow-[0_25px_60px_rgba(0,0,0,0.85)] text-[#FFF3C7] text-center">
-        <div className="flex items-center gap-2 text-xs font-mono font-bold tracking-widest text-[#E1C380] uppercase">
-          <span className="inline-block size-2 rounded-full bg-[#E1C380] animate-ping" />
+      <div className="w-full max-w-xl mx-auto flex flex-col items-center gap-1.5 sm:gap-2 p-2.5 sm:p-4 rounded-2xl bg-[rgba(16,24,34,0.95)] border border-[#E1C380]/40 shadow-[0_25px_60px_rgba(0,0,0,0.85)] text-[#FFF3C7] text-center">
+        <div className="flex items-center justify-center gap-2 text-[10px] sm:text-xs text-center leading-snug font-mono font-bold tracking-normal sm:tracking-widest text-[#E1C380] uppercase">
+          <span className="inline-block size-2 shrink-0 rounded-full bg-[#E1C380] animate-ping" />
           <span>
             {mode === "plane"
               ? "POLICÍA FEDERAL · DESPLAZAMIENTO AÉREO"
@@ -145,18 +145,18 @@ export default function TravelAnimationOverlay({
           </span>
         </div>
 
-        <div className="flex items-center justify-center gap-3 w-full font-mono text-sm sm:text-base font-bold text-[#FFF3C7] pt-0.5">
-          <span className="text-[#FFF3C7]/75 uppercase">{originName}</span>
-          <span className="text-[#E1C380]">➔</span>
-          <span className="text-[#E1C380] underline decoration-[#E1C380]/50 underline-offset-4 uppercase">
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-0.5 w-full font-mono text-xs sm:text-base text-center leading-snug font-bold text-[#FFF3C7] pt-0.5">
+          <span className="text-[#FFF3C7]/75 uppercase break-words min-w-0">{originName}</span>
+          <span className="text-[#E1C380] shrink-0">➔</span>
+          <span className="text-[#E1C380] underline decoration-[#E1C380]/50 underline-offset-4 uppercase break-words min-w-0">
             {destName}
           </span>
         </div>
 
         {/* Tactical Sub-Telemetry */}
-        <div className="flex items-center justify-between w-full text-[10px] sm:text-[11px] font-mono text-[#FFF3C7]/60 px-1 pt-1 border-t border-[#E1C380]/15">
+        <div className="flex items-center justify-between gap-2 w-full text-[10px] sm:text-[11px] leading-snug font-mono text-[#FFF3C7]/60 px-1 pt-1 border-t border-[#E1C380]/15">
           <span>{flightStatus}</span>
-          <span className="text-[#E1C380] font-semibold">
+          <span className="text-[#E1C380] font-semibold shrink-0 text-right">
             {mode === "plane" ? `~${estimatedKm} KM` : "TRASLADO LOCAL"}
           </span>
         </div>
@@ -344,7 +344,7 @@ export default function TravelAnimationOverlay({
       </div>
 
       {/* Bottom Dispatch Radar Footnote */}
-      <div className="w-full text-center text-[11px] font-mono text-[#FFF3C7]/60 tracking-wider">
+      <div className="w-full text-center text-[10px] sm:text-[11px] leading-snug font-mono text-[#FFF3C7]/60 tracking-normal sm:tracking-wider">
         {mode === "plane"
           ? "Ruta federal trazada · Control de tráfico aéreo PFA"
           : "Despacho de móvil policial en curso · Frecuencia operativa PFA"}

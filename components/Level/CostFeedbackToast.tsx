@@ -15,10 +15,10 @@ export default function CostFeedbackToast({
   if (!cost && !unlockedClue) return null;
 
   return (
-    <div className="fixed top-20 left-1/2 -translate-x-1/2 z-60 pointer-events-none select-none transition-all duration-300 flex flex-col items-center gap-2">
+    <div className="fixed top-36 md:top-20 left-1/2 -translate-x-1/2 w-max max-w-[calc(100vw-2rem)] z-60 pointer-events-none select-none transition-all duration-300 flex flex-col items-center gap-2">
       {cost && (
-        <div className="px-5 py-2.5 rounded-2xl backdrop-blur-md bg-[rgba(20,10,15,0.92)] border border-red-500/50 shadow-[0_12px_35px_rgba(0,0,0,0.85)] flex items-center gap-3 animate-pulse">
-          <div className="flex items-center gap-2 font-bold text-xs sm:text-sm">
+        <div className="px-4 sm:px-5 py-2.5 rounded-2xl backdrop-blur-md bg-[rgba(20,10,15,0.92)] border border-red-500/50 shadow-[0_12px_35px_rgba(0,0,0,0.85)] flex items-center gap-3 animate-pulse">
+          <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-center font-bold text-[10px] sm:text-sm leading-snug">
             {/* pi negativo: la pregunta dejó una pista nueva y sumó puntos */}
             <span className="text-cyan-300">{cost.pi < 0 ? `+${-cost.pi}` : `-${cost.pi}`} PUNTOS DE INVESTIGACIÓN</span>
             <span className="text-[#FFF3C7]/40">|</span>
@@ -28,10 +28,10 @@ export default function CostFeedbackToast({
       )}
 
       {unlockedClue && (
-        <div className="px-5 py-2.5 rounded-2xl backdrop-blur-md bg-[rgba(15,25,35,0.95)] border border-amber-400/60 shadow-[0_12px_35px_rgba(225,195,128,0.25)] flex items-center gap-2.5">
+        <div className="px-4 sm:px-5 py-2.5 rounded-2xl backdrop-blur-md bg-[rgba(15,25,35,0.95)] border border-amber-400/60 shadow-[0_12px_35px_rgba(225,195,128,0.25)] flex items-center gap-2.5">
           <span className="text-lg">🔍</span>
           <div className="flex flex-col items-start">
-            <span className="text-[10px] uppercase font-bold text-[#E1C380] tracking-wider">
+            <span className="text-[10px] uppercase font-bold text-[#E1C380] tracking-normal sm:tracking-wider leading-snug">
               ¡Se añadió informacion a Pistas!
             </span>
           </div>

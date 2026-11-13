@@ -14,7 +14,7 @@ export function ProvinceMapFrame({
   provinceId,
 }: ProvinceMapFrameProps) {
   return (
-    <div className="h-48 md:h-60 xl:h-auto xl:flex-[2] p-3 md:p-4 xl:p-6 backdrop-blur-xs flex items-center justify-center border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] rounded-2xl shrink-0 xl:shrink">
+    <div className="h-36 sm:h-48 md:h-60 xl:h-auto xl:flex-[2] p-2 sm:p-3 md:p-4 xl:p-6 [@media(max-height:500px)_and_(pointer:coarse)]:h-auto [@media(max-height:500px)_and_(pointer:coarse)]:w-[38%] [@media(max-height:500px)_and_(pointer:coarse)]:p-2 backdrop-blur-xs flex items-center justify-center border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] rounded-2xl shrink-0 xl:shrink">
       <div className="relative w-full h-full rounded-2xl overflow-hidden border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
         <Image
           src={backgroundUrl}
@@ -30,11 +30,11 @@ export function ProvinceMapFrame({
         <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-[#080e18]/90 via-[#080e18]/50 to-transparent pointer-events-none" />
 
         {/* Marca de agua cartográfica oficial en esquina inferior izquierda */}
-        <div className="absolute bottom-4 left-5 flex flex-col pointer-events-none">
-          <span className="text-[10px] font-mono tracking-widest text-[#E1C380]/80 uppercase font-semibold">
+        <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-5 sm:right-auto flex flex-col min-w-0 pointer-events-none">
+          <span className="text-[10px] font-mono tracking-widest text-[#E1C380]/80 uppercase font-semibold truncate">
             CARTOGRAFÍA REGIONAL // {provinceName.toUpperCase()}
           </span>
-          <span className="text-xs font-mono text-[#FFF3C7]/90 font-bold">
+          <span className="text-xs font-mono text-[#FFF3C7]/90 font-bold truncate">
             SECTOR OPERATIVO #{provinceId.slice(0, 8).toUpperCase()}
           </span>
         </div>

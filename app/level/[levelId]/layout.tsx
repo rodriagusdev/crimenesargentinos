@@ -10,7 +10,7 @@ export default async function LevelLayout({ children, params }: LayoutProps<"/le
   const id = Number(levelId);
 
   return (
-    <main className="relative min-h-screen overflow-hidden">
+    <main className="relative min-h-dvh overflow-hidden">
       {children}
 
       {/* Menú de investigación desplegable (Arriba a la izquierda) */}
