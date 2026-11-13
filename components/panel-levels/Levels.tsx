@@ -116,8 +116,8 @@ export default function Levels() {
           const apiLevel = apiLevels.find((l) => l.level === def.id);
           const isCompleted = apiLevel?.status === "completed";
           const isCurrent = apiLevel?.status === "current";
-          const isBonusCase = def.id >= 16 && def.id <= 18;
-          const canPlayLevel = def.id === 1 || isBonusCase || isCompleted || isCurrent;
+          // El 16 se habilita al ganar el 5, el 17 al ganar el 16 y el 18 al ganar el 17 (lo decide el backend)
+          const canPlayLevel = def.id === 1 || isCompleted || isCurrent;
 
           return {
             id: def.id,
