@@ -8,6 +8,8 @@ import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { useAudioStore } from "@/stores/useAudioStore";
 import GameButton from "../buttons/GameButton";
 import InvestigationBoard from "./InvestigationBoard";
+import { useT } from "@/hooks/useT";
+import { caseDossierModalMessages } from "./CaseDossierModal.messages";
 
 interface CaseDossierModalProps {
   isOpen: boolean;
@@ -34,6 +36,7 @@ export default function CaseDossierModal({
   const [warrantError, setWarrantError] = useState<string | null>(null);
 
   const playSfx = useAudioStore((state) => state.playSfx);
+  const t = useT(caseDossierModalMessages);
 
   // Store data
   const session = useGameSessionStore((state) => state.session);
@@ -89,7 +92,7 @@ export default function CaseDossierModal({
       await issueArrestWarrant(selectedSuspect.id);
       setSelectedSuspect(null);
     } catch (err) {
-      setWarrantError(err instanceof Error ? err.message : "No se pudo emitir la orden de arresto");
+      setWarrantError(err instanceof Error ? err.message : t("warrantFailed"));
     } finally {
       setSubmitting(false);
     }
@@ -130,7 +133,7 @@ export default function CaseDossierModal({
           <div className="flex items-center gap-3 min-w-0">
             <div className="flex items-center gap-2">
               <h2 className="font-mono font-bold text-xs sm:text-sm text-amber-200 uppercase tracking-wider">
-                Tablero de Investigacion del Caso
+                {t("boardTitle")}
               </h2>
             </div>
           </div>
@@ -140,11 +143,11 @@ export default function CaseDossierModal({
             {isFacingCriminal ? (
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-mono font-bold tracking-wider uppercase bg-red-950/80 border border-red-500/70 text-red-300 animate-pulse">
                 <span className="size-2 rounded-full bg-red-500 animate-ping" />
-                🚨<span className="hidden sm:inline">FRENTE AL CRIMINAL</span>
+                🚨<span className="hidden sm:inline">{t("facingCriminal")}</span>
               </span>
             ) : (
               <span className="inline-flex px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-mono font-bold tracking-wider uppercase bg-amber-500/15 border border-amber-500/35 text-amber-300">
-                CASO #{levelId.toString().padStart(2, "0")}
+                {t("caseNumber", { n: levelId.toString().padStart(2, "0") })}
               </span>
             )}
 
@@ -153,7 +156,7 @@ export default function CaseDossierModal({
               onClick={onClose}
               onMouseEnter={() => playSfx("typewriter")}
               className="size-10 sm:size-9 rounded-xl bg-[rgba(255,243,199,0.06)] hover:bg-red-950/60 border border-[rgba(255,243,199,0.15)] hover:border-red-500/50 flex items-center justify-center text-[#FFF3C7]/70 hover:text-white transition-all duration-150 cursor-pointer shadow-sm active:scale-95"
-              title="Cerrar Tablero (Esc)"
+              title={t("closeBoard")}
             >
               ✕
             </button>
@@ -170,10 +173,10 @@ export default function CaseDossierModal({
               <span className="text-2xl sm:text-3xl shrink-0">🚨</span>
               <div className="flex flex-col gap-0.5 text-left">
                 <span className="font-mono font-bold text-xs sm:text-sm text-red-200 uppercase tracking-wider">
-                  ¡Escondite localizado — Estás frente al criminal!
+                  {t("hideoutFound")}
                 </span>
                 <span className="font-mono text-[11px] sm:text-xs text-red-100/90 leading-relaxed">
-                  Revisá los indicios en el tablero y emití la orden de captura sobre el culpable definitivo para arrestarlo.
+                  {t("hideoutHint")}
                 </span>
               </div>
             </div>
@@ -208,7 +211,7 @@ export default function CaseDossierModal({
             <div className="relative size-20 rounded-2xl overflow-hidden border-2 border-red-500/60 bg-black/60 shadow-[0_10px_25px_rgba(239,68,68,0.3)] flex items-center justify-center">
               <Image
                 src="/images/icons/icon_arrestorder.jpg"
-                alt="Orden de Arresto"
+                alt={t("arrestWarrant")}
                 fill
                 sizes="80px"
                 className="object-cover"
@@ -217,17 +220,17 @@ export default function CaseDossierModal({
 
             <div>
               <span className="text-[10px] font-mono tracking-widest text-red-400 font-semibold px-2.5 py-0.5 rounded-full bg-red-950/60 border border-red-500/30">
-                Orden Judicial de Captura
+                {t("courtWarrant")}
               </span>
               <h3 className="text-lg sm:text-xl font-bold font-mono text-[#FFF3C7] mt-2 break-words">
-                ¿Emitir orden de captura para {selectedSuspect.name}?
+                {t("confirmQuestion", { name: selectedSuspect.name })}
               </h3>
             </div>
 
             <p className="text-xs text-[#FFF3C7]/80 font-mono bg-[rgba(10,15,25,0.6)] p-3.5 rounded-xl border border-[rgba(255,243,199,0.12)] leading-relaxed">
               {isFacingCriminal
-                ? "¡Estás en el escondite del sospechoso! Esta orden es definitiva: si elegís al culpable correcto, ganás el caso; si te equivocás, escapará."
-                : "Esta orden es definitiva y vinculante: no podrás cambiar de sospechoso. La captura se ejecutará automáticamente cuando localices su escondite."}
+                ? t("finalAtHideout")
+                : t("finalBinding")}
             </p>
 
             {warrantError && (
@@ -245,7 +248,7 @@ export default function CaseDossierModal({
                 className="flex-1 py-3 px-4 rounded-xl font-mono font-bold text-xs uppercase tracking-wider bg-gradient-to-b from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white border border-red-400/60 shadow-[0_10px_25px_rgba(220,38,38,0.4)] transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 disabled:opacity-50"
               >
                 <span>✓</span>
-                <span>{submitting ? "EMITIENDO..." : "SÍ, EMITIR"}</span>
+                <span>{submitting ? t("issuing") : t("confirmIssue")}</span>
               </button>
 
               <button
@@ -256,7 +259,7 @@ export default function CaseDossierModal({
                 className="flex-1 py-3 px-4 rounded-xl font-mono font-bold text-xs uppercase tracking-wider bg-[rgba(20,30,42,0.6)] hover:bg-[rgba(255,243,199,0.1)] text-[#FFF3C7]/80 hover:text-[#FFF3C7] border border-[rgba(255,243,199,0.2)] transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 disabled:opacity-50"
               >
                 <span>✕</span>
-                <span>CANCELAR</span>
+                <span>{t("cancel")}</span>
               </button>
             </div>
           </div>

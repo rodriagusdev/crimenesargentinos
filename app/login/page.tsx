@@ -7,9 +7,17 @@ import Link from "next/link";
 import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
 import { audioManager } from "@/lib/audioManager";
 import { Suspense, useState } from "react";
+import { useT } from "@/hooks/useT";
+import { defineMessages } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+	es: { home: "← INICIO", howToPlay: "¿CÓMO SE JUEGA?" },
+	en: { home: "← HOME", howToPlay: "HOW TO PLAY?" },
+});
 
 export default function Login() {
 	const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+	const t = useT(messages);
 
 	return (
 		<div className="relative min-h-svh w-screen overflow-hidden flex items-center justify-center font-sans bg-black">
@@ -29,7 +37,7 @@ export default function Login() {
 				onClick={() => audioManager.play("click")}
 				className="absolute top-5 left-5 z-20 flex items-center gap-2 px-4 py-3 rounded-xl bg-[#070c16]/60 border border-[#FFF3C7]/25 text-[10px] tracking-widest text-[#FFF3C7]/85 hover:text-[#E1C380] hover:border-[#E1C380] backdrop-blur-sm [text-shadow:_0_2px_0_#1E2A36]"
 			>
-				← INICIO
+				{t("home")}
 			</Link>
 
 			{/* Idioma */}
@@ -40,7 +48,7 @@ export default function Login() {
 				href="/reglas"
 				className="absolute bottom-4 right-4 py-2 sm:py-0 sm:bottom-6 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 z-20 text-xs tracking-widest text-[#FFF3C7]/80 hover:text-[#E1C380] [text-shadow:_0_2px_0_#1E2A36]"
 			>
-				¿CÓMO SE JUEGA?
+				{t("howToPlay")}
 			</Link>
 
 			{/* Elegir que menu mostrar */}

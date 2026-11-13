@@ -4,12 +4,20 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAvatarStore } from "@/stores/useAvatarStore";
+import { useT } from "@/hooks/useT";
+import { defineMessages } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: { portrait: "Retrato del Detective", noPhoto: "SIN FOTO" },
+  en: { portrait: "Detective Portrait", noPhoto: "NO PHOTO" },
+});
 
 export default function AgentPortraitHUD() {
   const pathname = usePathname();
   const currentAvatar = useAvatarStore((state) => state.currentAvatar);
   const initAvatar = useAvatarStore((state) => state.initAvatar);
   const [mounted, setMounted] = useState(false);
+  const t = useT(messages);
 
   useEffect(() => {
     setMounted(true);
@@ -29,7 +37,7 @@ export default function AgentPortraitHUD() {
 
   return (
     <aside
-      aria-label="Retrato del Detective"
+      aria-label={t("portrait")}
       className="
         fixed bottom-3 right-3 sm:bottom-8 sm:right-8 z-30 pointer-events-none select-none
         w-20 h-24 sm:w-44 sm:h-56 md:w-56 md:h-56
@@ -46,7 +54,7 @@ export default function AgentPortraitHUD() {
         <div className="relative w-full h-full overflow-hidden rounded-sm bg-black shadow-[inset_0_0_12px_rgba(0,0,0,0.7)] border border-black/70">
           <Image
             src={currentAvatar}
-            alt="Retrato del Detective"
+            alt={t("portrait")}
             fill
             priority
             sizes="(max-width: 640px) 80px, (max-width: 768px) 176px, 224px"
@@ -57,7 +65,7 @@ export default function AgentPortraitHUD() {
         <div className="relative w-full h-full overflow-hidden rounded-sm flex flex-col items-center justify-center bg-[#070b12] text-amber-300/40 border border-black/70 p-1 sm:p-4">
           <span className="text-2xl sm:text-5xl mb-1 sm:mb-2">👤</span>
           <span className="font-mono text-[10px] text-center uppercase tracking-normal sm:tracking-widest text-[#E1C380]/60 font-semibold">
-            SIN FOTO
+            {t("noPhoto")}
           </span>
         </div>
       )}

@@ -3,9 +3,14 @@
 import Link from "next/link";
 import { audioManager } from "@/lib/audioManager";
 import type { Portada } from "./portadas";
+import { portadasMessages } from "./portadas.messages";
+import { portadasGalleryMessages } from "./PortadasGallery.messages";
+import { useT } from "@/hooks/useT";
 
 // Botón grande de la galería para abrir una portada
 export default function PortadaCard({ portada, index, current }: { portada: Portada; index: number; current: boolean }) {
+  const t = useT(portadasGalleryMessages);
+  const tp = useT(portadasMessages);
   return (
     <Link
       href={`/portadas/${portada.id}`}
@@ -15,13 +20,13 @@ export default function PortadaCard({ portada, index, current }: { portada: Port
       <div className="relative h-28 flex items-center justify-center" style={{ backgroundColor: portada.tone }}>
         <span className="text-4xl text-[#FFF3C7]/90 [text-shadow:0_4px_0_rgba(0,0,0,0.4)]">{index + 1}</span>
         {current && (
-          <span className="absolute top-3 right-3 px-2 py-1 rounded bg-[#E1C380] text-[#1b1813] text-[8px]">EN LA HOME</span>
+          <span className="absolute top-3 right-3 px-2 py-1 rounded bg-[#E1C380] text-[#1b1813] text-[8px]">{t("current")}</span>
         )}
       </div>
       <div className="flex-1 flex flex-col gap-3 p-5">
-        <h2 className="text-xs leading-relaxed text-[#FFF3C7]">{portada.name}</h2>
-        <p className="font-mono text-sm leading-snug text-[#FFF3C7]/70">{portada.description}</p>
-        <span className="mt-auto text-[9px] text-[#E1C380] group-hover:underline">VER PORTADA →</span>
+        <h2 className="text-xs leading-relaxed text-[#FFF3C7]">{tp(portada.nameKey)}</h2>
+        <p className="font-mono text-sm leading-snug text-[#FFF3C7]/70">{tp(portada.descriptionKey)}</p>
+        <span className="mt-auto text-[9px] text-[#E1C380] group-hover:underline">{t("view")}</span>
       </div>
     </Link>
   );

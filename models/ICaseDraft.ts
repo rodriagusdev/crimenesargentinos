@@ -14,16 +14,20 @@ export interface CaseDraftSuspect {
   isGuilty: boolean;
 }
 
+// Traducciones al inglés: opcionales (los borradores viejos no las tienen). Vacías: el juego muestra el castellano
+
 // key: identificador del panel para que las preguntas apunten a la pista antes de guardarla
 export interface CaseDraftClue {
   key: string;
   description: string;
+  descriptionEn?: string | null;
   isInitial: boolean;
 }
 
 export interface CaseDraftMessage {
   speaker: DialogSpeaker;
   text: string;
+  textEn?: string | null;
 }
 
 // En el escondite, la primera pregunta usa foundAnswer / lostAnswer en lugar de answer.
@@ -36,6 +40,10 @@ export interface CaseDraftQuestion {
   clueKey: string | null;
   foundAnswer: string | null;
   lostAnswer: string | null;
+  textEn?: string | null;
+  answerEn?: string | null;
+  foundAnswerEn?: string | null;
+  lostAnswerEn?: string | null;
 }
 
 export interface CaseDraftDialog {
@@ -45,6 +53,8 @@ export interface CaseDraftDialog {
   overlayBackgroundUrl: string | null;
   npcCompleteUrl: string | null;
   infoBackground: string | null;
+  npcNameEn?: string | null;
+  infoBackgroundEn?: string | null;
   messages: CaseDraftMessage[];
   questions: CaseDraftQuestion[];
 }
@@ -54,6 +64,9 @@ export interface CaseDraft {
   title: string;
   description: string;
   briefing: string | null;
+  titleEn?: string | null;
+  descriptionEn?: string | null;
+  briefingEn?: string | null;
   imageUrl: string | null;
   videoUrl: string | null;
   groupLevel: number;

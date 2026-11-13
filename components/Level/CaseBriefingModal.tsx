@@ -6,6 +6,13 @@ import GameButton from "../buttons/GameButton";
 import { getGameData } from "@/services/levelService";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { audioManager } from "@/lib/audioManager";
+import { useT } from "@/hooks/useT";
+import { defineMessages } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: { policeFile: "Expediente Policial", caseReport: "CASO #{n} — INFORME", confidential: "Confidencial", understood: "ENTENDIDO" },
+  en: { policeFile: "Police File", caseReport: "CASE #{n} — REPORT", confidential: "Confidential", understood: "UNDERSTOOD" },
+});
 
 interface CaseBriefingModalProps {
   levelId: number;
@@ -24,6 +31,7 @@ export default function CaseBriefingModal({
   const [displayedText, setDisplayedText] = useState<string>("");
   const [isTyping, setIsTyping] = useState<boolean>(true);
   const soundPlayedRef = useRef<boolean>(false);
+  const t = useT(messages);
 
   const session = useGameSessionStore((state) => state.session);
   const storeBriefing = useGameSessionStore((state) => state.briefing);
@@ -149,16 +157,16 @@ export default function CaseBriefingModal({
             <span className="text-2xl">📁</span>
             <div>
               <span className="text-[10px] uppercase tracking-widest text-[#E1C380]/80 font-mono">
-                Expediente Policial
+                {t("policeFile")}
               </span>
               <h2 className="text-base sm:text-lg font-bold text-[#E1C380] tracking-wider font-mono">
-                CASO #{levelId.toString().padStart(2, "0")} — INFORME
+                {t("caseReport", { n: levelId.toString().padStart(2, "0") })}
               </h2>
             </div>
           </div>
 
           <div className="px-3 py-1 rounded-xl border border-red-500/40 bg-red-950/40 text-red-400 font-mono text-[10px] tracking-widest uppercase">
-            Confidencial
+            {t("confidential")}
           </div>
         </div>
 
@@ -176,7 +184,7 @@ export default function CaseBriefingModal({
         <div className="w-full pt-2">
           <GameButton
             icon="✓"
-            label="ENTENDIDO"
+            label={t("understood")}
             onClick={handleClose}
             disabled={isTyping}
             variant="primary"

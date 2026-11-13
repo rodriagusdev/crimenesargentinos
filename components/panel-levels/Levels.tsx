@@ -6,59 +6,22 @@ import { getLevels } from "@/services/gameSessionService";
 import { ILevelOverview } from "@/models/IGameSession";
 import { resolveAssetLevel } from "@/lib/caseAssetPaths";
 import LevelsCarousel from "./LevelsCarousel";
+import { useT } from "@/hooks/useT";
+import { useLocale } from "@/stores/useLocaleStore";
+import { levelsMessages, type LevelFallbackId } from "./Levels.messages";
 
 // Definición canónica del catálogo de niveles del juego. Se mantiene el listado
 // conocido de casos antiguos y se agregan los nuevos casos 16, 17 y 18 para que
 // la pantalla principal no queden limitada a los primeros 5 IDs.
-const LEVEL_DEFINITIONS = [
-  {
-    id: 1,
-    title: "ROBO A LAS ESTRELLAS",
-    description: "El trofeo nacional desapareció en pleno centro porteño tras los festejos.",
-    imageURL: "/images/levelcardspreview/level_1_preview.jpg",
-  },
-  {
-    id: 2,
-    title: "DESAPARECEN LOS MAÑANEROS",
-    description: "Fanáticos desaparecieron misteriosamente tras ganar el sorteo del tren nocturno.",
-    imageURL: "/images/levelcardspreview/level_2_preview.jpg",
-  },
-  {
-    id: 3,
-    title: "CASO PATAGONIA",
-    description: "Sombras en la cordillera y sospechas en la fría estepa patagónica.",
-    imageURL: "/images/levelcardspreview/level_3_preview.jpg",
-  },
-  {
-    id: 4,
-    title: "RUTA NACIONAL 40",
-    description: "Misterio a lo largo de la mítica ruta y sus rascacielos al anochecer.",
-    imageURL: "/images/levelcardspreview/level_4_preview.jpg",
-  },
-  {
-    id: 5,
-    title: "EL ASESINO DE LAS PROVINCIAS",
-    description: "El río bajo la luna esconde el escape del audaz robo de diamantes.",
-    imageURL: "/images/levelcardspreview/level_5_preview.jpg",
-  },
-  {
-    id: 16,
-    title: "EL GRAN ROBO DEL ALFAJOR",
-    description: "Desapareció el camión con la producción de alfajores de toda la temporada.",
-    imageURL: "/images/levelcardspreview/alfajor.webp",
-  },
-  {
-    id: 17,
-    title: "LA CAMISETA DEL 86",
-    description: "La camiseta firmada del Mundial 86 desapareció de una muestra itinerante.",
-    imageURL: "/images/levelcardspreview/camiseta86.webp",
-  },
-  {
-    id: 18,
-    title: "EL BANDONEÓN DE ORO",
-    description: "Le robaron el bandoneón de oro a un tanguero histórico en plena milonga.",
-    imageURL: "/images/levelcardspreview/bandoneon.webp",
-  },
+const LEVEL_DEFINITIONS: { id: LevelFallbackId; imageURL: string }[] = [
+  { id: 1, imageURL: "/images/levelcardspreview/level_1_preview.jpg" },
+  { id: 2, imageURL: "/images/levelcardspreview/level_2_preview.jpg" },
+  { id: 3, imageURL: "/images/levelcardspreview/level_3_preview.jpg" },
+  { id: 4, imageURL: "/images/levelcardspreview/level_4_preview.jpg" },
+  { id: 5, imageURL: "/images/levelcardspreview/level_5_preview.jpg" },
+  { id: 16, imageURL: "/images/levelcardspreview/alfajor.webp" },
+  { id: 17, imageURL: "/images/levelcardspreview/camiseta86.webp" },
+  { id: 18, imageURL: "/images/levelcardspreview/bandoneon.webp" },
 ];
 
 function getLevelPreviewImageUrl(level: number): string {
@@ -80,20 +43,28 @@ export default function Levels() {
   const [levels, setLevels] = useState<ICardLevelPreview[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const t = useT(levelsMessages);
+  // La API devuelve los títulos en el idioma elegido: al cambiarlo se vuelven a pedir
+  const locale = useLocale();
 
   useEffect(() => {
     let cancelled = false;
+    const definitions = LEVEL_DEFINITIONS.map((def) => ({
+      ...def,
+      title: t(`title${def.id}`),
+      description: t(`description${def.id}`),
+    }));
 
     getLevels()
       .then((apiLevels: ILevelOverview[]) => {
         if (cancelled) return;
 
-        const definitionsById = new Map(
-          LEVEL_DEFINITIONS.map((def) => [def.id, def] as const)
+        const definitionsById = new Map<number, (typeof definitions)[number]>(
+          definitions.map((def) => [def.id, def] as const)
         );
 
         const mergedDefinitions = [
-          ...LEVEL_DEFINITIONS,
+          ...definitions,
           ...apiLevels
             .filter(
               (apiLevel) =>
@@ -103,8 +74,8 @@ export default function Levels() {
             )
             .map((apiLevel) => ({
               id: apiLevel.level,
-              title: apiLevel.title?.toUpperCase() ?? `NIVEL ${apiLevel.level}`,
-              description: apiLevel.description ?? "Caso policial disponible.",
+              title: apiLevel.title?.toUpperCase() ?? t("levelFallback", { n: apiLevel.level }),
+              description: apiLevel.description ?? t("descriptionFallback"),
               imageURL: getLevelPreviewImageUrl(apiLevel.level),
             })),
         ]
@@ -135,7 +106,7 @@ export default function Levels() {
         setLevels(mappedLevels);
       })
       .catch((err) => {
-        const errorMessage = err instanceof Error ? err.message : "Error desconocido";
+        const errorMessage = err instanceof Error ? err.message : t("unknownError");
         console.error("Error fetching levels:", errorMessage);
         if (!cancelled) setError(errorMessage);
       })
@@ -146,7 +117,8 @@ export default function Levels() {
     return () => {
       cancelled = true;
     };
-  }, []);
+    // locale: al cambiar de idioma se vuelven a pedir los niveles
+  }, [locale, t]);
 
   if (loading) {
     return (
@@ -155,10 +127,10 @@ export default function Levels() {
         <div className="h-2.5 w-full bg-[repeating-linear-gradient(45deg,#eab308,#eab308_12px,#090d16_12px,#090d16_24px)] rounded-full shadow-sm mb-6 border border-yellow-500/40" />
 
         <h2 className="mb-4 text-center font-['Press_Start_2P'] text-[#E1C380] text-sm sm:text-base tracking-widest">
-          NIVELES
+          {t("levels")}
         </h2>
         <div className="text-center text-slate-400 font-mono text-xs py-12">
-          Cargando casos policiales...
+          {t("loading")}
         </div>
       </section>
     );
@@ -169,10 +141,10 @@ export default function Levels() {
       <section className="w-full">
         <div className="h-2.5 w-full bg-[repeating-linear-gradient(45deg,#ef4444,#ef4444_12px,#090d16_12px,#090d16_24px)] rounded-full shadow-sm mb-6 border border-red-500/40" />
         <h2 className="mb-4 text-center font-['Press_Start_2P'] text-[#E1C380] text-sm sm:text-base tracking-widest">
-          NIVELES
+          {t("levels")}
         </h2>
         <div className="text-center text-red-400 font-mono text-xs py-12">
-          Error al cargar los niveles: {error}
+          {t("loadError", { error })}
         </div>
       </section>
     );
@@ -186,7 +158,7 @@ export default function Levels() {
       {/* 2. Cabecera táctica retro */}
       <div className="mb-6 text-center">
         <h2 className="font-['Press_Start_2P'] text-[#E1C380] text-[11px] sm:text-base tracking-widest drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-          NIVELES DE INVESTIGACION
+          {t("heading")}
         </h2>
       </div>
 

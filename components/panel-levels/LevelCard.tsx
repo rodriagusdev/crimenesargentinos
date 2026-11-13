@@ -5,6 +5,8 @@ import { usePreviewVideoHandler } from "@/hooks/usePreviewVideoHandler";
 import { audioManager } from "@/lib/audioManager";
 import AbandonSessionModal from "./AbandonSessionModal";
 import PoliceTapeOverlay from "./PoliceTapeOverlay";
+import { useT } from "@/hooks/useT";
+import { levelCardMessages, type LevelCardMessageKey } from "./LevelCard.messages";
 
 type LevelCardProps = {
   preview: ICardLevelPreview;
@@ -16,39 +18,39 @@ type CardState = "closed" | "completed" | "available" | "locked";
 // Estilo por estado: franja superior y botón de acción
 const theme: Record<
   CardState,
-  { card: string; stripe: string; cta: string; ctaLabel: string; ctaIcon: string; report: string }
+  { card: string; stripe: string; cta: string; ctaLabel: LevelCardMessageKey; ctaIcon: string; report: LevelCardMessageKey }
 > = {
   closed: {
     card: "border-emerald-600/60 hover:border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.15)]",
     stripe: "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]",
     cta: "border-emerald-500/70 bg-emerald-950/60 text-emerald-300 group-hover:bg-emerald-500 group-hover:text-[#0c1421] group-hover:border-emerald-300 shadow-sm",
-    ctaLabel: "REJUGAR",
+    ctaLabel: "ctaReplay",
     ctaIcon: "↻",
-    report: "INFORME DEL CASO · ARCHIVADO",
+    report: "reportArchived",
   },
   completed: {
     card: "border-emerald-600/60 hover:border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.15)]",
     stripe: "bg-emerald-500/80 shadow-[0_0_10px_rgba(16,185,129,0.4)]",
     cta: "border-emerald-500/70 bg-emerald-950/60 text-emerald-300 group-hover:bg-emerald-500 group-hover:text-[#0c1421] group-hover:border-emerald-300 shadow-sm",
-    ctaLabel: "JUGAR",
+    ctaLabel: "ctaPlay",
     ctaIcon: "▶",
-    report: "INFORME DEL CASO",
+    report: "report",
   },
   available: {
     card: "border-amber-400/55 shadow-[0_0_0_1px_rgba(245,158,11,0.2),0_0_28px_rgba(245,158,11,0.2)] hover:border-amber-400",
     stripe: "bg-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.7)]",
     cta: "border-amber-400/80 bg-amber-500/20 text-amber-200 shadow-[0_0_14px_rgba(245,158,11,0.25)] group-hover:bg-amber-400 group-hover:text-[#0c1421] group-hover:border-amber-300",
-    ctaLabel: "INVESTIGAR",
+    ctaLabel: "ctaInvestigate",
     ctaIcon: "▶",
-    report: "INFORME DEL CASO",
+    report: "report",
   },
   locked: {
     card: "border-[#1a2536] bg-[#080d15]",
     stripe: "bg-[repeating-linear-gradient(45deg,#eab308,#eab308_6px,#111827_6px,#111827_12px)] opacity-60",
     cta: "border-slate-700/80 bg-[#0c1421] text-slate-300 shadow-sm",
-    ctaLabel: "RESOLVE EL NIVEL ANTERIOR",
+    ctaLabel: "ctaLocked",
     ctaIcon: "🔒",
-    report: "INFORME CLASIFICADO",
+    report: "reportClassified",
   },
 };
 
@@ -57,6 +59,7 @@ const corner = "absolute size-5 border-amber-300/90 opacity-0 transition-all dur
 
 // Tarjeta de un nivel en /principal, con estética de expediente: estado, sello de caso cerrado y acción
 export default function LevelCard({ preview }: LevelCardProps) {
+  const t = useT(levelCardMessages);
   // Cada tarjeta pide su nivel: retoma la partida en curso o sortea el caso
   const { handleShowVideo, goToLevel, loadingLevel, pendingAbandon, abandoning, confirmAbandon, cancelAbandon } =
     usePreviewVideoHandler(preview.videoURL, preview.id);
@@ -69,7 +72,9 @@ export default function LevelCard({ preview }: LevelCardProps) {
   const style = theme[state];
   const pending = variantsTotal - variantsWon;
   const report =
-    state === "completed" && pending > 0 ? `${style.report} · ${pending === 1 ? "QUEDA 1 VARIANTE" : `QUEDAN ${pending} VARIANTES`}` : style.report;
+    state === "completed" && pending > 0
+      ? `${t(style.report)} · ${pending === 1 ? t("oneVariantLeft") : t("variantsLeft", { n: pending })}`
+      : t(style.report);
   const playable = preview.canPlay && !loadingLevel;
   const title = preview.title;
 
@@ -92,7 +97,7 @@ export default function LevelCard({ preview }: LevelCardProps) {
       role="button"
       tabIndex={preview.canPlay ? 0 : -1}
       aria-disabled={!playable}
-      aria-label={`Nivel ${preview.id}: ${title}`}
+      aria-label={t("ariaLabel", { n: preview.id, title })}
       onClick={open}
       onKeyDown={onKeyDown}
       onMouseEnter={() => preview.canPlay && audioManager.play("opencasefile", { volume: 0.4 })}
@@ -141,7 +146,7 @@ export default function LevelCard({ preview }: LevelCardProps) {
           <div className="absolute top-3 left-3 z-10 pointer-events-none">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border-2 border-emerald-400/80 bg-[#071610]/95 text-emerald-300 font-mono font-black text-[11px] tracking-wider shadow-[0_4px_12px_rgba(0,0,0,0.6)] backdrop-blur-xs -rotate-2">
               <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span>{state === "closed" ? "✓ CASO CERRADO" : "✓ RESUELTO"}</span>
+              <span>{state === "closed" ? t("caseClosed") : t("solved")}</span>
             </span>
           </div>
         )}
@@ -157,7 +162,7 @@ export default function LevelCard({ preview }: LevelCardProps) {
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
             </svg>
             <span className="font-mono text-[10px] font-bold tracking-widest text-amber-300 bg-black/70 px-3 py-1 rounded-full border border-amber-500/40">
-              INICIANDO CASO...
+              {t("starting")}
             </span>
           </div>
         )}
@@ -186,13 +191,13 @@ export default function LevelCard({ preview }: LevelCardProps) {
         >
           {state === "available" || state === "completed" ? (
             <>
-              <span>{style.ctaLabel}</span>
+              <span>{t(style.ctaLabel)}</span>
               <span className="transition-transform duration-200 group-hover:translate-x-1">{style.ctaIcon}</span>
             </>
           ) : (
             <>
               <span>{style.ctaIcon}</span>
-              <span>{style.ctaLabel}</span>
+              <span>{t(style.ctaLabel)}</span>
             </>
           )}
         </div>

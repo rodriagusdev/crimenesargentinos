@@ -5,6 +5,13 @@ import { ICardLevelPreview } from "@/models/ICardLevelPreview";
 import { audioManager } from "@/lib/audioManager";
 import CarouselDot, { CarouselDotState } from "../buttons/CarouselDot";
 import LevelCard from "./LevelCard";
+import { useT } from "@/hooks/useT";
+import { defineMessages } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: { prev: "Niveles anteriores", next: "Niveles siguientes", carousel: "carrusel", region: "Niveles de investigación", nav: "Niveles" },
+  en: { prev: "Previous levels", next: "Next levels", carousel: "carousel", region: "Investigation levels", nav: "Levels" },
+});
 
 interface Props {
   levels: ICardLevelPreview[];
@@ -40,6 +47,7 @@ function dotState(level: ICardLevelPreview): CarouselDotState {
 // Excepción a la regla de overflow-x: un carrusel horizontal lo necesita; la barra está oculta y p-3.5 deja lugar al hover.
 export default function LevelsCarousel({ levels }: Props) {
   const trackRef = useRef<HTMLDivElement>(null);
+  const t = useT(messages);
   const isCarousel = true;
 
   const initialIndex = useMemo(() => {
@@ -135,10 +143,10 @@ export default function LevelsCarousel({ levels }: Props) {
         <div className={`${fadeClass} left-0 bg-gradient-to-r from-[#080e18] to-transparent ${atStart ? "opacity-0" : "opacity-100"}`} />
         <div className={`${fadeClass} right-0 bg-gradient-to-l from-[#080e18] to-transparent ${atEnd ? "opacity-0" : "opacity-100"}`} />
 
-        <button type="button" className={`${arrowClass} left-1 sm:-left-5`} onClick={() => page(-1)} disabled={atStart} aria-label="Niveles anteriores">
+        <button type="button" className={`${arrowClass} left-1 sm:-left-5`} onClick={() => page(-1)} disabled={atStart} aria-label={t("prev")}>
           ‹
         </button>
-        <button type="button" className={`${arrowClass} right-1 sm:-right-5`} onClick={() => page(1)} disabled={atEnd} aria-label="Niveles siguientes">
+        <button type="button" className={`${arrowClass} right-1 sm:-right-5`} onClick={() => page(1)} disabled={atEnd} aria-label={t("next")}>
           ›
         </button>
 
@@ -148,8 +156,8 @@ export default function LevelsCarousel({ levels }: Props) {
           onKeyDown={onKeyDown}
           tabIndex={0}
           role="region"
-          aria-roledescription="carrusel"
-          aria-label="Niveles de investigación"
+          aria-roledescription={t("carousel")}
+          aria-label={t("region")}
           className="flex gap-4 sm:gap-6 overflow-x-auto overflow-y-hidden snap-x snap-mandatory scroll-smooth p-3.5 scroll-px-3.5 outline-none rounded-2xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden focus-visible:ring-2 focus-visible:ring-amber-400/50"
         >
           {levels.map((level, i) => (
@@ -166,7 +174,7 @@ export default function LevelsCarousel({ levels }: Props) {
         </div>
       </div>
 
-      <nav aria-label="Niveles" className="flex justify-center mt-4">
+      <nav aria-label={t("nav")} className="flex justify-center mt-4">
         <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 p-1.5 sm:p-2 max-w-full rounded-2xl bg-[#0c1421] border-2 border-[#1c2c3e] shadow-[0_12px_32px_rgba(0,0,0,0.85)]">
           {levels.map((level, i) => (
             <CarouselDot key={level.id} number={level.id} state={dotState(level)} active={active === i} onClick={() => jump(i)} />

@@ -1,4 +1,7 @@
 import { API_URL } from "@/lib/api";
+import { translate } from "@/lib/i18n/messages";
+import { readLocaleCookie } from "@/lib/i18n/localeStorage";
+import { authServiceMessages } from "./authService.messages";
 
 export interface LoginRequest {
   email: string;
@@ -26,13 +29,15 @@ export async function login(credentials: LoginRequest): Promise<AuthResponse> {
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
+        // Los mensajes de error del backend vuelven en el idioma del jugador
+        "Accept-Language": readLocaleCookie(),
       },
       body: JSON.stringify(credentials),
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || "Error al iniciar sesión");
+      throw new Error(errorData.error || translate(authServiceMessages, "loginError"));
     }
 
     const data = await response.json();
@@ -43,7 +48,7 @@ export async function login(credentials: LoginRequest): Promise<AuthResponse> {
       email: data.email,
     };
   } catch (error) {
-    throw error instanceof Error ? error : new Error("Error desconocido");
+    throw error instanceof Error ? error : new Error(translate(authServiceMessages, "unknownError"));
   }
 }
 
@@ -56,6 +61,7 @@ export async function register(
       headers: {
         "Content-Type": "application/json",
         Accept: "*/*",
+        "Accept-Language": readLocaleCookie(),
       },
       body: JSON.stringify(data),
     });
@@ -63,17 +69,17 @@ export async function register(
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(
-        errorData.message || "Error al registrar usuario"
+        errorData.message || translate(authServiceMessages, "registerError")
       );
     }
 
     const responseData = await response.json();
     return {
       success: true,
-      message: "Usuario registrado exitosamente",
+      message: translate(authServiceMessages, "registerSuccess"),
       ...responseData,
     };
   } catch (error) {
-    throw error instanceof Error ? error : new Error("Error desconocido");
+    throw error instanceof Error ? error : new Error(translate(authServiceMessages, "unknownError"));
   }
 }

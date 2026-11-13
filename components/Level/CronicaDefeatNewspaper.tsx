@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { useAudioStore } from "@/stores/useAudioStore";
+import { useT } from "@/hooks/useT";
+import { cronicaDefeatNewspaperMessages } from "./CronicaDefeatNewspaper.messages";
 
 interface CronicaDefeatNewspaperProps {
   levelId: number;
@@ -20,6 +22,7 @@ export default function CronicaDefeatNewspaper({
 }: CronicaDefeatNewspaperProps) {
   const playSfx = useAudioStore((state) => state.playSfx);
   const containerRef = useRef<HTMLDivElement>(null);
+  const t = useT(cronicaDefeatNewspaperMessages);
 
   // Sound effect on defeat reveal
   useEffect(() => {
@@ -29,47 +32,15 @@ export default function CronicaDefeatNewspaper({
   }, [playSfx]);
 
   // Headline & Narrative mapping based on failure reason
-  const content = (() => {
-    switch (gameOverReason) {
-      case "time":
-        return {
-          kicker: "SE AGOTÓ EL PLAZO DE INVESTIGACIÓN · JUSTICIA BURLADA",
-          headline: "¡SE DIO A LA FUGA!",
-          lead: "El prófugo burló el cerco de la Policía Federal y cruzó la frontera. La investigación se quedó sin tiempo y el caso fue archivado.",
-          statusText: "PLAZO VENCIDO",
-          reasonText: "TIEMPO AGOTADO",
-          stampText: "PRÓFUGO",
-        };
-      case "pi":
-        return {
-          kicker: "DESPILFARRO EN INFORMANTES TRUCHOS · SIN FONDOS",
-          headline: "¡SIN FONDOS NI PISTAS!",
-          lead: "Se agotó el presupuesto en coimas y pistas falsas. Sin recursos para continuar la búsqueda, el sospechoso se esfumó sin dejar rastro.",
-          statusText: "CAJA EN CERO",
-          reasonText: "PRESUPUESTO AGOTADO",
-          stampText: "ESCAPÓ",
-        };
-      case "nowarrant":
-        return {
-          kicker: "PAPELÓN EN EL ESCONDITE · NEGLIGENCIA JUDICIAL",
-          headline: "¡CARA A CARA SIN ORDEN!",
-          lead: "El detective acorraló al criminal pero no tenía las pistas suficientes para la orden judicial. El sospechoso escapó burlándose de la ley.",
-          statusText: "SIN ORDEN JUDICIAL",
-          reasonText: "ORDEN INEXISTENTE",
-          stampText: "LIBRE",
-        };
-      case "arrest":
-      default:
-        return {
-          kicker: "ERROR HISTÓRICO DE LA FEDERAL · ALLANAMIENTO FALLIDO",
-          headline: "¡ARRESTARON A UN INOCENTE!",
-          lead: "La orden señalaba a otra persona. Mientras la policía esposaba al sospechoso equivocado, el verdadero culpable huyó de la provincia.",
-          statusText: "ERROR DE OBJETIVO",
-          reasonText: "IMPUTACIÓN ERRÓNEA",
-          stampText: "ERROR FATAL",
-        };
-    }
-  })();
+  const reason = gameOverReason === "time" || gameOverReason === "pi" || gameOverReason === "nowarrant" ? gameOverReason : "arrest";
+  const content = {
+    kicker: t(`${reason}Kicker`),
+    headline: t(`${reason}Headline`),
+    lead: t(`${reason}Lead`),
+    statusText: t(`${reason}Status`),
+    reasonText: t(`${reason}Reason`),
+    stampText: t(`${reason}Stamp`),
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md overflow-hidden select-none font-sans animate-fade-in">
@@ -77,7 +48,7 @@ export default function CronicaDefeatNewspaper({
       <div className="w-full max-w-3xl lg:max-w-4xl flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 sm:gap-0 mb-2 shrink-0">
         <div className="flex items-center gap-2 text-red-400 font-mono text-xs tracking-wider uppercase">
           <span className="inline-block w-2 h-2 rounded-full bg-red-600 animate-ping" />
-          <span>CASO #{String(levelId).padStart(2, "0")} FRACASADO</span>
+          <span>{t("caseFailed", { n: String(levelId).padStart(2, "0") })}</span>
         </div>
 
         <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto">
@@ -86,7 +57,7 @@ export default function CronicaDefeatNewspaper({
             className="flex-1 sm:flex-none justify-center min-h-9 sm:min-h-0 flex items-center gap-1.5 sm:gap-2 rounded-xl border border-yellow-500/60 bg-gradient-to-b from-[#3a2810] to-[#1a1205] px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold tracking-wider text-yellow-200 shadow-[0_10px_25px_rgba(0,0,0,0.6)] hover:border-yellow-300 hover:scale-105 active:scale-95 transition-all"
           >
             <span>🔄</span>
-            <span>REINTENTAR INVESTIGACIÓN</span>
+            <span>{t("retry")}</span>
           </button>
 
           <button
@@ -94,7 +65,7 @@ export default function CronicaDefeatNewspaper({
             className="flex-1 sm:flex-none justify-center min-h-9 sm:min-h-0 flex items-center gap-1.5 sm:gap-2 rounded-xl border border-stone-600/60 bg-gradient-to-b from-stone-900 to-black px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold tracking-wider text-stone-300 shadow-[0_10px_25px_rgba(0,0,0,0.6)] hover:border-stone-400 hover:scale-105 active:scale-95 transition-all"
           >
             <span>✕</span>
-            <span>VOLVER AL MENÚ</span>
+            <span>{t("backToMenu")}</span>
           </button>
         </div>
       </div>
@@ -110,8 +81,8 @@ export default function CronicaDefeatNewspaper({
       >
         {/* Newspaper Top Dateline */}
         <div className="flex items-center justify-between gap-2 border-b border-[#1c1815] pb-0.5 sm:pb-1 text-[10px] md:text-xs font-mono font-bold tracking-wider text-[#1c1815] shrink-0">
-          <span>BUENOS AIRES, REPÚBLICA ARGENTINA · EDICIÓN URGENTE DE CIERRE</span>
-          <span className="shrink-0">PRECIO: $ 1.50</span>
+          <span>{t("dateline")}</span>
+          <span className="shrink-0">{t("price")}</span>
         </div>
 
         {/* Iconic Alerta Conurbano Red Masthead */}
@@ -120,15 +91,15 @@ export default function CronicaDefeatNewspaper({
             ALERTA CONURBANO
           </h1>
           <p className="text-[10px] md:text-xs font-mono font-bold text-yellow-200 mt-0.5 sm:mt-1 tracking-widest uppercase">
-            &ldquo;FIRME JUNTO AL PUEBLO&rdquo; · EL DIARIO DE MAYOR CIRCULACIÓN
+            &ldquo;{t("tagline")}&rdquo; · {t("circulation")}
           </p>
         </div>
 
         {/* Sub-bar / Division Bar */}
         <div className="flex items-center justify-between gap-2 border-y border-[#1c1815] py-0.5 sm:py-1 text-[10px] md:text-xs font-bold uppercase tracking-wider text-[#1c1815] shrink-0">
-          <span>CASO #{String(levelId).padStart(2, "0")} ARCHIVADO</span>
-          <span className="hidden sm:inline text-[#c51c1c] font-black">POLICÍA FEDERAL ARGENTINA</span>
-          <span>ALERTA ROJA NACIONAL</span>
+          <span>{t("caseArchived", { n: String(levelId).padStart(2, "0") })}</span>
+          <span className="hidden sm:inline text-[#c51c1c] font-black">{t("federalPolice")}</span>
+          <span>{t("redAlert")}</span>
         </div>
 
         {/* Giant Main Headline */}
@@ -181,7 +152,7 @@ export default function CronicaDefeatNewspaper({
             </div>
 
             <span className="text-[10px] md:text-xs font-mono font-bold text-center mt-1 uppercase text-[#44403c] truncate w-full">
-              FOTO EXCLUSIVA · PARADERO DESCONOCIDO
+              {t("exclusivePhoto")}
             </span>
           </div>
 
@@ -189,13 +160,13 @@ export default function CronicaDefeatNewspaper({
           <div className="flex flex-col justify-between gap-1 sm:gap-1.5 md:gap-2 min-h-0">
             <div className="border-2 border-[#1c1815] bg-white p-2 sm:p-2.5 md:p-3 rounded-sm shadow-sm flex flex-col justify-between">
               <div className="bg-[#1c1815] text-[#fef08a] px-2 py-0.5 text-center text-[10px] md:text-xs font-mono font-bold uppercase tracking-wider mb-1 sm:mb-1.5">
-                ACTA DE INVESTIGACIÓN FRUSTRADA
+                {t("failedReport")}
               </div>
 
               <div className="grid grid-cols-2 gap-x-2.5 sm:gap-x-3 gap-y-1 sm:gap-y-1.5 text-left">
                 <div>
                   <span className="text-[10px] sm:text-[9px] font-bold text-[#78716c] uppercase block">
-                    ESTADO DEL CASO
+                    {t("caseStatus")}
                   </span>
                   <span className="text-[11px] sm:text-xs md:text-sm font-black text-red-700 uppercase block truncate">
                     {content.statusText}
@@ -204,16 +175,16 @@ export default function CronicaDefeatNewspaper({
 
                 <div>
                   <span className="text-[10px] sm:text-[9px] font-bold text-[#78716c] uppercase block">
-                    TIEMPO CONSUMIDO
+                    {t("timeSpent")}
                   </span>
                   <span className="text-sm sm:text-base md:text-lg lg:text-xl font-black text-black">
-                    {hoursTaken} HS
+                    {t("hours", { n: hoursTaken })}
                   </span>
                 </div>
 
                 <div className="border-t border-[#e7e5e4] pt-0.5 sm:pt-1">
                   <span className="text-[10px] sm:text-[9px] font-bold text-[#78716c] uppercase block">
-                    MOTIVO DEL CIERRE
+                    {t("closingReason")}
                   </span>
                   <span className="text-[11px] sm:text-xs md:text-sm font-black text-stone-800 uppercase block truncate">
                     {content.reasonText}
@@ -222,7 +193,7 @@ export default function CronicaDefeatNewspaper({
 
                 <div className="border-t border-[#e7e5e4] pt-0.5 sm:pt-1">
                   <span className="text-[10px] sm:text-[9px] font-bold text-[#78716c] uppercase block">
-                    RANGO ASIGNADO
+                    {t("assignedRank")}
                   </span>
                   <span className="text-sm sm:text-base md:text-lg lg:text-xl font-black text-red-700 tracking-wider block">
                     F
@@ -234,9 +205,9 @@ export default function CronicaDefeatNewspaper({
             {/* Editorial Article Box */}
             <div className="bg-[#e7ded0] p-1.5 sm:p-2 md:p-2.5 border border-[#1c1815] text-[10px] sm:text-[11px] md:text-xs font-serif leading-snug text-[#292524] sm:line-clamp-3">
               <span className="font-bold block mb-0.5 uppercase text-[10px] font-mono">
-                EDITORIAL POLICIAL:
+                {t("editorialTitle")}
               </span>
-              Fuentes judiciales calificaron el operativo como un papelón sin atenuantes. Asuntos Internos evalúa sanciones disciplinarias para el personal a cargo de la pesquisa.
+              {t("editorialBody")}
             </div>
           </div>
         </div>
@@ -245,13 +216,13 @@ export default function CronicaDefeatNewspaper({
         <div className="border-t-2 border-[#1c1815] pt-1 sm:pt-1.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-0.5 sm:gap-3 text-[10px] md:text-xs text-[#44403c] font-mono shrink-0">
           <div className="flex items-center gap-2 truncate max-w-full">
             <span className="font-bold text-black uppercase">
-              DIVISIÓN ASUNTOS INTERNOS
+              {t("internalAffairs")}
             </span>
-            <span className="hidden sm:inline">· POLICÍA FEDERAL ARGENTINA</span>
+            <span className="hidden sm:inline">{t("federalPoliceFooter")}</span>
           </div>
 
           <div className="font-bold text-[#c51c1c] uppercase tracking-wider text-left sm:text-right truncate max-w-full">
-            ¡EL CRIMEN CELEBRA, LA LEY DE LUTO!
+            {t("slogan")}
           </div>
         </div>
       </div>

@@ -6,6 +6,8 @@ import GameButton from "../buttons/GameButton";
 import { login } from "@/services/authService";
 import { isAdmin } from "@/lib/auth";
 import { markSplashPending } from "@/lib/splashStorage";
+import { useT } from "@/hooks/useT";
+import { loginFormMessages } from "./LoginForm.messages";
 
 type LoginFormProps = {
   onRegisterClick: () => void;
@@ -13,6 +15,7 @@ type LoginFormProps = {
 
 export default function LoginForm({ onRegisterClick }: LoginFormProps) {
   const router = useRouter();
+  const t = useT(loginFormMessages);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -21,7 +24,7 @@ export default function LoginForm({ onRegisterClick }: LoginFormProps) {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      setError("Por favor completa todos los campos");
+      setError(t("missingFields"));
       return;
     }
 
@@ -42,7 +45,7 @@ export default function LoginForm({ onRegisterClick }: LoginFormProps) {
       }
     } catch (err) {
       setError(
-        err instanceof Error ? "El email y/o la contraseña son incorrectos" : "Error al iniciar sesión"
+        err instanceof Error ? t("wrongCredentials") : t("loginError")
       );
     } finally {
       setLoading(false);
@@ -59,7 +62,7 @@ export default function LoginForm({ onRegisterClick }: LoginFormProps) {
           textShadow: "0 2px 0 #1E2A36, 0 0 10px rgba(0,0,0,.8)",
         }}
       >
-        LOGIN
+        {t("title")}
       </h2>
 
       {error && (
@@ -82,11 +85,11 @@ export default function LoginForm({ onRegisterClick }: LoginFormProps) {
           style={{ color: "#FFF3C7" }}
         >
           <span>✉️</span>
-          Ingrese su email
+          {t("emailLabel")}
         </label>
         <input
           type="email"
-          placeholder="usuario@ejemplo.com"
+          placeholder={t("emailPlaceholder")}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           disabled={loading}
@@ -107,12 +110,12 @@ export default function LoginForm({ onRegisterClick }: LoginFormProps) {
           style={{ color: "#FFF3C7" }}
         >
           <span>🔑</span>
-          Contraseña
+          {t("passwordLabel")}
         </label>
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
-            placeholder="Ingrese contraseña"
+            placeholder={t("passwordPlaceholder")}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={loading}
@@ -129,9 +132,9 @@ export default function LoginForm({ onRegisterClick }: LoginFormProps) {
             type="button"
             onClick={() => setShowPassword((v) => !v)}
             disabled={loading}
-            aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+            aria-label={showPassword ? t("hidePassword") : t("showPassword")}
             aria-pressed={showPassword}
-            title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+            title={showPassword ? t("hidePassword") : t("showPassword")}
             className="absolute inset-y-0 right-2 my-auto size-9 flex items-center justify-center rounded-xl text-lg cursor-pointer hover:bg-black/10 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {showPassword ? "🙈" : "👁️"}
@@ -142,14 +145,14 @@ export default function LoginForm({ onRegisterClick }: LoginFormProps) {
       {/* BOTONES DE ACCIÓN */}
       <GameButton
         icon="🚪"
-        label={loading ? "INGRESANDO..." : "ENTRAR"}
+        label={loading ? t("entering") : t("enter")}
         onClick={handleLogin}
         disabled={loading}
       />
 
       <GameButton
         icon="📜"
-        label="REGISTRAR"
+        label={t("register")}
         variant="primary"
         onClick={onRegisterClick}
         disabled={loading}

@@ -5,9 +5,17 @@ import Leaderboard from "@/components/panel-leaderboard/Leaderboard";
 import Levels from "@/components/panel-levels/Levels";
 import PlayerPanel from "@/components/panel-player/PlayerPanel";
 import { useAuth } from "@/hooks/useAuth";
+import { useT } from "@/hooks/useT";
+import { defineMessages } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: { backgroundAlt: "Central de Investigaciones Policiales", loading: "Accediendo a la Central de Investigaciones..." },
+  en: { backgroundAlt: "Police Investigations Headquarters", loading: "Accessing Investigations HQ..." },
+});
 
 export default function Principal() {
   const { isAuthenticated, loading } = useAuth();
+  const t = useT(messages);
 
   if (loading) {
     return (
@@ -15,7 +23,7 @@ export default function Principal() {
         {/* Fondo táctico tenue de la sala de detectives */}
         <Image
           src="/images/principal_background.webp"
-          alt="Central de Investigaciones Policiales"
+          alt={t("backgroundAlt")}
           fill
           priority
           className="object-cover object-center opacity-30 blur-xs pointer-events-none select-none"
@@ -27,7 +35,7 @@ export default function Principal() {
         <div className="relative z-10 flex items-center gap-3 px-6 py-4 rounded-2xl bg-[#0c1421]/95 border border-amber-400/40 text-[#FFF3C7] shadow-[0_20px_50px_rgba(0,0,0,0.8)] backdrop-blur-md">
           <span className="size-2 rounded-full bg-amber-400 animate-ping" />
           <span className="text-xs sm:text-sm tracking-widest uppercase font-bold">
-            Accediendo a la Central de Investigaciones...
+            {t("loading")}
           </span>
         </div>
       </div>
@@ -48,7 +56,7 @@ export default function Principal() {
         {/* Ilustración de la oficina de investigaciones */}
         <Image
           src="/images/principal_background.webp"
-          alt="Central de Investigaciones Policiales"
+          alt={t("backgroundAlt")}
           fill
           priority
           className="object-cover object-center pointer-events-none select-none"

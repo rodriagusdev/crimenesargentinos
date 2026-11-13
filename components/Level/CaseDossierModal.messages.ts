@@ -1,0 +1,38 @@
+import { defineMessages } from "@/lib/i18n/messages";
+
+export const caseDossierModalMessages = defineMessages({
+  es: {
+    warrantFailed: "No se pudo emitir la orden de arresto",
+    boardTitle: "Tablero de Investigacion del Caso",
+    facingCriminal: "FRENTE AL CRIMINAL",
+    caseNumber: "CASO #{n}",
+    closeBoard: "Cerrar Tablero (Esc)",
+    hideoutFound: "¡Escondite localizado — Estás frente al criminal!",
+    hideoutHint: "Revisá los indicios en el tablero y emití la orden de captura sobre el culpable definitivo para arrestarlo.",
+    arrestWarrant: "Orden de Arresto",
+    courtWarrant: "Orden Judicial de Captura",
+    confirmQuestion: "¿Emitir orden de captura para {name}?",
+    finalAtHideout: "¡Estás en el escondite del sospechoso! Esta orden es definitiva: si elegís al culpable correcto, ganás el caso; si te equivocás, escapará.",
+    finalBinding: "Esta orden es definitiva y vinculante: no podrás cambiar de sospechoso. La captura se ejecutará automáticamente cuando localices su escondite.",
+    issuing: "EMITIENDO...",
+    confirmIssue: "SÍ, EMITIR",
+    cancel: "CANCELAR",
+  },
+  en: {
+    warrantFailed: "Could not issue the arrest warrant",
+    boardTitle: "Case Investigation Board",
+    facingCriminal: "FACING THE CRIMINAL",
+    caseNumber: "CASE #{n}",
+    closeBoard: "Close Board (Esc)",
+    hideoutFound: "Hideout found — You're facing the criminal!",
+    hideoutHint: "Check the evidence on the board and issue the warrant for the one true culprit to make the arrest.",
+    arrestWarrant: "Arrest Warrant",
+    courtWarrant: "Court-Ordered Arrest Warrant",
+    confirmQuestion: "Issue an arrest warrant for {name}?",
+    finalAtHideout: "You're in the suspect's hideout! This warrant is final: pick the right culprit and you win the case; get it wrong and they escape.",
+    finalBinding: "This warrant is final and binding: you can't switch suspects. The arrest will happen automatically once you find their hideout.",
+    issuing: "ISSUING...",
+    confirmIssue: "YES, ISSUE",
+    cancel: "CANCEL",
+  },
+});

@@ -4,12 +4,15 @@
 import { useState } from "react";
 import GameButton from "../buttons/GameButton";
 import { register } from "@/services/authService";
+import { useT } from "@/hooks/useT";
+import { registerFormMessages } from "./RegisterForm.messages";
 
 type RegisterFormProps = {
   onBackClick: () => void;
 };
 
 export default function RegisterForm({ onBackClick }: RegisterFormProps) {
+  const t = useT(registerFormMessages);
   const [email, setEmail] = useState<string>("");
   const [userName, setUserName] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -19,37 +22,37 @@ export default function RegisterForm({ onBackClick }: RegisterFormProps) {
 
   const handleRegister = async () => {
     if (!email || !userName || !password) {
-      setError("Por favor completa todos los campos");
+      setError(t("missingFields"));
       return;
     }
 
     // Validar email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      setError("Por favor ingresa un email válido");
+      setError(t("invalidEmail"));
       return;
     }
 
     // Validar userName
     if (userName.length < 3) {
-      setError("El nombre de usuario debe tener al menos 3 caracteres");
+      setError(t("userNameTooShort"));
       return;
     }
 
     if (userName.length > 50) {
-      setError("El nombre de usuario no puede exceder 50 caracteres");
+      setError(t("userNameTooLong"));
       return;
     }
 
     const userNameRegex = /^[a-zA-Z0-9_-]+$/;
     if (!userNameRegex.test(userName)) {
-      setError("El nombre de usuario solo puede contener letras, números, guiones y guiones bajos");
+      setError(t("userNameChars"));
       return;
     }
 
     // Validar password
     if (password.length < 8) {
-      setError("La contraseña debe tener al menos 8 caracteres");
+      setError(t("passwordTooShort"));
       return;
     }
 
@@ -63,7 +66,7 @@ export default function RegisterForm({ onBackClick }: RegisterFormProps) {
         onBackClick();
       }, 2000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al registrar");
+      setError(err instanceof Error ? err.message : t("registerError"));
     } finally {
       setLoading(false);
     }
@@ -78,7 +81,7 @@ export default function RegisterForm({ onBackClick }: RegisterFormProps) {
           textShadow: "0 2px 0 #1E2A36, 0 0 10px rgba(0,0,0,.8)",
         }}
       >
-        📝 REGISTRO
+        {t("title")}
       </h2>
 
       {success && (
@@ -90,7 +93,7 @@ export default function RegisterForm({ onBackClick }: RegisterFormProps) {
             color: "#00ff00",
           }}
         >
-          ✓ Usuario registrado exitosamente. Redirigiendo...
+          {t("success")}
         </div>
       )}
 
@@ -113,14 +116,14 @@ export default function RegisterForm({ onBackClick }: RegisterFormProps) {
           style={{ color: "#FFF3C7" }}
         >
           <span>✉️</span>
-          Email
+          {t("emailLabel")}
         </label>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           disabled={loading}
-          placeholder="usuario@ejemplo.com"
+          placeholder={t("emailPlaceholder")}
           className="px-4 py-3 rounded-[50px]"
           style={{
             background: "rgba(255, 243, 199, 0.85)",
@@ -137,14 +140,14 @@ export default function RegisterForm({ onBackClick }: RegisterFormProps) {
           style={{ color: "#FFF3C7" }}
         >
           <span>👤</span>
-          Nombre de Usuario
+          {t("userNameLabel")}
         </label>
         <input
           type="text"
           value={userName}
           onChange={(e) => setUserName(e.target.value)}
           disabled={loading}
-          placeholder="nombre_usuario"
+          placeholder={t("userNamePlaceholder")}
           className="px-4 py-3 rounded-[50px]"
           style={{
             background: "rgba(255, 243, 199, 0.85)",
@@ -161,14 +164,14 @@ export default function RegisterForm({ onBackClick }: RegisterFormProps) {
           style={{ color: "#FFF3C7" }}
         >
           <span>🔑</span>
-          Contraseña
+          {t("passwordLabel")}
         </label>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           disabled={loading}
-          placeholder="Mínimo 8 caracteres"
+          placeholder={t("passwordPlaceholder")}
           className="px-4 py-3 rounded-[50px]"
           style={{
             background: "rgba(255, 243, 199, 0.85)",
@@ -181,14 +184,14 @@ export default function RegisterForm({ onBackClick }: RegisterFormProps) {
 
       <GameButton
         icon="✓"
-        label={loading ? "REGISTRANDO..." : "CREAR CUENTA"}
+        label={loading ? t("registering") : t("createAccount")}
         onClick={handleRegister}
         disabled={loading}
       />
 
       <GameButton
         icon="◄"
-        label="VOLVER AL ACCESO"
+        label={t("back")}
         variant="secondary"
         onClick={onBackClick}
         disabled={loading}

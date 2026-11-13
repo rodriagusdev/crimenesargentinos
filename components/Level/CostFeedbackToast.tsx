@@ -1,5 +1,13 @@
 "use client";
 
+import { useT } from "@/hooks/useT";
+import { defineMessages } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: { points: "{n} PUNTOS DE INVESTIGACIÓN", hours: "-{n} HS", clueAdded: "¡Se añadió informacion a Pistas!" },
+  en: { points: "{n} INVESTIGATION POINTS", hours: "-{n} HRS", clueAdded: "New info added to Clues!" },
+});
+
 interface CostFeedbackToastProps {
   cost: {
     time: number;
@@ -12,6 +20,7 @@ export default function CostFeedbackToast({
   cost,
   unlockedClue,
 }: CostFeedbackToastProps) {
+  const t = useT(messages);
   if (!cost && !unlockedClue) return null;
 
   return (
@@ -20,9 +29,9 @@ export default function CostFeedbackToast({
         <div className="px-4 sm:px-5 py-2.5 rounded-2xl backdrop-blur-md bg-[rgba(20,10,15,0.92)] border border-red-500/50 shadow-[0_12px_35px_rgba(0,0,0,0.85)] flex items-center gap-3 animate-pulse">
           <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-center font-bold text-[10px] sm:text-sm leading-snug">
             {/* pi negativo: la pregunta dejó una pista nueva y sumó puntos */}
-            <span className="text-cyan-300">{cost.pi < 0 ? `+${-cost.pi}` : `-${cost.pi}`} PUNTOS DE INVESTIGACIÓN</span>
+            <span className="text-cyan-300">{t("points", { n: cost.pi < 0 ? `+${-cost.pi}` : `-${cost.pi}` })}</span>
             <span className="text-[#FFF3C7]/40">|</span>
-            <span className="text-amber-300">-{cost.time} HS</span>
+            <span className="text-amber-300">{t("hours", { n: cost.time })}</span>
           </div>
         </div>
       )}
@@ -32,7 +41,7 @@ export default function CostFeedbackToast({
           <span className="text-lg">🔍</span>
           <div className="flex flex-col items-start">
             <span className="text-[10px] uppercase font-bold text-[#E1C380] tracking-normal sm:tracking-wider leading-snug">
-              ¡Se añadió informacion a Pistas!
+              {t("clueAdded")}
             </span>
           </div>
         </div>

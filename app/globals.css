@@ -844,3 +844,40 @@ body {
     transition-duration: 0.01s;
   }
 }
+
+/* ===== Galería de sospechosos (bocetos /galerias) ===== */
+/* Brillo holográfico de las figuritas nuevas */
+.galeria-holo {
+  background: linear-gradient(115deg, transparent 20%, rgba(255, 255, 255, 0.55) 35%, rgba(120, 220, 255, 0.35) 42%, rgba(255, 140, 230, 0.3) 50%, transparent 65%);
+  background-size: 250% 100%;
+  mix-blend-mode: overlay;
+  animation: galeriaHolo 3.2s ease-in-out infinite;
+}
+@keyframes galeriaHolo {
+  from { background-position: 120% 0; }
+  to { background-position: -120% 0; }
+}
+/* Reflector que barre la rueda nueva */
+.galeria-spot {
+  background: radial-gradient(ellipse 22% 80% at 50% 0%, rgba(255, 242, 207, 0.45), transparent 70%);
+  animation: galeriaSpot 6s ease-in-out infinite alternate;
+}
+@keyframes galeriaSpot {
+  from { transform: translateX(-35%); }
+  to { transform: translateX(35%); }
+}
+/* Entrada de lo nuevo (cartel recién pegado, cajón que se abre) */
+.galeria-in {
+  animation: galeriaIn 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+@keyframes galeriaIn {
+  from { opacity: 0; transform: translateY(-14px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .galeria-holo,
+  .galeria-spot,
+  .galeria-in {
+    animation: none;
+  }
+}

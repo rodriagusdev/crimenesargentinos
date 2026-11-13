@@ -12,19 +12,30 @@ export class CaseDraftRejectedError extends Error {
   }
 }
 
+// Traducción vacía = sin traducir (null): el juego cae al castellano
+const en = (value: string | null | undefined): string | null => (value?.trim() ? value : null);
+
 // En el escondite solo la primera pregunta lleva respuestas de encontrarlo/perderlo; el resto, respuesta normal
 export function toRequest(draft: CaseDraft): CaseDraft {
   return {
     ...draft,
+    titleEn: en(draft.titleEn),
+    descriptionEn: en(draft.descriptionEn),
+    briefingEn: en(draft.briefingEn),
+    clues: draft.clues.map((clue) => ({ ...clue, descriptionEn: en(clue.descriptionEn) })),
     dialogs: draft.dialogs.map((dialog) => {
       const isHideout = dialog.locationId === draft.criminalLocationId;
       return {
         ...dialog,
-        questions: dialog.questions.map((q, i) =>
-          isHideout && i === 0
-            ? { ...q, answer: "" }
-            : { ...q, foundAnswer: null, lostAnswer: null }
-        ),
+        npcNameEn: en(dialog.npcNameEn),
+        infoBackgroundEn: en(dialog.infoBackgroundEn),
+        messages: dialog.messages.map((m) => ({ ...m, textEn: en(m.textEn) })),
+        questions: dialog.questions.map((q, i) => {
+          const base = { ...q, textEn: en(q.textEn) };
+          return isHideout && i === 0
+            ? { ...base, answer: "", answerEn: null, foundAnswerEn: en(q.foundAnswerEn), lostAnswerEn: en(q.lostAnswerEn) }
+            : { ...base, answerEn: en(q.answerEn), foundAnswer: null, lostAnswer: null, foundAnswerEn: null, lostAnswerEn: null };
+        }),
       };
     }),
   };
