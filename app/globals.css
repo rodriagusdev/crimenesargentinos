@@ -59,3 +59,153 @@ body {
 .modern-button:active {
   transform: translateY(0px) scale(0.98);
 }
+/* ========================================================================= */
+/* SPLASH POST-LOGIN: "EXPEDIENTE CLASIFICADO"                                 */
+/* ========================================================================= */
+
+.splash-rain {
+  background-image:
+    repeating-linear-gradient(105deg, transparent 0 22px, rgba(170, 200, 255, 0.07) 22px 23px),
+    repeating-linear-gradient(100deg, transparent 0 37px, rgba(170, 200, 255, 0.05) 37px 38px);
+  background-size: 200% 200%;
+  animation: splashRain 0.6s linear infinite;
+}
+
+@keyframes splashRain {
+  from { background-position: 0 0, 0 0; }
+  to { background-position: -40px 220px, -30px 180px; }
+}
+
+.splash-siren {
+  opacity: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(220, 40, 40, 0.22) 30%, rgba(40, 90, 255, 0.22) 60%, transparent 90%);
+  background-size: 250% 100%;
+  animation: splashSiren 1.4s ease-in-out 0.15s 2 both;
+}
+
+@keyframes splashSiren {
+  0% { opacity: 0; background-position: 120% 0; }
+  30% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; background-position: -120% 0; }
+}
+
+.splash-lamp {
+  animation: splashFlicker 0.7s steps(1, end) both;
+}
+
+@keyframes splashFlicker {
+  0% { opacity: 0; }
+  12% { opacity: 1; }
+  20% { opacity: 0.2; }
+  32% { opacity: 1; }
+  40% { opacity: 0.5; }
+  52%, 100% { opacity: 1; }
+}
+
+.splash-folder {
+  perspective: 1600px;
+}
+
+.splash-cover {
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition: transform 1.1s cubic-bezier(0.55, 0, 0.25, 1);
+}
+
+.splash-cover--open {
+  transform: rotateY(-168deg);
+}
+
+.splash-face {
+  backface-visibility: hidden;
+}
+
+.splash-face--back {
+  transform: rotateY(180deg);
+}
+
+.splash-logo {
+  opacity: 0;
+  transform: translateY(18px) scale(0.86);
+  clip-path: inset(100% 0 0 0);
+  transition:
+    opacity 0.5s ease 0.45s,
+    transform 0.9s cubic-bezier(0.2, 0.9, 0.3, 1.15) 0.45s,
+    clip-path 1s ease-out 0.45s;
+}
+
+.splash-logo--visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  clip-path: inset(0 0 0 0);
+}
+
+/* Brillo dorado recortado a la silueta del logo */
+.splash-shine {
+  opacity: 0;
+  background: linear-gradient(110deg, transparent 35%, rgba(255, 240, 180, 0.85) 50%, transparent 65%);
+  background-size: 250% 100%;
+  -webkit-mask: url("/images/logofinal.png") center / contain no-repeat;
+  mask: url("/images/logofinal.png") center / contain no-repeat;
+  mix-blend-mode: screen;
+}
+
+.splash-logo--visible .splash-shine {
+  animation: splashShine 1.1s ease-in-out 1.3s both;
+}
+
+@keyframes splashShine {
+  0% { opacity: 1; background-position: 130% 0; }
+  100% { opacity: 1; background-position: -130% 0; }
+}
+
+.splash-caret {
+  animation: splashBlink 0.5s steps(1, end) infinite;
+}
+
+.splash-blink {
+  animation: splashBlink 1s steps(1, end) infinite;
+}
+
+@keyframes splashBlink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.splash-stamp-slam {
+  transform: rotate(-10deg);
+  animation: splashStamp 0.25s cubic-bezier(0.3, 1.6, 0.6, 1) both;
+}
+
+@keyframes splashStamp {
+  from { opacity: 0; transform: rotate(-10deg) scale(2.6); }
+  to { opacity: 1; transform: rotate(-10deg) scale(1); }
+}
+
+.splash-shake {
+  animation: splashShake 0.3s ease-in-out;
+}
+
+@keyframes splashShake {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-6px, 3px); }
+  40% { transform: translate(5px, -4px); }
+  60% { transform: translate(-4px, -2px); }
+  80% { transform: translate(3px, 3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-rain,
+  .splash-siren,
+  .splash-lamp,
+  .splash-shine,
+  .splash-shake,
+  .splash-stamp-slam {
+    animation: none;
+  }
+  .splash-cover,
+  .splash-logo {
+    transition-duration: 0.01s;
+  }
+}

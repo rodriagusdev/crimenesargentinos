@@ -1,5 +1,5 @@
 import { API_URL, authHeaders, handleUnauthorized } from "@/lib/api";
-import type { CaseDraft, CaseDraftCheck } from "@/models/ICaseDraft";
+import type { CaseDraft, CaseDraftCheck, CaseDraftLoaded } from "@/models/ICaseDraft";
 
 // El backend rechazó el caso: errores para corregir antes de crearlo
 export class CaseDraftRejectedError extends Error {
@@ -30,11 +30,11 @@ export function toRequest(draft: CaseDraft): CaseDraft {
   };
 }
 
-async function post<T>(path: string, draft: CaseDraft): Promise<T> {
+async function send<T>(method: "GET" | "POST" | "PUT", path: string, draft?: CaseDraft): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {
-    method: "POST",
+    method,
     headers: authHeaders(),
-    body: JSON.stringify(toRequest(draft)),
+    body: draft ? JSON.stringify(toRequest(draft)) : undefined,
   });
   handleUnauthorized(response);
 
@@ -48,10 +48,17 @@ async function post<T>(path: string, draft: CaseDraft): Promise<T> {
 
 // Valida el borrador y calcula el tiempo inicial (recorrido óptimo + 2/3 de las preguntas), sin guardar
 export function checkCaseDraft(draft: CaseDraft): Promise<CaseDraftCheck> {
-  return post<CaseDraftCheck>("/api/CaseAuthoring/check", draft);
+  return send<CaseDraftCheck>("POST", "/api/CaseAuthoring/check", draft);
 }
 
-// Crea el caso completo en una sola transacción
-export function createCaseFromDraft(draft: CaseDraft): Promise<{ id: number; initialTime: number }> {
-  return post("/api/CaseAuthoring", draft);
+// Caso existente con todo lo suyo, para editarlo en el asistente
+export function loadCaseForEdit(caseId: number): Promise<CaseDraftLoaded> {
+  return send<CaseDraftLoaded>("GET", `/api/CaseAuthoring/${caseId}`);
+}
+
+// Crea el caso (si es nuevo) o guarda los cambios (si tiene id), todo en una transacción
+export function submitCaseDraft(draft: CaseDraft): Promise<{ id: number; initialTime: number }> {
+  return draft.id == null
+    ? send("POST", "/api/CaseAuthoring", draft)
+    : send("PUT", `/api/CaseAuthoring/${draft.id}`, draft);
 }

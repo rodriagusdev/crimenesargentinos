@@ -26,8 +26,11 @@ export interface CaseDraftMessage {
   text: string;
 }
 
-// En el escondite, la primera pregunta usa foundAnswer / lostAnswer en lugar de answer
+// En el escondite, la primera pregunta usa foundAnswer / lostAnswer en lugar de answer.
+// id / lostId: filas existentes al editar un caso (se conservan porque las partidas las referencian)
 export interface CaseDraftQuestion {
+  id: string | null;
+  lostId: string | null;
   text: string;
   answer: string;
   clueKey: string | null;
@@ -47,6 +50,7 @@ export interface CaseDraftDialog {
 }
 
 export interface CaseDraft {
+  id: number | null; // null: caso nuevo
   title: string;
   description: string;
   briefing: string | null;
@@ -77,7 +81,15 @@ export interface CaseDraftCheck {
 }
 
 // Costos iguales a los de los casos existentes
+// Caso existente cargado para editar
+export interface CaseDraftLoaded {
+  draft: CaseDraft;
+  hasConditionalQuestions: boolean;
+  inProgressSessions: number;
+}
+
 export const EMPTY_CASE_DRAFT: CaseDraft = {
+  id: null,
   title: "",
   description: "",
   briefing: null,
@@ -100,7 +112,7 @@ export const EMPTY_CASE_DRAFT: CaseDraft = {
 };
 
 export function emptyQuestion(): CaseDraftQuestion {
-  return { text: "", answer: "", clueKey: null, foundAnswer: null, lostAnswer: null };
+  return { id: null, lostId: null, text: "", answer: "", clueKey: null, foundAnswer: null, lostAnswer: null };
 }
 
 export function emptyDialog(locationId: string): CaseDraftDialog {

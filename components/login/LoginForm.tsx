@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import GameButton from "../buttons/GameButton";
 import { login } from "@/services/authService";
 import { isAdmin } from "@/lib/auth";
+import { markSplashPending } from "@/lib/splashStorage";
 
 type LoginFormProps = {
   onRegisterClick: () => void;
@@ -31,8 +32,13 @@ export default function LoginForm({ onRegisterClick }: LoginFormProps) {
       const token = await login({ email, password });
       if (token?.token) {
         localStorage.setItem("auth_token", token.token);
-        // Los administradores van al panel; los jugadores, al juego
-        router.push(isAdmin() ? "/admin" : "/principal");
+        // Los administradores van al panel; los jugadores, al juego (con el splash de bienvenida)
+        if (isAdmin()) {
+          router.push("/admin");
+        } else {
+          markSplashPending();
+          router.push("/principal");
+        }
       }
     } catch (err) {
       setError(
