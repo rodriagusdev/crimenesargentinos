@@ -32,15 +32,6 @@
   to { clip-path: inset(0 0 0 0); }
 }
 
-/* Letra buscada con el índice: destello */
-.flash {
-  animation: flash 1.2s ease-out both;
-}
-@keyframes flash {
-  0%, 30% { background-color: rgba(29, 63, 138, 0.25); }
-  100% { background-color: transparent; }
-}
-
 /* Teléfono que suena cada tanto */
 .ring {
   animation: ring 9s infinite;
@@ -71,11 +62,58 @@
   100% { transform: rotate(0); }
 }
 
+/* Lomo: sombra hacia el centro del libro abierto */
+.pageLeft {
+  box-shadow: inset -26px 0 30px -18px rgba(0, 0, 0, 0.45);
+}
+.pageRight {
+  box-shadow: inset 26px 0 30px -18px rgba(0, 0, 0, 0.45);
+}
+
+/* Hoja que gira sobre el lomo al hojear */
+.turnNext {
+  transform-origin: 0 50%;
+  animation: turnNext 0.42s cubic-bezier(0.3, 0.7, 0.4, 1) both;
+}
+.turnPrev {
+  transform-origin: 100% 50%;
+  animation: turnPrev 0.42s cubic-bezier(0.3, 0.7, 0.4, 1) both;
+}
+@keyframes turnNext {
+  from { transform: rotateY(-95deg); filter: brightness(0.6); }
+  to { transform: none; filter: none; }
+}
+@keyframes turnPrev {
+  from { transform: rotateY(95deg); filter: brightness(0.6); }
+  to { transform: none; filter: none; }
+}
+
+/* Gancho de abrochadora del suplemento */
+.staple {
+  width: 26px;
+  height: 5px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #f2f4f6, #9aa1ab);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+/* Círculo de birome que se dibuja alrededor de lo buscado */
+.pen {
+  stroke-dasharray: 260;
+  stroke-dashoffset: 260;
+  animation: pen 0.7s 0.15s ease-out forwards;
+}
+@keyframes pen {
+  to { stroke-dashoffset: 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .turnNext,
+  .turnPrev,
+  .pen,
   .marker,
   .dropIn,
   .band,
-  .flash,
   .ring,
   .dial {
     animation: none;

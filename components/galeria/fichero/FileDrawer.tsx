@@ -1,6 +1,7 @@
 "use client";
 
 import RecordCard from "./RecordCard";
+import type { useLegajo } from "./useLegajo";
 import { audioManager } from "@/lib/audioManager";
 import type { SuspectRelease } from "@/lib/suspectReleases";
 import styles from "./fichero.module.css";
@@ -11,18 +12,20 @@ type Props = {
   isNew: boolean;
   open: boolean;
   onToggle: () => void;
-  /** Nombre del sospechoso con el legajo abierto en el centro (su ficha queda como hueco) */
+  /** Nombre del sospechoso con el legajo en el centro (en su lugar queda la cinta rota) */
   awayName: string | null;
-  onOpenCard: (suspect: SuspectRelease["suspects"][number], number: number, rect: DOMRect) => void;
+  /** Gestos de las fichas (vista previa con mouse, toque en pantallas táctiles) */
+  legajo: Pick<ReturnType<typeof useLegajo>, "hoverStart" | "hoverEnd" | "tap">;
 };
 
 const initial = (name: string) => name.normalize("NFD").charAt(0).toUpperCase();
 
 // Cajón del fichero: el frente con portaetiquetas, manija y cerradura; abierto, sale con profundidad y muestra
 // los separadores con letras y las fichas adentro
-export default function FileDrawer({ release, firstNumber, isNew, open, onToggle, awayName, onOpenCard }: Props) {
+export default function FileDrawer({ release, firstNumber, isNew, open, onToggle, awayName, legajo }: Props) {
   const letters = [...new Set(release.suspects.map((s) => initial(s.name)))].sort();
   const last = firstNumber + release.suspects.length - 1;
+  const card = (suspect: SuspectRelease["suspects"][number], number: number) => ({ suspect, number, release: release.name, isNew });
 
   return (
     <div className="rounded-lg bg-[#56606e] p-2 sm:p-3 shadow-[inset_0_2px_0_rgba(255,255,255,0.15),0_8px_20px_rgba(0,0,0,0.5)]">
@@ -92,7 +95,9 @@ export default function FileDrawer({ release, firstNumber, isNew, open, onToggle
                 isNew={isNew}
                 order={i}
                 away={awayName === s.name}
-                onOpen={(rect) => onOpenCard(s, firstNumber + i, rect)}
+                onHoverStart={(el) => legajo.hoverStart(card(s, firstNumber + i), el)}
+                onHoverEnd={legajo.hoverEnd}
+                onTap={(el) => legajo.tap(card(s, firstNumber + i), el)}
               />
             ))}
           </div>

@@ -1,126 +1,113 @@
 "use client";
 
-import { useState } from "react";
-import DirectoryEntry from "./DirectoryEntry";
-import GuiaDesk from "./GuiaDesk";
-import LetterHeading from "./LetterHeading";
-import ThumbIndex from "./ThumbIndex";
+import { useEffect, useState } from "react";
+import OpenBook from "./OpenBook";
+import LetterIndex from "./LetterIndex";
+import RotaryPhone from "./RotaryPhone";
+import SearchSlip from "./SearchSlip";
+import { buildPages, letterPages, normalize } from "./guiaPages";
+import { useGuideBook } from "./useGuideBook";
 import ReleasePreviewToggle from "../ReleasePreviewToggle";
-import { guideItems, thumbTargets } from "./guiaIndex";
+import GameBackdrop, { CautionBar, GAME_BG } from "../GameBackdrop";
 import { audioManager } from "@/lib/audioManager";
 import { useGalleryReleases } from "@/hooks/useGalleryReleases";
 import styles from "./guia.module.css";
-import GameBackdrop, { CautionBar, GAME_BG } from "../GameBackdrop";
 
-// Propuesta "Guía telefónica": un libro grueso sobre el escritorio, con uñero A–Z. Cada release es una edición;
-// cuando llega una nueva, el libro cae sobre la mesa y las altas se pintan con marcador.
+// Propuesta "Guía de personas": una guía telefónica de páginas amarillas abierta sobre el escritorio.
+// Se hojea con flechas, con el uñero o buscando un nombre; las altas del release nuevo llegan en un suplemento abrochado.
 export default function GuiaScreen() {
   const { preview, togglePreview, releases, isNew, firstNumber } = useGalleryReleases();
-  // Última letra buscada con el uñero (n cambia para repetir el destello)
-  const [flash, setFlash] = useState({ anchor: "", n: 0 });
-  const newRelease = releases.find(isNew);
+  const [query, setQuery] = useState("");
+  const pages = buildPages(releases, isNew, firstNumber);
+  const letters = letterPages(pages);
+  const book = useGuideBook(pages.length);
+  const newEdition = releases.some(isNew);
   const edition = releases[0].id;
-  const targets = thumbTargets(releases);
 
-  const jump = (anchor: string) => {
-    audioManager.play("slide");
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    document.getElementById(anchor)?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-    setFlash((f) => ({ anchor, n: f.n + 1 }));
+  // Coincidencias del buscador (desde 2 letras)
+  const q = normalize(query);
+  const found = new Set(
+    q.length >= 2 ? pages.flatMap((p) => p.entries.filter((e) => normalize(e.suspect.name).includes(q)).map((e) => e.suspect.name)) : [],
+  );
+
+  const search = (text: string) => {
+    setQuery(text);
+    const t = normalize(text);
+    if (t.length < 2) return;
+    const page = pages.findIndex((p) => p.entries.some((e) => normalize(e.suspect.name).includes(t)));
+    if (page >= 0) book.goTo(page);
   };
 
+  // Flechas del teclado para hojear (salvo mientras se escribe en el buscador)
+  const { canNext, canPrev, flip } = book;
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement) return;
+      if (e.key === "ArrowRight" && canNext) flip("next");
+      if (e.key === "ArrowLeft" && canPrev) flip("prev");
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [canNext, canPrev, flip]);
+
+  const last = Math.min(book.view + book.perView, pages.length);
+  const navButton =
+    "px-4 py-3 rounded-lg bg-[#ffd447] text-[#1b1813] text-[10px] shadow-[0_4px_0_#9a7b12] cursor-pointer active:translate-y-0.5 active:shadow-none disabled:opacity-30 disabled:cursor-default";
+
   return (
-    <div className={`relative ${GAME_BG} min-h-svh overflow-x-clip px-3 sm:px-6 py-8 sm:py-12`}>
-      <GameBackdrop glow="245,158,11" />
+    <div className={`relative ${GAME_BG} min-h-svh overflow-x-clip px-3 sm:px-6 py-8 sm:py-12 pb-24`}>
+      <GameBackdrop glow="245,200,40" />
       <CautionBar className="max-w-5xl" />
-      <div className="relative max-w-5xl mx-auto">
-        <GuiaDesk edition={edition} newRelease={newRelease} />
+      <div className="relative max-w-5xl mx-auto flex flex-col gap-6">
+        <header className="text-center">
+          <p className="text-[10px] tracking-[0.3em] text-amber-400/90">GUÍA OFICIAL DE LA CENTRAL · EDICIÓN {edition}</p>
+          <h1 className="mt-2 font-serif text-4xl sm:text-6xl font-black text-[#ffd447] [text-shadow:0_4px_0_#1E2A36]">Guía de Personas</h1>
+        </header>
 
-        <div key={edition} className={newRelease ? styles.dropIn : undefined}>
-          {/* Libro: lomo azul, hojas y canto con uñero */}
-          <div className="relative flex overflow-hidden rounded-r-xl border-l-[14px] border-[#1d3f8a] bg-[#f7f2e2] text-[#1b1813] shadow-[0_24px_60px_rgba(0,0,0,0.7),inset_10px_0_18px_rgba(0,0,0,0.18)]">
-            <div className="flex-1 min-w-0 p-4 sm:p-8">
-              <header className="flex flex-wrap items-end justify-between gap-2 border-b-4 border-[#1b1813] pb-3 mb-3">
-                <div>
-                  <p className="text-[10px] tracking-[0.25em]">GUÍA OFICIAL DE LA CENTRAL</p>
-                  <h1 className="mt-1 font-serif text-3xl sm:text-5xl font-black">Guía de Personas</h1>
-                </div>
-                <span className="font-mono text-sm">Edición {edition}</span>
-              </header>
-
-              {/* Uñero en celulares: fila de pestañas */}
-              <div className="sm:hidden mb-4">
-                <ThumbIndex targets={targets} onJump={jump} vertical={false} />
-              </div>
-
-              {releases.map((r) => {
-                const fresh = isNew(r);
-                return (
-                  <section key={r.id} className="mb-6">
-                    <h2
-                      className={`mb-2 px-3 py-1.5 text-[10px] sm:text-xs ${
-                        fresh ? "bg-[#ffd447] text-[#1b1813] galeria-in" : "bg-[#1b1813] text-[#f7f2e2]"
-                      }`}
-                    >
-                      {fresh ? `ALTAS DE ESTA EDICIÓN · ${r.name.toUpperCase()}` : `${r.name.toUpperCase()} · A–Z`}
-                    </h2>
-                    <ol className="columns-1 sm:columns-2 lg:columns-3 gap-6">
-                      {guideItems(r, firstNumber(r)).map((item) =>
-                        item.kind === "letter" ? (
-                          <LetterHeading
-                            key={`${item.anchor}-${flash.anchor === item.anchor ? flash.n : 0}`}
-                            letter={item.letter}
-                            anchor={item.anchor}
-                            flash={flash.anchor === item.anchor}
-                          />
-                        ) : (
-                          <DirectoryEntry key={item.suspect.name} suspect={item.suspect} number={item.number} isNew={fresh} order={item.order} />
-                        ),
-                      )}
-                    </ol>
-                  </section>
-                );
-              })}
-
-              <footer className="flex justify-between border-t border-[#1b1813]/40 pt-2 font-mono text-[10px] text-[#1b1813]/60">
-                <span>Guía de Personas · Edición {edition}</span>
-                <span>Pág. 1</span>
-              </footer>
-            </div>
-
-            {/* Canto de las hojas con el uñero (tablet y escritorio) */}
-            <div className="hidden sm:block w-10 shrink-0 border-l border-[#d6ccb0] bg-[repeating-linear-gradient(90deg,#efe7d0_0_1px,#f7f2e2_1px_3px)]">
-              <ThumbIndex targets={targets} onJump={jump} vertical />
-            </div>
-
-            {/* Mancha de café */}
-            <span
-              className="pointer-events-none absolute bottom-6 right-8 sm:right-20 size-28 sm:size-36 rounded-full border-[7px] border-[#7a4a1f]/20 mix-blend-multiply blur-[0.6px] [clip-path:polygon(0_0,100%_0,100%_78%,62%_100%,0_100%)]"
-              aria-hidden
-            >
-              <span className="absolute inset-2 rounded-full border-2 border-[#7a4a1f]/10" />
-            </span>
-
-            {/* Faja de la edición nueva */}
-            {newRelease && (
-              <span className="pointer-events-none absolute top-0 right-0 size-32 overflow-hidden" aria-hidden>
-                <span className={`absolute top-7 -right-10 w-48 rotate-45 bg-[#c81e1e] py-1 text-center text-[10px] text-white shadow-md ${styles.band}`}>
-                  ¡NUEVA EDICIÓN!
-                </span>
-              </span>
-            )}
+        {/* Escritorio: teléfono y papelito del buscador */}
+        <div className="flex items-end justify-center gap-6">
+          <div className="hidden sm:block">
+            <RotaryPhone />
           </div>
-
-          {/* Grosor del libro: hojas apiladas */}
-          <div className="mx-3 h-2 rounded-b-sm bg-[repeating-linear-gradient(180deg,#e6dcc0_0_1px,#f3ecd8_1px_2px)] shadow-[0_6px_10px_rgba(0,0,0,0.5)]" aria-hidden />
-          <div className="mx-5 h-1.5 rounded-b-sm bg-[#1d3f8a] shadow-[0_6px_10px_rgba(0,0,0,0.5)]" aria-hidden />
+          <SearchSlip query={query} matches={found.size} onChange={search} />
         </div>
+
+        {/* Uñero en celulares */}
+        <div className="sm:hidden">
+          <LetterIndex letters={letters} current={new Set()} onJump={book.goTo} vertical={false} />
+        </div>
+
+        <div key={edition} className={newEdition ? styles.dropIn : undefined}>
+          <OpenBook
+            pages={pages}
+            view={book.view}
+            perView={book.perView}
+            turn={book.turn}
+            found={found}
+            letters={letters}
+            onJump={book.goTo}
+            newEdition={newEdition}
+          />
+        </div>
+
+        <nav className="flex items-center justify-between gap-3" aria-label="Hojear la guía">
+          <button type="button" className={navButton} disabled={!book.canPrev} onClick={() => book.flip("prev")}>
+            ◀ <span className="hidden sm:inline">ANTERIOR</span>
+          </button>
+          <span className="font-mono text-sm text-[#f6e7a1]">
+            {book.perView === 2 && last - book.view === 2 ? `Págs. ${book.view + 1}–${last}` : `Pág. ${book.view + 1}`} de {pages.length}
+          </span>
+          <button type="button" className={navButton} disabled={!book.canNext} onClick={() => book.flip("next")}>
+            <span className="hidden sm:inline">SIGUIENTE</span> ▶
+          </button>
+        </nav>
       </div>
 
       <ReleasePreviewToggle
         preview={preview}
         onToggle={() => {
           audioManager.play(preview ? "slide" : "stamp");
+          book.reset();
           togglePreview();
         }}
       />

@@ -1,10 +1,10 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import FileDrawer from "./FileDrawer";
 import IntakeMemo from "./IntakeMemo";
 import LegajoLightbox from "./LegajoLightbox";
-import { flightFrom, type OpenLegajo } from "./legajo";
+import { useLegajo } from "./useLegajo";
 import PendantLamp from "./PendantLamp";
 import WallClock from "./WallClock";
 import ReleasePreviewToggle from "../ReleasePreviewToggle";
@@ -21,14 +21,9 @@ export default function FicheroScreen() {
   const currentOpen = openId === null ? releases[0].id : openId;
   const newRelease = releases.find(isNew);
   const total = releases.reduce((sum, r) => sum + r.suspects.length, 0);
-  // Legajo abierto en el centro de la pantalla (null: ninguno)
-  const [legajo, setLegajo] = useState<OpenLegajo | null>(null);
-
-  const closeLegajo = useCallback(() => {
-    audioManager.play("click");
-    setLegajo((l) => (l ? { ...l, phase: "closing" } : l));
-  }, []);
-  const clearLegajo = useCallback(() => setLegajo(null), []);
+  // Legajo en el centro de la pantalla (vista previa con mouse, toque en pantallas táctiles)
+  const legajoApi = useLegajo();
+  const { legajo } = legajoApi;
 
   return (
     <div className={`relative ${GAME_BG} min-h-svh overflow-x-clip px-3 sm:px-6 pb-12 text-[#FFF3C7]`}>
@@ -65,10 +60,7 @@ export default function FicheroScreen() {
                 open={currentOpen === r.id}
                 onToggle={() => setOpenId(currentOpen === r.id ? "none" : r.id)}
                 awayName={legajo?.suspect.name ?? null}
-                onOpenCard={(suspect, number, rect) => {
-                  audioManager.play("opencasefile");
-                  setLegajo({ suspect, number, release: r.name, isNew: isNew(r), phase: "open", from: flightFrom(rect) });
-                }}
+                legajo={legajoApi}
               />
             ))}
           </div>
@@ -79,7 +71,15 @@ export default function FicheroScreen() {
         </div>
       </div>
 
-      {legajo && <LegajoLightbox key={legajo.suspect.name} legajo={legajo} onClose={closeLegajo} onClosed={clearLegajo} />}
+      {legajo && (
+        <LegajoLightbox
+          key={legajo.suspect.name}
+          legajo={legajo}
+          interactive={legajo.mode === "tap"}
+          onClose={legajoApi.close}
+          onClosed={legajoApi.clear}
+        />
+      )}
 
       <ReleasePreviewToggle
         preview={preview}
