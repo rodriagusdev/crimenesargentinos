@@ -3,16 +3,22 @@
 import { API_URL, authHeaders, handleUnauthorized } from "@/lib/api";
 import { getUserId } from "@/lib/auth";
 import { create } from "zustand";
+import { defineMessages, translate } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: { saveError: "No se pudo guardar el avatar. Probá de nuevo." },
+  en: { saveError: "Couldn't save the avatar. Try again." },
+});
 
 export interface AvatarOption {
   id: string;
-  name: string;
+  number: number; // el nombre visible es "Agente {number}" (traducido en el selector)
   src: string;
 }
 
 export const AVAILABLE_AVATARS: AvatarOption[] = [
-  { id: "avatar1", name: "Agente 1", src: "/images/avatars/avatar1.webp" },
-  { id: "avatar2", name: "Agente 2", src: "/images/avatars/avatar2.webp" },
+  { id: "avatar1", number: 1, src: "/images/avatars/avatar1.webp" },
+  { id: "avatar2", number: 2, src: "/images/avatars/avatar2.webp" },
 ];
 
 const AVATAR_ENDPOINT = `${API_URL}/api/Auth/avatar`;
@@ -75,7 +81,7 @@ export const useAvatarStore = create<AvatarStoreState>()((set, get) => ({
       set({ currentAvatar: await readAvatar(response), loadedForUser: getUserId() });
     } catch (err) {
       console.error("No se pudo guardar el avatar:", err);
-      set({ error: "No se pudo guardar el avatar. Probá de nuevo." });
+      set({ error: translate(messages, "saveError") });
     } finally {
       set({ saving: false });
     }

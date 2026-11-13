@@ -12,6 +12,8 @@ import { abandonSession } from "@/services/gameSessionService";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { audioManager } from "@/lib/audioManager";
 import { clearAllBriefingSeenFlags } from "@/lib/briefingStorage";
+import { useT } from "@/hooks/useT";
+import { levelMenuMessages } from "./LevelMenu.messages";
 
 import dynamic from "next/dynamic";
 import GameButton from "../buttons/GameButton";
@@ -27,6 +29,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
   const router = useRouter();
   const pathname = usePathname();
   const playTypewriter = useTypewriterSound();
+  const t = useT(levelMenuMessages);
   const [dossierOpen, setDossierOpen] = useState(false);
   const [info, setInfo] = useState<IGameData | null>(null);
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
@@ -141,17 +144,17 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
         >
           <div className="flex flex-col text-left shrink-0">
             <span className="text-[10px] uppercase tracking-wider text-[#E1C380]/80 font-mono font-semibold">
-              CASO #{levelId.toString().padStart(2, "0")}
+              {t("caseNumber", { n: levelId.toString().padStart(2, "0") })}
             </span>
             <h1 className="text-[10px] sm:text-sm font-bold text-[#FFF3C7] leading-tight">
-              Investigación
+              {t("investigation")}
             </h1>
           </div>
 
           {/* Recursos de investigación siempre visibles */}
           <div className="flex items-center gap-2 sm:gap-3 bg-[rgba(10,15,25,0.55)] px-2 sm:px-3 py-1.5 rounded-xl border border-[rgba(255,243,199,0.12)] font-mono">
             {/* TIEMPO */}
-            <div className="flex items-center gap-1.5" title="Horas restantes de investigación">
+            <div className="flex items-center gap-1.5" title={t("hoursLeft")}>
               <span className="text-xs">⏳</span>
               <span
                 className={`text-[10px] sm:text-xs font-bold ${
@@ -160,14 +163,14 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
                     : "text-[#FFF3C7]"
                 }`}
               >
-                {currentTime}<span className="hidden sm:inline"> HS</span>
+                {currentTime}<span className="hidden sm:inline">{t("hoursUnit")}</span>
               </span>
             </div>
 
             <div className="h-3.5 w-[1px] bg-[rgba(255,243,199,0.15)]" />
 
             {/* PUNTOS DE INVESTIGACIÓN */}
-            <div className="flex items-center gap-1.5" title="Puntos de Investigación (PI)">
+            <div className="flex items-center gap-1.5" title={t("pointsTitle")}>
               <span className="text-xs">🔍</span>
               <span
                 className={`text-[10px] sm:text-xs font-bold ${
@@ -176,7 +179,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
                     : "text-[#FFF3C7]"
                 }`}
               >
-                {currentPI}<span className="hidden sm:inline"> PTS</span>
+                {currentPI}<span className="hidden sm:inline">{t("pointsUnit")}</span>
               </span>
             </div>
           </div>
@@ -202,7 +205,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
         >
           <div className="px-4 sm:px-6 pt-4 pb-5 sm:pb-6 flex flex-col gap-4">
             <h2 className="text-xs uppercase tracking-wider text-[#FFF3C7]/60 font-semibold">
-              Expediente del Caso
+              {t("caseFile")}
             </h2>
 
             {/* Informe del caso */}
@@ -223,7 +226,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
                   />
                 </svg>
                 <span className="text-xs uppercase tracking-wider text-[#E1C380]/80 font-mono font-semibold">
-                  Informe del caso
+                  {t("caseReport")}
                 </span>
               </div>
               {displayBriefing ? (
@@ -243,6 +246,8 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
             <div className="flex flex-col gap-2">
               {MENU_ACTIONS.map((action) => {
                 const totalCluesCount = discoveredClues.length + displayInitialClues.length;
+                const actionTitle = action.id === "board" ? t("boardTitle") : action.title;
+                const actionDescription = action.id === "board" ? t("boardDescription") : action.description;
                 return (
                   <button
                     key={action.id}
@@ -253,7 +258,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
                       setDossierOpen(true);
                     }}
                     onMouseEnter={playTypewriter}
-                    title={`Abrir ${action.title}`}
+                    title={t("open", { title: actionTitle })}
                     className="
                       w-full p-3 rounded-2xl
                       bg-gradient-to-r from-[rgba(20,30,42,0.85)] via-[rgba(28,42,58,0.9)] to-[rgba(36,26,18,0.85)]
@@ -268,7 +273,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
                       <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-amber-400/40 bg-black/40 shrink-0 shadow-inner group-hover:scale-105 transition-transform duration-200">
                         <Image
                           src={action.icon}
-                          alt={action.title}
+                          alt={actionTitle}
                           fill
                           sizes="48px"
                           className="object-cover"
@@ -277,10 +282,10 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
                       </div>
                       <div className="flex flex-col text-left min-w-0">
                         <span className="font-mono font-bold text-[10px] sm:text-xs text-amber-200 group-hover:text-amber-100 uppercase tracking-wider">
-                          {action.title}
+                          {actionTitle}
                         </span>
                         <span className="text-[10px] text-[#FFF3C7]/65 font-mono line-clamp-1">
-                          {action.description}
+                          {actionDescription}
                         </span>
                       </div>
                     </div>
@@ -304,7 +309,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
                 className="w-full py-2.5 px-4 rounded-xl bg-red-950/40 hover:bg-red-900/60 border border-red-500/30 hover:border-red-400 text-red-200 hover:text-red-100 font-mono text-[10px] sm:text-xs font-semibold tracking-wider flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer shadow-md group"
               >
                 <span className="text-sm group-hover:-translate-x-1 transition-transform duration-200">↩</span>
-                <span>VOLVER AL MENÚ PRINCIPAL</span>
+                <span>{t("backToMainMenu")}</span>
               </button>
             </div>
           </div>
@@ -330,11 +335,11 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
             </div>
 
             <h3 className="text-sm sm:text-xl font-bold font-mono text-[#FFF3C7] leading-snug">
-              ¿Volver al menú principal?
+              {t("confirmTitle")}
             </h3>
 
             <p className="text-[10px] sm:text-xs text-[#FFF3C7]/80 font-mono bg-[rgba(10,15,25,0.6)] p-3.5 rounded-xl border border-[rgba(255,243,199,0.12)] leading-relaxed">
-              Esta acción abandonará el caso actual y te llevará al menú principal. Podrás comenzar una nueva investigación desde cero.
+              {t("confirmBody")}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 w-full pt-1">
@@ -345,7 +350,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
                 className="flex-1 py-3 px-4 rounded-xl font-mono font-bold text-xs uppercase tracking-wider bg-gradient-to-b from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white border border-red-400/60 shadow-[0_10px_25px_rgba(220,38,38,0.4)] hover:shadow-[0_15px_30px_rgba(220,38,38,0.6)] transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
               >
                 <span>✓</span>
-                <span>{isRestarting ? "VOLVIENDO..." : "SÍ, VOLVER AL MENÚ"}</span>
+                <span>{isRestarting ? t("leaving") : t("confirmYes")}</span>
               </button>
 
               <button
@@ -355,7 +360,7 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
                 className="flex-1 py-3 px-4 rounded-xl font-mono font-bold text-xs uppercase tracking-wider bg-[rgba(20,30,42,0.6)] hover:bg-[rgba(255,243,199,0.1)] text-[#FFF3C7]/80 hover:text-[#FFF3C7] border border-[rgba(255,243,199,0.2)] transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <span>✕</span>
-                <span>CANCELAR</span>
+                <span>{t("cancel")}</span>
               </button>
             </div>
           </div>

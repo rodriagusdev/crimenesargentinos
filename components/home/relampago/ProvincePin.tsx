@@ -4,6 +4,7 @@ import { getCalibratedProvinceCoordinates } from "@/lib/mapCalibration";
 
 type ProvincePinProps = {
   province: string;
+  ariaLabel: string;
   /** "idle" mientras se juega; al terminar, la correcta queda verde y la elegida mal en rojo */
   status: "idle" | "correct" | "wrong" | "dimmed";
   disabled: boolean;
@@ -18,7 +19,7 @@ const STATUS_STYLE: Record<ProvincePinProps["status"], string> = {
 };
 
 // Pin de una provincia candidata sobre el monitor táctico; también se puede tocar para elegirla
-export default function ProvincePin({ province, status, disabled, onPick }: ProvincePinProps) {
+export default function ProvincePin({ province, ariaLabel, status, disabled, onPick }: ProvincePinProps) {
   const { top, left } = getCalibratedProvinceCoordinates({ name: province });
 
   return (
@@ -28,7 +29,7 @@ export default function ProvincePin({ province, status, disabled, onPick }: Prov
       disabled={disabled}
       style={{ top, left }}
       className="absolute -translate-x-1/2 -translate-y-1/2 flex items-center gap-1.5 p-2 cursor-pointer disabled:cursor-default"
-      aria-label={`Viajar a ${province}`}
+      aria-label={ariaLabel}
     >
       <span className={`block size-3.5 rounded-full border-2 shadow-[0_0_10px_rgba(0,0,0,0.8)] transition-all ${STATUS_STYLE[status]}`} />
       <span className="text-[7px] sm:text-[9px] text-[#FFF3C7] uppercase whitespace-nowrap [text-shadow:0_1px_0_#000,0_0_6px_#000]">

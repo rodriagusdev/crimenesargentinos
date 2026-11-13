@@ -6,6 +6,8 @@ import { ISuspect } from "@/models/ISuspect";
 import { resolveSuspectImage } from "@/lib/suspectImages";
 import { useAudioStore } from "@/stores/useAudioStore";
 import { useInvestigationBoardStore } from "@/stores/useInvestigationBoardStore";
+import { useT } from "@/hooks/useT";
+import { investigationBoardMessages } from "./InvestigationBoard.messages";
 
 interface InvestigationBoardProps {
   briefing?: string;
@@ -27,6 +29,7 @@ export default function InvestigationBoard({
   onEmitArrest,
 }: InvestigationBoardProps) {
   const playSfx = useAudioStore((state) => state.playSfx);
+  const t = useT(investigationBoardMessages);
 
   // Estados persistentes del tablero (guardados en store durante la partida)
   const markedTraits = useInvestigationBoardStore((state) => state.markedTraits);
@@ -41,10 +44,10 @@ export default function InvestigationBoard({
 
   const allClues = useMemo(() => {
     return [
-      ...initialClues.map((text, idx) => ({ id: `init-${idx}`, text, source: "Expediente Inicial", isTestimony: false })),
-      ...discoveredClues.map((text, idx) => ({ id: `disc-${idx}`, text, source: "Testimonio", isTestimony: true })),
+      ...initialClues.map((text, idx) => ({ id: `init-${idx}`, text, source: t("sourceInitial"), isTestimony: false })),
+      ...discoveredClues.map((text, idx) => ({ id: `disc-${idx}`, text, source: t("sourceTestimony"), isTestimony: true })),
     ];
-  }, [initialClues, discoveredClues]);
+  }, [initialClues, discoveredClues, t]);
 
   // Manejadores específicos para Marcar como Principal y Descartar
   const handleTogglePrincipal = (e: React.MouseEvent, suspectId: string) => {
@@ -64,7 +67,7 @@ export default function InvestigationBoard({
       {/* Header de Evidencias e Hipótesis */}
       <div>
         <h3 className="text-sm sm:text-base font-bold font-mono text-[#E1C380] uppercase tracking-wider">
-          EVIDENCIAS E HIPOTESIS
+          {t("title")}
         </h3>
       </div>
 
@@ -119,10 +122,10 @@ export default function InvestigationBoard({
                 <div className="flex items-center justify-between gap-2 pb-1.5 mb-2 border-b border-zinc-400/60 text-[10px] text-zinc-700 font-bold uppercase tracking-wider">
                   <span className="flex items-center gap-1.5 min-w-0">
                     <span>📁</span>
-                    <span>INFORME POLICIAL DEL CASO</span>
+                    <span>{t("caseReport")}</span>
                   </span>
                   <span className="shrink-0 bg-amber-200/90 border border-amber-400/50 px-2 py-0.5 rounded text-[10px] sm:text-[9px] text-amber-900 font-bold">
-                    CONFIDENCIAL
+                    {t("confidential")}
                   </span>
                 </div>
                 <p className="text-zinc-800 leading-relaxed font-serif text-[12px] italic">
@@ -136,7 +139,7 @@ export default function InvestigationBoard({
               <div className="flex items-center gap-2">
                 <span className="text-amber-400 text-sm">📍</span>
                 <h4 className="font-mono font-bold text-xs uppercase tracking-wider text-[#E1C380]">
-                  Fichas de Declaraciones y Rastros
+                  {t("cluesHeader")}
                 </h4>
               </div>
             </div>
@@ -175,7 +178,7 @@ export default function InvestigationBoard({
                           : "border-zinc-300/80 text-zinc-600"
                           }`}
                       >
-                        <span>Pista #{idx + 1}</span>
+                        <span>{t("clueNumber", { n: idx + 1 })}</span>
                         <span
                           className={`px-2 py-0.5 rounded text-[10px] sm:text-[9px] ${clue.isTestimony
                             ? "bg-[#dbeafe] text-[#1e3a5f]"
@@ -196,7 +199,7 @@ export default function InvestigationBoard({
                         <div className="pt-2 mt-2 border-t border-dashed border-zinc-300/70 flex items-center justify-between text-[10px] sm:text-[9px] text-red-700 font-bold">
                           <span className="flex items-center gap-1">
                             <span className="size-1.5 rounded-full bg-red-600 animate-pulse" />
-                            Hilo de conexión trazado
+                            {t("stringTraced")}
                           </span>
                         </div>
                       )}
@@ -206,7 +209,7 @@ export default function InvestigationBoard({
               </div>
             ) : (
               <div className="p-6 rounded-xl bg-[rgba(15,23,42,0.7)] backdrop-blur-xs border border-dashed border-slate-600/50 text-center text-xs font-mono text-[#E1C380]/70 italic">
-                Aún no has recolectado testimonios ni pistas en esta investigación.
+                {t("noClues")}
               </div>
             )}
           </div>
@@ -217,7 +220,7 @@ export default function InvestigationBoard({
           <div className="lg:col-span-7 flex flex-col gap-3.5">
             <div className="flex items-center justify-between pb-1.5 px-3 py-1.5 rounded-lg bg-[rgba(15,23,42,0.8)] backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-sm">
               <h4 className="font-mono font-bold text-xs uppercase tracking-wider text-[#E1C380]">
-                SOSPECHOSOS DEL CASO
+                {t("suspectsHeader")}
               </h4>
             </div>
 
@@ -276,7 +279,7 @@ export default function InvestigationBoard({
                               : "bg-black hover:bg-black/90 text-amber-300/80 hover:text-amber-100 border border-amber-400/50 hover:scale-105"
                             }
                           `}
-                          title={status === "suspect" ? "Quitar marca de sospechoso principal" : "Marcar como sospechoso principal (★)"}
+                          title={status === "suspect" ? t("unmarkPrime") : t("markPrime")}
                         >
                           ★
                         </button>
@@ -293,7 +296,7 @@ export default function InvestigationBoard({
                               : "bg-black hover:bg-black/90 text-red-300/80 hover:text-red-100 border border-red-500/50 hover:scale-105"
                             }
                           `}
-                          title={status === "discarded" ? "Quitar descarte del sospechoso" : "Descartar sospechoso (✕)"}
+                          title={status === "discarded" ? t("undiscard") : t("discard")}
                         >
                           ✕
                         </button>
@@ -317,7 +320,7 @@ export default function InvestigationBoard({
                         {status === "discarded" && (
                           <div className="absolute inset-0 flex items-center justify-center bg-red-950/40 backdrop-blur-[1px] pointer-events-none">
                             <span className="font-mono font-black text-[10px] sm:text-xs uppercase px-1.5 sm:px-2.5 py-1 border-2 border-red-600 text-red-600 bg-white/95 rounded rotate-[-15deg] shadow-lg tracking-wider sm:tracking-widest whitespace-nowrap">
-                              DESCARTADO ✕
+                              {t("discardedStamp")}
                             </span>
                           </div>
                         )}
@@ -327,7 +330,7 @@ export default function InvestigationBoard({
                           <div className="absolute bottom-1.5 left-1.5 sm:bottom-2 sm:left-2 z-10 pointer-events-none">
                             <span className="font-mono font-black text-[10px] sm:text-[9px] uppercase px-1.5 sm:px-2 py-0.5 border border-amber-500 text-amber-950 bg-amber-300 rounded shadow-md tracking-wider flex items-center gap-1">
                               <span>★</span>
-                              <span className="hidden sm:inline">PRINCIPAL</span>
+                              <span className="hidden sm:inline">{t("prime")}</span>
                             </span>
                           </div>
                         )}
@@ -335,7 +338,7 @@ export default function InvestigationBoard({
                         {isWarrantIssued && (
                           <div className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2 z-10 pointer-events-none">
                             <span className="font-mono font-black text-[10px] sm:text-[9px] uppercase px-1.5 py-0.5 border border-red-600 text-white bg-red-600 rounded shadow-md tracking-wider">
-                              ⚖️ ORDEN
+                              {t("warrantBadge")}
                             </span>
                           </div>
                         )}
@@ -353,7 +356,7 @@ export default function InvestigationBoard({
                         <div className="mt-2.5 pt-2 border-t border-zinc-300/80 flex flex-col gap-1 text-left">
                           <div className="flex items-center justify-between">
                             <span className="text-[10px] sm:text-[9px] font-mono font-bold uppercase tracking-wider text-zinc-500">
-                              Rasgos e Indicios:
+                              {t("traits")}
                             </span>
                           </div>
 
@@ -380,8 +383,8 @@ export default function InvestigationBoard({
                                   `}
                                   title={
                                     isManuallyMarked
-                                      ? "Hacé click para desmarcar este rasgo"
-                                      : "Hacé click para marcar este rasgo como coincidencia"
+                                      ? t("unmarkTrait")
+                                      : t("markTrait")
                                   }
                                 >
                                   <div className="flex items-center gap-1.5 min-w-0 sm:truncate">
@@ -400,7 +403,7 @@ export default function InvestigationBoard({
                                       : "text-zinc-400 opacity-60"
                                       }`}
                                   >
-                                    {isManuallyMarked ? "LISTO" : "MARCAR"}
+                                    {isManuallyMarked ? t("traitDone") : t("traitMark")}
                                   </span>
                                 </button>
                               );
@@ -431,7 +434,7 @@ export default function InvestigationBoard({
                           }
                         `}
                       >
-                        {isWarrantIssued ? "⚖️ ORDEN ACTIVA" : "EMITIR ORDEN"}
+                        {isWarrantIssued ? t("warrantActive") : t("issueWarrant")}
                       </button>
                     </div>
                   </div>

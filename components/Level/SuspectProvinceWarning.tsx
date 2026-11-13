@@ -3,6 +3,27 @@
 import { useEffect, useState, useMemo } from "react";
 import { useAudioStore } from "@/stores/useAudioStore";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
+import { useT } from "@/hooks/useT";
+import { defineMessages } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: {
+    intelAlert: "Alerta de Inteligencia",
+    title: "¡EL SOSPECHOSO PODRÍA ESTAR AQUÍ!",
+    bodyBefore: "Los informes de inteligencia indican que el sospechoso se encuentra en",
+    bodyAfter: ". ¡Inspeccioná los lugares con cautela!",
+    minimize: "Minimizar alerta",
+    suspectIn: "SOSPECHOSO EN {province}",
+  },
+  en: {
+    intelAlert: "Intelligence Alert",
+    title: "THE SUSPECT COULD BE HERE!",
+    bodyBefore: "Intelligence reports place the suspect in",
+    bodyAfter: ". Search each place with caution!",
+    minimize: "Minimize alert",
+    suspectIn: "SUSPECT IN {province}",
+  },
+});
 
 interface SuspectProvinceWarningProps {
   levelId: number;
@@ -124,6 +145,7 @@ export default function SuspectProvinceWarning({
   provinceName,
 }: SuspectProvinceWarningProps) {
   const playSfx = useAudioStore((state) => state.playSfx);
+  const t = useT(messages);
   const activeCaseId = useGameSessionStore((state) => state.session?.caseId);
   const effectiveCaseId = activeCaseId ?? levelId;
 
@@ -172,25 +194,25 @@ export default function SuspectProvinceWarning({
           <div className="flex flex-col min-w-0 pr-8 sm:pr-6">
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-bold uppercase tracking-normal sm:tracking-widest text-amber-300 font-mono bg-red-900/60 px-2 py-0.5 rounded-full border border-amber-400/40">
-                Alerta de Inteligencia
+                {t("intelAlert")}
               </span>
               <span className="inline-block w-2 h-2 rounded-full bg-red-500 animate-ping" />
             </div>
 
             <h3 className="text-xs sm:text-base font-bold font-mono tracking-normal sm:tracking-wide leading-snug text-red-200 mt-1">
-              ¡EL SOSPECHOSO PODRÍA ESTAR AQUÍ!
+              {t("title")}
             </h3>
 
             <p className="text-[10px] sm:text-xs text-[#FFF3C7]/90 font-mono mt-1 sm:mt-0.5 leading-snug">
-              Los informes de inteligencia indican que el sospechoso se encuentra en{" "}
-              <span className="text-amber-300 font-semibold">{provinceName}</span>. ¡Inspeccioná los lugares con cautela!
+              {t("bodyBefore")}{" "}
+              <span className="text-amber-300 font-semibold">{provinceName}</span>{t("bodyAfter")}
             </p>
           </div>
 
           <button
             onClick={() => setDismissed(true)}
             className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 w-8 h-8 sm:w-6 sm:h-6 rounded-full bg-black/40 hover:bg-black/70 border border-[rgba(255,243,199,0.2)] text-[#FFF3C7]/70 hover:text-[#FFF3C7] flex items-center justify-center text-xs transition-colors cursor-pointer"
-            title="Minimizar alerta"
+            title={t("minimize")}
           >
             ✕
           </button>
@@ -201,7 +223,7 @@ export default function SuspectProvinceWarning({
           className="flex items-center gap-2 max-w-full px-3.5 py-2.5 sm:py-1.5 rounded-full bg-red-950/90 border border-amber-400/70 shadow-[0_4px_20px_rgba(255,50,0,0.35)] backdrop-blur-md text-amber-200 text-[10px] sm:text-xs font-mono font-bold hover:scale-105 transition-transform cursor-pointer"
         >
           <span className="animate-pulse">🚨</span>
-          <span className="truncate">SOSPECHOSO EN {provinceName.toUpperCase()}</span>
+          <span className="truncate">{t("suspectIn", { province: provinceName.toUpperCase() })}</span>
         </button>
       )}
     </div>

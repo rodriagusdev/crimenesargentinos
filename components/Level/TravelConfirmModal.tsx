@@ -4,6 +4,33 @@ import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import GameButton from "../buttons/GameButton";
+import { useT } from "@/hooks/useT";
+import { defineMessages } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: {
+    intro: "El desplazamiento consumirá los siguientes recursos de investigación:",
+    time: "Tiempo",
+    hoursCost: "-{n} HS",
+    hoursLeft: "(Quedan {n} HS)",
+    investigation: "Investigación",
+    piCost: "-{n} PI",
+    piLeft: "(Quedan {n} PI)",
+    confirm: "CONFIRMAR DESPLAZAMIENTO",
+    cancel: "CANCELAR",
+  },
+  en: {
+    intro: "This trip will use up the following investigation resources:",
+    time: "Time",
+    hoursCost: "-{n} HRS",
+    hoursLeft: "({n} HRS left)",
+    investigation: "Investigation",
+    piCost: "-{n} IP",
+    piLeft: "({n} IP left)",
+    confirm: "CONFIRM TRIP",
+    cancel: "CANCEL",
+  },
+});
 
 interface TravelConfirmModalProps {
   isOpen: boolean;
@@ -35,6 +62,7 @@ export default function TravelConfirmModal({
   onCancel,
 }: TravelConfirmModalProps) {
   const [mounted, setMounted] = useState(false);
+  const t = useT(messages);
 
   useEffect(() => {
     setMounted(true);
@@ -93,7 +121,7 @@ export default function TravelConfirmModal({
         {/* Tarjeta de desglose de costos */}
         <div className="w-full p-3 sm:p-4 rounded-xl bg-[rgba(10,15,25,0.6)] border border-[rgba(255,243,199,0.12)] shadow-inner flex flex-col gap-3">
           <p className="text-[10px] sm:text-xs text-[#FFF3C7]/80 font-mono text-center leading-relaxed">
-            El desplazamiento consumirá los siguientes recursos de investigación:
+            {t("intro")}
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 pt-1">
@@ -115,14 +143,14 @@ export default function TravelConfirmModal({
                   />
                 </svg>
                 <span className="text-[10px] uppercase font-mono tracking-wider font-semibold">
-                  Tiempo
+                  {t("time")}
                 </span>
               </div>
               <span className="text-base font-bold font-mono text-red-400">
-                -{cost.time} HS
+                {t("hoursCost", { n: cost.time })}
               </span>
               <span className="text-[10px] sm:text-[9px] text-[#FFF3C7]/60 font-mono mt-0.5">
-                (Quedan {Math.max(0, currentResources.time - cost.time)} HS)
+                {t("hoursLeft", { n: Math.max(0, currentResources.time - cost.time) })}
               </span>
             </div>
 
@@ -144,14 +172,14 @@ export default function TravelConfirmModal({
                   />
                 </svg>
                 <span className="text-[10px] uppercase font-mono tracking-wider font-semibold">
-                  Investigación
+                  {t("investigation")}
                 </span>
               </div>
               <span className="text-base font-bold font-mono text-red-400">
-                -{cost.pi} PI
+                {t("piCost", { n: cost.pi })}
               </span>
               <span className="text-[10px] sm:text-[9px] text-[#FFF3C7]/60 font-mono mt-0.5">
-                (Quedan {Math.max(0, currentResources.pi - cost.pi)} PI)
+                {t("piLeft", { n: Math.max(0, currentResources.pi - cost.pi) })}
               </span>
             </div>
           </div>
@@ -161,7 +189,7 @@ export default function TravelConfirmModal({
         <div className="flex flex-col gap-2.5 w-full pt-1">
           <GameButton
             icon="✈️"
-            label="CONFIRMAR DESPLAZAMIENTO"
+            label={t("confirm")}
             variant="primary"
             className="max-sm:px-3 max-sm:text-[10px]"
             onClick={onConfirm}
@@ -171,7 +199,7 @@ export default function TravelConfirmModal({
 
           <GameButton
             icon="✕"
-            label="CANCELAR"
+            label={t("cancel")}
             variant="secondary"
             className="max-sm:px-3 max-sm:text-[10px]"
             onClick={onCancel}

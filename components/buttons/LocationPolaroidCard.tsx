@@ -3,6 +3,13 @@
 import Image from "next/image";
 import ILocation from "@/models/ILocation";
 import { audioManager } from "@/lib/audioManager";
+import { useT } from "@/hooks/useT";
+import { defineMessages } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: { currentBase: "BASE ACTUAL", hours: "{n} HS", reenter: "REINGRESAR ➔", inspect: "INSPECCIONAR ➔" },
+  en: { currentBase: "CURRENT BASE", hours: "{n} HRS", reenter: "RE-ENTER ➔", inspect: "INSPECT ➔" },
+});
 
 interface LocationPolaroidCardProps {
   location: ILocation;
@@ -23,6 +30,7 @@ export function LocationPolaroidCard({
   onMouseEnter,
   onClick,
 }: LocationPolaroidCardProps) {
+  const t = useT(messages);
   return (
     <button
       type="button"
@@ -77,17 +85,17 @@ export function LocationPolaroidCard({
         <div className="mt-1 flex items-center justify-center">
           {isCurrent ? (
             <span className="px-1.5 sm:px-2 py-0.5 rounded bg-amber-100 border border-amber-300 text-[10px] sm:text-[9px] text-center font-mono font-bold text-amber-900 tracking-normal sm:tracking-wider">
-              BASE ACTUAL
+              {t("currentBase")}
             </span>
           ) : (
             <span className="px-1.5 sm:px-2 py-0.5 rounded bg-zinc-100 border border-zinc-300 text-[10px] sm:text-[9px] font-mono font-semibold text-zinc-700 tracking-normal sm:tracking-wider flex items-center gap-1">
-              <span className="text-cyan-700 font-bold">⏱</span> {hours} HS
+              <span className="text-cyan-700 font-bold">⏱</span> {t("hours", { n: hours })}
             </span>
           )}
         </div>
 
         <span className="text-[10px] sm:text-[9px] font-mono text-zinc-500 uppercase text-center tracking-normal sm:tracking-widest mt-1.5 opacity-70 group-hover:opacity-100 group-hover:text-amber-800 transition-opacity">
-          {isCurrent ? "REINGRESAR ➔" : "INSPECCIONAR ➔"}
+          {isCurrent ? t("reenter") : t("inspect")}
         </span>
       </div>
     </button>

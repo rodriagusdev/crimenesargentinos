@@ -1,6 +1,13 @@
 "use client";
 
 import { useAudioStore } from "@/stores/useAudioStore";
+import { useT } from "@/hooks/useT";
+import { defineMessages } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: { processing: "PROCESANDO..." },
+  en: { processing: "PROCESSING..." },
+});
 
 type GameButtonProps = {
   icon?: React.ReactNode;
@@ -25,6 +32,7 @@ export default function GameButton({
 }: GameButtonProps) {
   const isPrimary = variant === "primary";
   const playSfx = useAudioStore((state) => state.playSfx);
+  const t = useT(messages);
   const isDisabled = disabled || loading;
 
   const handleClick = () => {
@@ -73,7 +81,7 @@ export default function GameButton({
       )}
 
       <span className="pointer-events-none">
-        {loading ? "PROCESANDO..." : label}
+        {loading ? t("processing") : label}
       </span>
     </button>
   );

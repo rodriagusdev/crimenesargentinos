@@ -2,12 +2,17 @@
 
 import Link from "next/link";
 import type { CSSProperties } from "react";
+import { useT } from "@/hooks/useT";
 import { audioManager } from "@/lib/audioManager";
+import { defineMessages } from "@/lib/i18n/messages";
+
+const messages = defineMessages({ es: { open: "ABIERTO" }, en: { open: "OPEN" } });
 
 export type CaseNote = { title: string; synopsis: string; tilt: number };
 
 // Ficha de un caso clavada en el corcho: se endereza y suena al pasar el mouse
 export default function CaseNoteCard({ note, delayMs }: { note: CaseNote; delayMs: number }) {
+  const t = useT(messages);
   const style = { "--tilt": `${note.tilt}deg`, animationDelay: `${delayMs}ms` } as CSSProperties;
 
   return (
@@ -20,7 +25,7 @@ export default function CaseNoteCard({ note, delayMs }: { note: CaseNote; delayM
       <span className="absolute -top-2 left-1/2 -translate-x-1/2 size-3.5 rounded-full bg-[#c81e1e] shadow-[0_2px_0_#5a0d0d]" aria-hidden />
       <span className="text-[10px] leading-relaxed">{note.title}</span>
       <span className="font-mono text-sm leading-snug">{note.synopsis}</span>
-      <span className="self-end mt-1 px-2 py-1 border-[3px] border-double border-[#b91c1c] text-[#b91c1c] text-[8px] rotate-[-6deg]">ABIERTO</span>
+      <span className="self-end mt-1 px-2 py-1 border-[3px] border-double border-[#b91c1c] text-[#b91c1c] text-[8px] rotate-[-6deg]">{t("open")}</span>
     </Link>
   );
 }

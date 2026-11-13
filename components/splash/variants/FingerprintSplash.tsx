@@ -3,7 +3,9 @@
 import MugshotFrame from "../MugshotFrame";
 import SplashLogo from "../SplashLogo";
 import SuspectSilhouette from "../SuspectSilhouette";
+import { fingerprintSplashMessages } from "./FingerprintSplash.messages";
 import type { SplashSceneProps, SplashVariant } from "./types";
+import { useT } from "@/hooks/useT";
 
 // Ojo: acá NO van sospechosos. Cada sospechoso es culpable en algún caso, así que mostrar su cara como
 // "coincidencia" sería un spoiler. La ruleta usa testigos/NPCs y el resultado queda clasificado.
@@ -31,6 +33,7 @@ const RIDGES = Array.from({ length: 14 }, (_, k) => ({
 
 // Pasos: 0 escaneo de la huella · 1 ruleta de registros · 2 coincidencia · 3 aparece el logo
 function FingerprintScene({ progress }: SplashSceneProps) {
+  const t = useT(fingerprintSplashMessages);
   const scanning = progress === 0;
   const searching = progress === 1;
   const matched = progress >= 2;
@@ -47,8 +50,8 @@ function FingerprintScene({ progress }: SplashSceneProps) {
       >
         <div className="w-[min(94vw,820px)] grid grid-cols-2 gap-3 sm:gap-6 rounded-xl border-2 border-[#1d3b2c] bg-[#04120b]/90 p-3 sm:p-6 text-[#62ffa8] [text-shadow:0_0_8px_rgba(98,255,168,0.5)] shadow-[0_0_40px_rgba(60,255,160,0.10)]">
           <p className="col-span-2 flex justify-between text-[7px] sm:text-[11px] tracking-widest">
-            <span>LAB. FORENSE · DACTILOSCOPIA</span>
-            <span>MUESTRA #A-0314</span>
+            <span>{t("lab")}</span>
+            <span>{t("sample")}</span>
           </p>
 
           {/* Huella escaneada */}
@@ -94,13 +97,13 @@ function FingerprintScene({ progress }: SplashSceneProps) {
             <div className="text-[6px] sm:text-[10px] leading-relaxed tracking-wider">
               {matched ? (
                 <>
-                  <p className="text-red-400 [text-shadow:0_0_8px_rgba(255,60,60,0.7)]">■ COINCIDENCIA 100%</p>
-                  <p>IDENTIDAD: CLASIFICADA</p>
-                  <p>ESTADO: PRÓFUGO</p>
+                  <p className="text-red-400 [text-shadow:0_0_8px_rgba(255,60,60,0.7)]">{t("match")}</p>
+                  <p>{t("identity")}</p>
+                  <p>{t("status")}</p>
                 </>
               ) : (
                 <>
-                  <p className={searching ? "splash-rec" : ""}>{searching ? "COMPARANDO 12.408 REGISTROS..." : "ESCANEANDO MUESTRA..."}</p>
+                  <p className={searching ? "splash-rec" : ""}>{searching ? t("comparing") : t("scanning")}</p>
                   <div className="mt-1 h-1.5 bg-[#62ffa8]/15">
                     <div className={`h-full bg-[#62ffa8] ${searching ? "splash-progress" : "w-0"}`} />
                   </div>

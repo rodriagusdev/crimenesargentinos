@@ -1,5 +1,8 @@
 "use client";
 
+import { trailerScreenMessages } from "./TrailerScreen.messages";
+import { useT } from "@/hooks/useT";
+
 type TrailerControlsProps = {
   playing: boolean;
   elapsed: number;
@@ -16,13 +19,14 @@ const fmt = (ms: number) => {
 
 // Barra de reproductor: pausa, progreso con marcas por escena, tiempo y saltar
 export default function TrailerControls({ playing, elapsed, total, starts, onToggle, onSkip }: TrailerControlsProps) {
+  const t = useT(trailerScreenMessages);
   return (
     <div className="absolute bottom-0 inset-x-0 z-20 flex items-center gap-3 sm:gap-4 px-3 sm:px-6 h-[9vh] min-h-14 text-[#FFF3C7]">
       <button
         type="button"
         onClick={onToggle}
         className="shrink-0 size-11 flex items-center justify-center rounded-full border border-[#FFF3C7]/40 hover:border-[#E1C380] cursor-pointer"
-        aria-label={playing ? "Pausar el tráiler" : "Seguir viendo el tráiler"}
+        aria-label={playing ? t("pause") : t("resume")}
       >
         <svg className="size-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
           {playing ? <path d="M6 4h4v16H6zM14 4h4v16h-4z" /> : <path d="M7 4v16l13-8z" />}
@@ -32,7 +36,7 @@ export default function TrailerControls({ playing, elapsed, total, starts, onTog
       <div
         className="relative flex-1 h-1.5 rounded-full bg-[#FFF3C7]/20 overflow-hidden"
         role="progressbar"
-        aria-label="Progreso del tráiler"
+        aria-label={t("progress")}
         aria-valuemin={0}
         aria-valuemax={Math.round(total / 1000)}
         aria-valuenow={Math.round(elapsed / 1000)}
@@ -48,7 +52,7 @@ export default function TrailerControls({ playing, elapsed, total, starts, onTog
       </span>
 
       <button type="button" onClick={onSkip} className="shrink-0 px-3 py-3 text-[10px] sm:text-[9px] text-[#FFF3C7]/70 hover:text-[#E1C380] cursor-pointer">
-        SALTAR ▸▸
+        {t("skip")}
       </button>
     </div>
   );

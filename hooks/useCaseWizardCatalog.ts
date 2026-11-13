@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { defineMessages, translate } from "@/lib/i18n/messages";
 import { listRows, type AdminRow } from "@/services/adminService";
 
 export interface CatalogProvince {
@@ -24,6 +25,7 @@ export interface CatalogSuspect {
   name: string;
   imageUrl: string | null;
   traits: string[];
+  traitsEn: string[]; // cada rasgo en inglés (o en castellano si no está traducido)
 }
 
 export interface CatalogCase {
@@ -44,8 +46,21 @@ export type CatalogState =
   | { kind: "error"; message: string }
   | { kind: "ready"; catalog: CaseWizardCatalog };
 
+const messages = defineMessages({
+  es: { loadFailed: translate(messages, "loadFailed") },
+  en: { loadFailed: "Couldn't load the data." },
+});
+
 const str = (v: unknown) => (v === null || v === undefined ? "" : String(v));
 const num = (v: unknown) => (v === null || v === undefined || v === "" ? null : Number(v));
+
+function suspectTraits(rows: AdminRow[]): { traits: string[]; traitsEn: string[] } {
+  const sorted = [...rows].sort((a, b) => Number(a.sortOrder) - Number(b.sortOrder));
+  return {
+    traits: sorted.map((t) => str(t.text)),
+    traitsEn: sorted.map((t) => str(t.textEn).trim() || str(t.text)),
+  };
+}
 
 // Provincias, locaciones, sospechosos (con rasgos) y casos existentes, para armar un caso nuevo
 export function useCaseWizardCatalog(): CatalogState {
@@ -79,9 +94,7 @@ export function useCaseWizardCatalog(): CatalogState {
             suspects: suspects
               .map((s) => ({
                 id: str(s.id), name: str(s.name), imageUrl: s.imageUrl ? str(s.imageUrl) : null,
-                traits: (traitsBySuspect.get(str(s.id)) ?? [])
-                  .sort((a, b) => Number(a.sortOrder) - Number(b.sortOrder))
-                  .map((t) => str(t.text)),
+                ...suspectTraits(traitsBySuspect.get(str(s.id)) ?? []),
               }))
               .sort((a, b) => a.name.localeCompare(b.name)),
             cases: cases.map((c) => ({ id: Number(c.id), title: str(c.title), groupLevel: Number(c.groupLevel) })),
@@ -89,7 +102,7 @@ export function useCaseWizardCatalog(): CatalogState {
         });
       })
       .catch((err) => {
-        if (!cancelled) setState({ kind: "error", message: err instanceof Error ? err.message : "No se pudieron cargar los datos." });
+        if (!cancelled) setState({ kind: "error", message: err instanceof Error ? err.message : translate(messages, "loadFailed") });
       });
 
     return () => {

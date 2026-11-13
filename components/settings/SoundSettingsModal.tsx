@@ -4,6 +4,8 @@ import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 import { useAudioStore } from "@/stores/useAudioStore";
 import GameButton from "../buttons/GameButton";
+import { useT } from "@/hooks/useT";
+import { soundSettingsMessages } from "./SoundSettingsModal.messages";
 
 interface SoundSettingsModalProps {
   isOpen: boolean;
@@ -12,6 +14,7 @@ interface SoundSettingsModalProps {
 
 export default function SoundSettingsModal({ isOpen, onClose }: SoundSettingsModalProps) {
   const [mounted, setMounted] = useState(false);
+  const t = useT(soundSettingsMessages);
   const masterVolume = useAudioStore((state) => state.masterVolume);
   const sfxVolume = useAudioStore((state) => state.sfxVolume);
   const musicVolume = useAudioStore((state) => state.musicVolume);
@@ -54,15 +57,16 @@ export default function SoundSettingsModal({ isOpen, onClose }: SoundSettingsMod
             <span className="text-2xl">⚙️</span>
             <div>
               <h2 className="text-lg font-bold font-mono text-[#FFF3C7]">
-                AJUSTES DE SONIDO
+                {t("title")}
               </h2>
               <p className="text-[11px] text-[#E1C380]/75 font-mono">
-                Configuración de audio, música y efectos
+                {t("subtitle")}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
+            aria-label={t("close")}
             className="w-9 h-9 sm:w-8 sm:h-8 shrink-0 rounded-lg bg-[rgba(255,243,199,0.06)] border border-[rgba(255,243,199,0.15)] flex items-center justify-center text-[#FFF3C7]/70 hover:text-white hover:border-[#E1C380] transition-colors cursor-pointer"
           >
             ✕
@@ -75,10 +79,10 @@ export default function SoundSettingsModal({ isOpen, onClose }: SoundSettingsMod
             <span className="text-xl">{isMuted ? "🔇" : "🔊"}</span>
             <div>
               <div className="text-xs font-mono font-bold text-[#FFF3C7]">
-                Silenciar Todo
+                {t("muteAll")}
               </div>
               <div className="text-[10px] font-mono text-[#FFF3C7]/50">
-                {isMuted ? "Todos los sonidos y música desactivados" : "Sonido habilitado"}
+                {isMuted ? t("mutedDescription") : t("enabledDescription")}
               </div>
             </div>
           </div>
@@ -93,7 +97,7 @@ export default function SoundSettingsModal({ isOpen, onClose }: SoundSettingsMod
               }
             `}
           >
-            {isMuted ? "Silenciado" : "Activo"}
+            {isMuted ? t("muted") : t("active")}
           </button>
         </div>
 
@@ -101,7 +105,7 @@ export default function SoundSettingsModal({ isOpen, onClose }: SoundSettingsMod
         <div className="flex flex-col gap-1.5 p-3 rounded-xl bg-[rgba(255,243,199,0.04)] border border-[rgba(255,243,199,0.1)]">
           <div className="flex items-center justify-between">
             <label className="text-xs font-mono font-bold text-[#FFF3C7] flex items-center gap-1.5">
-              <span>🎚️</span> Volumen General
+              <span>🎚️</span> {t("masterVolume")}
             </label>
             <span className="text-xs font-mono font-bold text-amber-300">
               {Math.round(masterVolume * 100)}%
@@ -123,7 +127,7 @@ export default function SoundSettingsModal({ isOpen, onClose }: SoundSettingsMod
         <div className="flex flex-col gap-1.5 p-3 rounded-xl bg-[rgba(255,243,199,0.04)] border border-[rgba(255,243,199,0.1)]">
           <div className="flex items-center justify-between">
             <label className="text-xs font-mono font-bold text-[#FFF3C7] flex items-center gap-1.5">
-              <span>🎵</span> Música / Banda Sonora
+              <span>🎵</span> {t("music")}
             </label>
             <span className="text-xs font-mono font-bold text-amber-300">
               {Math.round(musicVolume * 100)}%
@@ -145,7 +149,7 @@ export default function SoundSettingsModal({ isOpen, onClose }: SoundSettingsMod
         <div className="flex flex-col gap-1.5 p-3 rounded-xl bg-[rgba(255,243,199,0.04)] border border-[rgba(255,243,199,0.1)]">
           <div className="flex items-center justify-between">
             <label className="text-xs font-mono font-bold text-[#FFF3C7] flex items-center gap-1.5">
-              <span>🔔</span> Efectos de Sonido (SFX)
+              <span>🔔</span> {t("sfx")}
             </label>
             <span className="text-xs font-mono font-bold text-amber-300">
               {Math.round(sfxVolume * 100)}%
@@ -170,28 +174,28 @@ export default function SoundSettingsModal({ isOpen, onClose }: SoundSettingsMod
             disabled={isMuted}
             className="px-2 py-2.5 sm:py-2 rounded-lg bg-[rgba(255,243,199,0.06)] border border-[rgba(255,243,199,0.15)] text-[10px] font-mono hover:border-[#E1C380] hover:text-[#FFF3C7] transition-all cursor-pointer disabled:opacity-40"
           >
-            📁 Carpeta
+            {t("testFolder")}
           </button>
           <button
             onClick={() => playSfx("arrest")}
             disabled={isMuted}
             className="px-2 py-2.5 sm:py-2 rounded-lg bg-[rgba(255,243,199,0.06)] border border-[rgba(255,243,199,0.15)] text-[10px] font-mono hover:border-[#E1C380] hover:text-[#FFF3C7] transition-all cursor-pointer disabled:opacity-40"
           >
-            ⚖️ Arresto
+            {t("testArrest")}
           </button>
           <button
             onClick={() => playSfx("hint")}
             disabled={isMuted}
             className="px-2 py-2.5 sm:py-2 rounded-lg bg-[rgba(255,243,199,0.06)] border border-[rgba(255,243,199,0.15)] text-[10px] font-mono hover:border-[#E1C380] hover:text-[#FFF3C7] transition-all cursor-pointer disabled:opacity-40"
           >
-            🔍 Pista
+            {t("testClue")}
           </button>
           <button
             onClick={() => playSfx("plane")}
             disabled={isMuted}
             className="px-2 py-2.5 sm:py-2 rounded-lg bg-[rgba(255,243,199,0.06)] border border-[rgba(255,243,199,0.15)] text-[10px] font-mono hover:border-[#E1C380] hover:text-[#FFF3C7] transition-all cursor-pointer disabled:opacity-40"
           >
-            ✈️ Avión
+            {t("testPlane")}
           </button>
         </div>
 
@@ -199,7 +203,7 @@ export default function SoundSettingsModal({ isOpen, onClose }: SoundSettingsMod
         <div className="pt-2">
           <GameButton
             icon="✓"
-            label="GUARDAR Y CERRAR"
+            label={t("saveAndClose")}
             variant="primary"
             onClick={onClose}
           />

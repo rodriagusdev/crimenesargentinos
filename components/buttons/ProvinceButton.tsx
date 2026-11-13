@@ -1,6 +1,13 @@
 "use client";
 
 import Image from "next/image";
+import { useT } from "@/hooks/useT";
+import { defineMessages } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: { current: "ACTUAL" },
+  en: { current: "HERE" },
+});
 
 interface Props {
   label: string;
@@ -29,6 +36,7 @@ export function ProvinceButton({
   onMouseEnter,
 }: Props) {
   const rotation = getRotation(label);
+  const t = useT(messages);
 
   return (
     <div
@@ -95,7 +103,7 @@ export function ProvinceButton({
           {/* Sello de ubicación actual */}
           {isCurrent && (
             <span className="absolute bottom-1 right-1 px-1 py-0.5 rounded bg-amber-400 text-[8px] font-mono font-black text-black uppercase tracking-wider shadow">
-              ACTUAL
+              {t("current")}
             </span>
           )}
         </div>

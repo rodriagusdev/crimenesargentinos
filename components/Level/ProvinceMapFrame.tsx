@@ -1,6 +1,13 @@
 "use client";
 
 import Image from "next/image";
+import { useT } from "@/hooks/useT";
+import { defineMessages } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: { mapAlt: "Mapa provincia {name}", cartography: "CARTOGRAFÍA REGIONAL // {name}", sector: "SECTOR OPERATIVO #{id}" },
+  en: { mapAlt: "Map of {name} province", cartography: "REGIONAL CARTOGRAPHY // {name}", sector: "OPERATIONS SECTOR #{id}" },
+});
 
 interface ProvinceMapFrameProps {
   backgroundUrl: string;
@@ -13,12 +20,13 @@ export function ProvinceMapFrame({
   provinceName,
   provinceId,
 }: ProvinceMapFrameProps) {
+  const t = useT(messages);
   return (
     <div className="h-36 sm:h-48 md:h-60 xl:h-auto xl:flex-[2] p-2 sm:p-3 md:p-4 xl:p-6 [@media(max-height:500px)_and_(pointer:coarse)]:h-auto [@media(max-height:500px)_and_(pointer:coarse)]:w-[38%] [@media(max-height:500px)_and_(pointer:coarse)]:p-2 backdrop-blur-xs flex items-center justify-center border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] rounded-2xl shrink-0 xl:shrink">
       <div className="relative w-full h-full rounded-2xl overflow-hidden border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
         <Image
           src={backgroundUrl}
-          alt={`Mapa provincia ${provinceName}`}
+          alt={t("mapAlt", { name: provinceName })}
           fill
           priority
           sizes="(max-width: 1200px) 100vw, 60vw"
@@ -32,10 +40,10 @@ export function ProvinceMapFrame({
         {/* Marca de agua cartográfica oficial en esquina inferior izquierda */}
         <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-5 sm:right-auto flex flex-col min-w-0 pointer-events-none">
           <span className="text-[10px] font-mono tracking-widest text-[#E1C380]/80 uppercase font-semibold truncate">
-            CARTOGRAFÍA REGIONAL // {provinceName.toUpperCase()}
+            {t("cartography", { name: provinceName.toUpperCase() })}
           </span>
           <span className="text-xs font-mono text-[#FFF3C7]/90 font-bold truncate">
-            SECTOR OPERATIVO #{provinceId.slice(0, 8).toUpperCase()}
+            {t("sector", { id: provinceId.slice(0, 8).toUpperCase() })}
           </span>
         </div>
       </div>

@@ -1,10 +1,13 @@
 "use client";
 
 import SplashLogo from "../SplashLogo";
+import { newspaperSplashMessages } from "./NewspaperSplash.messages";
 import type { SplashSceneProps, SplashVariant } from "./types";
+import { useT } from "@/hooks/useT";
 
 // Pasos: 0 rotativa imprimiendo · 1 la portada gira hacia la cámara · 2 sello EXTRA y foto del logo
 function NewspaperScene({ progress, agentName }: SplashSceneProps) {
+  const t = useT(newspaperSplashMessages);
   const paperIn = progress >= 1;
   const extra = progress >= 2;
 
@@ -27,14 +30,14 @@ function NewspaperScene({ progress, agentName }: SplashSceneProps) {
 
           <header className="relative text-center">
             <div className="flex justify-between text-[6px] sm:text-[9px] tracking-widest">
-              <span>AÑO XLII · N° 14.302</span>
-              <span>EDICIÓN ESPECIAL · 03:14 HS</span>
-              <span className="hidden sm:inline">PRECIO $ 0,50</span>
+              <span>{t("issue")}</span>
+              <span>{t("edition")}</span>
+              <span className="hidden sm:inline">{t("price")}</span>
             </div>
             <h2 className="my-2 py-1 sm:py-2 border-y-4 border-double border-[#1b1813] text-xl sm:text-5xl tracking-wider">
-              EL VESPERTINO
+              {t("name")}
             </h2>
-            <h3 className="text-[11px] sm:text-2xl leading-snug">¡OLA DE CRÍMENES EN TODO EL PAÍS!</h3>
+            <h3 className="text-[11px] sm:text-2xl leading-snug">{t("headline")}</h3>
           </header>
 
           <div className="relative mt-3 grid grid-cols-[1.4fr_1fr] gap-3 sm:gap-4">
@@ -44,26 +47,25 @@ function NewspaperScene({ progress, agentName }: SplashSceneProps) {
                 <SplashLogo visible={extra} className="w-[92%]" />
               </div>
               <figcaption className="absolute bottom-0 inset-x-0 px-1 py-0.5 bg-[#ece4cf]/90 text-[5px] sm:text-[8px]">
-                La Central despliega a sus mejores agentes.
+                {t("photoCaption")}
               </figcaption>
             </figure>
 
             <div className="flex flex-col gap-2 text-[6px] sm:text-[9px] leading-relaxed">
               <p>
-                La Central de Investigaciones convocó de urgencia al agente <strong>{agentName}</strong> para seguir
-                la pista de una banda que opera en varias provincias.
+                {t("bodyBefore")} <strong>{agentName}</strong> {t("bodyAfter")}
               </p>
               {[100, 92, 96, 80, 88, 70].map((w) => (
                 <span key={w} className="block h-[3px] bg-[#1b1813]/35" style={{ width: `${w}%` }} />
               ))}
-              <p className="mt-auto text-right italic">— Sigue en pág. 7</p>
+              <p className="mt-auto text-right italic">{t("continued")}</p>
             </div>
           </div>
 
           {/* Sello EXTRA */}
           {extra && (
             <span className="splash-extra absolute -top-5 -right-3 sm:-top-7 sm:-right-6 size-16 sm:size-24 rounded-full bg-red-700 text-[#fff3c7] flex items-center justify-center text-sm sm:text-xl tracking-widest shadow-[0_6px_0_#5a0d0d,0_12px_24px_rgba(0,0,0,0.6)]">
-              ¡EXTRA!
+              {t("extra")}
             </span>
           )}
         </article>

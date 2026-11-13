@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { AVAILABLE_AVATARS, useAvatarStore } from "@/stores/useAvatarStore";
 import { audioManager } from "@/lib/audioManager";
 import GameButton from "../buttons/GameButton";
+import { useT } from "@/hooks/useT";
+import { avatarPickerMessages } from "./AvatarPickerModal.messages";
 
 interface AvatarPickerModalProps {
   isOpen: boolean;
@@ -14,6 +16,7 @@ interface AvatarPickerModalProps {
 
 export default function AvatarPickerModal({ isOpen, onClose }: AvatarPickerModalProps) {
   const [mounted, setMounted] = useState(false);
+  const t = useT(avatarPickerMessages);
   const currentAvatar = useAvatarStore((state) => state.currentAvatar);
   const setAvatar = useAvatarStore((state) => state.setAvatar);
   const saving = useAvatarStore((state) => state.saving);
@@ -56,10 +59,10 @@ export default function AvatarPickerModal({ isOpen, onClose }: AvatarPickerModal
             <span className="text-2xl">📸</span>
             <div>
               <span className="text-[10px] uppercase tracking-widest text-[#E1C380]/80 font-mono">
-                Legajo de Identidad Policial
+                {t("eyebrow")}
               </span>
               <h2 className="text-base sm:text-lg font-bold text-[#E1C380] tracking-wider font-mono">
-                ELEGIR FOTOGRAFÍA DE AGENTE
+                {t("title")}
               </h2>
             </div>
           </div>
@@ -68,7 +71,7 @@ export default function AvatarPickerModal({ isOpen, onClose }: AvatarPickerModal
             type="button"
             onClick={onClose}
             className="size-9 sm:size-8 shrink-0 rounded-lg border border-[#1c2c3e] bg-[#0e1724] hover:border-amber-400/60 text-slate-400 hover:text-amber-300 font-mono text-sm flex items-center justify-center transition-all cursor-pointer"
-            aria-label="Cerrar selección de avatar"
+            aria-label={t("close")}
           >
             ✕
           </button>
@@ -78,6 +81,7 @@ export default function AvatarPickerModal({ isOpen, onClose }: AvatarPickerModal
         <div className="grid grid-cols-2 gap-3 sm:gap-6 justify-items-center">
           {AVAILABLE_AVATARS.map((avatar) => {
             const isSelected = currentAvatar === avatar.src;
+            const name = t("agent", { n: avatar.number });
             return (
               <button
                 key={avatar.id}
@@ -98,7 +102,7 @@ export default function AvatarPickerModal({ isOpen, onClose }: AvatarPickerModal
                 <div className="relative w-full aspect-square rounded-xl overflow-hidden border-2 border-[#1c2c3e] bg-[#0c1421] shadow-inner">
                   <Image
                     src={avatar.src}
-                    alt={avatar.name}
+                    alt={name}
                     fill
                     sizes="(max-width: 640px) 180px, 260px"
                     priority
@@ -113,10 +117,10 @@ export default function AvatarPickerModal({ isOpen, onClose }: AvatarPickerModal
                       ${isSelected ? "text-amber-300" : "text-slate-200 group-hover:text-amber-200"}
                     `}
                   >
-                    {avatar.name}
+                    {name}
                   </span>
                   <span className="text-[10px] font-mono tracking-wider sm:tracking-widest text-center text-[#E1C380]/60 uppercase">
-                    {isSelected ? "ACTUALMENTE ASIGNADO" : "CLIC PARA SELECCIONAR"}
+                    {isSelected ? t("assigned") : t("clickToSelect")}
                   </span>
                 </div>
               </button>
@@ -138,7 +142,7 @@ export default function AvatarPickerModal({ isOpen, onClose }: AvatarPickerModal
               disabled={saving}
               className="disabled:cursor-wait text-xs font-mono text-slate-400 hover:text-red-300 underline underline-offset-4 transition-colors cursor-pointer"
             >
-              Restablecer a sin foto
+              {t("reset")}
             </button>
           </div>
         )}
@@ -147,7 +151,7 @@ export default function AvatarPickerModal({ isOpen, onClose }: AvatarPickerModal
         <div className="w-full pt-1">
           <GameButton
             icon="✓"
-            label="LISTO"
+            label={t("done")}
             onClick={() => {
               audioManager.play("click");
               onClose();

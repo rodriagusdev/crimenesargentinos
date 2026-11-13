@@ -1,6 +1,13 @@
 "use client";
 
 import SplashLogo from "./SplashLogo";
+import { useT } from "@/hooks/useT";
+import { defineMessages } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: { stamp: "CONFIDENCIAL", unit: "POLICÍA FEDERAL · DIV. HOMICIDIOS" },
+  en: { stamp: "CONFIDENTIAL", unit: "FEDERAL POLICE · HOMICIDE DIV." },
+});
 
 type CaseFolderProps = {
   visible: boolean;
@@ -11,6 +18,7 @@ type CaseFolderProps = {
 
 // Carpeta de cartón madera: tapa con sello y etiqueta a máquina; al abrirse revela el logo del juego
 export default function CaseFolder({ visible, open, label, typing }: CaseFolderProps) {
+  const t = useT(messages);
   return (
     <div
       className={`splash-folder relative w-[min(86vw,620px)] aspect-[10/7] transition-all duration-700 ease-out ${
@@ -43,11 +51,11 @@ export default function CaseFolder({ visible, open, label, typing }: CaseFolderP
 
           {/* Sello CONFIDENCIAL */}
           <span className="absolute bottom-[18%] right-[10%] rotate-[-12deg] px-3 py-2 border-4 border-double border-red-700/85 text-red-700/85 text-sm sm:text-2xl tracking-widest mix-blend-multiply">
-            CONFIDENCIAL
+            {t("stamp")}
           </span>
 
           <span className="absolute bottom-[8%] left-[8%] text-[8px] sm:text-[10px] text-[#5a3e17]/80 tracking-widest">
-            POLICÍA FEDERAL · DIV. HOMICIDIOS
+            {t("unit")}
           </span>
         </div>
 

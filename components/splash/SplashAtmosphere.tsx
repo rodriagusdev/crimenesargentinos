@@ -3,11 +3,14 @@
 import EvidencePolaroid, { EvidencePhoto } from "./EvidencePolaroid";
 import SplashBackdrop from "./SplashBackdrop";
 import SplashDeskProps from "./SplashDeskProps";
+import { splashAtmosphereMessages, type SplashAtmosphereKey } from "./SplashAtmosphere.messages";
+import { useT } from "@/hooks/useT";
 
-const EVIDENCE: EvidencePhoto[] = [
+// El epígrafe es una clave de splashAtmosphereMessages
+const EVIDENCE: (Omit<EvidencePhoto, "caption"> & { caption: SplashAtmosphereKey })[] = [
   {
     silhouette: "fedora",
-    caption: "N.N. #1",
+    caption: "captionUnknown",
     position: "top-[7%] left-[4%]",
     rotate: -9,
     fromX: "-60vw",
@@ -16,7 +19,7 @@ const EVIDENCE: EvidencePhoto[] = [
   },
   {
     silhouette: "cap",
-    caption: "VISTO 02:40 HS",
+    caption: "captionSeen",
     position: "top-[9%] right-[4%]",
     rotate: 8,
     fromX: "60vw",
@@ -25,7 +28,7 @@ const EVIDENCE: EvidencePhoto[] = [
   },
   {
     silhouette: "longhair",
-    caption: "SIN COARTADA",
+    caption: "captionNoAlibi",
     position: "bottom-[9%] left-[6%] hidden md:block",
     rotate: 6,
     fromX: "-50vw",
@@ -34,7 +37,7 @@ const EVIDENCE: EvidencePhoto[] = [
   },
   {
     silhouette: "beret",
-    caption: "PRÓFUGO",
+    caption: "captionFugitive",
     position: "bottom-[7%] right-[6%] hidden md:block",
     rotate: -7,
     fromX: "50vw",
@@ -45,6 +48,7 @@ const EVIDENCE: EvidencePhoto[] = [
 
 // Ambiente del splash: lluvia, relámpago, patrullero, lámpara con polvo, escritorio con evidencia y look de cámara de vigilancia
 export default function SplashAtmosphere({ lampOn }: { lampOn: boolean }) {
+  const t = useT(splashAtmosphereMessages);
 
   return (
     <div className="absolute inset-0 pointer-events-none" aria-hidden>
@@ -73,7 +77,7 @@ export default function SplashAtmosphere({ lampOn }: { lampOn: boolean }) {
       <SplashDeskProps lampOn={lampOn} />
 
       {EVIDENCE.map((photo) => (
-        <EvidencePolaroid key={photo.silhouette} photo={photo} visible={lampOn} />
+        <EvidencePolaroid key={photo.silhouette} photo={{ ...photo, caption: t(photo.caption) }} visible={lampOn} />
       ))}
 
       {/* HUD de cámara de vigilancia */}
@@ -82,9 +86,9 @@ export default function SplashAtmosphere({ lampOn }: { lampOn: boolean }) {
           lampOn ? "opacity-100" : "opacity-0"
         }`}
       >
-        <span className="splash-teletype">BUENOS AIRES · 03:14 HS</span>
+        <span className="splash-teletype">{t("clock")}</span>
         <span>
-          <span className="splash-rec text-red-500">●</span> CAM 04 REC
+          <span className="splash-rec text-red-500">●</span> {t("camera")}
         </span>
       </div>
     </div>

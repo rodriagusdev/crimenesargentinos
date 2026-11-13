@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useAudioStore } from "@/stores/useAudioStore";
+import { useT } from "@/hooks/useT";
+import { travelAnimationOverlayMessages } from "./TravelAnimationOverlay.messages";
 
 interface TravelAnimationOverlayProps {
   mode?: "plane" | "car";
@@ -43,12 +45,14 @@ export default function TravelAnimationOverlay({
   const [pathLength, setPathLength] = useState(1000);
   const pathRef = useRef<SVGPathElement>(null);
   const playSfx = useAudioStore((state) => state.playSfx);
+  // "t" ya es el progreso de la animación
+  const tr = useT(travelAnimationOverlayMessages);
 
   // Normalize inputs between new generic API and legacy province API
-  let originName = fromName ?? fromProvince?.name ?? (mode === "plane" ? "Base de Despegue" : "Punto Operativo");
-  const destName = toName ?? toProvince?.name ?? "Destino";
+  let originName = fromName ?? fromProvince?.name ?? (mode === "plane" ? tr("takeoffBase") : tr("fieldBase"));
+  const destName = toName ?? toProvince?.name ?? tr("destination");
   if (originName.trim().toLowerCase() === destName.trim().toLowerCase()) {
-    originName = mode === "plane" ? "Base de Despegue" : "Punto de Partida";
+    originName = mode === "plane" ? tr("takeoffBase") : tr("startPoint");
   }
 
   const startX = parsePercent(fromCoord?.left ?? fromProvince?.left, 42);
@@ -125,10 +129,10 @@ export default function TravelAnimationOverlay({
   const estimatedKm = Math.round(dist * 24) + 120;
   const flightStatus =
     t < 0.25
-      ? "DESPEGUE Y RUTA DE SALIDA"
+      ? tr("statusTakeoff")
       : t < 0.8
-      ? "EN TRÁNSITO OPERATIVO"
-      : "APROXIMACIÓN Y DESCENSO";
+      ? tr("statusTransit")
+      : tr("statusApproach");
 
   const pathD = `M ${startX} ${startY} Q ${ctrlX} ${ctrlY} ${endX} ${endY}`;
 
@@ -140,8 +144,8 @@ export default function TravelAnimationOverlay({
           <span className="inline-block size-2 shrink-0 rounded-full bg-[#E1C380] animate-ping" />
           <span>
             {mode === "plane"
-              ? "POLICÍA FEDERAL · DESPLAZAMIENTO AÉREO"
-              : "POLICÍA FEDERAL · TRASLADO MÓVIL URBANO"}
+              ? tr("headerPlane")
+              : tr("headerCar")}
           </span>
         </div>
 
@@ -157,7 +161,7 @@ export default function TravelAnimationOverlay({
         <div className="flex items-center justify-between gap-2 w-full text-[10px] sm:text-[11px] leading-snug font-mono text-[#FFF3C7]/60 px-1 pt-1 border-t border-[#E1C380]/15">
           <span>{flightStatus}</span>
           <span className="text-[#E1C380] font-semibold shrink-0 text-right">
-            {mode === "plane" ? `~${estimatedKm} KM` : "TRASLADO LOCAL"}
+            {mode === "plane" ? tr("km", { n: estimatedKm }) : tr("localTransfer")}
           </span>
         </div>
 
@@ -266,7 +270,7 @@ export default function TravelAnimationOverlay({
             <svg
               viewBox="0 0 64 64"
               className="w-10 h-10 sm:w-12 sm:h-12"
-              aria-label="Avión policial"
+              aria-label={tr("planeLabel")}
             >
               {/* Afterburner Thruster Flame */}
               <ellipse
@@ -316,7 +320,7 @@ export default function TravelAnimationOverlay({
             <svg
               viewBox="0 0 64 64"
               className="w-9 h-9 sm:w-11 sm:h-11"
-              aria-label="Móvil policial"
+              aria-label={tr("carLabel")}
             >
               {/* Tires */}
               <rect x="10" y="10" width="6" height="12" rx="2" fill="#0f172a" stroke="#E1C380" strokeWidth="0.5" />
@@ -346,8 +350,8 @@ export default function TravelAnimationOverlay({
       {/* Bottom Dispatch Radar Footnote */}
       <div className="w-full text-center text-[10px] sm:text-[11px] leading-snug font-mono text-[#FFF3C7]/60 tracking-normal sm:tracking-wider">
         {mode === "plane"
-          ? "Ruta federal trazada · Control de tráfico aéreo PFA"
-          : "Despacho de móvil policial en curso · Frecuencia operativa PFA"}
+          ? tr("footerPlane")
+          : tr("footerCar")}
       </div>
     </div>
   );

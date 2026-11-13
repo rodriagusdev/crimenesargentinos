@@ -2,9 +2,11 @@
 
 import SplashLogo from "../SplashLogo";
 import SubwayStation from "../SubwayStation";
+import { subwaySplashMessages } from "./SubwaySplash.messages";
 import type { SplashSceneProps, SplashVariant } from "./types";
+import { useT } from "@/hooks/useT";
 
-const STATIONS = ["CASOS", "PISTAS", "SOSPECHOSOS", "ORDEN DE ARRESTO", "CENTRAL"];
+const STATIONS = ["station1", "station2", "station3", "station4", "station5"] as const;
 const RIDE_MS = 2400;
 const LINE_START = 4;
 const LINE_END = 96;
@@ -13,6 +15,7 @@ const stationPct = (i: number) => LINE_START + ((LINE_END - LINE_START) * i) / (
 
 // Pasos: 0 se traza la línea · 1 el tren recorre las estaciones · 2 llega a la Central y aparece el logo
 function SubwayScene({ progress }: SplashSceneProps) {
+  const t = useT(subwaySplashMessages);
   const drawn = progress >= 1;
   const riding = progress === 1;
   const arrived = progress >= 2;
@@ -32,8 +35,8 @@ function SubwayScene({ progress }: SplashSceneProps) {
         {/* Cartel enlozado del andén */}
         <div className="w-[min(94vw,980px)] rounded-lg border-4 border-[#e8e3d3] bg-[#123a6b] px-3 sm:px-8 pt-3 pb-16 sm:pb-14 shadow-[0_20px_50px_rgba(0,0,0,0.7)]">
           <div className="flex justify-between text-[7px] sm:text-xs tracking-widest text-[#e8e3d3]">
-            <span>LÍNEA NOCTURNA</span>
-            <span>DIRECCIÓN: CENTRAL ▶</span>
+            <span>{t("line")}</span>
+            <span>{t("direction")}</span>
           </div>
 
           <div className="relative mt-8 h-8">
@@ -45,10 +48,10 @@ function SubwayScene({ progress }: SplashSceneProps) {
               style={{ left: `${LINE_START}%`, right: `${100 - LINE_END}%` }}
             />
 
-            {STATIONS.map((label, i) => (
+            {STATIONS.map((station, i) => (
               <SubwayStation
-                key={label}
-                label={label}
+                key={station}
+                label={t(station)}
                 leftPct={stationPct(i)}
                 lit={riding || arrived}
                 delayMs={riding ? (RIDE_MS * i) / (STATIONS.length - 1) : 0}

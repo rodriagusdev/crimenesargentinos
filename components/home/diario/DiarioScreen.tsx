@@ -6,12 +6,15 @@ import HomeNav from "../HomeNav";
 import DiarioCoupon from "./DiarioCoupon";
 import DiarioPastimes from "./DiarioPastimes";
 import DiarioTicker from "./DiarioTicker";
+import { diarioScreenMessages } from "./DiarioScreen.messages";
+import { useT } from "@/hooks/useT";
 
 const COLUMN_TITLE = "text-lg sm:text-xl leading-snug font-mono font-bold";
 const COLUMN_BODY = "font-mono text-base leading-relaxed";
 
 // Portada "Diario de tapa": toda la home es la tapa de El Vespertino
 export default function DiarioScreen() {
+  const t = useT(diarioScreenMessages);
   return (
     <div className="min-h-screen bg-[#1a140d] bg-[repeating-linear-gradient(92deg,#1f170f_0_22px,#1a140d_22px_24px)] overflow-x-hidden">
       <HomeNav />
@@ -29,20 +32,20 @@ export default function DiarioScreen() {
           <header className="relative grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center gap-4 text-center">
             <div className="hidden md:flex items-center gap-3 text-left">
               <Image src="/images/logofinal.png" alt="" width={90} height={60} className="w-20 h-auto" />
-              <span className="font-mono text-sm leading-tight">Diario oficial de la Central de Investigaciones</span>
+              <span className="font-mono text-sm leading-tight">{t("masthead")}</span>
             </div>
             <h1 className="px-2 py-2 border-y-[6px] border-double border-[#1b1813] font-serif font-black text-5xl sm:text-7xl tracking-wide">
               El Vespertino
             </h1>
             <div className="hidden md:block ml-auto max-w-56 p-2 border-2 border-[#1b1813] text-left">
-              <p className="text-[8px]">PRONÓSTICO</p>
-              <p className="mt-1 font-mono text-sm leading-tight">Lluvia y crímenes sobre Buenos Aires. Mín 9° · Máx 14°.</p>
+              <p className="text-[8px]">{t("forecastLabel")}</p>
+              <p className="mt-1 font-mono text-sm leading-tight">{t("forecast")}</p>
             </div>
           </header>
           <div className="mt-3 flex flex-wrap justify-between gap-2 text-[8px] sm:text-[9px]">
-            <span>AÑO XLII · N° 14.302</span>
-            <span>BUENOS AIRES · EDICIÓN NOCHE</span>
-            <span>PRECIO $ 0,50</span>
+            <span>{t("issue")}</span>
+            <span>{t("edition")}</span>
+            <span>{t("price")}</span>
           </div>
 
           <div className="mt-3 -mx-4 sm:-mx-8">
@@ -52,10 +55,10 @@ export default function DiarioScreen() {
           {/* Titular */}
           <div className="relative mt-6 text-center">
             <span className="home-extra absolute -top-3 right-0 sm:right-6 size-16 sm:size-20 rounded-full bg-[#b91c1c] text-[#fff3c7] flex items-center justify-center text-[10px] sm:text-xs shadow-[0_5px_0_#5a0d0d]">
-              ¡EXTRA!
+              {t("extra")}
             </span>
-            <h2 className="font-serif font-black text-3xl sm:text-5xl leading-tight px-14">¡OLA DE CRÍMENES EN TODO EL PAÍS!</h2>
-            <p className="mt-3 font-mono italic text-lg">La Central busca detectives con urgencia. ¿Sos vos?</p>
+            <h2 className="font-serif font-black text-3xl sm:text-5xl leading-tight px-14">{t("headline")}</h2>
+            <p className="mt-3 font-mono italic text-lg">{t("subhead")}</p>
           </div>
 
           {/* Nota principal + cupón */}
@@ -65,22 +68,20 @@ export default function DiarioScreen() {
                 <div className="relative aspect-video border-2 border-[#1b1813] overflow-hidden bg-[#1d2733]">
                   <Image
                     src="/images/test_composite.webp"
-                    alt="La sala táctica de la Central"
+                    alt={t("photoAlt")}
                     fill
                     sizes="(max-width: 1024px) 100vw, 700px"
                     className="object-cover grayscale contrast-125 sepia-[.25]"
                   />
                   <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(0,0,0,0.25)_0_1px,transparent_1.5px)] bg-[length:4px_4px]" aria-hidden />
                 </div>
-                <figcaption className="mt-1.5 font-mono text-sm">La sala táctica, donde se sigue el rastro de la banda en tiempo real.</figcaption>
+                <figcaption className="mt-1.5 font-mono text-sm">{t("photoCaption")}</figcaption>
               </figure>
               <p className={`${COLUMN_BODY} first-letter:float-left first-letter:mr-2 first-letter:font-serif first-letter:font-black first-letter:text-6xl first-letter:leading-[0.8]`}>
-                Una seguidilla de golpes recorre el país: trofeos, camisetas históricas y hasta un camión entero de alfajores.
-                Los prófugos escapan de provincia en provincia y la Central necesita agentes que interroguen testigos, junten
-                pistas sobre el aspecto del sospechoso y emitan la orden de arresto antes de que se acabe el tiempo.
+                {t("lead")}
               </p>
               <Link href="/reglas" className="self-start text-[9px] text-[#7a1212] hover:underline">
-                SIGUE EN PÁG. 7 (REGLAS) →
+                {t("continued")}
               </Link>
             </div>
             <DiarioCoupon />
@@ -89,21 +90,21 @@ export default function DiarioScreen() {
           {/* Columnas */}
           <div className="mt-8 pt-6 border-t-2 border-[#1b1813] grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-7">
             <div className="flex flex-col gap-2">
-              <p className="text-[9px] text-[#7a1212]">VIAJES</p>
-              <h3 className={COLUMN_TITLE}>23 provincias, un solo rastro</h3>
-              <p className={COLUMN_BODY}>En avión entre provincias, en patrullero dentro de la ciudad. Cada viaje cuesta horas.</p>
+              <p className="text-[9px] text-[#7a1212]">{t("travelLabel")}</p>
+              <h3 className={COLUMN_TITLE}>{t("travelTitle")}</h3>
+              <p className={COLUMN_BODY}>{t("travelBody")}</p>
             </div>
             <div className="flex flex-col gap-2">
-              <p className="text-[9px] text-[#7a1212]">INTERROGATORIOS</p>
-              <h3 className={COLUMN_TITLE}>Los testigos hablan… a medias</h3>
-              <p className={COLUMN_BODY}>Un mesero, un pescador, un cura: cada uno guarda una pieza del rompecabezas.</p>
+              <p className="text-[9px] text-[#7a1212]">{t("interrogationLabel")}</p>
+              <h3 className={COLUMN_TITLE}>{t("interrogationTitle")}</h3>
+              <p className={COLUMN_BODY}>{t("interrogationBody")}</p>
             </div>
             <div className="flex flex-col gap-2">
-              <p className="text-[9px] text-[#7a1212]">RANKING</p>
-              <h3 className={COLUMN_TITLE}>Los agentes del mes</h3>
-              <p className={COLUMN_BODY}>La lista es confidencial: solo la ven los agentes en servicio.</p>
+              <p className="text-[9px] text-[#7a1212]">{t("rankingLabel")}</p>
+              <h3 className={COLUMN_TITLE}>{t("rankingTitle")}</h3>
+              <p className={COLUMN_BODY}>{t("rankingBody")}</p>
               <Link href="/login" className="self-start text-[9px] text-[#7a1212] hover:underline">
-                ENTRAR PARA VERLA →
+                {t("rankingLink")}
               </Link>
             </div>
           </div>
@@ -111,7 +112,7 @@ export default function DiarioScreen() {
           <DiarioPastimes />
 
           <p className="mt-8 pt-3 border-t border-[#1b1813] text-center font-mono text-xs">
-            Impreso en los talleres de la Central · Prohibida la reproducción de pistas
+            {t("imprint")}
           </p>
         </article>
       </div>

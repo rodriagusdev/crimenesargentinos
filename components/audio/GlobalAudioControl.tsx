@@ -4,6 +4,13 @@ import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { useAudioStore } from "@/stores/useAudioStore";
+import { useT } from "@/hooks/useT";
+import { defineMessages } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: { unmute: "Activar audio", mute: "Silenciar todo", settings: "Ajustes de audio y volumen", muted: "MUTED" },
+  en: { unmute: "Unmute audio", mute: "Mute all", settings: "Audio and volume settings", muted: "MUTED" },
+});
 
 const SoundSettingsModal = dynamic(
   () => import("../settings/SoundSettingsModal"),
@@ -13,6 +20,7 @@ const SoundSettingsModal = dynamic(
 export default function GlobalAudioControl() {
   const [mounted, setMounted] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const t = useT(messages);
 
   const isMuted = useAudioStore((state) => state.isMuted);
   const masterVolume = useAudioStore((state) => state.masterVolume);
@@ -46,7 +54,7 @@ export default function GlobalAudioControl() {
             e.stopPropagation();
             toggleMute();
           }}
-          title={isMuted ? "Activar audio" : "Silenciar todo"}
+          title={isMuted ? t("unmute") : t("mute")}
           className="
             p-2 rounded-xl hover:bg-[rgba(255,243,199,0.1)]
             text-base transition-transform active:scale-90 cursor-pointer
@@ -61,14 +69,14 @@ export default function GlobalAudioControl() {
         <button
           type="button"
           onClick={() => setShowSettings(true)}
-          title="Ajustes de audio y volumen"
+          title={t("settings")}
           className="
             flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl
             hover:bg-[rgba(255,243,199,0.1)] transition-colors cursor-pointer group
           "
         >
           <span className="font-mono text-xs font-bold tracking-wider text-[#E1C380]/90 group-hover:text-[#FFF3C7]">
-            {isMuted ? "MUTED" : `${Math.round(masterVolume * 100)}%`}
+            {isMuted ? t("muted") : `${Math.round(masterVolume * 100)}%`}
           </span>
           <span className="text-xs text-[#E1C380]/60 group-hover:text-[#E1C380] transition-transform duration-200 group-hover:rotate-45">
             ⚙️

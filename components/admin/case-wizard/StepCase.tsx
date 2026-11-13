@@ -1,21 +1,30 @@
 "use client";
 
+import { useT } from "@/hooks/useT";
+import ContentTextField from "./ContentTextField";
 import ImageUrlField from "./ImageUrlField";
+import { stepCaseMessages } from "./StepCase.messages";
 import WizardField, { adminInputClass } from "./WizardField";
 import type { StepProps } from "./types";
 
 // Paso 1: datos del caso. El nivel va primero porque define dónde se guardan las imágenes
 export default function StepCase({ draft, update, catalog }: StepProps) {
+  const t = useT(stepCaseMessages);
   const levels = [...new Set(catalog.cases.map((c) => c.groupLevel))].sort((a, b) => a - b);
   const casesInLevel = catalog.cases.filter((c) => c.groupLevel === draft.groupLevel);
 
   return (
     <div className="space-y-4">
-      <WizardField label="Título" hint="Si es una variante, usá el título del original con un subtítulo: «El Bandoneón de Oro: Peña en el Litoral».">
-        <input value={draft.title} onChange={(e) => update((d) => ({ ...d, title: e.target.value }))} className={adminInputClass} />
+      <WizardField label={t("title")} hint={t("titleHint")}>
+        <ContentTextField
+          es={draft.title}
+          en={draft.titleEn}
+          onEs={(title) => update((d) => ({ ...d, title }))}
+          onEn={(titleEn) => update((d) => ({ ...d, titleEn }))}
+        />
       </WizardField>
 
-      <WizardField label="Nivel" hint="Las variantes de un caso comparten nivel: el nivel sortea entre todos sus casos. Un número nuevo crea un nivel nuevo.">
+      <WizardField label={t("level")} hint={t("levelHint")}>
         <div className="flex flex-wrap items-center gap-2">
           <input
             type="number"
@@ -38,29 +47,43 @@ export default function StepCase({ draft, update, catalog }: StepProps) {
       </WizardField>
       {casesInLevel.length > 0 && (
         <p className="-mt-2 text-xs text-slate-400">
-          Ya hay {casesInLevel.length} caso(s) en este nivel: {casesInLevel.map((c) => c.title).join(" · ")}
+          {t("casesInLevel", { n: casesInLevel.length, titles: casesInLevel.map((c) => c.title).join(" · ") })}
         </p>
       )}
 
-      <WizardField label="Descripción" hint="Se ve en la tarjeta del nivel.">
-        <textarea value={draft.description} onChange={(e) => update((d) => ({ ...d, description: e.target.value }))} className={`${adminInputClass} min-h-20`} />
+      <WizardField label={t("description")} hint={t("descriptionHint")}>
+        <ContentTextField
+          multiline
+          className="min-h-20"
+          es={draft.description}
+          en={draft.descriptionEn}
+          onEs={(description) => update((d) => ({ ...d, description }))}
+          onEn={(descriptionEn) => update((d) => ({ ...d, descriptionEn }))}
+        />
       </WizardField>
 
-      <WizardField label="Briefing" hint="Lo que lee el jugador al empezar: qué se robó y dónde lo vieron por última vez.">
-        <textarea value={draft.briefing ?? ""} onChange={(e) => update((d) => ({ ...d, briefing: e.target.value || null }))} className={`${adminInputClass} min-h-24`} />
+      <WizardField label={t("briefing")} hint={t("briefingHint")}>
+        <ContentTextField
+          multiline
+          className="min-h-24"
+          es={draft.briefing}
+          en={draft.briefingEn}
+          onEs={(briefing) => update((d) => ({ ...d, briefing: briefing || null }))}
+          onEn={(briefingEn) => update((d) => ({ ...d, briefingEn }))}
+        />
       </WizardField>
 
       <ImageUrlField
-        label="Imagen de la tarjeta"
+        label={t("image")}
         value={draft.imageUrl}
         onChange={(url) => update((d) => ({ ...d, imageUrl: url }))}
         kind="preview"
         level={draft.groupLevel}
         caseTitle={draft.title}
-        hint="Las variantes usan la misma imagen que el caso original."
+        hint={t("imageHint")}
       />
 
-      <WizardField label="Video (URL, opcional)">
+      <WizardField label={t("video")}>
         <input value={draft.videoUrl ?? ""} onChange={(e) => update((d) => ({ ...d, videoUrl: e.target.value || null }))} className={adminInputClass} placeholder="https://..." />
       </WizardField>
     </div>

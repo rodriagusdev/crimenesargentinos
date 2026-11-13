@@ -4,6 +4,13 @@ import Image from "next/image";
 import { useState } from "react";
 import IDialog from "@/models/IDialog";
 import GameButton from "../buttons/GameButton";
+import { useT } from "@/hooks/useT";
+import { defineMessages } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: { locationFallback: "Ubicación", back: "VOLVER", advance: "AVANZAR AL INTERROGATORIO", place: "Lugar" },
+  en: { locationFallback: "Location", back: "BACK", advance: "GO TO INTERROGATION", place: "Location" },
+});
 
 interface LocationIntroProps {
   dialog: IDialog;
@@ -18,6 +25,7 @@ export default function LocationIntro({
   onAdvance,
   onBack,
 }: LocationIntroProps) {
+  const t = useT(messages);
   const rawImageUrl = dialog.overlayBackgroundUrl || dialog.npcCompleteUrl;
   const [imageUrl, setImageUrl] = useState<string>(
     rawImageUrl || "/images/slate_board.webp"
@@ -29,7 +37,7 @@ export default function LocationIntro({
       <div className="absolute inset-0 z-0">
         <Image
           src={imageUrl}
-          alt={locationName ?? "Ubicación"}
+          alt={locationName ?? t("locationFallback")}
           fill
           priority
           sizes="100vw"
@@ -51,7 +59,7 @@ export default function LocationIntro({
 
             <GameButton
               icon=""
-              label="VOLVER"
+              label={t("back")}
               onClick={onBack}
               variant="secondary"
             />
@@ -59,7 +67,7 @@ export default function LocationIntro({
 
           <GameButton
             icon=""
-            label="AVANZAR AL INTERROGATORIO"
+            label={t("advance")}
             onClick={onAdvance}
             variant="primary"
           />
@@ -84,7 +92,7 @@ export default function LocationIntro({
             <span className="text-xl">📍</span>
             <div>
               <span className="text-[10px] uppercase tracking-widest text-[#E1C380]/80 font-mono">
-                Lugar
+                {t("place")}
               </span>
               {locationName && (
                 <h2 className="text-lg md:text-xl font-bold text-[#FFF3C7]">

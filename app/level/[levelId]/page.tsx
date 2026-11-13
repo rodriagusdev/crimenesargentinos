@@ -1,9 +1,19 @@
 import LevelProvinces from "@/components/Level/LevelProvinces";
 import Image from "next/image";
+import { cookies } from "next/headers";
+import { DEFAULT_LOCALE, isLocale, LOCALE_COOKIE } from "@/lib/i18n/locale";
+import { defineMessages } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: { roomAlt: "Centro de Mando de Investigación Policial" },
+  en: { roomAlt: "Police Investigation Command Center" },
+});
 
 export default async function Level({ params }: PageProps<"/level/[levelId]">) {
   const { levelId } = await params;
   const id = Number(levelId);
+  const cookieLocale = (await cookies()).get(LOCALE_COOKIE)?.value;
+  const locale = isLocale(cookieLocale) ? cookieLocale : DEFAULT_LOCALE;
 
   return (
     <div className="relative w-screen h-dvh overflow-hidden select-none bg-[#05070a]">
@@ -14,7 +24,7 @@ export default async function Level({ params }: PageProps<"/level/[levelId]">) {
         {/* Ilustración de la central de detectives ocupando toda la pantalla */}
         <Image
           src="/images/test_composite.webp"
-          alt="Centro de Mando de Investigación Policial"
+          alt={messages[locale].roomAlt}
           fill
           priority
           className="object-fill"

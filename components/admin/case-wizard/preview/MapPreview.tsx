@@ -3,13 +3,16 @@
 import Image from "next/image";
 import { ProvinceButton } from "@/components/buttons/ProvinceButton";
 import type { CaseWizardCatalog } from "@/hooks/useCaseWizardCatalog";
+import { useT } from "@/hooks/useT";
 import { getCalibratedProvinceCoordinates, TACTICAL_MONITOR_BOUNDS as B } from "@/lib/mapCalibration";
 import type { CaseDraft } from "@/models/ICaseDraft";
+import { previewMessages } from "./GamePreview.messages";
 import ScaledViewport from "./ScaledViewport";
 import { previewImage } from "./previewImages";
 
 // Mapa general del caso: las provincias elegidas con sus pines, como en /level/[id]
 export default function MapPreview({ draft, catalog }: { draft: CaseDraft; catalog: CaseWizardCatalog }) {
+  const t = useT(previewMessages);
   const locationName = (id: string | null) => catalog.locations.find((l) => l.id === id)?.name;
   const startProvince = catalog.locations.find((l) => l.id === draft.startLocationId)?.provinceId;
 
@@ -38,7 +41,7 @@ export default function MapPreview({ draft, catalog }: { draft: CaseDraft; catal
         </div>
       </ScaledViewport>
       <p className="text-xs text-slate-400">
-        Arranca en <b className="text-slate-200">{locationName(draft.startLocationId) ?? "—"}</b> · escondite en{" "}
+        {t("startsAt")} <b className="text-slate-200">{locationName(draft.startLocationId) ?? "—"}</b> · {t("hideoutAt")}{" "}
         <b className="text-slate-200">{locationName(draft.criminalLocationId) ?? "—"}</b>
       </p>
     </div>

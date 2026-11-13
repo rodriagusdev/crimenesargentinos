@@ -1,5 +1,11 @@
 import { API_URL, authHeaders, handleUnauthorized } from "@/lib/api";
 import { IAskQuestionResult, IDialogLogEntry, IGameSession, ILeaderboardEntry, ILevelOverview, IPlayerStats } from "@/models/IGameSession";
+import { defineMessages, translate } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: { noSession: "No hay una sesión iniciada" },
+  en: { noSession: "You are not logged in" },
+});
 
 // Error de la API con el código HTTP, para decidir qué hacer:
 // 401 volver al login, 403 caso bloqueado, 404 sin partida, 409 la partida ya terminó, 400 jugada no válida
@@ -34,7 +40,7 @@ async function request<T>(method: "GET" | "POST", path: string, body?: unknown):
   try {
     headers = authHeaders();
   } catch {
-    throw new GameSessionApiError(401, "No hay una sesión iniciada");
+    throw new GameSessionApiError(401, translate(messages, "noSession"));
   }
 
   const response = await fetch(`${API_URL}/api/GameSessions${path}`, {

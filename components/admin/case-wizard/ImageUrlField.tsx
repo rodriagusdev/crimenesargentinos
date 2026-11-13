@@ -4,7 +4,14 @@ import { useState, type ChangeEvent } from "react";
 import AdminIcon from "@/components/admin/AdminIcon";
 import { API_URL, authHeaders, handleUnauthorized } from "@/lib/api";
 import { slugify, type CaseAssetKind } from "@/lib/caseAssetPaths";
+import { defineMessages } from "@/lib/i18n/messages";
+import { useT } from "@/hooks/useT";
 import { adminInputClass } from "./WizardField";
+
+const messages = defineMessages({
+  es: { saveFailed: "No se pudo guardar la imagen.", uploading: "Subiendo...", upload: "Subir" },
+  en: { saveFailed: "Couldn't save the image.", uploading: "Uploading...", upload: "Upload" },
+});
 
 interface Props {
   label: string;
@@ -18,6 +25,7 @@ interface Props {
 
 // URL de una imagen: se puede escribir una ruta de /images/... o subir el archivo al backend (queda en /uploads/...)
 export default function ImageUrlField({ label, value, onChange, kind, level, caseTitle, hint }: Props) {
+  const t = useT(messages);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,10 +47,10 @@ export default function ImageUrlField({ label, value, onChange, kind, level, cas
       const response = await fetch(`${API_URL}/api/CaseAssets`, { method: "POST", headers: { Authorization }, body: formData });
       handleUnauthorized(response);
       const payload = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(payload?.error || "No se pudo guardar la imagen.");
+      if (!response.ok) throw new Error(payload?.error || t("saveFailed"));
       onChange(payload.url || null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo guardar la imagen.");
+      setError(err instanceof Error ? err.message : t("saveFailed"));
     } finally {
       setUploading(false);
     }
@@ -64,7 +72,7 @@ export default function ImageUrlField({ label, value, onChange, kind, level, cas
         />
         <label className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-md border border-[#E1C380]/40 px-3 text-xs text-[#E1C380] transition hover:bg-[#E1C380]/10">
           <AdminIcon name="image" className="size-4" />
-          {uploading ? "Subiendo..." : "Subir"}
+          {uploading ? t("uploading") : t("upload")}
           <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={upload} disabled={uploading} />
         </label>
       </div>

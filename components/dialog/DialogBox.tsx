@@ -10,6 +10,8 @@ import { getDialogLog } from "@/services/gameSessionService";
 import { useHintSound } from "@/hooks/useHintSound";
 import CostFeedbackToast from "../Level/CostFeedbackToast";
 import { useAvatarStore } from "@/stores/useAvatarStore";
+import { useT } from "@/hooks/useT";
+import { dialogBoxMessages } from "./DialogBox.messages";
 
 interface DialogProps {
   dialog: IDialog;
@@ -32,6 +34,7 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
   const askingRef = useRef(false);
 
   const playHintSound = useHintSound();
+  const t = useT(dialogBoxMessages);
 
   const flags = useGameSessionStore((state) => state.flags);
   // Preguntas ya hechas en esta partida (también en visitas anteriores): quedan deshabilitadas
@@ -132,8 +135,8 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
       <div className="shrink-0 pt-[68px] md:pt-0">
       {onClose ? (
         <LevelScreenTopBar
-          label="VOLVER AL MAPA DE LA PROVINCIA"
-          badgeText="Interrogatorio"
+          label={t("backToProvince")}
+          badgeText={t("interrogation")}
           onBack={onClose}
           showDot
         />
@@ -188,7 +191,7 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
                 {/* Decorative divider + label */}
                 <div className="hidden sm:block mt-2 md:mt-3 w-8 md:w-10 h-px bg-[rgba(255,243,199,0.18)]" />
                 <div className="ml-auto sm:ml-0 shrink-0 sm:mt-2 px-2.5 md:px-3 py-1 rounded-xl bg-[rgba(255,243,199,0.06)] backdrop-blur-xs border border-[rgba(255,243,199,0.12)] text-[10px] sm:text-[9px] md:text-[10px] text-[#E1C380]/80 uppercase tracking-widest font-mono">
-                  Testigo
+                  {t("witness")}
                 </div>
 
                 {/* Detective Interrogator Portrait at bottom of sidebar */}
@@ -197,7 +200,7 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
                     {currentAvatar ? (
                       <Image
                         src={currentAvatar}
-                        alt="Detective"
+                        alt={t("detective")}
                         fill
                         sizes="128px"
                         className="object-cover"
@@ -207,7 +210,7 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
                     )}
                   </div>
                   <p className="mt-2 text-center tracking-widest text-[#E1C380] font-semibold uppercase text-xs md:text-sm font-mono">
-                    Detective
+                    {t("detective")}
                   </p>
                 </div>
               </div>
@@ -235,7 +238,7 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
                         <div key={`intro-${idx}`} className="flex items-start justify-end gap-2.5 sm:gap-3">
                           <div className="flex flex-col items-end gap-1 max-w-[80%] sm:max-w-[85%]">
                             <span className="text-[10px] tracking-widest text-[#FFF3C7]/70 font-mono font-semibold">
-                              Vos
+                              {t("you")}
                             </span>
                             <div className="bg-[rgba(28,42,58,0.7)] backdrop-blur-xs border border-[rgba(255,243,199,0.22)] shadow-[0_10px_30px_rgba(0,0,0,0.4)] rounded-2xl rounded-tr-none px-4 py-2.5">
                               <p className="text-[#E1C380]/90 text-xs leading-relaxed">
@@ -247,7 +250,7 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
                             {currentAvatar ? (
                               <Image
                                 src={currentAvatar}
-                                alt="Vos"
+                                alt={t("you")}
                                 fill
                                 sizes="48px"
                                 className="object-cover"
@@ -281,7 +284,7 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
                       <div className="flex items-start justify-end gap-2.5 sm:gap-3">
                         <div className="flex flex-col items-end gap-1 max-w-[80%] sm:max-w-[85%]">
                           <span className="text-[10px] tracking-widest text-[#FFF3C7]/70 font-mono font-semibold">
-                            Vos
+                            {t("you")}
                           </span>
                           <div className="bg-[rgba(28,42,58,0.7)] backdrop-blur-xs border border-[rgba(255,243,199,0.22)] shadow-[0_10px_30px_rgba(0,0,0,0.4)] rounded-2xl rounded-tr-none px-4 py-2.5">
                             <p className="text-[#E1C380]/90 text-xs leading-relaxed">
@@ -293,7 +296,7 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
                           {currentAvatar ? (
                             <Image
                               src={currentAvatar}
-                              alt="Vos"
+                              alt={t("you")}
                               fill
                               sizes="48px"
                               className="object-cover"
@@ -353,7 +356,7 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
           <div className="relative w-full h-full rounded-2xl overflow-hidden border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
             <Image
               src={background}
-              alt="Escena"
+              alt={t("scene")}
               fill
               priority
               sizes="(max-width: 1200px) 100vw, 60vw"

@@ -5,6 +5,9 @@ import Image from "next/image";
 import { ISuspect } from "@/models/ISuspect";
 import { useAudioStore } from "@/stores/useAudioStore";
 import { resolveSuspectImage } from "@/lib/suspectImages";
+import { useT } from "@/hooks/useT";
+import { useLocale } from "@/stores/useLocaleStore";
+import { cronicaVictoryNewspaperMessages } from "./CronicaVictoryNewspaper.messages";
 
 interface CronicaVictoryNewspaperProps {
   levelId: number;
@@ -29,8 +32,10 @@ export default function CronicaVictoryNewspaper({
 }: CronicaVictoryNewspaperProps) {
   const playSfx = useAudioStore((state) => state.playSfx);
   const containerRef = useRef<HTMLDivElement>(null);
+  const t = useT(cronicaVictoryNewspaperMessages);
+  const locale = useLocale();
 
-  const suspectName = suspect?.name ?? "Sospechoso";
+  const suspectName = suspect?.name ?? t("suspectFallback");
   const suspectImage = resolveSuspectImage(suspect?.name, suspect?.image);
 
   // Sound effect on reveal
@@ -46,7 +51,7 @@ export default function CronicaVictoryNewspaper({
       <div className="w-full max-w-3xl lg:max-w-4xl flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 sm:gap-0 mb-2 shrink-0">
         <div className="flex items-center gap-2 text-yellow-300/80 font-mono text-xs tracking-wider uppercase">
           <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-emerald-400 font-bold">✓ CASO #{String(levelId).padStart(2, "0")} RESUELTO</span>
+          <span className="text-emerald-400 font-bold">{t("caseSolved", { n: String(levelId).padStart(2, "0") })}</span>
         </div>
 
         <button
@@ -54,7 +59,7 @@ export default function CronicaVictoryNewspaper({
           className="min-h-9 sm:min-h-0 flex items-center gap-2 rounded-xl border border-emerald-500/50 bg-gradient-to-b from-emerald-950/90 to-black/90 px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold tracking-wider text-emerald-200 shadow-[0_10px_25px_rgba(0,0,0,0.6)] hover:border-emerald-400 hover:scale-105 active:scale-95 transition-all"
         >
           <span>✕</span>
-          <span>VOLVER AL MENÚ</span>
+          <span>{t("backToMenu")}</span>
         </button>
       </div>
 
@@ -69,8 +74,8 @@ export default function CronicaVictoryNewspaper({
       >
         {/* Newspaper Top Dateline */}
         <div className="flex items-center justify-between gap-2 border-b border-[#1c1815] pb-0.5 sm:pb-1 text-[10px] md:text-xs font-mono font-bold tracking-wider text-[#1c1815] shrink-0">
-          <span>BUENOS AIRES, REPÚBLICA ARGENTINA · EDICIÓN EXTRAORDINARIA N° 19.842</span>
-          <span className="shrink-0">PRECIO: $ 1.50</span>
+          <span>{t("dateline")}</span>
+          <span className="shrink-0">{t("price")}</span>
         </div>
 
         {/* Iconic Alerta Conurbano Red Masthead */}
@@ -79,28 +84,28 @@ export default function CronicaVictoryNewspaper({
             ALERTA CONURBANO
           </h1>
           <p className="text-[10px] md:text-xs font-mono font-bold text-yellow-200 mt-0.5 sm:mt-1 tracking-widest uppercase">
-            &ldquo;FIRME JUNTO AL PUEBLO&rdquo; · EL DIARIO DE MAYOR CIRCULACIÓN
+            &ldquo;{t("tagline")}&rdquo; · {t("circulation")}
           </p>
         </div>
 
         {/* Sub-bar / Division Bar */}
         <div className="flex items-center justify-between gap-2 border-y border-[#1c1815] py-0.5 sm:py-1 text-[10px] md:text-xs font-bold uppercase tracking-wider text-[#1c1815] shrink-0">
-          <span className="text-emerald-800 font-black">✓ CASO #{String(levelId).padStart(2, "0")} RESUELTO</span>
-          <span className="hidden sm:inline text-[#c51c1c] font-black">POLICÍA FEDERAL ARGENTINA</span>
-          <span className="text-emerald-800 font-bold">¡OPERATIVO EXITOSO!</span>
+          <span className="text-emerald-800 font-black">{t("caseSolved", { n: String(levelId).padStart(2, "0") })}</span>
+          <span className="hidden sm:inline text-[#c51c1c] font-black">{t("federalPolice")}</span>
+          <span className="text-emerald-800 font-bold">{t("successfulOperation")}</span>
         </div>
 
         {/* Giant Main Headline */}
         <div className="text-center py-1 sm:py-1.5 shrink-0 bg-emerald-600/[0.08] border-y border-emerald-700/30 px-2 rounded-sm my-0.5 shadow-[inset_0_0_15px_rgba(16,185,129,0.06)]">
           <span className="text-[10px] md:text-xs font-black tracking-widest text-emerald-800 uppercase block">
-            ★ ¡VICTORIA DE LA JUSTICIA FEDERAL! · CASO RESUELTO ★
+            {t("kicker")}
           </span>
           <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black tracking-tight leading-tight uppercase text-emerald-700 sm:text-emerald-800 mt-0.5 drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
-            ¡ATRAPADO EN {provinceName}!
+            {t("headline", { province: provinceName })}
           </h2>
           <p className="text-[11px] sm:text-xs md:text-sm italic font-serif text-[#44403c] mt-0.5 max-w-2xl mx-auto sm:line-clamp-1">
-            La Policía Federal desbarató el plan de escape de{" "}
-            <strong>{suspectName}</strong>. Cayó tras un operativo en su escondite.
+            {t("leadBefore")}{" "}
+            <strong>{suspectName}</strong>{t("leadAfter")}
           </p>
         </div>
 
@@ -126,7 +131,7 @@ export default function CronicaVictoryNewspaper({
                 />
               ) : (
                 <div className="text-xl sm:text-2xl text-black/50 font-mono font-bold">
-                  PRONTUARIO
+                  {t("criminalRecord")}
                 </div>
               )}
 
@@ -134,14 +139,14 @@ export default function CronicaVictoryNewspaper({
               <div className="absolute z-10 -rotate-12 border-2 sm:border-3 md:border-4 border-red-600 bg-red-600/20 backdrop-blur-[1px] px-2.5 sm:px-3 md:px-4 py-0.5 sm:py-1 rounded shadow-[0_0_20px_rgba(220,38,38,0.6)]">
                 <div className="border border-red-600 px-2 sm:px-2.5 py-0.5">
                   <span className="text-base sm:text-xl md:text-2xl lg:text-3xl font-black font-sans tracking-widest text-red-600 uppercase">
-                    DETENIDO
+                    {t("arrested")}
                   </span>
                 </div>
               </div>
             </div>
 
             <span className="text-[10px] md:text-xs font-mono font-bold text-center mt-1 uppercase text-[#44403c] truncate w-full">
-              FOTO EXCLUSIVA · {suspectName} BAJO CUSTODIA FEDERAL
+              {t("exclusivePhoto", { name: suspectName })}
             </span>
           </div>
 
@@ -149,40 +154,40 @@ export default function CronicaVictoryNewspaper({
           <div className="flex flex-col justify-between gap-1 sm:gap-1.5 md:gap-2 min-h-0">
             <div className="border-2 border-[#1c1815] bg-white p-2 sm:p-2.5 md:p-3 rounded-sm shadow-sm flex flex-col justify-between">
               <div className="bg-[#1c1815] text-[#fef08a] px-2 py-0.5 text-center text-[10px] md:text-xs font-mono font-bold uppercase tracking-wider mb-1 sm:mb-1.5">
-                ACTA DE CAPTURA POLICIAL
+                {t("captureReport")}
               </div>
 
               <div className="grid grid-cols-2 gap-x-2.5 sm:gap-x-3 gap-y-1 sm:gap-y-1.5 text-left">
                 <div>
                   <span className="text-[10px] sm:text-[9px] font-bold text-[#78716c] uppercase block">
-                    PUNTAJE OBTENIDO
+                    {t("score")}
                   </span>
                   <span className="text-sm sm:text-base md:text-lg lg:text-xl font-black text-black">
-                    {score.toLocaleString("es-AR")}
+                    {score.toLocaleString(locale === "en" ? "en-US" : "es-AR")}
                   </span>
                 </div>
 
                 <div>
                   <span className="text-[10px] sm:text-[9px] font-bold text-[#78716c] uppercase block">
-                    TIEMPO INVERTIDO
+                    {t("timeSpent")}
                   </span>
                   <span className="text-sm sm:text-base md:text-lg lg:text-xl font-black text-black">
-                    {hoursTaken} HS
+                    {t("hours", { n: hoursTaken })}
                   </span>
                 </div>
 
                 <div className="border-t border-[#e7e5e4] pt-0.5 sm:pt-1">
                   <span className="text-[10px] sm:text-[9px] font-bold text-[#78716c] uppercase block">
-                    PRESUPUESTO SOBRANTE
+                    {t("budgetLeft")}
                   </span>
                   <span className="text-xs sm:text-sm md:text-base font-black text-black">
-                    {remainingPI} PI
+                    {t("pi", { n: remainingPI })}
                   </span>
                 </div>
 
                 <div className="border-t border-[#e7e5e4] pt-0.5 sm:pt-1">
                   <span className="text-[10px] sm:text-[9px] font-bold text-[#78716c] uppercase block">
-                    RANGO ASIGNADO
+                    {t("assignedRank")}
                   </span>
                   <span
                     className={`text-sm sm:text-base md:text-lg lg:text-xl font-black tracking-wider block ${
@@ -204,9 +209,9 @@ export default function CronicaVictoryNewspaper({
             {/* Editorial Article Box */}
             <div className="bg-[#e7ded0] p-1.5 sm:p-2 md:p-2.5 border border-[#1c1815] text-[10px] sm:text-[11px] md:text-xs font-serif leading-snug text-[#292524] sm:line-clamp-3">
               <span className="font-bold block mb-0.5 uppercase text-[10px] font-mono">
-                DETALLES DEL OPERATIVO:
+                {t("editorialTitle")}
               </span>
-              El detective asignado reconstruyó el trayecto de fuga siguiendo pistas testimoniales en cada provincia, logrando capturar al prófugo en su escondite sin margen de escape.
+              {t("editorialBody")}
             </div>
           </div>
         </div>
@@ -215,13 +220,13 @@ export default function CronicaVictoryNewspaper({
         <div className="border-t-2 border-[#1c1815] pt-1 sm:pt-1.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-0.5 sm:gap-3 text-[10px] md:text-xs text-[#44403c] font-mono shrink-0">
           <div className="flex items-center gap-2 truncate max-w-full">
             <span className="font-bold text-black uppercase">
-              DIVISIÓN INVESTIGACIONES
+              {t("investigationsDivision")}
             </span>
-            <span className="hidden sm:inline">· POLICÍA FEDERAL ARGENTINA</span>
+            <span className="hidden sm:inline">{t("federalPoliceFooter")}</span>
           </div>
 
           <div className="font-bold text-[#c51c1c] uppercase tracking-wider text-left sm:text-right truncate max-w-full">
-            ¡EL CRIMEN NO DESCANSA, LA JUSTICIA TAMPOCO!
+            {t("slogan")}
           </div>
         </div>
       </div>

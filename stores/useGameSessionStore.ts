@@ -22,6 +22,13 @@ import {
   preloadLocationPackage,
 } from "@/lib/assetPreloader";
 import { useInvestigationBoardStore } from "./useInvestigationBoardStore";
+import { defineMessages, translate } from "@/lib/i18n/messages";
+import { readLocaleCookie } from "@/lib/i18n/localeStorage";
+
+const messages = defineMessages({
+  es: { noGame: "No hay una partida iniciada" },
+  en: { noGame: "No game in progress" },
+});
 
 // El progreso lo guarda el backend (/api/GameSessions): este store es solo la copia del último estado recibido
 interface GameSessionState {
@@ -103,6 +110,9 @@ const fromSession = (session: IGameSession) => ({
 // Varios componentes de la misma pantalla inician la partida a la vez: se comparte la misma request
 let pendingInit: { levelId: number; promise: Promise<IGameSession> } | null = null;
 
+// Idioma en que llegaron informe, pistas iniciales y sospechosos: si el jugador lo cambia, se vuelven a pedir
+let contentLocale = readLocaleCookie();
+
 export const useGameSessionStore = create<GameSessionState>()((set, get) => {
   const applySession = (session: IGameSession) => set(fromSession(session));
 
@@ -114,7 +124,7 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
   // Ejecuta una acción sobre la partida y guarda el estado que devuelve el servidor
   const act = async <T>(call: (sessionId: string) => Promise<T>, stateOf: (result: T) => IGameSession): Promise<T> => {
     const { session } = get();
-    if (!session) throw new Error("No hay una partida iniciada");
+    if (!session) throw new Error(translate(messages, "noGame"));
 
     try {
       const result = await call(session.sessionId);
@@ -134,7 +144,7 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
 
     initSession: (levelId: number) => {
       const { session, costs } = get();
-      if (session && costs && session.caseId === levelId) {
+      if (session && costs && session.caseId === levelId && contentLocale === readLocaleCookie()) {
         return Promise.resolve(session);
       }
 
@@ -143,6 +153,7 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
       }
 
       // La partida va primero: si falla (401, 403) ese es el error que se reporta
+      contentLocale = readLocaleCookie();
       const promise = Promise.all([startOrResumeSession(levelId), getGameData(levelId)])
         .then(([newSession, gameData]) => {
           resetBoardIfNewSession(newSession);
@@ -206,6 +217,7 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
       act((sessionId) => issueWarrant(sessionId, suspectId), (session) => session),
 
     play: async (level?: number) => {
+      contentLocale = readLocaleCookie();
       const newSession = await playLevel(level);
       const gameData = await getGameData(newSession.caseId);
 

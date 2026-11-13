@@ -1,0 +1,38 @@
+import { defineMessages } from "@/lib/i18n/messages";
+
+export const travelAnimationOverlayMessages = defineMessages({
+  es: {
+    takeoffBase: "Base de Despegue",
+    fieldBase: "Punto Operativo",
+    destination: "Destino",
+    startPoint: "Punto de Partida",
+    statusTakeoff: "DESPEGUE Y RUTA DE SALIDA",
+    statusTransit: "EN TRÁNSITO OPERATIVO",
+    statusApproach: "APROXIMACIÓN Y DESCENSO",
+    headerPlane: "POLICÍA FEDERAL · DESPLAZAMIENTO AÉREO",
+    headerCar: "POLICÍA FEDERAL · TRASLADO MÓVIL URBANO",
+    km: "~{n} KM",
+    localTransfer: "TRASLADO LOCAL",
+    planeLabel: "Avión policial",
+    carLabel: "Móvil policial",
+    footerPlane: "Ruta federal trazada · Control de tráfico aéreo PFA",
+    footerCar: "Despacho de móvil policial en curso · Frecuencia operativa PFA",
+  },
+  en: {
+    takeoffBase: "Takeoff Base",
+    fieldBase: "Field Base",
+    destination: "Destination",
+    startPoint: "Starting Point",
+    statusTakeoff: "TAKEOFF & DEPARTURE ROUTE",
+    statusTransit: "OPERATIONAL TRANSIT",
+    statusApproach: "APPROACH & DESCENT",
+    headerPlane: "FEDERAL POLICE · AIR TRANSFER",
+    headerCar: "FEDERAL POLICE · URBAN PATROL TRANSFER",
+    km: "~{n} KM",
+    localTransfer: "LOCAL TRANSFER",
+    planeLabel: "Police plane",
+    carLabel: "Police patrol car",
+    footerPlane: "Federal route plotted · PFA air traffic control",
+    footerCar: "Patrol car dispatch underway · PFA operations frequency",
+  },
+});

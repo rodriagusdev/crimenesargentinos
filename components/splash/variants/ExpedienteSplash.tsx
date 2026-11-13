@@ -3,13 +3,21 @@
 import CaseFolder from "../CaseFolder";
 import SplashAtmosphere from "../SplashAtmosphere";
 import { typingDuration, useTypewriter } from "@/hooks/useTypewriter";
+import type { Locale } from "@/lib/i18n/locale";
+import { defineMessages } from "@/lib/i18n/messages";
+import { useLocale } from "@/stores/useLocaleStore";
 import type { SplashSceneProps, SplashVariant } from "./types";
 
-const CASE_LABEL = "EXPTE. N° 0001 — REP. ARGENTINA";
+// Etiqueta tipeada a máquina: el paso dura lo que tarda en escribirse en el idioma del jugador
+const messages = defineMessages({
+  es: { caseLabel: "EXPTE. N° 0001 — REP. ARGENTINA" },
+  en: { caseLabel: "CASE FILE #0001 — ARGENTINE REP." },
+});
+const caseLabel = (locale: Locale) => messages[locale].caseLabel;
 
 // Pasos: 0 oscuridad · 1 lámpara · 2 etiqueta a máquina · 3 se abre la carpeta
 function ExpedienteScene({ progress }: SplashSceneProps) {
-  const label = useTypewriter(CASE_LABEL, progress === 2, progress > 2);
+  const label = useTypewriter(caseLabel(useLocale()), progress === 2, progress > 2);
 
   return (
     <>
@@ -23,10 +31,10 @@ function ExpedienteScene({ progress }: SplashSceneProps) {
 
 export const expedienteSplash: SplashVariant = {
   id: "expediente",
-  steps: () => [
+  steps: (_agentName, locale) => [
     { ms: 1100 },
     { ms: 900, sfx: "click" },
-    { ms: typingDuration(CASE_LABEL) },
+    { ms: typingDuration(caseLabel(locale)) },
     { ms: 1500, sfx: "opencasefile" },
   ],
   Scene: ExpedienteScene,

@@ -2,12 +2,15 @@
 
 import { useEffect, type CSSProperties } from "react";
 import SuspectSilhouette from "@/components/splash/SuspectSilhouette";
+import { trailerVisualsMessages } from "./TrailerVisuals.messages";
+import { useT } from "@/hooks/useT";
 import { audioManager } from "@/lib/audioManager";
 import { getCalibratedProvinceCoordinates } from "@/lib/mapCalibration";
 
 // Escenas del tráiler. Cada una arranca cuando `active` pasa a true (al entrar en pantalla).
 
 export function ClueVisual({ active }: { active: boolean }) {
+  const t = useT(trailerVisualsMessages);
   return (
     <div
       className={`w-[min(80vw,300px)] p-3.5 pb-5 bg-[#f4efe2] text-[#2a2a2a] shadow-[0_18px_30px_rgba(0,0,0,0.6)] transition-all duration-700 ease-out ${
@@ -17,7 +20,7 @@ export function ClueVisual({ active }: { active: boolean }) {
       <div className="relative aspect-[3/2]">
         <SuspectSilhouette variant="fedora" />
       </div>
-      <p className="mt-4 font-mono text-base leading-snug">“Lo vi comprando alfajores… tenía un sombrero.”</p>
+      <p className="mt-4 font-mono text-base leading-snug">{t("clueQuote")}</p>
     </div>
   );
 }
@@ -73,12 +76,13 @@ export function MapVisual({ active }: { active: boolean }) {
 }
 
 const BUBBLES = [
-  { who: "testigo", text: "“Se fue apurado, rumbo al puerto.”" },
-  { who: "agente", text: "¿QUÉ LLEVABA PUESTO?" },
-  { who: "testigo", text: "“Una camiseta del 86, te lo juro.”" },
-];
+  { who: "testigo", text: "witness1" },
+  { who: "agente", text: "agentQuestion" },
+  { who: "testigo", text: "witness2" },
+] as const;
 
 export function InterrogationVisual({ active }: { active: boolean }) {
+  const t = useT(trailerVisualsMessages);
   useEffect(() => {
     if (active) audioManager.play("click");
   }, [active]);
@@ -95,7 +99,7 @@ export function InterrogationVisual({ active }: { active: boolean }) {
               : "self-start rounded-[14px_14px_14px_2px] bg-[#1b2633] font-mono text-base"
           } ${active ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
         >
-          {b.text}
+          {t(b.text)}
         </p>
       ))}
     </div>
@@ -103,6 +107,7 @@ export function InterrogationVisual({ active }: { active: boolean }) {
 }
 
 export function WarrantVisual({ active }: { active: boolean }) {
+  const t = useT(trailerVisualsMessages);
   useEffect(() => {
     if (!active) return;
     const t = setTimeout(() => audioManager.play("stamp"), 700);
@@ -111,12 +116,12 @@ export function WarrantVisual({ active }: { active: boolean }) {
 
   return (
     <div className="relative w-[min(86vw,340px)] px-8 py-7 rotate-2 bg-[#f4efe2] text-[#1b1813] text-center shadow-[0_18px_30px_rgba(0,0,0,0.6)]">
-      <p className="text-[11px]">ORDEN DE ARRESTO</p>
-      <p className="mt-4 font-mono text-base">Sospechoso: ________________</p>
-      <p className="mt-2 font-mono text-base">Provincia: ________________</p>
+      <p className="text-[11px]">{t("warrantTitle")}</p>
+      <p className="mt-4 font-mono text-base">{t("warrantSuspect")}</p>
+      <p className="mt-2 font-mono text-base">{t("warrantProvince")}</p>
       <div className="h-16 mt-4 flex items-center justify-center">
         {active && (
-          <span className="home-stamp px-4 py-2.5 border-4 border-double border-red-700 text-red-700 text-sm">EMITIDA</span>
+          <span className="home-stamp px-4 py-2.5 border-4 border-double border-red-700 text-red-700 text-sm">{t("warrantStamp")}</span>
         )}
       </div>
     </div>

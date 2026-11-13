@@ -5,6 +5,13 @@ import MapPin from "../MapPin";
 import SplashLogo from "../SplashLogo";
 import { getCalibratedProvinceCoordinates, TACTICAL_MONITOR_BOUNDS } from "@/lib/mapCalibration";
 import type { SplashSceneProps, SplashVariant } from "./types";
+import { useT } from "@/hooks/useT";
+import { defineMessages } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: { alert: "⚠ ALERTA NACIONAL · BANDA EN FUGA ⚠" },
+  en: { alert: "⚠ NATIONWIDE ALERT · GANG ON THE RUN ⚠" },
+});
 
 const PROVINCES = ["jujuy", "misiones", "cordoba", "mendoza", "buenos aires", "neuquen", "santa cruz", "tierra del fuego"];
 const PIN_STAGGER_MS = 200;
@@ -24,6 +31,7 @@ const STRING_PATH = PINS.map((p, i) => `${i === 0 ? "M" : "L"}${p.left.toFixed(2
 
 // Pasos: 0 se prende la sala · 1 se marcan las provincias con pines e hilo rojo · 2 zoom al monitor y aparece el logo
 function MapScene({ progress }: SplashSceneProps) {
+  const t = useT(messages);
   const lit = progress >= 1; // sala prendida y pines marcados
   const reveal = progress >= 2;
 
@@ -69,7 +77,7 @@ function MapScene({ progress }: SplashSceneProps) {
           lit && !reveal ? "splash-rec opacity-100" : "opacity-0"
         }`}
       >
-        ⚠ ALERTA NACIONAL · BANDA EN FUGA ⚠
+        {t("alert")}
       </div>
 
       <div

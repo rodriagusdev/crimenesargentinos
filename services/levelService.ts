@@ -7,6 +7,31 @@ import { resolveSuspectImage } from "@/lib/suspectImages";
 import { getCalibratedProvinceCoordinates } from "@/lib/mapCalibration";
 import { introForScene } from "@/lib/locationIntros";
 import { resolveImageUrl } from "@/lib/imageUrls";
+import { defineMessages, translate } from "@/lib/i18n/messages";
+import { readLocaleCookie } from "@/lib/i18n/localeStorage";
+
+const messages = defineMessages({
+  es: {
+    gameDataNotFound: "No se encontraron los datos del nivel {id}",
+    gameDataFailed: "No se pudieron cargar los datos del juego",
+    levelNotFound: "No se encontraron datos del nivel {id}",
+    provincesFailed: "No se pudieron cargar las provincias del nivel",
+    provinceNotFound: "No se encontraron datos de la provincia {id}",
+    locationsFailed: "No se pudieron cargar las locaciones de la provincia",
+    dialogNotFound: "No se encontró el diálogo de la locación {id}",
+    dialogFailed: "No se pudo cargar el diálogo",
+  },
+  en: {
+    gameDataNotFound: "Game data for level {id} not found",
+    gameDataFailed: "Failed to fetch game data",
+    levelNotFound: "Data for level {id} not found",
+    provincesFailed: "Failed to fetch level provinces",
+    provinceNotFound: "Data for province {id} not found",
+    locationsFailed: "Failed to fetch province locations",
+    dialogNotFound: "Dialog for location {id} not found",
+    dialogFailed: "Failed to fetch dialog",
+  },
+});
 
 async function fetchFromApi<T>(path: string, notFoundMessage: string, failMessage: string): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {
@@ -39,6 +64,15 @@ const inFlightLocations = new Map<string, Promise<ILevelLocations>>();
 const dialogCache = new Map<string, IDialog>();
 const inFlightDialog = new Map<string, Promise<IDialog>>();
 
+// La API devuelve los textos en el idioma del jugador: si lo cambia, lo cacheado ya no sirve
+let cacheLocale = readLocaleCookie();
+function ensureCacheLocale(): void {
+  const locale = readLocaleCookie();
+  if (locale === cacheLocale) return;
+  cacheLocale = locale;
+  clearLevelCache();
+}
+
 /**
  * Clears cached level data. If levelId is passed, clears only that level.
  */
@@ -67,6 +101,7 @@ export function clearLevelCache(levelId?: number): void {
 }
 
 export async function getGameData(levelId: number): Promise<IGameData> {
+  ensureCacheLocale();
   const cached = gameDataCache.get(levelId);
   if (cached) {
     return cached;
@@ -79,8 +114,8 @@ export async function getGameData(levelId: number): Promise<IGameData> {
 
   const promise = fetchFromApi<IGameData>(
     `/api/Levels/${levelId}/game-data`,
-    `Game data for level ${levelId} not found`,
-    "Failed to fetch game data",
+    translate(messages, "gameDataNotFound", { id: levelId }),
+    translate(messages, "gameDataFailed"),
   )
     .then((data) => {
       if (data?.suspects && Array.isArray(data.suspects)) {
@@ -103,6 +138,7 @@ export async function getGameData(levelId: number): Promise<IGameData> {
 export async function getLevelProvinces(
   levelId: number,
 ): Promise<ILevelDataProvinces> {
+  ensureCacheLocale();
   const cached = provincesCache.get(levelId);
   if (cached) {
     return cached;
@@ -115,8 +151,8 @@ export async function getLevelProvinces(
 
   const promise = fetchFromApi<ILevelDataProvinces>(
     `/LevelLocation/GetByCaseId/${levelId}`,
-    `Data for level ${levelId} not found`,
-    "Failed to fetch level provinces",
+    translate(messages, "levelNotFound", { id: levelId }),
+    translate(messages, "provincesFailed"),
   )
     .then((data) => {
       if (data?.provinces && Array.isArray(data.provinces)) {
@@ -143,6 +179,7 @@ export async function getLevelProvinces(
 export async function getLevelLocations(
   provinceId: string,
 ): Promise<ILevelLocations> {
+  ensureCacheLocale();
   const cached = locationsCache.get(provinceId);
   if (cached) {
     return cached;
@@ -155,8 +192,8 @@ export async function getLevelLocations(
 
   const promise = fetchFromApi<ILevelLocations>(
     `/Province/GetWithLocations/${provinceId}`,
-    `Data for province ${provinceId} not found`,
-    "Failed to fetch province locations",
+    translate(messages, "provinceNotFound", { id: provinceId }),
+    translate(messages, "locationsFailed"),
   )
     .then((data) => {
       if (data?.locations && Array.isArray(data.locations)) {
@@ -200,6 +237,7 @@ export async function getDialog(
   levelId: number,
   locationId: string,
 ): Promise<IDialog> {
+  ensureCacheLocale();
   const cacheKey = `${levelId}_${locationId}`;
   const cached = dialogCache.get(cacheKey);
   if (cached) {
@@ -213,8 +251,8 @@ export async function getDialog(
 
   const promise = fetchFromApi<IDialog>(
     `/Dialog/GetByLocation/${levelId}/${locationId}`,
-    `Dialog for location ${locationId} not found`,
-    "Failed to fetch dialog",
+    translate(messages, "dialogNotFound", { id: locationId }),
+    translate(messages, "dialogFailed"),
   )
     .then((data) => {
       if (data) {

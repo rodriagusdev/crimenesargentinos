@@ -2,10 +2,13 @@
 
 import { useCallback, useEffect, useState } from "react";
 import AdminIcon from "@/components/admin/AdminIcon";
+import { useT } from "@/hooks/useT";
 import type { CaseWizardCatalog } from "@/hooks/useCaseWizardCatalog";
 import { clearCaseDraft, saveCaseDraft } from "@/lib/caseDraftStorage";
 import { EMPTY_CASE_DRAFT, emptyDialog, type CaseDraft, type CaseDraftLoaded } from "@/models/ICaseDraft";
 import { checkCaseDraft, submitCaseDraft, CaseDraftRejectedError } from "@/services/caseAuthoringService";
+import { caseEditorMessages } from "./CaseEditor.messages";
+import EditorHeader from "./EditorHeader";
 import StepCase from "./StepCase";
 import StepClues from "./StepClues";
 import StepProvinces from "./StepProvinces";
@@ -15,6 +18,7 @@ import StepSuspects from "./StepSuspects";
 import StepWitnesses from "./StepWitnesses";
 import GamePreview from "./preview/GamePreview";
 import { stepError, WIZARD_STEPS } from "./steps";
+import { stepsMessages, type StepsMessageKey } from "./steps.messages";
 import { caseLocations } from "./types";
 
 type SubmitState =
@@ -45,10 +49,12 @@ function syncWitnesses(d: CaseDraft, catalog: CaseWizardCatalog): CaseDraft {
 
 // Pasos del asistente con la vista previa del juego. Sirve para crear un caso o editar uno existente
 export default function CaseEditor({ catalog, initialDraft, initialStep, editNotice, onBack, onClose }: Props) {
+  const t = useT(caseEditorMessages);
+  const ts = useT(stepsMessages);
   const isEdit = initialDraft.id != null;
   const [draft, setDraft] = useState<CaseDraft>(initialDraft);
   const [step, setStep] = useState(initialStep);
-  const [stepMessage, setStepMessage] = useState<string | null>(null);
+  const [stepMessage, setStepMessage] = useState<StepsMessageKey | null>(null);
   const [check, setCheck] = useState<CheckState>({ kind: "idle" });
   const [submit, setSubmit] = useState<SubmitState>({ kind: "idle" });
   const [witnessId, setWitnessId] = useState<string | null>(null);
@@ -69,9 +75,9 @@ export default function CaseEditor({ catalog, initialDraft, initialStep, editNot
     try {
       setCheck({ kind: "checked", result: await checkCaseDraft(draft) });
     } catch (err) {
-      setCheck({ kind: "error", message: err instanceof Error ? err.message : "No se pudo validar el caso." });
+      setCheck({ kind: "error", message: err instanceof Error ? err.message : t("checkFailed") });
     }
-  }, [draft]);
+  }, [draft, t]);
 
   const isLast = step === WIZARD_STEPS.length - 1;
 
@@ -98,7 +104,7 @@ export default function CaseEditor({ catalog, initialDraft, initialStep, editNot
       setSubmit({ kind: "saved", id: saved.id, initialTime: saved.initialTime });
     } catch (err) {
       const errors = err instanceof CaseDraftRejectedError ? err.errors : [];
-      setSubmit({ kind: "failed", message: err instanceof Error ? err.message : "No se pudo guardar el caso.", errors });
+      setSubmit({ kind: "failed", message: err instanceof Error ? err.message : t("saveFailed"), errors });
     }
   };
 
@@ -115,49 +121,28 @@ export default function CaseEditor({ catalog, initialDraft, initialStep, editNot
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <header className="flex items-center justify-between gap-3 border-b border-white/10 px-5 py-4">
-        <div>
-          <p className="text-xs uppercase tracking-[0.14em] text-slate-500">
-            {isEdit ? `Editando caso #${draft.id}` : "Nuevo caso"} · paso {step + 1} de {WIZARD_STEPS.length}
-          </p>
-          <h3 className="mt-1 text-xl font-semibold text-slate-50">{WIZARD_STEPS[step].title}</h3>
-        </div>
-        <div className="flex items-center gap-2">
-          <button type="button" onClick={() => setShowPreview((v) => !v)} className="hidden items-center gap-1.5 rounded-md border border-white/10 px-3 py-1.5 text-xs text-slate-300 hover:bg-white/[0.04] lg:inline-flex">
-            <AdminIcon name="image" className="size-3.5" />
-            {showPreview ? "Ocultar vista previa" : "Ver vista previa"}
-          </button>
-          <button className="inline-flex size-8 items-center justify-center rounded-full text-slate-400 hover:bg-white/[0.06] hover:text-slate-100" onClick={() => onClose(submit.kind === "saved")} aria-label="Cerrar">
-            <AdminIcon name="close" />
-          </button>
-        </div>
-      </header>
-
-      <ol className="flex gap-1 overflow-x-auto border-b border-white/10 px-5 py-3">
-        {WIZARD_STEPS.map((s, i) => (
-          <li key={s.title} className="min-w-28 flex-1">
-            <button type="button" onClick={() => goTo(i)} className="w-full text-left">
-              <span className={`block h-1 rounded-full ${i <= step ? "bg-[#E1C380]" : "bg-white/10"}`} />
-              <span className={`mt-1.5 block text-xs font-medium ${i === step ? "text-[#E1C380]" : "text-slate-400"}`}>{i + 1}. {s.title}</span>
-              <span className="block text-[11px] text-slate-500">{s.subtitle}</span>
-            </button>
-          </li>
-        ))}
-      </ol>
+      <EditorHeader
+        draft={draft}
+        step={step}
+        showPreview={showPreview}
+        onTogglePreview={() => setShowPreview((v) => !v)}
+        onGoTo={goTo}
+        onClose={() => onClose(submit.kind === "saved")}
+      />
 
       <div className="flex min-h-0 flex-1">
         <main className="min-w-0 flex-1 overflow-y-auto px-5 py-4">
           {editNotice && submit.kind !== "saved" && (editNotice.inProgressSessions > 0 || editNotice.hasConditionalQuestions) && (
             <div className="mb-4 space-y-1 rounded-md border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-xs text-amber-200">
-              {editNotice.inProgressSessions > 0 && <p>Hay {editNotice.inProgressSessions} partida(s) en curso de este caso: los cambios les llegan al guardar.</p>}
-              {editNotice.hasConditionalQuestions && <p>Este caso tiene preguntas condicionales (flags): se conservan, pero se editan desde la tabla de Flags de preguntas.</p>}
+              {editNotice.inProgressSessions > 0 && <p>{t("inProgress", { n: editNotice.inProgressSessions })}</p>}
+              {editNotice.hasConditionalQuestions && <p>{t("conditional")}</p>}
             </div>
           )}
 
           {submit.kind === "saved" ? (
             <div className="py-10 text-center">
-              <p className="text-lg font-semibold text-emerald-300">Caso #{submit.id} {isEdit ? "actualizado" : "creado"}</p>
-              <p className="mt-2 text-sm text-slate-400">Tiempo inicial calculado: {submit.initialTime} h. Se sortea en el nivel {draft.groupLevel}.</p>
+              <p className="text-lg font-semibold text-emerald-300">{t("saved", { id: submit.id, action: isEdit ? t("updated") : t("created") })}</p>
+              <p className="mt-2 text-sm text-slate-400">{t("savedDetail", { hours: submit.initialTime, level: draft.groupLevel })}</p>
             </div>
           ) : (
             <>
@@ -171,7 +156,7 @@ export default function CaseEditor({ catalog, initialDraft, initialStep, editNot
             </>
           )}
 
-          {stepMessage && <p className="mt-4 rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">{stepMessage}</p>}
+          {stepMessage && <p className="mt-4 rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">{ts(stepMessage)}</p>}
           {submit.kind === "failed" && (
             <div className="mt-4 rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">
               {submit.message}
@@ -190,28 +175,28 @@ export default function CaseEditor({ catalog, initialDraft, initialStep, editNot
 
       <footer className="flex items-center justify-between gap-2 border-t border-white/10 px-5 py-4">
         {submit.kind === "saved" ? (
-          <button className="ml-auto rounded-md bg-[#E1C380] px-3.5 py-2 text-sm font-medium text-[#0a0f18]" onClick={() => onClose(true)}>Listo</button>
+          <button className="ml-auto rounded-md bg-[#E1C380] px-3.5 py-2 text-sm font-medium text-[#0a0f18]" onClick={() => onClose(true)}>{t("done")}</button>
         ) : (
           <>
             <div className="flex items-center gap-1">
               <button className="inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm text-slate-400 hover:text-slate-100" onClick={onBack}>
-                <AdminIcon name="arrowLeft" className="size-3.5" /> Inicio
+                <AdminIcon name="arrowLeft" className="size-3.5" /> {t("home")}
               </button>
-              {!isEdit && <button className="rounded-md px-3 py-2 text-sm text-slate-400 hover:text-red-300" onClick={discard}>Descartar borrador</button>}
+              {!isEdit && <button className="rounded-md px-3 py-2 text-sm text-slate-400 hover:text-red-300" onClick={discard}>{t("discard")}</button>}
             </div>
             <div className="flex items-center gap-2">
               {step > 0 && (
                 <button className="rounded-md border border-white/10 px-3 py-2 text-sm text-slate-200 hover:bg-white/[0.04]" onClick={() => { setStepMessage(null); setStep(step - 1); }}>
-                  Atrás
+                  {t("back")}
                 </button>
               )}
               {isLast ? (
                 <button className="rounded-md bg-[#E1C380] px-3.5 py-2 text-sm font-medium text-[#0a0f18] hover:bg-[#ecd29a] disabled:opacity-50" onClick={save} disabled={!canSave}>
-                  {submit.kind === "saving" ? "Guardando..." : isEdit ? "Guardar cambios" : "Crear caso"}
+                  {submit.kind === "saving" ? t("saving") : isEdit ? t("saveChanges") : t("createCase")}
                 </button>
               ) : (
                 <button className="rounded-md bg-[#E1C380] px-3.5 py-2 text-sm font-medium text-[#0a0f18] hover:bg-[#ecd29a]" onClick={() => goTo(step + 1)}>
-                  Siguiente
+                  {t("next")}
                 </button>
               )}
             </div>

@@ -1,6 +1,13 @@
 // Sospechosos agrupados por release del juego. Solo foto y nombre: nada que diga en qué caso aparecen ni si son culpables.
 // Cuando salga un release nuevo se agrega un grupo al final (el más nuevo se muestra primero y lleva la marca "NUEVO").
 
+import { defineMessages, translate } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: { newSuspect: "Nuevo sospechoso {n}" },
+  en: { newSuspect: "New suspect {n}" },
+});
+
 export type GallerySuspect = {
   name: string;
   /** null: todavía sin foto (se muestra una silueta) */
@@ -49,15 +56,17 @@ export const SUSPECT_RELEASES: SuspectRelease[] = [
 ];
 
 /** Release de muestra para los bocetos: así se ve cómo se destacan los nuevos (siluetas, sin personajes reales) */
-const PREVIEW_RELEASE: SuspectRelease = {
-  id: 2,
-  name: "Release 2",
-  suspects: [1, 2, 3, 4].map((n) => ({ name: `Nuevo sospechoso ${n}`, image: null })),
-};
+function previewRelease(): SuspectRelease {
+  return {
+    id: 2,
+    name: "Release 2",
+    suspects: [1, 2, 3, 4].map((n) => ({ name: translate(messages, "newSuspect", { n }), image: null })),
+  };
+}
 
 /** Releases del más nuevo al más viejo; con `preview`, se suma el release de muestra */
 export function galleryReleases(preview: boolean): SuspectRelease[] {
-  const list = preview ? [...SUSPECT_RELEASES, PREVIEW_RELEASE] : SUSPECT_RELEASES;
+  const list = preview ? [...SUSPECT_RELEASES, previewRelease()] : SUSPECT_RELEASES;
   return [...list].reverse();
 }
 

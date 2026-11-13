@@ -13,6 +13,25 @@ import { preloadProvincePackage } from "@/lib/assetPreloader";
 import { useShallow } from "zustand/react/shallow";
 import { useTravelFlow } from "@/hooks/useTravelFlow";
 import { getCalibratedProvinceCoordinates, monitorCoordToScreen } from "@/lib/mapCalibration";
+import { useT } from "@/hooks/useT";
+import { defineMessages } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: {
+    loadError: "Error al cargar el nivel",
+    travelError: "No se pudo viajar a la provincia",
+    loading: "Cargando ...",
+    notFound: "Nivel no encontrado",
+    confirmTitle: "¿Viajar a otra Provincia?",
+  },
+  en: {
+    loadError: "Error loading the level",
+    travelError: "Couldn't travel to the province",
+    loading: "Loading ...",
+    notFound: "Level not found",
+    confirmTitle: "Travel to another Province?",
+  },
+});
 
 const TravelConfirmModal = dynamic(() => import("./TravelConfirmModal"), { ssr: false });
 const TravelAnimationOverlay = dynamic(() => import("./TravelAnimationOverlay"), { ssr: false });
@@ -23,6 +42,7 @@ interface LevelDataProps {
 
 export default function LevelProvinces({ levelId }: LevelDataProps) {
   const router = useRouter();
+  const t = useT(messages);
   useGameSession(levelId);
 
   const { travelProvince, currentProvinceId, currentTime, currentPI, travelCost, travelHours } =
@@ -53,7 +73,7 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
       } catch (err) {
         if (!cancelled) {
           setError(
-            err instanceof Error ? err.message : "Error al cargar el nivel",
+            err instanceof Error ? err.message : t("loadError"),
           );
         }
       } finally {
@@ -65,7 +85,7 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
     return () => {
       cancelled = true;
     };
-  }, [levelId]);
+  }, [levelId, t]);
 
   const currentProvince = data?.provinces.find((p) => p.id === currentProvinceId);
 
@@ -76,13 +96,13 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
     onPreload: (prov) => preloadProvincePackage(prov.id),
     getRoute: (prov) => `/level/${levelId}/${prov.id}`,
     durationMs: 1600,
-    errorMessageFallback: "No se pudo viajar a la provincia",
+    errorMessageFallback: t("travelError"),
   });
 
   if (loading) {
     return (
       <div className="absolute inset-0 z-20 flex items-center justify-center text-[#FFF3C7]">
-        Cargando ...
+        {t("loading")}
       </div>
     );
   }
@@ -90,7 +110,7 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
   if (error || !data) {
     return (
       <div className="absolute inset-0 z-20 flex items-center justify-center text-red-400">
-        {error ?? "Nivel no encontrado"}
+        {error ?? t("notFound")}
       </div>
     );
   }
@@ -138,7 +158,7 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
       {travelCost && (
         <TravelConfirmModal
           isOpen={Boolean(travel.selected)}
-          title="¿Viajar a otra Provincia?"
+          title={t("confirmTitle")}
           destinationName={travel.selected?.name ?? ""}
           destinationIcon={travel.selected?.icon}
           // Las horas dependen de la distancia a esa provincia; los PI son fijos

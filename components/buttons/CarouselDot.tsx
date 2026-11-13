@@ -1,5 +1,13 @@
 "use client";
 
+import { useT } from "@/hooks/useT";
+import { defineMessages } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: { goToLevel: "Ir al Nivel {n} ({state})", completed: "resuelto", current: "habilitado", locked: "bloqueado" },
+  en: { goToLevel: "Go to Level {n} ({state})", completed: "solved", current: "unlocked", locked: "locked" },
+});
+
 export type CarouselDotState = "completed" | "current" | "locked";
 
 interface Props {
@@ -27,22 +35,17 @@ const baseStyles: Record<CarouselDotState, { idle: string; active: string }> = {
   },
 };
 
-const stateLabel: Record<CarouselDotState, string> = {
-  completed: "resuelto",
-  current: "habilitado",
-  locked: "bloqueado",
-};
-
 // Ficha del paginador de niveles: tamaño uniforme, sin iconos, números retro.
 // Verde para resueltos, amarillo para jugables, gris para bloqueados.
 // Solo la ficha activa (clicada o visible actual) muestra el anillo de selección exterior.
 export default function CarouselDot({ number, state, active, onClick }: Props) {
   const styles = baseStyles[state];
+  const t = useT(messages);
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label={`Ir al Nivel ${number} (${stateLabel[state]})`}
+      aria-label={t("goToLevel", { n: number, state: t(state) })}
       aria-current={active}
       className={`
         relative flex items-center justify-center size-8 sm:size-11 shrink-0 rounded-lg sm:rounded-xl border-2 cursor-pointer

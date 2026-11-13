@@ -1,11 +1,16 @@
 "use client";
 
 import SplashLogo from "../SplashLogo";
+import { radioSplashMessages } from "./RadioSplash.messages";
 import { typingDuration, useTypewriter } from "@/hooks/useTypewriter";
+import { useT } from "@/hooks/useT";
+import type { Locale } from "@/lib/i18n/locale";
+import { formatMessage } from "@/lib/i18n/messages";
+import { useLocale } from "@/stores/useLocaleStore";
 import type { SplashSceneProps, SplashVariant } from "./types";
 
-const radioMessage = (agentName: string) =>
-  `CENTRAL A AGENTE ${agentName}: GOLPES EN VARIAS PROVINCIAS. PRESÉNTESE DE INMEDIATO. CAMBIO.`;
+// Transmisión tipeada: el paso dura lo que tarda en escribirse en el idioma del jugador
+const radioMessage = (agentName: string, locale: Locale) => formatMessage(radioSplashMessages[locale].message, { name: agentName });
 
 // Onda senoidal de dos períodos (se desplaza en loop)
 const WAVE = Array.from({ length: 81 }, (_, i) => {
@@ -16,8 +21,10 @@ const WAVE = Array.from({ length: 81 }, (_, i) => {
 
 // Pasos: 0 estática buscando frecuencia · 1 transmisión escrita · 2 el logo emerge de la interferencia
 function RadioScene({ progress, agentName }: SplashSceneProps) {
+  const t = useT(radioSplashMessages);
+  const locale = useLocale();
   const transmitting = progress === 1;
-  const message = useTypewriter(radioMessage(agentName), transmitting, progress > 1);
+  const message = useTypewriter(radioMessage(agentName, locale), transmitting, progress > 1);
   const tuned = progress >= 1;
 
   return (
@@ -31,9 +38,9 @@ function RadioScene({ progress, agentName }: SplashSceneProps) {
         {/* Equipo de radio */}
         <div className="w-[min(92vw,720px)] rounded-2xl border-4 border-[#1b2a20] bg-[#07130c] p-4 sm:p-6 shadow-[0_0_40px_rgba(60,255,140,0.12),inset_0_0_30px_rgba(0,0,0,0.9)] text-[#5dff9d] [text-shadow:0_0_8px_rgba(93,255,157,0.6)]">
           <div className="flex justify-between text-[8px] sm:text-[11px] tracking-widest">
-            <span>FREC. {tuned ? "147.30" : "---.--"} MHz</span>
+            <span>{t("frequency", { value: tuned ? "147.30" : "---.--" })}</span>
             <span>
-              <span className={transmitting ? "splash-rec text-red-500" : "text-[#5dff9d]/30"}>●</span> TX CENTRAL
+              <span className={transmitting ? "splash-rec text-red-500" : "text-[#5dff9d]/30"}>●</span> {t("transmitter")}
             </span>
           </div>
 
@@ -60,7 +67,7 @@ function RadioScene({ progress, agentName }: SplashSceneProps) {
 
           {/* Transcripción */}
           <p className="mt-4 min-h-[4.5em] text-[9px] sm:text-sm leading-relaxed">
-            {tuned ? message : "BUSCANDO FRECUENCIA..."}
+            {tuned ? message : t("searching")}
             {transmitting && <span className="splash-caret">▌</span>}
           </p>
         </div>
@@ -71,9 +78,9 @@ function RadioScene({ progress, agentName }: SplashSceneProps) {
 
 export const radioSplash: SplashVariant = {
   id: "radio",
-  steps: (agentName) => [
+  steps: (agentName, locale) => [
     { ms: 1100, sfx: "radio" },
-    { ms: typingDuration(radioMessage(agentName), 500) },
+    { ms: typingDuration(radioMessage(agentName, locale), 500) },
     { ms: 1500, sfx: "hint" },
   ],
   Scene: RadioScene,

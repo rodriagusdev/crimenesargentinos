@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import type { TrailerMessageKey } from "./TrailerScreen.messages";
 import TrailerTitleCard from "./TrailerTitleCard";
 import { ClueVisual, InterrogationVisual, MapVisual, WarrantVisual } from "./TrailerVisuals";
 import SeamlessBackgroundVideo from "@/components/login/SeamlessBackgroundVideo";
@@ -8,7 +9,9 @@ import SplashLogo from "@/components/splash/SplashLogo";
 import type { TimelineScene } from "@/hooks/useTrailerTimeline";
 
 // Cada escena recibe `t`: los ms que lleva en pantalla. Las animaciones arrancan con t > 0 para que el montaje y el arranque no coincidan.
-export type TrailerScene = TimelineScene & { render: (t: number) => ReactNode };
+// `tr` traduce los textos (placas y subtítulos) al idioma del jugador; las duraciones no dependen del largo del texto.
+export type TrailerTranslate = (key: TrailerMessageKey) => string;
+export type TrailerScene = TimelineScene & { render: (t: number, tr: TrailerTranslate) => ReactNode };
 
 const ACTIVE_AFTER_MS = 60;
 
@@ -26,22 +29,22 @@ function Shot({ caption, className = "", children }: { caption?: string; classNa
   );
 }
 
-const title = (text: string, ms: number, accent = false): TrailerScene => ({
+const title = (key: TrailerMessageKey, ms: number, accent = false): TrailerScene => ({
   ms,
-  render: () => <TrailerTitleCard text={text} ms={ms} accent={accent} />,
+  render: (_t, tr) => <TrailerTitleCard text={tr(key)} ms={ms} accent={accent} />,
 });
 
 export const TRAILER_SCENES: TrailerScene[] = [
-  { ...title("BUENOS AIRES · 03:14 HS", 2600), sfx: "radio" },
+  { ...title("cardClock", 2600), sfx: "radio" },
   {
     ms: 3800,
-    render: () => (
-      <Shot caption="Un golpe sacude al país.">
+    render: (_t, tr) => (
+      <Shot caption={tr("captionHeist")}>
         <SeamlessBackgroundVideo src="/videos/introvid.mp4" poster="/images/principal_background.webp" fadeDuration={0.8} />
       </Shot>
     ),
   },
-  title("NADIE VIO NADA…", 2000),
+  title("cardNobody", 2000),
   {
     ms: 3600,
     sfx: "opencasefile",
@@ -51,11 +54,11 @@ export const TRAILER_SCENES: TrailerScene[] = [
       </Shot>
     ),
   },
-  title("…O CASI NADIE.", 1800),
+  title("cardAlmost", 1800),
   {
     ms: 4000,
-    render: (t) => (
-      <Shot caption="De Jujuy a Tierra del Fuego." className="bg-[#0b1426]">
+    render: (t, tr) => (
+      <Shot caption={tr("captionMap")} className="bg-[#0b1426]">
         <div className="w-[min(92vw,900px)]">
           <MapVisual active={t > ACTIVE_AFTER_MS} />
         </div>
@@ -64,15 +67,15 @@ export const TRAILER_SCENES: TrailerScene[] = [
   },
   {
     ms: 3600,
-    render: (t) => (
-      <Shot caption="Cada pregunta cuesta tiempo." className="bg-[#070c16]">
+    render: (t, tr) => (
+      <Shot caption={tr("captionQuestions")} className="bg-[#070c16]">
         <div className="w-[min(92vw,560px)]">
           <InterrogationVisual active={t > ACTIVE_AFTER_MS} />
         </div>
       </Shot>
     ),
   },
-  title("TENÉS UNA SOLA ORDEN DE ARRESTO.", 2400),
+  title("cardWarrant", 2400),
   {
     ms: 2800,
     render: (t) => (
@@ -84,11 +87,11 @@ export const TRAILER_SCENES: TrailerScene[] = [
   {
     ms: 4400,
     sfx: "opencasefile",
-    render: (t) => (
+    render: (t, tr) => (
       <Shot className="bg-black">
         <div className="flex flex-col items-center gap-6">
           <SplashLogo visible={t > ACTIVE_AFTER_MS} className="w-[min(80vw,560px)]" />
-          <p className="home-caption text-[10px] sm:text-sm tracking-[0.3em] text-[#E1C380]">AHORA EN TU NAVEGADOR</p>
+          <p className="home-caption text-[10px] sm:text-sm tracking-[0.3em] text-[#E1C380]">{tr("tagline")}</p>
         </div>
       </Shot>
     ),

@@ -12,7 +12,7 @@ interface LevelScreenTopBarProps {
 
 // En celular el texto completo ("VOLVER AL MAPA DE LA PROVINCIA") no entra con la fuente pixelada
 function toShortLabel(label: string): string {
-  return label.replace(/^VOLVER AL\s+/i, "← ");
+  return label.replace(/^(VOLVER AL|BACK TO)\s+/i, "← ");
 }
 
 export function LevelScreenTopBar({

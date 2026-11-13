@@ -6,9 +6,17 @@ import UserInfo from "./UserInfo";
 import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
 import { useAuth } from "@/hooks/useAuth";
 import { useAudioStore } from "@/stores/useAudioStore";
+import { useT } from "@/hooks/useT";
+import { defineMessages } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: { howToPlay: "¿CÓMO SE JUEGA?", logout: "CERRAR SESION", logoAlt: "Crimenes Argentinos" },
+  en: { howToPlay: "HOW TO PLAY?", logout: "LOG OUT", logoAlt: "Crímenes Argentinos" },
+});
 
 export default function PlayerPanel() {
   const { logout } = useAuth();
+  const t = useT(messages);
   const playSfx = useAudioStore((state) => state.playSfx);
 
   const handleLogout = () => {
@@ -41,7 +49,7 @@ export default function PlayerPanel() {
             transition-all duration-200 cursor-pointer select-none
           "
         >
-          <span>¿CÓMO SE JUEGA?</span>
+          <span>{t("howToPlay")}</span>
         </Link>
       </div>
 
@@ -68,7 +76,7 @@ export default function PlayerPanel() {
             transition-all duration-200 cursor-pointer select-none
           "
         >
-          <span>CERRAR SESION</span>
+          <span>{t("logout")}</span>
         </button>
       </div>
 
@@ -76,7 +84,7 @@ export default function PlayerPanel() {
       <div className="flex justify-center items-center p-2">
         <Image
           src="/images/logofinal.png"
-          alt="Crimenes Argentinos"
+          alt={t("logoAlt")}
           width={220}
           height={220}
           priority

@@ -5,13 +5,17 @@ import Link from "next/link";
 import { useEffect } from "react";
 import HomeNav from "../HomeNav";
 import TrailerControls from "./TrailerControls";
+import { trailerScreenMessages } from "./TrailerScreen.messages";
 import { TRAILER_SCENES } from "./trailerScenes";
+import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
 import { useRedirectIfLoggedIn } from "@/hooks/useRedirectIfLoggedIn";
+import { useT } from "@/hooks/useT";
 import { useTrailerTimeline } from "@/hooks/useTrailerTimeline";
 
 // Portada "Tráiler" (la de "/"): un tráiler de cine que se reproduce solo (póster con ▶, escenas con franjas negras y placa final)
 export default function TrailerScreen({ redirectIfLoggedIn = false }: { redirectIfLoggedIn?: boolean }) {
   useRedirectIfLoggedIn(redirectIfLoggedIn);
+  const t = useT(trailerScreenMessages);
   const { state, scene, sceneElapsed, elapsed, total, starts, play, pause, skip } = useTrailerTimeline(TRAILER_SCENES);
   const watching = state.phase === "playing" || state.phase === "paused";
 
@@ -34,7 +38,7 @@ export default function TrailerScreen({ redirectIfLoggedIn = false }: { redirect
     return (
       <div className="relative h-svh bg-black text-[#FFF3C7] overflow-hidden select-none">
         <div key={scene} className="home-cut absolute inset-0">
-          {current.render(sceneElapsed)}
+          {current.render(sceneElapsed, t)}
         </div>
 
         {/* Textura de película y franjas de cine */}
@@ -78,16 +82,16 @@ export default function TrailerScreen({ redirectIfLoggedIn = false }: { redirect
 
         {ended ? (
           <>
-            <h1 className="text-lg sm:text-2xl leading-relaxed [text-shadow:0_4px_0_#1E2A36]">¿Te animás, agente?</h1>
+            <h1 className="text-lg sm:text-2xl leading-relaxed [text-shadow:0_4px_0_#1E2A36]">{t("endTitle")}</h1>
             <div className="flex flex-wrap justify-center gap-4">
               <Link href="/login?registro" className="px-6 py-4 rounded-xl bg-[#c81e1e] hover:bg-[#a51818] text-xs">
-                JUGAR AHORA
+                {t("playNow")}
               </Link>
               <Link href="/reglas" className="px-6 py-4 rounded-xl border-2 border-[#E1C380] hover:bg-[#E1C380]/10 text-xs">
-                VER REGLAS
+                {t("rules")}
               </Link>
               <button type="button" onClick={play} className="px-6 py-4 rounded-xl text-xs text-[#FFF3C7]/70 hover:text-[#E1C380] cursor-pointer">
-                ↺ VOLVER A VER
+                {t("replay")}
               </button>
             </div>
           </>
@@ -103,11 +107,13 @@ export default function TrailerScreen({ redirectIfLoggedIn = false }: { redirect
                   <path d="M7 4v16l13-8z" />
                 </svg>
               </span>
-              <span className="text-xs sm:text-sm">VER TRÁILER</span>
+              <span className="text-xs sm:text-sm">{t("watch")}</span>
             </button>
             <p className="font-mono text-sm text-[#FFF3C7]/60">
-              {Math.round(total / 1000)} segundos · con sonido · espacio para pausar
+              {t("posterNote", { seconds: Math.round(total / 1000) })}
             </p>
+            {/* En celular la barra no tiene lugar para el selector de idioma */}
+            <LanguageSwitcher className="sm:hidden" />
           </>
         )}
       </main>

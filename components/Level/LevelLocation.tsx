@@ -9,6 +9,13 @@ import { useGameSession } from "@/hooks/useGameSession";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import LocationIntro from "./LocationIntro";
 import FacingCriminalModal from "./FacingCriminalModal";
+import { useT } from "@/hooks/useT";
+import { defineMessages } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: { loadError: "Error al cargar el nivel", loading: "Cargando lugar...", notFound: "Lugar no encontrado" },
+  en: { loadError: "Error loading the level", loading: "Loading location...", notFound: "Location not found" },
+});
 
 interface Props {
   levelId: number;
@@ -22,6 +29,7 @@ export default function LevelLocation({
   provinceId,
 }: Props) {
   const router = useRouter();
+  const t = useT(messages);
   // Si el jugador no está en esta locación, se lo redirige a donde quedó
   const { session, ready, error: sessionError } = useGameSession(levelId, { provinceId, locationId });
   const markIntroSeen = useGameSessionStore((state) => state.markIntroSeen);
@@ -60,7 +68,7 @@ export default function LevelLocation({
       } catch (err) {
         if (!cancelled) {
           setError(
-            err instanceof Error ? err.message : "Error al cargar el nivel",
+            err instanceof Error ? err.message : t("loadError"),
           );
         }
       } finally {
@@ -75,7 +83,7 @@ export default function LevelLocation({
     return () => {
       cancelled = true;
     };
-  }, [ready, levelId, locationId, provinceId]);
+  }, [ready, levelId, locationId, provinceId, t]);
 
   // Escena de intro ya vista en esta partida: se va directo al interrogatorio
   const introSeen = Boolean(
@@ -98,7 +106,7 @@ export default function LevelLocation({
   if (!ready || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen text-[#FFF3C7]">
-        Cargando lugar...
+        {t("loading")}
       </div>
     );
   }
@@ -106,7 +114,7 @@ export default function LevelLocation({
   if (error || !locationDialog) {
     return (
       <div className="flex items-center justify-center min-h-screen text-red-400">
-        {error ?? "Lugar no encontrado"}
+        {error ?? t("notFound")}
       </div>
     );
   }

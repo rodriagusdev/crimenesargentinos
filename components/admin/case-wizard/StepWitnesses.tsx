@@ -1,7 +1,10 @@
 "use client";
 
 import AdminIcon from "@/components/admin/AdminIcon";
+import { useT } from "@/hooks/useT";
+import { pickText, useContentLanguage } from "./contentLanguage";
 import WitnessEditor from "./WitnessEditor";
+import { witnessMessages } from "./WitnessEditor.messages";
 import { caseLocations, type StepProps } from "./types";
 
 interface Props extends StepProps {
@@ -11,6 +14,8 @@ interface Props extends StepProps {
 
 // Paso 6: un testigo por locación de las provincias del caso, con sus preguntas
 export default function StepWitnesses({ draft, update, catalog, selectedId, onSelect }: Props) {
+  const t = useT(witnessMessages);
+  const lang = useContentLanguage();
   const locations = caseLocations(draft, catalog);
   const selected = locations.find((l) => l.id === selectedId) ?? locations[0];
   const setSelectedId = onSelect;
@@ -37,7 +42,7 @@ export default function StepWitnesses({ draft, update, catalog, selectedId, onSe
                 onClick={() => setSelectedId(l.id)}
                 className={`flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-left text-sm transition ${l.id === selected?.id ? "bg-[#E1C380]/15 text-[#E1C380]" : "text-slate-300 hover:bg-white/[0.04]"}`}
               >
-                <span className="truncate">{l.name}{l.id === draft.criminalLocationId ? " (escondite)" : l.id === draft.startLocationId ? " (inicio)" : ""}</span>
+                <span className="truncate">{l.name}{l.id === draft.criminalLocationId ? t("hideoutTag") : l.id === draft.startLocationId ? t("startTag") : ""}</span>
                 {isComplete(l.id) && <AdminIcon name="check" className="size-3.5 shrink-0 text-emerald-400" />}
               </button>
             ))}
@@ -46,8 +51,8 @@ export default function StepWitnesses({ draft, update, catalog, selectedId, onSe
 
         {pendingClues.length > 0 && (
           <div className="mt-4 rounded-md border border-amber-400/30 bg-amber-400/10 p-2 text-xs text-amber-200">
-            Pistas que todavía no da ninguna pregunta:
-            <ul className="mt-1 list-disc pl-4">{pendingClues.map((c) => <li key={c.key}>{c.description || "(sin texto)"}</li>)}</ul>
+            {t("pendingClues")}
+            <ul className="mt-1 list-disc pl-4">{pendingClues.map((c) => <li key={c.key}>{pickText(c.description, c.descriptionEn, lang) || t("noText")}</li>)}</ul>
           </div>
         )}
       </nav>
@@ -60,7 +65,7 @@ export default function StepWitnesses({ draft, update, catalog, selectedId, onSe
           onChange={(change) => update((d) => ({ ...d, dialogs: d.dialogs.map((x) => (x.locationId === dialog.locationId ? change(x) : x)) }))}
         />
       ) : (
-        <p className="text-sm text-slate-400">Elegí las provincias del caso para cargar sus testigos.</p>
+        <p className="text-sm text-slate-400">{t("pickProvinces")}</p>
       )}
     </div>
   );

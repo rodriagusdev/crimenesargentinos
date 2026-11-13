@@ -2,6 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
+import { useT } from "@/hooks/useT";
+import { defineMessages } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: { travelFailed: "No se pudo realizar el viaje" },
+  en: { travelFailed: "The trip couldn't be completed" },
+});
 
 export type TravelState<T> =
   | { status: "idle" }
@@ -27,10 +34,11 @@ export function useTravelFlow<T extends { id: string }>({
   onPreload,
   getRoute,
   durationMs = 1400,
-  errorMessageFallback = "No se pudo realizar el viaje",
+  errorMessageFallback,
   onBeforeSelect,
 }: UseTravelFlowOptions<T>) {
   const router = useRouter();
+  const t = useT(messages);
   const [state, setState] = useState<TravelState<T>>({ status: "idle" });
 
   const isTraveling = state.status === "traveling";
@@ -77,10 +85,10 @@ export function useTravelFlow<T extends { id: string }>({
     } catch (err) {
       setState({
         status: "error",
-        message: err instanceof Error ? err.message : errorMessageFallback,
+        message: err instanceof Error ? err.message : (errorMessageFallback ?? t("travelFailed")),
       });
     }
-  }, [state, current, getRoute, onTravel, onPreload, durationMs, errorMessageFallback, router]);
+  }, [state, current, getRoute, onTravel, onPreload, durationMs, errorMessageFallback, router, t]);
 
   const cancel = useCallback(() => {
     if (state.status === "traveling") return;

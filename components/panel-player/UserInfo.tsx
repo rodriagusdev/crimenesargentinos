@@ -7,9 +7,12 @@ import { getPlayerStats } from "@/services/gameSessionService";
 import { useAvatarStore } from "@/stores/useAvatarStore";
 import { audioManager } from "@/lib/audioManager";
 import AvatarPickerModal from "./AvatarPickerModal";
+import { useT } from "@/hooks/useT";
+import { useLocale } from "@/stores/useLocaleStore";
+import { userInfoMessages } from "./UserInfo.messages";
 
 interface UserData {
-  username: string;
+  username: string | null; // null: cargando; "": sin nombre en el token
   level: number;
   points: number;
   gamesPlayed: number;
@@ -20,9 +23,11 @@ export default function UserInfo() {
   const currentAvatar = useAvatarStore((state) => state.currentAvatar);
   const initAvatar = useAvatarStore((state) => state.initAvatar);
   const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const t = useT(userInfoMessages);
+  const numberLocale = useLocale() === "en" ? "en-US" : "es-AR";
 
   const [user, setUser] = useState<UserData>({
-    username: "Cargando...",
+    username: null,
     level: 0,
     points: 0,
     gamesPlayed: 0,
@@ -56,7 +61,7 @@ export default function UserInfo() {
           decodedPayload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] ||
           decodedPayload.unique_name ||
           decodedPayload.sub ||
-          "Usuario";
+          "";
 
         setUser((prevUser) => ({
           ...prevUser,
@@ -66,7 +71,7 @@ export default function UserInfo() {
         console.error("Error decodificando token:", error);
         setUser((prevUser) => ({
           ...prevUser,
-          username: "Usuario",
+          username: "",
         }));
       }
     }
@@ -88,7 +93,7 @@ export default function UserInfo() {
       {/* 1. Header con estilo táctico matching LevelCard */}
       <div className="px-3.5 py-2.5 flex items-center justify-between border-b border-[#1c2c3e]/80 bg-[#0e1724]">
         <h3 className="font-mono font-bold text-xs sm:text-sm tracking-wider uppercase text-[#f1f5f9] text-center w-full">
-          FICHA POLICIAL
+          {t("title")}
         </h3>
       </div>
 
@@ -101,12 +106,12 @@ export default function UserInfo() {
             setIsPickerOpen(true);
           }}
           className="group/avatar relative mb-3 w-36 h-36 sm:w-44 sm:h-44 rounded-2xl overflow-hidden flex flex-col items-center justify-center bg-gradient-to-b from-[#1b2536] to-[#0e1724] border-2 border-amber-400/50 hover:border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:shadow-[0_0_30px_rgba(245,158,11,0.35)] transition-all duration-200 cursor-pointer"
-          title="Cambiar fotografía del detective"
+          title={t("changePhotoTitle")}
         >
           {currentAvatar ? (
             <Image
               src={currentAvatar}
-              alt="Avatar del detective"
+              alt={t("avatarAlt")}
               fill
               sizes="176px"
               priority
@@ -118,7 +123,7 @@ export default function UserInfo() {
                 <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
               </svg>
               <span className="font-mono text-[10px] sm:text-[9px] tracking-widest uppercase mt-1.5 opacity-80 text-amber-300/80 font-bold">
-                SIN FOTO
+                {t("noPhoto")}
               </span>
             </div>
           )}
@@ -144,11 +149,11 @@ export default function UserInfo() {
           "
         >
           <span>📸</span>
-          <span>CAMBIAR</span>
+          <span>{t("change")}</span>
         </button>
 
         <h3 className="font-mono font-bold text-sm sm:text-base tracking-wider uppercase text-[#f1f5f9] text-center truncate max-w-full">
-          {user.username}
+          {user.username === null ? t("loading") : user.username || t("user")}
         </h3>
       </div>
 
@@ -160,10 +165,10 @@ export default function UserInfo() {
       {/* 3. Estadísticas del jugador */}
       <div className="p-3 bg-[#080d15]/60 border-t border-[#1c2c3e]/80">
         <div className="grid grid-cols-2 gap-2">
-          <InfoItem label="NIVEL" value={user.level} />
-          <InfoItem label="PUNTOS" value={user.points.toLocaleString()} />
-          <InfoItem label="PARTIDAS" value={user.gamesPlayed} />
-          <InfoItem label="RÉCORD" value={user.highScore.toLocaleString()} />
+          <InfoItem label={t("level")} value={user.level} />
+          <InfoItem label={t("points")} value={user.points.toLocaleString(numberLocale)} />
+          <InfoItem label={t("games")} value={user.gamesPlayed} />
+          <InfoItem label={t("record")} value={user.highScore.toLocaleString(numberLocale)} />
         </div>
       </div>
     </div>

@@ -16,6 +16,8 @@ import { LocationPolaroidCard } from "../buttons/LocationPolaroidCard";
 import { ProvinceDossierHeader } from "./ProvinceDossierHeader";
 import { ProvinceMapFrame } from "./ProvinceMapFrame";
 import { useTravelFlow } from "@/hooks/useTravelFlow";
+import { useT } from "@/hooks/useT";
+import { levelProvinceLocationsMessages } from "./LevelProvinceLocations.messages";
 
 const TravelConfirmModal = dynamic(() => import("./TravelConfirmModal"), { ssr: false });
 const TravelAnimationOverlay = dynamic(() => import("./TravelAnimationOverlay"), { ssr: false });
@@ -39,6 +41,7 @@ const POLAROID_ROTATIONS = ["rotate-[-2deg]", "rotate-[1.5deg]", "rotate-[-1.5de
 
 export default function LevelProvinceLocations({ levelId, provinceId }: LevelDataProps) {
   const router = useRouter();
+  const t = useT(levelProvinceLocationsMessages);
   // Si el jugador no está en esta provincia, se lo redirige a donde quedó
   const { ready, error: sessionError } = useGameSession(levelId, { provinceId });
 
@@ -72,7 +75,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
       } catch (err) {
         if (!cancelled) {
           setError(
-            err instanceof Error ? err.message : "Error al cargar el nivel",
+            err instanceof Error ? err.message : t("loadError"),
           );
         }
       } finally {
@@ -87,7 +90,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
     return () => {
       cancelled = true;
     };
-  }, [levelId, provinceId]);
+  }, [levelId, provinceId, t]);
 
   // Precargar anticipadamente los recursos de la locación actual en segundo plano
   useEffect(() => {
@@ -105,7 +108,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
     onPreload: (loc) => preloadLocationPackage(levelId, provinceId, loc.id),
     getRoute: (loc) => `/level/${levelId}/${provinceId}/${loc.id}`,
     durationMs: 1400,
-    errorMessageFallback: "No se pudo ir a la locación",
+    errorMessageFallback: t("travelError"),
     onBeforeSelect: () => audioManager.play("click"),
   });
 
@@ -113,7 +116,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
     return (
       <div className="flex items-center justify-center min-h-dvh px-4 text-center text-xs sm:text-base text-[#FFF3C7] font-mono tracking-wider bg-[#080e18]">
         <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping mr-3" />
-        Accediendo a la red policial provincial...
+        {t("loading")}
       </div>
     );
   }
@@ -121,7 +124,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
   if (error || sessionError || !data) {
     return (
       <div className="flex items-center justify-center min-h-dvh px-4 text-center text-xs sm:text-base text-red-400 font-mono bg-[#080e18]">
-        {error ?? sessionError ?? "Provincia no encontrada"}
+        {error ?? sessionError ?? t("notFound")}
       </div>
     );
   }
@@ -139,7 +142,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
       {travel.travelingTo && (
         <TravelAnimationOverlay
           mode="car"
-          fromName={originLocation?.name ?? "Punto Operativo"}
+          fromName={originLocation?.name ?? t("originFallback")}
           toName={travel.travelingTo.name}
           fromCoord={fromCoord}
           toCoord={toCoord}
@@ -152,8 +155,8 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
       {/* En celular la barra baja por debajo del menú de investigación (igual que DialogBox) */}
       <div className="shrink-0 pt-[68px] md:pt-0">
         <LevelScreenTopBar
-          label="VOLVER AL MAPA GENERAL"
-          badgeText="Sector Provincial"
+          label={t("backToMap")}
+          badgeText={t("sector")}
           onBack={() => {
             if (travel.isTraveling) return;
             audioManager.play("click");
@@ -193,9 +196,9 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
 
             {/* Encabezado de la lista de puntos */}
             <div className="flex items-center justify-between gap-2 text-[10px] sm:text-xs uppercase tracking-wider text-[#FFF3C7]/70 mb-2 sm:mb-3 font-mono font-semibold">
-              <span>Puntos de Inspección Disponibles</span>
+              <span>{t("availablePoints")}</span>
               <span className="text-[10px] text-[#E1C380]/70 shrink-0">
-                {data.locations.length} DESTINOS
+                {t("destinations", { n: data.locations.length })}
               </span>
             </div>
 
@@ -246,7 +249,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
       {locationCost && (
         <TravelConfirmModal
           isOpen={Boolean(travel.selected)}
-          title="¿Inspeccionar Locación?"
+          title={t("confirmTitle")}
           destinationName={travel.selected?.name ?? ""}
           destinationIcon={travel.selected?.imageUrl}
           cost={{

@@ -2,12 +2,15 @@
 
 import Link from "next/link";
 import AdminIcon from "@/components/admin/AdminIcon";
+import { useT } from "@/hooks/useT";
 import { projectLatLonToMap } from "@/lib/mapCalibration";
 import ImageUrlField from "./ImageUrlField";
+import { stepProvincesMessages } from "./StepProvinces.messages";
 import type { StepProps } from "./types";
 
 // Paso 2: provincias del caso. Sus locaciones son los lugares que se pueden visitar (cada una va a tener un testigo)
 export default function StepProvinces({ draft, update, catalog }: StepProps) {
+  const t = useT(stepProvincesMessages);
   const selected = new Set(draft.provinces.map((p) => p.provinceId));
 
   const toggle = (provinceId: string) => {
@@ -24,10 +27,9 @@ export default function StepProvinces({ draft, update, catalog }: StepProps) {
   return (
     <div className="space-y-4">
       <p className="text-sm text-slate-400">
-        Elegí 2 o más provincias. El orden en que las elegís no importa: el recorrido lo definís en el paso siguiente.
-        Si falta una provincia o una locación, creala antes en{" "}
-        <Link href="/admin/provinces" className="text-[#E1C380] underline" target="_blank">Provincias</Link> o{" "}
-        <Link href="/admin/locations" className="text-[#E1C380] underline" target="_blank">Locaciones</Link> (con coordenadas) y volvé a abrir el asistente.
+        {t("introA")}{" "}
+        <Link href="/admin/provinces" className="text-[#E1C380] underline" target="_blank">{t("provinces")}</Link> {t("or")}{" "}
+        <Link href="/admin/locations" className="text-[#E1C380] underline" target="_blank">{t("locations")}</Link> {t("introB")}
       </p>
 
       <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -48,9 +50,9 @@ export default function StepProvinces({ draft, update, catalog }: StepProps) {
                 {isSelected && <AdminIcon name="check" className="size-4 text-[#E1C380]" />}
               </span>
               <span className="mt-1 block text-xs text-slate-400">
-                {locations.length === 0 ? "Sin locaciones" : locations.map((l) => l.name).join(" · ")}
+                {locations.length === 0 ? t("noLocations") : locations.map((l) => l.name).join(" · ")}
               </span>
-              {missingCoords && locations.length > 0 && <span className="mt-1 block text-xs text-amber-300">Faltan coordenadas</span>}
+              {missingCoords && locations.length > 0 && <span className="mt-1 block text-xs text-amber-300">{t("missingCoords")}</span>}
             </button>
           );
         })}
@@ -58,13 +60,13 @@ export default function StepProvinces({ draft, update, catalog }: StepProps) {
 
       {draft.provinces.length > 0 && (
         <div className="space-y-3 rounded-lg border border-white/10 p-3">
-          <p className="text-sm font-medium text-slate-200">Ícono de cada provincia en el mapa</p>
+          <p className="text-sm font-medium text-slate-200">{t("iconsTitle")}</p>
           {draft.provinces.map((p) => {
             const name = catalog.provinces.find((c) => c.id === p.provinceId)?.name ?? p.provinceId;
             return (
               <ImageUrlField
                 key={p.provinceId}
-                label={`${name}${p.top ? ` (pin en ${p.top} / ${p.left})` : ""}`}
+                label={`${name}${p.top ? ` (${t("pinAt", { top: p.top, left: p.left ?? "" })})` : ""}`}
                 value={p.icon}
                 onChange={(url) => update((d) => ({ ...d, provinces: d.provinces.map((x) => (x.provinceId === p.provinceId ? { ...x, icon: url } : x)) }))}
                 kind="location"

@@ -1,7 +1,16 @@
 "use client";
 
+import { useT } from "@/hooks/useT";
+import { defineMessages } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: { masthead: "EL VESPERTINO · EDICIÓN NOCHE", headline: "OLA DE GOLPES SACUDE AL PAÍS" },
+  en: { masthead: "EL VESPERTINO · LATE EDITION", headline: "HEIST WAVE ROCKS THE NATION" },
+});
+
 // Objetos sobre el escritorio: hilo rojo entre las fotos, recorte de diario, mate y cenicero humeante
 export default function SplashDeskProps({ lampOn }: { lampOn: boolean }) {
+  const t = useT(messages);
   return (
     <div
       className={`absolute inset-0 transition-opacity duration-700 delay-500 ${lampOn ? "opacity-100" : "opacity-0"}`}
@@ -19,8 +28,8 @@ export default function SplashDeskProps({ lampOn }: { lampOn: boolean }) {
 
       {/* Recorte de diario */}
       <div className="absolute bottom-[3%] left-[22%] hidden lg:block w-44 p-2 rotate-[-4deg] bg-[#e8e0cc] text-[#222] shadow-[0_10px_20px_rgba(0,0,0,0.6)]">
-        <p className="text-[7px] tracking-widest border-b border-[#222]/50 pb-1">EL VESPERTINO · EDICIÓN NOCHE</p>
-        <p className="text-[10px] leading-snug mt-1">OLA DE GOLPES SACUDE AL PAÍS</p>
+        <p className="text-[7px] tracking-widest border-b border-[#222]/50 pb-1">{t("masthead")}</p>
+        <p className="text-[10px] leading-snug mt-1">{t("headline")}</p>
         <div className="mt-1 space-y-[3px]">
           <div className="h-[3px] bg-[#222]/30" />
           <div className="h-[3px] w-5/6 bg-[#222]/30" />

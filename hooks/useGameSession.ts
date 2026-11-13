@@ -3,6 +3,12 @@ import { useEffect, useState } from "react";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { GameSessionApiError, sessionRoute } from "@/services/gameSessionService";
 import { IGameSession } from "@/models/IGameSession";
+import { defineMessages, translate } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: { loadError: "Error al cargar la partida" },
+  en: { loadError: "Error loading the game" },
+});
 
 interface ScreenPosition {
   provinceId?: string;
@@ -50,7 +56,7 @@ export function useGameSession(levelId: number, position?: ScreenPosition) {
         } else if (err instanceof GameSessionApiError && err.status === 403) {
           router.replace("/principal");
         } else {
-          setError(err instanceof Error ? err.message : "Error al cargar la partida");
+          setError(err instanceof Error ? err.message : translate(messages, "loadError"));
         }
       });
 

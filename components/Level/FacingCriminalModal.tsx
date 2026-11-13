@@ -3,6 +3,13 @@
 import { useState } from "react";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import CaseDossierModal from "./CaseDossierModal";
+import { useT } from "@/hooks/useT";
+import { defineMessages } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: { issueWarrant: "EMITIR ORDEN DE ARRESTO" },
+  en: { issueWarrant: "ISSUE ARREST WARRANT" },
+});
 
 // Llegó al escondite sin orden de arresto pero con las pistas: el backend bloquea viajar y preguntar
 // hasta que emita la orden. Usamos el modal unificado de expediente (pistas + sospechosos)
@@ -14,6 +21,7 @@ export default function FacingCriminalModal() {
   const initialClues = useGameSessionStore((state) => state.initialClues);
   const levelId = useGameSessionStore((state) => state.levelId ?? 1);
   const [isOpen, setIsOpen] = useState(true);
+  const t = useT(messages);
 
   // En el servidor no hay partida cargada: facingCriminal solo puede ser true en el cliente
   if (!facingCriminal || typeof document === "undefined") {
@@ -41,7 +49,7 @@ export default function FacingCriminalModal() {
             className="px-5 py-3 rounded-2xl bg-gradient-to-r from-red-600 to-red-800 text-white font-mono font-bold text-xs sm:text-sm tracking-wider uppercase border-2 border-red-400 shadow-[0_0_25px_rgba(239,68,68,0.7)] flex items-center gap-2.5 cursor-pointer hover:scale-105 transition-transform"
           >
             <span className="text-xl">🚨</span>
-            <span>EMITIR ORDEN DE ARRESTO</span>
+            <span>{t("issueWarrant")}</span>
           </button>
         </div>
       )}

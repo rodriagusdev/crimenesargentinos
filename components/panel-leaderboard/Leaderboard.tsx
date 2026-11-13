@@ -3,10 +3,20 @@
 import { useEffect, useState } from "react";
 import { getLeaderboard } from "@/services/gameSessionService";
 import { ILeaderboardEntry } from "@/models/IGameSession";
+import { useT } from "@/hooks/useT";
+import { defineMessages } from "@/lib/i18n/messages";
+import { useLocale } from "@/stores/useLocaleStore";
+
+const messages = defineMessages({
+  es: { top: "TOP 10", loading: "Cargando ranking...", empty: "Sin agentes clasificados", points: "PTS" },
+  en: { top: "TOP 10", loading: "Loading ranking...", empty: "No ranked agents", points: "PTS" },
+});
 
 export default function Leaderboard() {
   const [users, setUsers] = useState<ILeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const t = useT(messages);
+  const numberLocale = useLocale() === "en" ? "en-US" : "es-AR";
 
   useEffect(() => {
     let cancelled = false;
@@ -36,7 +46,7 @@ export default function Leaderboard() {
 
         <div>
           <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-amber-950/50 border border-amber-500/40 text-amber-300">
-            TOP 10
+            {t("top")}
           </span>
         </div>
       </div>
@@ -45,11 +55,11 @@ export default function Leaderboard() {
       <div className="divide-y divide-[#1c2c3e]/60 bg-[#0c1421]">
         {loading ? (
           <div className="p-8 text-center font-mono text-xs text-slate-400 uppercase tracking-wider animate-pulse">
-            Cargando ranking...
+            {t("loading")}
           </div>
         ) : users.length === 0 ? (
           <div className="p-8 text-center font-mono text-xs text-slate-400 uppercase tracking-wider">
-            Sin agentes clasificados
+            {t("empty")}
           </div>
         ) : (
           users.map((user) => {
@@ -106,10 +116,10 @@ export default function Leaderboard() {
                 {/* Puntaje */}
                 <div className="flex items-baseline gap-1 shrink-0 ml-2">
                   <span className="font-mono font-black text-xs sm:text-sm tracking-wider text-amber-300 drop-shadow-[0_0_6px_rgba(245,158,11,0.2)]">
-                    {user.points.toLocaleString()}
+                    {user.points.toLocaleString(numberLocale)}
                   </span>
                   <span className="font-mono text-[10px] sm:text-[9px] font-bold text-slate-400">
-                    PTS
+                    {t("points")}
                   </span>
                 </div>
               </div>
