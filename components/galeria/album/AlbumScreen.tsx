@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import ReleasePreviewToggle from "../ReleasePreviewToggle";
+import GameBackdrop, { CautionBar } from "../GameBackdrop";
 import AlbumCover from "./AlbumCover";
 import AlbumNav from "./AlbumNav";
 import AlbumPage, { type PacketState } from "./AlbumPage";
@@ -17,7 +18,7 @@ const PASTE_MS = 1400;
 // Distancia mínima del deslizamiento con el dedo para dar vuelta la hoja
 const SWIPE_PX = 50;
 
-// Propuesta "Álbum de figuritas": tapa con contador, 10 figuritas por hoja que se dan vuelta sobre el lomo,
+// Propuesta "Álbum de figuritas": tapa con contador, 8 figuritas por hoja que se dan vuelta sobre el lomo,
 // pestañas por release y un sobrecito para el release nuevo
 export default function AlbumScreen() {
   const { preview, togglePreview, releases, isNew, firstNumber } = useGalleryReleases();
@@ -62,8 +63,10 @@ export default function AlbumScreen() {
   const flipIndex = turning ? (turning.dir === "next" ? turning.from : turning.to) : null;
 
   return (
-    <div className="min-h-svh overflow-x-hidden bg-[#123a6b] bg-[radial-gradient(circle_at_20%_10%,rgba(255,255,255,0.12),transparent_45%)] px-3 sm:px-6 py-8 sm:py-12 pb-24 text-[#1b1813]">
-      <div className="max-w-5xl mx-auto">
+    <div className="relative min-h-svh overflow-x-hidden bg-[#070c16] px-3 sm:px-6 py-8 sm:py-12 pb-24 text-[#1b1813]">
+      <GameBackdrop />
+      <CautionBar />
+      <div className="relative max-w-5xl mx-auto">
         <AlbumCover pasted={total - sealedCount} total={total} />
 
         {/* Aviso del sobre nuevo */}

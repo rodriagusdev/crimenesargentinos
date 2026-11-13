@@ -8,6 +8,7 @@ import styles from "./naipes.module.css";
 import type { Suit } from "./PlayingCard";
 import { audioManager } from "@/lib/audioManager";
 import { useGalleryReleases } from "@/hooks/useGalleryReleases";
+import GameBackdrop, { CautionBar, GAME_BG } from "../GameBackdrop";
 
 // Un palo por release, en orden
 const SUITS: Suit[] = [
@@ -28,9 +29,11 @@ export default function NaipesScreen() {
   const newRelease = releases.find(isNew);
 
   return (
-    <div className="min-h-svh bg-[#1a0f08] bg-[radial-gradient(ellipse_at_top,rgba(255,214,140,0.14),transparent_60%)] px-2 sm:px-6 py-6 sm:py-12 text-[#FFF3C7]">
+    <div className={`relative ${GAME_BG} min-h-svh px-2 sm:px-6 py-6 sm:py-12 text-[#FFF3C7]`}>
+      <GameBackdrop glow="245,158,11" />
+      <CautionBar className="max-w-6xl" />
       {/* Mesa: borde de madera y paño */}
-      <div className={`max-w-6xl mx-auto rounded-[28px] p-2.5 sm:p-4 shadow-[0_30px_60px_rgba(0,0,0,0.7)] ${styles.wood}`}>
+      <div className={`relative max-w-6xl mx-auto rounded-[28px] p-2.5 sm:p-4 shadow-[0_30px_60px_rgba(0,0,0,0.7)] ${styles.wood}`}>
         <div
           className={`rounded-[20px] bg-[#0f4a2c] px-3 sm:px-6 py-8 sm:py-10 shadow-[inset_0_0_50px_rgba(0,0,0,0.65)] flex flex-col gap-10 ${styles.felt}`}
         >

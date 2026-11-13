@@ -7,6 +7,7 @@ import ArrivalsTicker from "./ArrivalsTicker";
 import ReleasePreviewToggle from "../ReleasePreviewToggle";
 import { audioManager } from "@/lib/audioManager";
 import { useGalleryReleases } from "@/hooks/useGalleryReleases";
+import GameBackdrop, { CautionBar, GAME_BG } from "../GameBackdrop";
 
 // Cada cuánto el tablero "actualiza" una fila al azar (vuelve a girar sus letras)
 const REFRESH_MS = 4500;
@@ -32,8 +33,10 @@ export default function ArribosScreen() {
   }, [namesKey]);
 
   return (
-    <div className="min-h-svh bg-[#0a0c10] bg-[radial-gradient(ellipse_at_top,rgba(255,159,67,0.12),transparent_55%)] px-3 sm:px-6 py-8 sm:py-12 text-[#f5f5f0]">
-      <div className="max-w-5xl mx-auto">
+    <div className={`relative ${GAME_BG} min-h-svh px-3 sm:px-6 py-8 sm:py-12 text-[#f5f5f0]`}>
+      <GameBackdrop glow="255,159,67" />
+      <CautionBar className="max-w-5xl" />
+      <div className="relative max-w-5xl mx-auto">
         <ArrivalsHero />
 
         {/* Aviso por altavoz cuando aterriza un release nuevo */}

@@ -1,13 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import FileDrawer from "./FileDrawer";
 import IntakeMemo from "./IntakeMemo";
+import LegajoLightbox from "./LegajoLightbox";
+import { flightFrom, type OpenLegajo } from "./legajo";
 import PendantLamp from "./PendantLamp";
 import WallClock from "./WallClock";
 import ReleasePreviewToggle from "../ReleasePreviewToggle";
 import { audioManager } from "@/lib/audioManager";
 import { useGalleryReleases } from "@/hooks/useGalleryReleases";
+import GameBackdrop, { CautionBar, GAME_BG } from "../GameBackdrop";
 
 // Propuesta "Fichero de prontuarios": oficina en penumbra con una lámpara colgante sobre un mueble metálico,
 // un cajón por release (el más nuevo arriba y abierto). El release nuevo llega con una circular y sellos.
@@ -18,9 +21,19 @@ export default function FicheroScreen() {
   const currentOpen = openId === null ? releases[0].id : openId;
   const newRelease = releases.find(isNew);
   const total = releases.reduce((sum, r) => sum + r.suspects.length, 0);
+  // Legajo abierto en el centro de la pantalla (null: ninguno)
+  const [legajo, setLegajo] = useState<OpenLegajo | null>(null);
+
+  const closeLegajo = useCallback(() => {
+    audioManager.play("click");
+    setLegajo((l) => (l ? { ...l, phase: "closing" } : l));
+  }, []);
+  const clearLegajo = useCallback(() => setLegajo(null), []);
 
   return (
-    <div className="min-h-svh overflow-x-clip bg-[#15181c] bg-[radial-gradient(ellipse_at_top,rgba(255,226,150,0.10),transparent_55%),repeating-linear-gradient(90deg,rgba(255,255,255,0.015)_0_2px,transparent_2px_120px)] px-3 sm:px-6 pb-12 text-[#FFF3C7]">
+    <div className={`relative ${GAME_BG} min-h-svh overflow-x-clip px-3 sm:px-6 pb-12 text-[#FFF3C7]`}>
+      <GameBackdrop glow="245,158,11" />
+      <CautionBar className="max-w-5xl" />
       <div className="relative max-w-5xl mx-auto pt-28 sm:pt-32">
         <PendantLamp />
 
@@ -51,6 +64,11 @@ export default function FicheroScreen() {
                 isNew={isNew(r)}
                 open={currentOpen === r.id}
                 onToggle={() => setOpenId(currentOpen === r.id ? "none" : r.id)}
+                awayName={legajo?.suspect.name ?? null}
+                onOpenCard={(suspect, number, rect) => {
+                  audioManager.play("opencasefile");
+                  setLegajo({ suspect, number, release: r.name, isNew: isNew(r), phase: "open", from: flightFrom(rect) });
+                }}
               />
             ))}
           </div>
@@ -60,6 +78,8 @@ export default function FicheroScreen() {
           </div>
         </div>
       </div>
+
+      {legajo && <LegajoLightbox key={legajo.suspect.name} legajo={legajo} onClose={closeLegajo} onClosed={clearLegajo} />}
 
       <ReleasePreviewToggle
         preview={preview}

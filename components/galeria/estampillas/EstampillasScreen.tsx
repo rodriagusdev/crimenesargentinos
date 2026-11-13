@@ -6,6 +6,7 @@ import styles from "./estampillas.module.css";
 import ReleasePreviewToggle from "../ReleasePreviewToggle";
 import { audioManager } from "@/lib/audioManager";
 import { useGalleryReleases } from "@/hooks/useGalleryReleases";
+import GameBackdrop, { CautionBar, GAME_BG } from "../GameBackdrop";
 
 // Propuesta "Estampillas": mesa del filatelista con el sobre de la colección y una hoja por serie.
 // La serie nueva llega con colores vivos y el matasellos de "primer día de emisión" cae con su golpe
@@ -16,7 +17,9 @@ export default function EstampillasScreen() {
   const ordered = [...releases].sort((a, b) => a.id - b.id);
 
   return (
-    <div className="relative min-h-svh overflow-hidden bg-[#2b3a2f] bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.08),transparent_60%)] px-3 sm:px-6 py-8 sm:py-12 pb-24">
+    <div className={`relative ${GAME_BG} min-h-svh overflow-hidden px-3 sm:px-6 py-8 sm:py-12 pb-24`}>
+      <GameBackdrop glow="245,158,11" />
+      <CautionBar className="max-w-5xl" />
       {/* Paño verde de la mesa y luz de la lámpara que se mueve despacio */}
       <div className="pointer-events-none absolute inset-0 opacity-40 bg-[repeating-linear-gradient(45deg,rgba(0,0,0,0.08)_0_2px,transparent_2px_5px)]" aria-hidden />
       <div className={`${styles.lamp} pointer-events-none absolute -inset-1/4`} aria-hidden />

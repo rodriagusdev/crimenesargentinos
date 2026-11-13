@@ -1,57 +1,73 @@
+import Image from "next/image";
 import styles from "./album.module.css";
-
-// Posiciones fijas de las estrellitas de la tapa (sin azar para no romper la hidratación)
-const STARS = [
-  { left: "6%", top: "18%", delay: "0s" },
-  { left: "16%", top: "68%", delay: "0.9s" },
-  { left: "30%", top: "12%", delay: "1.6s" },
-  { left: "70%", top: "16%", delay: "0.4s" },
-  { left: "84%", top: "64%", delay: "1.2s" },
-  { left: "93%", top: "22%", delay: "2s" },
-];
 
 type Props = { pasted: number; total: number };
 
-// Tapa del álbum: lomo cosido, título con relieve, estrellitas y el contador de figuritas pegadas
+const CAUTION = "bg-[repeating-linear-gradient(45deg,#eab308,#eab308_12px,#090d16_12px,#090d16_24px)]";
+
+// Cabecera del álbum con la estética del juego: panel oscuro con cinta de precaución, balizas de patrullero,
+// logo, título dorado, sello de goma y el contador de figuritas como barra de cinta policial
 export default function AlbumCover({ pasted, total }: Props) {
   const complete = pasted === total;
+
   return (
-    <header className="relative mb-6 overflow-hidden rounded-xl border-4 border-[#0b2547] bg-[linear-gradient(135deg,#1d4e89,#123a6b_55%,#0b2547)] py-6 pl-10 pr-4 sm:pl-14 text-center text-[#FFF3C7] shadow-[0_14px_30px_rgba(0,0,0,0.45)]">
-      {/* Lomo con costura */}
-      <div className="absolute inset-y-0 left-0 w-6 sm:w-9 bg-[linear-gradient(90deg,#071a33,#0e2f58)] shadow-[inset_-3px_0_6px_rgba(0,0,0,0.5)]" aria-hidden>
-        <span className="absolute inset-y-2 right-1.5 border-r-2 border-dashed border-[#ffd447]/50" />
-      </div>
-      {/* Franja celeste y blanca de fondo */}
-      <div className="absolute inset-x-0 top-1/2 h-10 -translate-y-1/2 bg-[linear-gradient(180deg,rgba(116,185,232,0.18)_0_33%,rgba(255,255,255,0.12)_33%_66%,rgba(116,185,232,0.18)_66%)]" aria-hidden />
-      {STARS.map((s) => (
-        <span key={s.left} className={`${styles.twinkle} absolute text-[#ffd447] text-xs`} style={{ left: s.left, top: s.top, animationDelay: s.delay }} aria-hidden>
-          ★
-        </span>
-      ))}
+    <header className="relative mb-6 overflow-hidden rounded-2xl border-2 border-yellow-500/50 bg-[#0c1421] text-[#FFF3C7] shadow-[0_18px_40px_rgba(0,0,0,0.75),0_0_24px_rgba(234,179,8,0.15)]">
+      {/* Balizas: resplandor rojo y azul en las esquinas de arriba */}
+      <div className={`${styles.sirenRed} pointer-events-none absolute -top-16 -left-16 size-48 rounded-full bg-red-600 blur-3xl`} aria-hidden />
+      <div className={`${styles.sirenBlue} pointer-events-none absolute -top-16 -right-16 size-48 rounded-full bg-blue-600 blur-3xl`} aria-hidden />
 
-      <p className="relative text-[10px] tracking-[0.3em] text-[#ffd447]">CRÍMENES ARGENTINOS</p>
-      <h1 className="relative mt-2 text-lg sm:text-2xl leading-relaxed [text-shadow:0_4px_0_#071a33,0_0_18px_rgba(255,212,71,0.35)]">
-        ÁLBUM OFICIAL DE SOSPECHOSOS
-      </h1>
+      {/* Cinta de precaución arriba y abajo */}
+      <div className={`h-2.5 ${CAUTION}`} aria-hidden />
 
-      {/* Contador de la colección */}
-      <div className="relative mx-auto mt-4 max-w-xs">
-        <div className="flex justify-between text-[10px]">
-          <span>PEGADAS</span>
-          <span className="font-mono text-xs font-bold">
-            {pasted}/{total}
-          </span>
+      <div className="relative grid items-center gap-4 px-4 py-5 sm:grid-cols-[auto_1fr_auto] sm:gap-6 sm:px-8 sm:py-6">
+        <Image
+          src="/images/logofinal.png"
+          alt="Crímenes Argentinos"
+          width={600}
+          height={400}
+          priority
+          className="mx-auto w-28 sm:w-36 h-auto drop-shadow-[0_6px_10px_rgba(0,0,0,0.7)]"
+        />
+
+        <div className="text-center sm:text-left">
+          <p className="text-[10px] tracking-[0.3em] text-amber-400/90">COLECCIÓN OFICIAL DE LA CENTRAL</p>
+          <h1 className="mt-2 text-lg sm:text-3xl leading-snug text-[#E1C380] [text-shadow:0_4px_0_#1E2A36,0_0_22px_rgba(225,195,128,0.35)]">
+            ÁLBUM DE SOSPECHOSOS
+          </h1>
+
+          {/* Contador: la barra se llena con cinta policial; completa, se vuelve dorada */}
+          <div className="mt-4 max-w-md mx-auto sm:mx-0">
+            <div className="flex items-baseline justify-between text-[10px]">
+              <span className="text-[#FFF3C7]/80">FIGURITAS PEGADAS</span>
+              <span className="text-sm text-[#E1C380]">
+                {pasted}
+                <span className="text-[#FFF3C7]/50">/{total}</span>
+              </span>
+            </div>
+            <div className="mt-1.5 h-4 overflow-hidden rounded-full border-2 border-[#1c2c3e] bg-[#070c16] shadow-inner">
+              <div
+                className={`${styles.progress} h-full rounded-full ${complete ? "bg-[#E1C380] shadow-[0_0_12px_rgba(225,195,128,0.7)]" : styles.tapeFill}`}
+                style={{ width: `${(pasted / total) * 100}%` }}
+              />
+            </div>
+            <p className={`mt-2 text-[10px] ${complete ? "text-[#E1C380]" : "text-amber-400"}`}>
+              {complete ? "★ ¡ÁLBUM COMPLETO! ★" : `TE FALTAN ${total - pasted} · ¡ABRÍ EL SOBRE!`}
+            </p>
+          </div>
         </div>
-        <div className="mt-1.5 h-3 overflow-hidden rounded-full border-2 border-[#071a33] bg-[#071a33]">
-          <div
-            className={`${styles.progress} h-full rounded-full ${complete ? "bg-[#ffd447]" : "bg-[#74b9e8]"}`}
-            style={{ width: `${(pasted / total) * 100}%` }}
-          />
+
+        {/* Sello de goma */}
+        <div
+          className={`${styles.stampWobble} hidden sm:flex size-28 shrink-0 flex-col items-center justify-center rounded-full border-4 border-red-600/80 text-center text-red-500 [text-shadow:0_0_6px_rgba(220,38,38,0.4)]`}
+          aria-hidden
+        >
+          <span className="text-[10px] leading-relaxed">EDICIÓN</span>
+          <span className="text-xs">ESPECIAL</span>
+          <span className="mt-1 text-[10px] tracking-widest">★★★</span>
         </div>
-        <p className={`mt-2 text-[10px] ${complete ? "text-[#ffd447]" : "text-[#FFF3C7]/70"}`}>
-          {complete ? "★ ¡ÁLBUM COMPLETO! ★" : `TE FALTAN ${total - pasted}`}
-        </p>
       </div>
+
+      <div className={`h-2.5 ${CAUTION}`} aria-hidden />
     </header>
   );
 }

@@ -8,6 +8,7 @@ import ReleasePreviewToggle from "../ReleasePreviewToggle";
 import { audioManager } from "@/lib/audioManager";
 import { useGalleryReleases } from "@/hooks/useGalleryReleases";
 import styles from "./muro.module.css";
+import GameBackdrop, { CautionBar, GAME_BG } from "../GameBackdrop";
 
 // Ladrillos dibujados con gradientes (sin imagen), oscurecidos por la noche
 const BRICKS =
@@ -50,8 +51,10 @@ export default function MuroScreen() {
   );
 
   return (
-    <div className="min-h-svh overflow-x-hidden bg-[#0b0c10] text-[#FFF3C7]">
-      <div className="max-w-6xl mx-auto">
+    <div className={`relative ${GAME_BG} min-h-svh overflow-x-hidden pt-6 sm:pt-8 text-[#FFF3C7]`}>
+      <GameBackdrop glow="245,158,11" />
+      <CautionBar className="max-w-6xl" />
+      <div className="relative max-w-6xl mx-auto">
         <StreetScene count={total} />
 
         <div className={`relative ${BRICKS} px-3.5 sm:px-6 py-8 sm:py-12`}>

@@ -1,9 +1,9 @@
 import type { GallerySuspect, SuspectRelease } from "@/lib/suspectReleases";
 
 /** Figuritas por página del álbum */
-export const PER_PAGE = 10;
+export const PER_PAGE = 8;
 
-/** Una hoja del álbum: un tramo de hasta 10 figuritas de un release */
+/** Una hoja del álbum: un tramo de hasta 8 figuritas de un release */
 export type AlbumLeaf = {
   release: SuspectRelease;
   suspects: GallerySuspect[];

@@ -7,6 +7,7 @@ import ObservationHero from "./ObservationHero";
 import ReleasePreviewToggle from "../ReleasePreviewToggle";
 import { audioManager } from "@/lib/audioManager";
 import { useGalleryReleases } from "@/hooks/useGalleryReleases";
+import GameBackdrop, { CautionBar, GAME_BG } from "../GameBackdrop";
 
 // Estado del intercomunicador: sin órdenes, alguien al frente o alguien que vuelve a la fila
 type IntercomState =
@@ -39,8 +40,10 @@ export default function RuedaScreen() {
   };
 
   return (
-    <div className="min-h-svh bg-[#0b0c0f] bg-[radial-gradient(ellipse_at_top,rgba(205,228,255,0.06),transparent_60%)] px-3 sm:px-6 py-8 sm:py-12 text-[#FFF3C7]">
-      <div className="max-w-6xl mx-auto">
+    <div className={`relative ${GAME_BG} min-h-svh px-3 sm:px-6 py-8 sm:py-12 text-[#FFF3C7]`}>
+      <GameBackdrop glow="120,170,255" />
+      <CautionBar className="max-w-6xl" />
+      <div className="relative max-w-6xl mx-auto">
         <ObservationHero />
         <Intercom message={message} seq={intercom.seq} speaking={intercom.seq > 0} />
 

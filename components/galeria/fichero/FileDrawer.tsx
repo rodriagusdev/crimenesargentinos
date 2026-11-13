@@ -11,13 +11,16 @@ type Props = {
   isNew: boolean;
   open: boolean;
   onToggle: () => void;
+  /** Nombre del sospechoso con el legajo abierto en el centro (su ficha queda como hueco) */
+  awayName: string | null;
+  onOpenCard: (suspect: SuspectRelease["suspects"][number], number: number, rect: DOMRect) => void;
 };
 
 const initial = (name: string) => name.normalize("NFD").charAt(0).toUpperCase();
 
 // Cajón del fichero: el frente con portaetiquetas, manija y cerradura; abierto, sale con profundidad y muestra
 // los separadores con letras y las fichas adentro
-export default function FileDrawer({ release, firstNumber, isNew, open, onToggle }: Props) {
+export default function FileDrawer({ release, firstNumber, isNew, open, onToggle, awayName, onOpenCard }: Props) {
   const letters = [...new Set(release.suspects.map((s) => initial(s.name)))].sort();
   const last = firstNumber + release.suspects.length - 1;
 
@@ -82,7 +85,15 @@ export default function FileDrawer({ release, firstNumber, isNew, open, onToggle
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 pt-2.5">
             {release.suspects.map((s, i) => (
-              <RecordCard key={s.name} suspect={s} number={firstNumber + i} isNew={isNew} order={i} />
+              <RecordCard
+                key={s.name}
+                suspect={s}
+                number={firstNumber + i}
+                isNew={isNew}
+                order={i}
+                away={awayName === s.name}
+                onOpen={(rect) => onOpenCard(s, firstNumber + i, rect)}
+              />
             ))}
           </div>
         </div>

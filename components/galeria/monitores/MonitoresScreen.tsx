@@ -7,6 +7,7 @@ import MonitorBank from "./MonitorBank";
 import ReleasePreviewToggle from "../ReleasePreviewToggle";
 import { audioManager } from "@/lib/audioManager";
 import { useGalleryReleases } from "@/hooks/useGalleryReleases";
+import GameBackdrop, { CautionBar, GAME_BG } from "../GameBackdrop";
 
 // Canal en la pantalla principal (0: ninguno) y contador de cambios para la ráfaga de estática
 type Tuner = { cam: number; seq: number };
@@ -34,8 +35,10 @@ export default function MonitoresScreen() {
   };
 
   return (
-    <div className="min-h-svh bg-[#0d0f12] bg-[radial-gradient(ellipse_at_top,rgba(61,255,122,0.07),transparent_60%)] px-3 sm:px-6 py-8 sm:py-12 text-[#d9dde3]">
-      <div className="max-w-6xl mx-auto flex flex-col gap-10">
+    <div className={`relative ${GAME_BG} min-h-svh px-3 sm:px-6 py-8 sm:py-12 text-[#d9dde3]`}>
+      <GameBackdrop glow="61,255,122" />
+      <CautionBar className="max-w-6xl" />
+      <div className="relative max-w-6xl mx-auto flex flex-col gap-10">
         <header className="text-center">
           <p className="text-[10px] tracking-[0.3em] text-[#3dff7a]">CENTRAL DE MONITOREO · TURNO NOCHE</p>
           <h1 className="mt-2 text-lg sm:text-2xl leading-relaxed [text-shadow:0_0_14px_rgba(61,255,122,0.35)]">SALA DE MONITORES</h1>

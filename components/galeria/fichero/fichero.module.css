@@ -53,14 +53,12 @@
 .card {
   transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.2), box-shadow 0.22s;
 }
-.card:hover {
-  transform: translateY(-10px) rotate(-1.2deg);
-  box-shadow: 0 18px 26px rgba(0, 0, 0, 0.5);
+.card {
+  transform-origin: 50% 0;
 }
-.cardPulled,
-.cardPulled:hover {
-  transform: translateY(-16px) scale(1.06) rotate(1.5deg);
-  box-shadow: 0 26px 34px rgba(0, 0, 0, 0.6);
+.card:hover {
+  transform: perspective(700px) rotateX(16deg) rotate(-1.5deg);
+  box-shadow: 0 22px 26px rgba(0, 0, 0, 0.5);
 }
 
 /* Sello "NUEVO" que cae de golpe */
@@ -113,5 +111,93 @@
   }
   .card {
     transition: none;
+  }
+}
+
+/* Ficha retirada: en el cajón solo queda el pedazo de cinta roto */
+.away {
+  opacity: 0;
+  pointer-events: none;
+}
+/* Cinta de papel que pega la ficha; rota, con el borde de abajo dentado */
+.tape {
+  background: linear-gradient(180deg, rgba(240, 228, 190, 0.92), rgba(222, 205, 160, 0.92));
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+.tapeTorn {
+  clip-path: polygon(0 0, 100% 0, 100% 45%, 90% 60%, 80% 42%, 68% 64%, 55% 40%, 44% 62%, 31% 44%, 20% 66%, 9% 45%, 0 58%);
+}
+
+/* Legajo en el centro. Afuera (vuelo, origen al centro): de la ficha al medio de la pantalla.
+   Adentro (arranque, bisagra en la cinta): se dobla hacia afuera, se arranca de un tirón y se endereza */
+.legajoFly {
+  animation: legajoFly 0.85s cubic-bezier(0.3, 0.9, 0.3, 1) both;
+}
+.legajoTear {
+  transform-origin: 50% 0;
+  animation: legajoTear 0.85s ease-out both;
+}
+.legajoFlyOut {
+  animation: legajoFlyOut 0.45s cubic-bezier(0.5, 0, 0.7, 0.4) both;
+}
+@keyframes legajoFly {
+  0%,
+  30% {
+    transform: translate(var(--dx), var(--dy)) scale(var(--s));
+  }
+  42% {
+    transform: translate(var(--dx), calc(var(--dy) - 30px)) scale(calc(var(--s) * 1.15)) rotate(-7deg);
+  }
+  100% {
+    transform: rotate(-1deg);
+  }
+}
+@keyframes legajoTear {
+  0% {
+    transform: perspective(800px) rotateX(0);
+  }
+  /* La ficha se dobla desde la cinta... */
+  24% {
+    transform: perspective(800px) rotateX(38deg);
+  }
+  /* ...y de un tirón se suelta */
+  32% {
+    transform: perspective(800px) rotateX(-10deg);
+  }
+  55% {
+    transform: perspective(800px) rotateX(6deg);
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes legajoFlyOut {
+  0% {
+    transform: rotate(-1deg);
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy)) scale(var(--s));
+    opacity: 0.6;
+  }
+}
+.dimIn {
+  animation: dimIn 0.4s ease-out both;
+}
+.dimOut {
+  animation: dimIn 0.4s ease-in reverse both;
+}
+@keyframes dimIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .legajoFly,
+  .legajoTear,
+  .legajoFlyOut,
+  .dimIn,
+  .dimOut {
+    animation-duration: 0.01s;
   }
 }

@@ -21,7 +21,7 @@ type Props = {
   onFlipEnd?: () => void;
 };
 
-// Hoja del álbum: lomo con sombra, encabezado del release y 10 casilleros (los que sobran quedan en blanco)
+// Hoja del álbum: lomo con sombra, encabezado del release y 8 casilleros (los que sobran quedan en blanco)
 export default function AlbumPage({ leaf, isNew, packet, onOpenPacket, flip, cast, onFlipEnd }: Props) {
   const { release, suspects, start, part, parts } = leaf;
   const sealed = isNew && (packet === "cerrado" || packet === "abriendo");
@@ -58,7 +58,7 @@ export default function AlbumPage({ leaf, isNew, packet, onOpenPacket, flip, cas
       </div>
 
       <div className="relative">
-        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-4">
+        <div className="grid grid-cols-2 min-[420px]:grid-cols-4 gap-2 sm:gap-4">
           {suspects.map((s, i) =>
             sealed ? (
               <StickerSlot key={s.name} number={start + i} />

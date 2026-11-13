@@ -1,28 +1,29 @@
 "use client";
 
-import { useState } from "react";
 import SuspectPhoto from "../SuspectPhoto";
-import { audioManager } from "@/lib/audioManager";
 import type { GallerySuspect } from "@/lib/suspectReleases";
 import styles from "./fichero.module.css";
 
-type Props = { suspect: GallerySuspect; number: number; isNew: boolean; order: number };
+type Props = {
+  suspect: GallerySuspect;
+  number: number;
+  isNew: boolean;
+  order: number;
+  /** Su legajo está abierto en el centro: en el cajón queda el hueco */
+  away: boolean;
+  onOpen: (rect: DOMRect) => void;
+};
 
-// Ficha de prontuario: número de legajo, foto y nombre. Se levanta al pasar y, con un clic, se saca del cajón.
+// Ficha de prontuario: número de legajo, foto y nombre. Se levanta al pasar y, con un clic, el legajo vuela al centro.
 // Las del release nuevo reciben el sello "NUEVO" de golpe, una tras otra.
-export default function RecordCard({ suspect, number, isNew, order }: Props) {
-  const [pulled, setPulled] = useState(false);
-
+export default function RecordCard({ suspect, number, isNew, order, away, onOpen }: Props) {
   return (
     <button
       type="button"
-      onClick={() => {
-        audioManager.play("opencasefile");
-        setPulled((p) => !p);
-      }}
-      aria-pressed={pulled}
-      className={`relative block w-full text-left cursor-pointer bg-[#f6f0de] text-[#2b2117] rounded-sm border border-[#cdbf9f] p-2 shadow-[0_6px_14px_rgba(0,0,0,0.35)] ${styles.card} ${
-        pulled ? styles.cardPulled : ""
+      onClick={(e) => onOpen(e.currentTarget.getBoundingClientRect())}
+      aria-label={`Abrir el legajo de ${suspect.name}`}
+      className={`relative block w-full text-left cursor-zoom-in bg-[#f6f0de] text-[#2b2117] rounded-sm border border-[#cdbf9f] p-2 shadow-[0_6px_14px_rgba(0,0,0,0.35)] ${styles.card} ${
+        away ? styles.away : ""
       }`}
     >
       {/* Solapa superior de la ficha */}

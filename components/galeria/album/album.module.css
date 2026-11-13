@@ -213,3 +213,56 @@
     transition: none;
   }
 }
+
+/* Cabecera: balizas de patrullero (roja y azul alternadas) */
+.sirenRed,
+.sirenBlue {
+  animation: siren 1.4s ease-in-out infinite;
+}
+.sirenBlue {
+  animation-delay: 0.7s;
+}
+@keyframes siren {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+/* Barra de progreso con rayas de precaución que avanzan */
+.tapeFill {
+  background: repeating-linear-gradient(45deg, #eab308 0 10px, #111827 10px 20px);
+  background-size: 28.28px 28.28px;
+  animation: tapeMove 1s linear infinite;
+}
+@keyframes tapeMove {
+  to {
+    background-position: 28.28px 0;
+  }
+}
+
+/* Sello de goma que se apoya levemente */
+.stampWobble {
+  animation: stampWobble 5s ease-in-out infinite;
+}
+@keyframes stampWobble {
+  0%,
+  100% {
+    transform: rotate(-12deg);
+  }
+  50% {
+    transform: rotate(-8deg) scale(1.04);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sirenRed,
+  .sirenBlue,
+  .tapeFill,
+  .stampWobble {
+    animation: none;
+  }
+}

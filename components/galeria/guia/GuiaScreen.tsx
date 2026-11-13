@@ -10,6 +10,7 @@ import { guideItems, thumbTargets } from "./guiaIndex";
 import { audioManager } from "@/lib/audioManager";
 import { useGalleryReleases } from "@/hooks/useGalleryReleases";
 import styles from "./guia.module.css";
+import GameBackdrop, { CautionBar, GAME_BG } from "../GameBackdrop";
 
 // Propuesta "Guía telefónica": un libro grueso sobre el escritorio, con uñero A–Z. Cada release es una edición;
 // cuando llega una nueva, el libro cae sobre la mesa y las altas se pintan con marcador.
@@ -29,8 +30,10 @@ export default function GuiaScreen() {
   };
 
   return (
-    <div className="min-h-svh overflow-x-clip bg-[#3b2f24] bg-[radial-gradient(ellipse_at_30%_0%,rgba(255,220,160,0.18),transparent_60%),repeating-linear-gradient(92deg,rgba(0,0,0,0.12)_0_3px,transparent_3px_22px,rgba(255,255,255,0.03)_22px_24px,transparent_24px_61px)] px-3 sm:px-6 py-8 sm:py-12">
-      <div className="max-w-5xl mx-auto">
+    <div className={`relative ${GAME_BG} min-h-svh overflow-x-clip px-3 sm:px-6 py-8 sm:py-12`}>
+      <GameBackdrop glow="245,158,11" />
+      <CautionBar className="max-w-5xl" />
+      <div className="relative max-w-5xl mx-auto">
         <GuiaDesk edition={edition} newRelease={newRelease} />
 
         <div key={edition} className={newRelease ? styles.dropIn : undefined}>
