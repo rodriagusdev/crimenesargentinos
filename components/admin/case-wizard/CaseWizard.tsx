@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import AdminIcon from "@/components/admin/AdminIcon";
-import { useCaseWizardCatalog } from "@/hooks/useCaseWizardCatalog";
+import { useCaseWizardCatalog, type CaseWizardCatalog } from "@/hooks/useCaseWizardCatalog";
 import { clearCaseDraft, loadCaseDraft, saveCaseDraft } from "@/lib/caseDraftStorage";
 import { EMPTY_CASE_DRAFT, emptyDialog, type CaseDraft } from "@/models/ICaseDraft";
 import { checkCaseDraft, createCaseFromDraft, CaseDraftRejectedError } from "@/services/caseAuthoringService";
@@ -26,6 +26,17 @@ interface Props {
   onClose: (created: boolean) => void;
 }
 
+function syncWitnesses(d: CaseDraft, catalog: CaseWizardCatalog): CaseDraft {
+  const ids = caseLocations(d, catalog).map((l) => l.id);
+  const keep = (id: string | null) => (id && ids.includes(id) ? id : null);
+  return {
+    ...d,
+    startLocationId: keep(d.startLocationId),
+    criminalLocationId: keep(d.criminalLocationId),
+    dialogs: ids.map((id) => d.dialogs.find((x) => x.locationId === id) ?? emptyDialog(id)),
+  };
+}
+
 // Asistente para crear un caso completo, paso a paso. El borrador se guarda en este navegador hasta crearlo
 export default function CaseWizard({ onClose }: Props) {
   const catalogState = useCaseWizardCatalog();
@@ -36,29 +47,17 @@ export default function CaseWizard({ onClose }: Props) {
   const [check, setCheck] = useState<CheckState>({ kind: "idle" });
   const [submit, setSubmit] = useState<SubmitState>({ kind: "idle" });
 
-  const update = useCallback((change: (d: CaseDraft) => CaseDraft) => setDraft(change), []);
+  const catalog = catalogState.kind === "ready" ? catalogState.catalog : null;
+
+  // Cada cambio deja un testigo por locación de las provincias elegidas (se agregan y se quitan con las provincias)
+  const update = useCallback(
+    (change: (d: CaseDraft) => CaseDraft) => setDraft((d) => (catalog ? syncWitnesses(change(d), catalog) : change(d))),
+    [catalog],
+  );
 
   useEffect(() => {
     if (submit.kind !== "saved") saveCaseDraft({ draft, step });
   }, [draft, step, submit.kind]);
-
-  // Un testigo por cada locación de las provincias elegidas (se agregan y se quitan al cambiar las provincias)
-  const catalog = catalogState.kind === "ready" ? catalogState.catalog : null;
-  useEffect(() => {
-    if (!catalog) return;
-    setDraft((d) => {
-      const ids = caseLocations(d, catalog).map((l) => l.id);
-      const same = ids.length === d.dialogs.length && ids.every((id) => d.dialogs.some((x) => x.locationId === id));
-      const keep = (id: string | null) => (id && ids.includes(id) ? id : null);
-      if (same && keep(d.startLocationId) === d.startLocationId && keep(d.criminalLocationId) === d.criminalLocationId) return d;
-      return {
-        ...d,
-        startLocationId: keep(d.startLocationId),
-        criminalLocationId: keep(d.criminalLocationId),
-        dialogs: ids.map((id) => d.dialogs.find((x) => x.locationId === id) ?? emptyDialog(id)),
-      };
-    });
-  }, [draft.provinces, catalog]);
 
   const runCheck = useCallback(async () => {
     setCheck({ kind: "checking" });

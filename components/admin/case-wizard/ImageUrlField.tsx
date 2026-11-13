@@ -2,6 +2,7 @@
 
 import { useState, type ChangeEvent } from "react";
 import AdminIcon from "@/components/admin/AdminIcon";
+import { API_URL, authHeaders, handleUnauthorized } from "@/lib/api";
 import { slugify, type CaseAssetKind } from "@/lib/caseAssetPaths";
 import { adminInputClass } from "./WizardField";
 
@@ -15,7 +16,7 @@ interface Props {
   hint?: string;
 }
 
-// URL de una imagen: se puede escribir la ruta o subir el archivo (queda en public/images/...)
+// URL de una imagen: se puede escribir una ruta de /images/... o subir el archivo al backend (queda en /uploads/...)
 export default function ImageUrlField({ label, value, onChange, kind, level, caseTitle, hint }: Props) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +34,10 @@ export default function ImageUrlField({ label, value, onChange, kind, level, cas
       formData.append("kind", kind);
       formData.append("level", String(level || 1));
       formData.append("slug", slugify(caseTitle || "caso"));
-      const response = await fetch("/api/admin/case-assets", { method: "POST", body: formData });
+      // Sin Content-Type: el navegador arma el multipart con su boundary
+      const { Authorization } = authHeaders() as Record<string, string>;
+      const response = await fetch(`${API_URL}/api/CaseAssets`, { method: "POST", headers: { Authorization }, body: formData });
+      handleUnauthorized(response);
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(payload?.error || "No se pudo guardar la imagen.");
       onChange(payload.url || null);
