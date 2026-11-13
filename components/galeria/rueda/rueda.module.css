@@ -1,0 +1,94 @@
+/* Rueda de reconocimiento: tubos fluorescentes, vidrio espejado, entrada de la rueda nueva y paso al frente */
+
+/* Tubo del techo que titila de vez en cuando */
+.tube {
+  animation: tube 7s linear infinite;
+}
+@keyframes tube {
+  0%, 88%, 91.5%, 95%, 100% { opacity: 1; }
+  89%, 91% { opacity: 0.25; }
+  96% { opacity: 0.55; }
+}
+
+/* Sombra sobre la pared cuando titila el tubo */
+.flicker {
+  animation: flicker 7s linear infinite;
+}
+@keyframes flicker {
+  0%, 88%, 91.5%, 95%, 100% { opacity: 0; }
+  89%, 91% { opacity: 0.45; }
+  96% { opacity: 0.25; }
+}
+
+/* Reflejo que se desliza sobre el vidrio espejado */
+.mirror {
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.07) 38%, transparent 45%, transparent 60%, rgba(255, 255, 255, 0.05) 64%, transparent 70%);
+  background-size: 220% 100%;
+  animation: sheen 14s ease-in-out infinite alternate;
+}
+@keyframes sheen {
+  from { background-position: 0% 0; }
+  to { background-position: 100% 0; }
+}
+
+/* Cada persona de la rueda nueva entra caminando desde la puerta */
+.walkIn {
+  animation: walkIn 1s cubic-bezier(0.25, 0.8, 0.3, 1) backwards;
+}
+@keyframes walkIn {
+  0% { transform: translateX(320%); opacity: 0; }
+  20% { opacity: 1; }
+  40% { transform: translateX(220%) translateY(-3px); }
+  60% { transform: translateX(120%) translateY(0); }
+  80% { transform: translateX(40%) translateY(-3px); }
+  100% { transform: none; opacity: 1; }
+}
+
+/* Paso al frente: se acerca al vidrio */
+.step {
+  transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.3), filter 0.35s ease;
+}
+.stepped {
+  transform: translateY(10px) scale(1.1);
+  filter: brightness(1.15) contrast(1.05);
+}
+
+/* Luz del intercomunicador mientras habla */
+.speaking {
+  animation: speaking 0.22s steps(2) 8;
+}
+@keyframes speaking {
+  50% { opacity: 0.25; }
+}
+/* Barras de la voz en el parlante */
+.bar {
+  transform-origin: bottom;
+  animation: bar 0.3s ease-in-out 6 alternate;
+}
+@keyframes bar {
+  from { transform: scaleY(0.25); }
+  to { transform: scaleY(1); }
+}
+/* El mensaje aparece como si lo tipeara la radio */
+.message {
+  animation: message 0.45s ease-out both;
+}
+@keyframes message {
+  from { opacity: 0; transform: translateX(-8px); letter-spacing: 0.08em; }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tube,
+  .flicker,
+  .mirror,
+  .walkIn,
+  .speaking,
+  .bar,
+  .message {
+    animation: none;
+  }
+  .step {
+    transition: none;
+  }
+}

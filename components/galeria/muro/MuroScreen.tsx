@@ -1,50 +1,98 @@
 "use client";
 
-import InterestPoster from "./InterestPoster";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Sidewalk from "./Sidewalk";
+import StreetScene from "./StreetScene";
+import WallStretch from "./WallStretch";
 import ReleasePreviewToggle from "../ReleasePreviewToggle";
+import { audioManager } from "@/lib/audioManager";
 import { useGalleryReleases } from "@/hooks/useGalleryReleases";
+import styles from "./muro.module.css";
 
-// Ladrillos dibujados con gradientes (sin imagen)
+// Ladrillos dibujados con gradientes (sin imagen), oscurecidos por la noche
 const BRICKS =
-  "bg-[#6e3526] bg-[linear-gradient(0deg,rgba(0,0,0,0.35)_2px,transparent_2px),linear-gradient(90deg,rgba(0,0,0,0.3)_2px,transparent_2px)] bg-[size:72px_32px,72px_64px]";
+  "bg-[#5a2b20] bg-[linear-gradient(0deg,rgba(0,0,0,0.35)_2px,transparent_2px),linear-gradient(90deg,rgba(0,0,0,0.3)_2px,transparent_2px)] bg-[size:72px_32px,72px_64px]";
 
-// Propuesta "Muro de carteles": un tramo de pared por release; el más nuevo arriba, bajo "RECIÉN LLEGADOS A LA CIUDAD"
+// Cada cuánto sopla una ráfaga que hace flamear un cartel al azar, y cuánto dura
+const GUST_EVERY_MS = 3800;
+const GUST_MS = 1200;
+
+// Propuesta "Muro de carteles": calle de noche con farol, un tramo de pared por release y la vereda mojada.
+// El release nuevo se pega con engrudo bajo "RECIÉN LLEGADOS A LA CIUDAD"
 export default function MuroScreen() {
   const { preview, togglePreview, releases, isNew } = useGalleryReleases();
+  // Cartel que está flameando ahora (por una ráfaga o porque lo tocaron)
+  const [gust, setGust] = useState<string | null>(null);
+  const calmTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const stampTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const total = releases.reduce((sum, r) => sum + r.suspects.length, 0);
+  const namesKey = releases.flatMap((r) => r.suspects.map((s) => s.name)).join("|");
+
+  const flutter = useCallback((name: string) => {
+    setGust(name);
+    if (calmTimer.current) clearTimeout(calmTimer.current);
+    calmTimer.current = setTimeout(() => setGust(null), GUST_MS);
+  }, []);
+
+  useEffect(() => {
+    const names = namesKey.split("|");
+    const id = setInterval(() => flutter(names[Math.floor(Math.random() * names.length)]), GUST_EVERY_MS);
+    return () => clearInterval(id);
+  }, [namesKey, flutter]);
+
+  useEffect(
+    () => () => {
+      if (calmTimer.current) clearTimeout(calmTimer.current);
+      if (stampTimer.current) clearTimeout(stampTimer.current);
+    },
+    [],
+  );
 
   return (
-    <div className={`min-h-svh ${BRICKS} px-3 sm:px-6 py-8 sm:py-12 text-[#FFF3C7]`}>
-      <div className="max-w-6xl mx-auto flex flex-col gap-10">
-        <header className="text-center">
-          <h1 className="inline-block px-5 py-3 bg-[#111]/80 text-lg sm:text-2xl leading-relaxed [text-shadow:0_3px_0_#000]">
-            PERSONAS DE INTERÉS
-          </h1>
-        </header>
+    <div className="min-h-svh overflow-x-hidden bg-[#0b0c10] text-[#FFF3C7]">
+      <div className="max-w-6xl mx-auto">
+        <StreetScene count={total} />
 
-        {releases.map((r) => {
-          const fresh = isNew(r);
-          return (
-            <section key={r.id} className="flex flex-col gap-6">
-              <div className="flex flex-wrap items-center justify-center gap-3">
-                {fresh ? (
-                  <h2 className="px-4 py-2 bg-[#ffd447] text-[#1b1813] text-xs sm:text-sm -rotate-1 shadow-[0_6px_14px_rgba(0,0,0,0.5)]">
-                    ¡RECIÉN LLEGADOS A LA CIUDAD!
-                  </h2>
-                ) : (
-                  <h2 className="px-4 py-2 bg-[#111]/70 text-[#FFF3C7]/80 text-[10px] sm:text-xs">{r.name.toUpperCase()}</h2>
-                )}
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-7 sm:gap-x-6">
-                {r.suspects.map((s, i) => (
-                  <InterestPoster key={s.name} suspect={s} index={i} isNew={fresh} />
-                ))}
-              </div>
-            </section>
-          );
-        })}
+        <div className={`relative ${BRICKS} px-3.5 sm:px-6 py-8 sm:py-12`}>
+          {/* Luz del farol sobre la pared y sombra de la noche en los bordes */}
+          <div
+            className={`${styles.flicker} absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_60%_40%_at_12%_0%,rgba(255,200,110,0.28),transparent_70%)]`}
+            aria-hidden
+          />
+          <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_50%_30%,transparent_40%,rgba(0,0,0,0.55))]" aria-hidden />
+
+          <div className="relative flex flex-col gap-12">
+            {releases.map((r) => (
+              <WallStretch
+                key={r.id}
+                release={r}
+                fresh={isNew(r)}
+                gust={gust}
+                onFlutter={(name) => {
+                  audioManager.play("slide", { volume: 0.5 });
+                  flutter(name);
+                }}
+              />
+            ))}
+          </div>
+        </div>
+
+        <Sidewalk />
       </div>
 
-      <ReleasePreviewToggle preview={preview} onToggle={togglePreview} />
+      <ReleasePreviewToggle
+        preview={preview}
+        onToggle={() => {
+          if (!preview) {
+            // Brochazo de engrudo y el cartelón que se estampa contra la pared
+            audioManager.play("slide");
+            if (stampTimer.current) clearTimeout(stampTimer.current);
+            stampTimer.current = setTimeout(() => audioManager.play("stamp"), 450);
+          }
+          togglePreview();
+        }}
+      />
     </div>
   );
 }

@@ -1,0 +1,165 @@
+/* Álbum de figuritas: brillos, vuelta de página, sobrecito y figuritas que se pegan */
+
+/* Brillo que cruza la figurita de vez en cuando (cada una con su demora, parece al azar) y al pasar el mouse */
+.shine {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, 0.65) 48%, rgba(255, 255, 255, 0) 60%);
+  background-size: 300% 100%;
+  background-position: 150% 0;
+  animation: shineSweep 9s ease-in-out infinite;
+}
+.sticker:hover .shine,
+.sticker:focus-visible .shine {
+  animation: shineSweep 0.9s ease-out 1;
+}
+@keyframes shineSweep {
+  0%,
+  88% {
+    background-position: 150% 0;
+  }
+  100% {
+    background-position: -50% 0;
+  }
+}
+
+/* Vuelta de página: entra girando desde el lomo */
+.turnNext {
+  transform-origin: left center;
+  animation: turnNext 0.55s cubic-bezier(0.25, 0.8, 0.3, 1) both;
+}
+.turnPrev {
+  transform-origin: right center;
+  animation: turnPrev 0.55s cubic-bezier(0.25, 0.8, 0.3, 1) both;
+}
+@keyframes turnNext {
+  from {
+    transform: perspective(1400px) rotateY(-70deg);
+    opacity: 0.2;
+    filter: brightness(0.6);
+  }
+  to {
+    transform: none;
+    opacity: 1;
+    filter: none;
+  }
+}
+@keyframes turnPrev {
+  from {
+    transform: perspective(1400px) rotateY(70deg);
+    opacity: 0.2;
+    filter: brightness(0.6);
+  }
+  to {
+    transform: none;
+    opacity: 1;
+    filter: none;
+  }
+}
+
+/* Sobrecito que flota esperando que lo abran */
+.packetIdle {
+  animation: packetBob 2.4s ease-in-out infinite;
+}
+@keyframes packetBob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(3deg);
+  }
+}
+/* Al abrirlo: tiembla, se rompe la solapa y se va */
+.packetOpening {
+  animation: packetShake 0.75s ease-in both;
+}
+@keyframes packetShake {
+  0% {
+    transform: rotate(-4deg);
+  }
+  15% {
+    transform: rotate(5deg) scale(1.05);
+  }
+  30% {
+    transform: rotate(-5deg) scale(1.05);
+  }
+  45% {
+    transform: rotate(0) scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(30px) scale(0.7);
+    opacity: 0;
+  }
+}
+.flapTear {
+  transform-origin: left bottom;
+  animation: flapTear 0.5s 0.3s ease-in both;
+}
+@keyframes flapTear {
+  to {
+    transform: translate(40px, -60px) rotate(35deg);
+    opacity: 0;
+  }
+}
+
+/* Figurita que se pega: baja girando, se aplasta y queda */
+.paste {
+  animation: paste 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.25) both;
+}
+@keyframes paste {
+  0% {
+    opacity: 0;
+    transform: translateY(-40px) rotate(-14deg) scale(1.35);
+    filter: drop-shadow(0 18px 14px rgba(0, 0, 0, 0.45));
+  }
+  70% {
+    opacity: 1;
+    transform: rotate(2deg) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Estrellitas de la tapa que titilan */
+.twinkle {
+  animation: twinkle 2.6s ease-in-out infinite;
+}
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.7);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+/* Barra de progreso que se llena al pegar */
+.progress {
+  transition: width 1.2s cubic-bezier(0.3, 0.8, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shine,
+  .sticker:hover .shine,
+  .sticker:focus-visible .shine,
+  .turnNext,
+  .turnPrev,
+  .packetIdle,
+  .packetOpening,
+  .flapTear,
+  .paste,
+  .twinkle {
+    animation: none;
+  }
+  .progress {
+    transition: none;
+  }
+}

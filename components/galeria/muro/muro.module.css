@@ -1,0 +1,136 @@
+/* Muro de carteles: animaciones propias del boceto (farol, llovizna, viento, engrudo) */
+
+/* Luz del farol que parpadea de forma irregular */
+.flicker {
+  animation: flicker 5.5s linear infinite;
+}
+@keyframes flicker {
+  0%, 18%, 22%, 61%, 64%, 100% { opacity: 1; }
+  19%, 21% { opacity: 0.35; }
+  20% { opacity: 0.8; }
+  62% { opacity: 0.5; }
+  63% { opacity: 0.9; }
+}
+
+/* Llovizna en diagonal */
+.drizzle {
+  background-image: repeating-linear-gradient(105deg, transparent 0 14px, rgba(190, 210, 255, 0.18) 14px 15px, transparent 15px 38px);
+  background-size: 200px 200px;
+  animation: drizzle 0.7s linear infinite;
+}
+@keyframes drizzle {
+  to { background-position: -54px 200px; }
+}
+
+/* Ventanas que se prenden y apagan (vecinos que se acuestan y se levantan) */
+.window {
+  animation: windowLight 14s steps(1) infinite;
+}
+@keyframes windowLight {
+  0%, 55% { opacity: 1; }
+  56%, 100% { opacity: 0.12; }
+}
+
+/* Cartel flameando con el viento (al pasar el mouse, al tocarlo o con una ráfaga) */
+.paper {
+  transform-origin: 50% 0;
+}
+.posterWrap:hover .paper,
+.gust .paper {
+  animation: flutter 1.1s ease-in-out;
+}
+@keyframes flutter {
+  0% { transform: none; }
+  20% { transform: perspective(500px) rotateX(14deg) skewX(-2deg); }
+  45% { transform: perspective(500px) rotateX(-6deg) skewX(1.5deg); }
+  70% { transform: perspective(500px) rotateX(5deg); }
+  100% { transform: none; }
+}
+
+/* Cartel nuevo que se pega con engrudo: se despliega de arriba hacia abajo */
+.pasted {
+  animation: paste 0.9s cubic-bezier(0.3, 0.7, 0.3, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+@keyframes paste {
+  from { clip-path: inset(0 0 100% 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+/* La brocha que acompaña el pegado */
+.brush {
+  animation: brush 1.1s cubic-bezier(0.3, 0.7, 0.3, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+@keyframes brush {
+  0% { top: -8%; opacity: 1; }
+  80% { top: 100%; opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+/* Brillo del engrudo todavía húmedo */
+.wet {
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.5) 45%, transparent 60%);
+  background-size: 260% 100%;
+  animation: wet 3.6s ease-in-out infinite;
+}
+@keyframes wet {
+  from { background-position: 130% 0; }
+  to { background-position: -130% 0; }
+}
+
+/* Cartelón "RECIÉN LLEGADOS" que se estampa contra la pared */
+.slap {
+  animation: slap 0.55s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+@keyframes slap {
+  from { opacity: 0; transform: scale(1.8) rotate(-8deg); }
+  to { opacity: 1; transform: rotate(-1deg); }
+}
+
+/* Gotas en los charcos de la vereda */
+.ripple {
+  animation: ripple 2.4s ease-out infinite;
+}
+@keyframes ripple {
+  from { transform: scale(0.2); opacity: 0.8; }
+  to { transform: scale(1.6); opacity: 0; }
+}
+
+/* Reflejo del farol en la vereda mojada */
+.shimmer {
+  animation: shimmer 3s ease-in-out infinite alternate;
+}
+@keyframes shimmer {
+  from { transform: scaleX(1); opacity: 0.75; }
+  to { transform: scaleX(1.4); opacity: 0.45; }
+}
+
+/* Diario viejo que cruza la vereda con el viento */
+.drift {
+  animation: drift 13s linear infinite;
+}
+@keyframes drift {
+  0% { left: -10%; transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-14px) rotate(160deg); }
+  50% { transform: translateY(2px) rotate(320deg); }
+  75% { transform: translateY(-8px) rotate(470deg); }
+  100% { left: 110%; transform: translateY(0) rotate(620deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flicker,
+  .drizzle,
+  .window,
+  .posterWrap:hover .paper,
+  .gust .paper,
+  .pasted,
+  .wet,
+  .slap,
+  .ripple,
+  .shimmer {
+    animation: none;
+  }
+  .brush,
+  .drift {
+    display: none;
+  }
+}

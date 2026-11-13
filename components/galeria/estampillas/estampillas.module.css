@@ -1,0 +1,138 @@
+/* Estampillas: dentado, marca de agua, lupa, pinza, matasellos y luz de la lámpara */
+
+/* Dentado real: agujeritos en el borde (la capa content-box tapa los del medio) */
+.perforated {
+  padding: 7px;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    radial-gradient(circle 3.5px, #0000 96%, #000) -6px -6px / 12px 12px round;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    radial-gradient(circle 3.5px, #0000 96%, #000) -6px -6px / 12px 12px round;
+}
+
+/* Marca de agua: soles tenues repetidos sobre el papel */
+.watermark {
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(120, 100, 70, 0.1) 0 3px, transparent 3.5px),
+    repeating-conic-gradient(from 0deg at 50% 50%, rgba(120, 100, 70, 0.06) 0 10deg, transparent 10deg 30deg);
+  background-size: 22px 22px;
+}
+
+/* Bolsillo de papel cristal (glassine) que sostiene la estampilla */
+.glassine {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.28) 30%, rgba(255, 255, 255, 0.35));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 -1px 0 rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(0.4px);
+}
+
+/* Estampilla levantada con la pinza */
+.lifted {
+  transform: translateY(-10px) rotate(-3deg) scale(1.05);
+  filter: drop-shadow(0 16px 12px rgba(0, 0, 0, 0.4));
+}
+.lift {
+  transition:
+    transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.2),
+    filter 0.25s;
+}
+.tweezers {
+  animation: tweezersIn 0.3s ease-out both;
+}
+@keyframes tweezersIn {
+  from {
+    transform: translate(30px, -30px) rotate(20deg);
+    opacity: 0;
+  }
+}
+
+/* Lupa: el círculo sigue al puntero (las variables las pone la estampilla) */
+.lens {
+  left: var(--lx, 50%);
+  top: var(--ly, 50%);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.6);
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
+}
+.photoArea:hover .lens {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+.lensInner {
+  width: var(--pw, 100px);
+  height: var(--ph, 100px);
+  left: calc(56px - var(--lx, 50px));
+  top: calc(56px - var(--ly, 50px));
+  transform-origin: var(--lx, 50%) var(--ly, 50%);
+  transform: scale(2.2);
+}
+@media (hover: none) {
+  .lens {
+    display: none;
+  }
+}
+
+/* Matasellos que cae de golpe sobre la serie nueva */
+.postmark {
+  animation: postmarkHit 0.45s cubic-bezier(0.3, 0, 0.4, 1.4) both;
+}
+@keyframes postmarkHit {
+  0% {
+    opacity: 0;
+    transform: scale(2.4) rotate(-30deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(0.94) rotate(-10deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(-12deg);
+  }
+}
+/* Tinta que se esparce al caer el sello */
+.inkSplash {
+  animation: inkSplash 0.6s 0.25s ease-out both;
+}
+@keyframes inkSplash {
+  from {
+    opacity: 0.5;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+/* Luz de la lámpara de escritorio que se mueve despacio sobre la mesa */
+.lamp {
+  background: radial-gradient(ellipse 45% 35% at 50% 50%, rgba(255, 226, 160, 0.16), transparent 70%);
+  animation: lampDrift 14s ease-in-out infinite alternate;
+}
+@keyframes lampDrift {
+  from {
+    transform: translate(-18%, -6%);
+  }
+  to {
+    transform: translate(18%, 8%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tweezers,
+  .postmark,
+  .inkSplash,
+  .lamp {
+    animation: none;
+  }
+  .postmark {
+    transform: rotate(-12deg);
+  }
+  .lift,
+  .lens {
+    transition: none;
+  }
+}
