@@ -195,14 +195,256 @@ body {
   80% { transform: translate(3px, 3px); }
 }
 
+/* Relámpago en la oscuridad inicial */
+.splash-lightning {
+  background: radial-gradient(ellipse at 70% 0%, rgba(210, 225, 255, 0.55), rgba(160, 180, 255, 0.12) 60%, transparent 85%);
+  opacity: 0;
+  animation: splashLightning 1.1s linear 0.2s both;
+}
+
+@keyframes splashLightning {
+  0%, 100% { opacity: 0; }
+  4% { opacity: 1; }
+  9% { opacity: 0.1; }
+  14% { opacity: 0.85; }
+  30% { opacity: 0; }
+}
+
+.splash-edge-red {
+  animation: splashPulse 1.2s ease-in-out infinite;
+}
+
+.splash-edge-blue {
+  animation: splashPulse 1.2s ease-in-out 0.6s infinite;
+}
+
+@keyframes splashPulse {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 1; }
+}
+
+/* Polvo flotando dentro del cono de luz */
+.splash-dust {
+  background-image:
+    radial-gradient(circle, rgba(255, 225, 160, 0.7) 0 1px, transparent 1.5px),
+    radial-gradient(circle, rgba(255, 225, 160, 0.45) 0 1px, transparent 1.5px);
+  background-size: 90px 110px, 140px 160px;
+  -webkit-mask: radial-gradient(ellipse 40% 55% at 50% 38%, #000 0%, transparent 80%);
+  mask: radial-gradient(ellipse 40% 55% at 50% 38%, #000 0%, transparent 80%);
+  animation: splashDust 14s linear infinite;
+}
+
+@keyframes splashDust {
+  from { background-position: 0 0, 30px 50px; }
+  to { background-position: 60px -220px, -50px -300px; }
+}
+
+/* Fotos de evidencia que caen sobre el escritorio */
+.splash-polaroid {
+  opacity: 0;
+  transform: translate(var(--from-x), var(--from-y)) rotate(calc(var(--rot) + 50deg)) scale(1.3);
+  transition:
+    transform 0.75s cubic-bezier(0.2, 0.8, 0.3, 1.1),
+    opacity 0.3s ease;
+}
+
+.splash-polaroid--in {
+  opacity: 0.92;
+  transform: translate(0, 0) rotate(var(--rot)) scale(1);
+}
+
+/* Look de cinta de vigilancia */
+.splash-scanlines {
+  background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px);
+  mix-blend-mode: multiply;
+}
+
+.splash-grain {
+  opacity: 0.09;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: splashGrain 0.5s steps(4) infinite;
+}
+
+@keyframes splashGrain {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-3%, 2%); }
+  50% { transform: translate(2%, -3%); }
+  75% { transform: translate(-2%, -1%); }
+  100% { transform: translate(3%, 2%); }
+}
+
+.splash-teletype {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 23ch;
+  animation: splashTeletype 1.2s steps(23, end) 0.3s both;
+}
+
+@keyframes splashTeletype {
+  from { width: 0; }
+  to { width: 23ch; }
+}
+
+.splash-rec {
+  animation: splashBlink 1s steps(1, end) infinite;
+}
+
+/* Sol de Mayo: rayos dorados girando detrás del escudo */
+.splash-sunrays {
+  translate: -50% -50%;
+  background: repeating-conic-gradient(from 0deg, rgba(255, 205, 90, 0.38) 0deg 7deg, transparent 7deg 18deg);
+  -webkit-mask: radial-gradient(circle, #000 15%, transparent 62%);
+  mask: radial-gradient(circle, #000 15%, transparent 62%);
+  opacity: 0;
+  animation:
+    splashFadeIn 0.8s ease 0.6s forwards,
+    splashSpin 24s linear infinite;
+}
+
+@keyframes splashSpin {
+  to { rotate: 360deg; }
+}
+
+@keyframes splashFadeIn {
+  to { opacity: 1; }
+}
+
+.splash-bloom {
+  background: radial-gradient(circle at 50% 50%, rgba(255, 245, 210, 0.95), rgba(255, 200, 90, 0.4) 35%, transparent 70%);
+  opacity: 0;
+  animation: splashBloom 0.9s ease-out 0.5s both;
+}
+
+@keyframes splashBloom {
+  0% { opacity: 0; transform: scale(0.4); }
+  25% { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.6); }
+}
+
+/* Flash de cámara forense al salir */
+.splash-camera-flash {
+  animation: splashCameraFlash 0.45s ease-out both;
+}
+
+@keyframes splashCameraFlash {
+  0% { opacity: 0.95; }
+  100% { opacity: 0; }
+}
+
+/* Fondo: ventana, persiana y objetos del escritorio */
+.splash-glass-rain {
+  background-image:
+    repeating-linear-gradient(92deg, transparent 0 14px, rgba(200, 220, 255, 0.10) 14px 15px),
+    radial-gradient(circle, rgba(200, 220, 255, 0.25) 0 1.5px, transparent 2px);
+  background-size: 100% 100%, 46px 58px;
+  animation: splashGlassRain 1.6s linear infinite;
+}
+
+@keyframes splashGlassRain {
+  from { background-position: 0 0, 0 0; }
+  to { background-position: 0 0, 6px 58px; }
+}
+
+.splash-windows rect {
+  animation: splashWindowFlicker 5s steps(1, end) infinite;
+}
+
+.splash-windows rect:nth-child(3n) { animation-delay: 1.3s; }
+.splash-windows rect:nth-child(3n + 1) { animation-delay: 2.7s; }
+
+@keyframes splashWindowFlicker {
+  0%, 70% { opacity: 0.85; }
+  72%, 80% { opacity: 0.15; }
+  82%, 100% { opacity: 0.85; }
+}
+
+.splash-blinds {
+  background: repeating-linear-gradient(
+    -18deg,
+    transparent 0 26px,
+    rgba(255, 200, 120, 0.06) 26px 44px
+  );
+  -webkit-mask: linear-gradient(100deg, transparent 5%, #000 35%, #000 70%, transparent 95%);
+  mask: linear-gradient(100deg, transparent 5%, #000 35%, #000 70%, transparent 95%);
+}
+
+.splash-string path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: splashDrawString 1.2s ease-out 1.1s forwards;
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.6));
+}
+
+.splash-string path:nth-child(2) { animation-delay: 1.4s; }
+.splash-string path:nth-child(3) { animation-delay: 1.6s; }
+.splash-string path:nth-child(4) { animation-delay: 1.8s; }
+
+@keyframes splashDrawString {
+  to { stroke-dashoffset: 0; }
+}
+
+.splash-smoke,
+.splash-steam {
+  background: radial-gradient(ellipse at 50% 100%, rgba(220, 220, 230, 0.35), transparent 70%);
+  filter: blur(4px);
+  transform-origin: bottom center;
+  animation: splashSmoke 3.2s ease-in-out infinite;
+}
+
+.splash-steam {
+  animation-duration: 2.4s;
+  opacity: 0.7;
+}
+
+@keyframes splashSmoke {
+  0% { transform: translateY(8px) scaleX(0.5) skewX(0deg); opacity: 0; }
+  30% { opacity: 1; }
+  60% { transform: translateY(-6px) scaleX(1) skewX(12deg); }
+  100% { transform: translateY(-20px) scaleX(1.4) skewX(-10deg); opacity: 0; }
+}
+
+.splash-ember {
+  animation: splashEmber 1.4s ease-in-out infinite;
+  box-shadow: 0 0 6px rgba(255, 120, 30, 0.9);
+}
+
+@keyframes splashEmber {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .splash-rain,
   .splash-siren,
   .splash-lamp,
   .splash-shine,
   .splash-shake,
-  .splash-stamp-slam {
+  .splash-stamp-slam,
+  .splash-lightning,
+  .splash-edge-red,
+  .splash-edge-blue,
+  .splash-dust,
+  .splash-grain,
+  .splash-teletype,
+  .splash-bloom,
+  .splash-camera-flash,
+  .splash-glass-rain,
+  .splash-windows rect,
+  .splash-smoke,
+  .splash-steam,
+  .splash-ember {
     animation: none;
+  }
+  .splash-string path {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+  .splash-sunrays {
+    animation: splashFadeIn 0.01s forwards;
+  }
+  .splash-polaroid {
+    transition-duration: 0.01s;
   }
   .splash-cover,
   .splash-logo {

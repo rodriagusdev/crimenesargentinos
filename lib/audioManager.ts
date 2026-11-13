@@ -16,7 +16,8 @@ export type SfxType =
   | "winning"
   | "victory"
   | "slide"
-  | "mechanickey";
+  | "mechanickey"
+  | "radio";
 
 interface SoundOptions {
   volume?: number;       // 0.0 to 1.0 multiplier for this play instance
@@ -81,6 +82,7 @@ class AudioManager {
     victory: "/sounds/winning.ogg",
     slide: "/sounds/slide.ogg",
     mechanickey: "/sounds/mechanickey.ogg",
+    radio: "/sounds/radiodistante.ogg",
   };
 
   constructor() {

@@ -1,94 +1,56 @@
 "use client";
 
 import { useCallback, useEffect, useReducer } from "react";
-import { audioManager } from "@/lib/audioManager";
+import { audioManager, SfxType } from "@/lib/audioManager";
 
-export const CASE_LABEL = "EXPTE. N° 0001 — REP. ARGENTINA";
+// Un paso de la animación de un splash: cuánto dura y qué sonido dispara al empezar
+export type SplashStep = { ms: number; sfx?: SfxType };
 
-// Máquina de estados del splash: cada fase avanza sola por tiempo, o el jugador la saltea.
-export type SplashState =
-  | { phase: "dark" }
-  | { phase: "lamp" }
-  | { phase: "typing"; typed: number }
-  | { phase: "opening" }
-  | { phase: "ready" }
-  | { phase: "exiting" };
+// Máquina de estados común a todos los splash: se reproducen los pasos, queda esperando una tecla y sale
+export type SplashState = { phase: "playing"; step: number } | { phase: "ready" } | { phase: "exiting" };
 
-export type SplashPhase = SplashState["phase"];
-
-const PHASE_ORDER: SplashPhase[] = ["dark", "lamp", "typing", "opening", "ready", "exiting"];
-
-/** true si la secuencia ya llegó (o pasó) la fase indicada */
-export function reached(state: SplashState, phase: SplashPhase): boolean {
-  return PHASE_ORDER.indexOf(state.phase) >= PHASE_ORDER.indexOf(phase);
-}
-
-type SplashAction = { type: "next" } | { type: "type" } | { type: "skip" } | { type: "exit" };
+type SplashAction = { type: "next"; total: number } | { type: "skip" } | { type: "exit" };
 
 function reducer(state: SplashState, action: SplashAction): SplashState {
   switch (action.type) {
     case "next":
-      if (state.phase === "dark") return { phase: "lamp" };
-      if (state.phase === "lamp") return { phase: "typing", typed: 0 };
-      if (state.phase === "typing") return { phase: "opening" };
-      if (state.phase === "opening") return { phase: "ready" };
-      return state;
-    case "type":
-      return state.phase === "typing" ? { phase: "typing", typed: state.typed + 1 } : state;
+      if (state.phase !== "playing") return state;
+      return state.step + 1 < action.total ? { phase: "playing", step: state.step + 1 } : { phase: "ready" };
     case "skip":
-      return reached(state, "ready") ? state : { phase: "ready" };
+      return state.phase === "playing" ? { phase: "ready" } : state;
     case "exit":
       return state.phase === "exiting" ? state : { phase: "exiting" };
   }
 }
 
-const DARK_MS = 1100;
-const LAMP_MS = 900;
-const KEY_MS = 50;
-const OPENING_MS = 1500;
+/** Paso actual de la animación; al saltear o terminar vale `total` (todo revelado) */
+export function progressOf(state: SplashState, total: number): number {
+  return state.phase === "playing" ? state.step : total;
+}
+
 const EXIT_MS = 900;
 
-export function useSplashSequence(onFinish: () => void) {
-  const [state, dispatch] = useReducer(reducer, { phase: "dark" });
+export function useSplashSequence(steps: SplashStep[], onFinish: () => void) {
+  const [state, dispatch] = useReducer(reducer, { phase: "playing", step: 0 });
 
   useEffect(() => {
-    let timer: ReturnType<typeof setTimeout> | undefined;
-
-    switch (state.phase) {
-      case "dark":
-        timer = setTimeout(() => dispatch({ type: "next" }), DARK_MS);
-        break;
-      case "lamp":
-        audioManager.play("click", { playbackRate: 0.6 });
-        timer = setTimeout(() => dispatch({ type: "next" }), LAMP_MS);
-        break;
-      case "typing":
-        if (state.typed < CASE_LABEL.length) {
-          timer = setTimeout(() => {
-            if (CASE_LABEL[state.typed] !== " ") audioManager.play("typewriter");
-            dispatch({ type: "type" });
-          }, KEY_MS);
-        } else {
-          timer = setTimeout(() => dispatch({ type: "next" }), 350);
-        }
-        break;
-      case "opening":
-        audioManager.play("opencasefile");
-        timer = setTimeout(() => dispatch({ type: "next" }), OPENING_MS);
-        break;
-      case "exiting":
-        audioManager.play("stamp");
-        timer = setTimeout(onFinish, EXIT_MS);
-        break;
+    if (state.phase === "playing") {
+      const step = steps[state.step];
+      if (step.sfx) audioManager.play(step.sfx);
+      const timer = setTimeout(() => dispatch({ type: "next", total: steps.length }), step.ms);
+      return () => clearTimeout(timer);
     }
-
-    return () => clearTimeout(timer);
-  }, [state, onFinish]);
+    if (state.phase === "exiting") {
+      audioManager.play("stamp");
+      const timer = setTimeout(onFinish, EXIT_MS);
+      return () => clearTimeout(timer);
+    }
+  }, [state, steps, onFinish]);
 
   // Cualquier tecla o clic: primero saltea la animación, después entra al cuartel. Escape sale directo.
   const advance = useCallback(() => {
-    dispatch(reached(state, "ready") ? { type: "exit" } : { type: "skip" });
-  }, [state]);
+    dispatch(state.phase === "playing" ? { type: "skip" } : { type: "exit" });
+  }, [state.phase]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -100,5 +62,5 @@ export function useSplashSequence(onFinish: () => void) {
     return () => window.removeEventListener("keydown", onKey);
   }, [advance]);
 
-  return { state, advance };
+  return { state, progress: progressOf(state, steps.length), advance };
 }

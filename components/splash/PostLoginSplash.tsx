@@ -1,13 +1,15 @@
 "use client";
 
 import { useCallback, useState, useSyncExternalStore } from "react";
-import CaseFolder from "./CaseFolder";
-import { reached, useSplashSequence } from "@/hooks/useSplashSequence";
-import { clearSplashPending, isSplashPending } from "@/lib/splashStorage";
+import { useSplashSequence } from "@/hooks/useSplashSequence";
+import { clearSplashPending, isSplashPending, pickSplashVariant } from "@/lib/splashStorage";
+import { getUserIdentity } from "@/lib/auth";
+import { SPLASH_VARIANTS, SPLASH_VARIANT_IDS } from "./variants";
+import type { SplashVariant } from "./variants/types";
 
 const noopSubscribe = () => () => {};
 
-// Muestra el splash "Expediente Clasificado" una sola vez, justo después del login
+// Muestra un splash al azar una sola vez, justo después del login
 export default function PostLoginSplash() {
   const pending = useSyncExternalStore(noopSubscribe, isSplashPending, () => false);
   const [done, setDone] = useState(false);
@@ -18,12 +20,18 @@ export default function PostLoginSplash() {
   }, []);
 
   if (!pending || done) return null;
-  return <SplashScene onFinish={finish} />;
+  return <SplashShell onFinish={finish} />;
 }
 
-function SplashScene({ onFinish }: { onFinish: () => void }) {
-  const { state, advance } = useSplashSequence(onFinish);
+function SplashShell({ onFinish }: { onFinish: () => void }) {
+  const [variant] = useState<SplashVariant>(() => SPLASH_VARIANTS[pickSplashVariant(SPLASH_VARIANT_IDS)]);
+  const [agentName] = useState(() => getUserIdentity().name.toUpperCase() || "DETECTIVE");
+  const [steps] = useState(() => variant.steps(agentName));
+  const { state, progress, advance } = useSplashSequence(steps, onFinish);
+
   const exiting = state.phase === "exiting";
+  const revealed = state.phase !== "playing";
+  const { Scene } = variant;
 
   return (
     <div
@@ -34,30 +42,26 @@ function SplashScene({ onFinish }: { onFinish: () => void }) {
         exiting ? "splash-shake opacity-0 delay-300" : "opacity-100"
       }`}
     >
-      {/* Lluvia sobre la ventana */}
-      <div className="splash-rain absolute inset-0 pointer-events-none" aria-hidden />
+      <Scene progress={progress} total={steps.length} exiting={exiting} agentName={agentName} />
 
-      {/* Destello de patrullero que cruza la oscuridad */}
-      <div className="splash-siren absolute inset-0 pointer-events-none" aria-hidden />
-
-      {/* Cono de luz de la lámpara */}
-      <div
-        className={`absolute inset-0 pointer-events-none transition-opacity duration-300 ${
-          reached(state, "lamp") ? "splash-lamp opacity-100" : "opacity-0"
-        }`}
-        aria-hidden
-      >
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_55%_65%_at_50%_38%,rgba(255,196,110,0.32)_0%,rgba(255,170,80,0.10)_45%,transparent_75%)]" />
+      {/* Textura de video viejo, común a todos los splash */}
+      <div className="absolute inset-0 pointer-events-none" aria-hidden>
+        <div className="splash-scanlines absolute inset-0" />
+        <div className="splash-grain absolute -inset-[50%]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(0,0,0,0.85)_100%)]" />
       </div>
 
-      {/* Escritorio */}
-      <div className="absolute bottom-0 inset-x-0 h-[38%] bg-gradient-to-b from-[#2a1a0f] to-[#120a05] shadow-[inset_0_12px_30px_rgba(0,0,0,0.6)]" aria-hidden />
-
-      <div className="relative z-10 h-full flex flex-col items-center justify-center gap-10 px-4">
-        <CaseFolder state={state} />
-
+      {/* Bienvenida e invitación a entrar */}
+      <div className="absolute bottom-[6%] inset-x-0 z-20 flex flex-col items-center gap-3 px-4 text-center pointer-events-none">
         <p
-          className={`text-[10px] sm:text-sm tracking-widest text-[#FFF3C7] text-center [text-shadow:_0_2px_0_#1E2A36] transition-opacity duration-500 ${
+          className={`text-xs sm:text-lg tracking-widest text-[#E1C380] [text-shadow:_0_3px_0_#1E2A36,0_0_18px_rgba(225,195,128,0.45)] transition-all duration-500 ${
+            revealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
+          }`}
+        >
+          BIENVENIDO, AGENTE {agentName}
+        </p>
+        <p
+          className={`text-[9px] sm:text-xs tracking-widest text-[#FFF3C7] [text-shadow:_0_2px_0_#1E2A36] transition-opacity duration-500 ${
             state.phase === "ready" ? "splash-blink opacity-100" : "opacity-0"
           }`}
         >
@@ -65,10 +69,22 @@ function SplashScene({ onFinish }: { onFinish: () => void }) {
         </p>
       </div>
 
-      {!reached(state, "ready") && (
-        <span className="absolute bottom-4 right-4 z-10 text-[8px] sm:text-[10px] tracking-widest text-[#FFF3C7]/40">
+      {!revealed && (
+        <span className="absolute bottom-4 right-4 z-20 text-[8px] sm:text-[10px] tracking-widest text-[#FFF3C7]/40">
           CLIC PARA SALTAR
         </span>
+      )}
+
+      {/* Sello y flash de cámara forense al entrar */}
+      {exiting && (
+        <>
+          <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
+            <span className="splash-stamp-slam px-4 py-2 border-4 border-double border-red-700 text-red-700 text-sm sm:text-2xl tracking-widest bg-[#f4efe2]/80">
+              EN INVESTIGACIÓN
+            </span>
+          </div>
+          <div className="splash-camera-flash absolute inset-0 z-30 bg-white pointer-events-none" aria-hidden />
+        </>
       )}
     </div>
   );
