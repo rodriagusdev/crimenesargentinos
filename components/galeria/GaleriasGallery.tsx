@@ -11,7 +11,7 @@ export default function GaleriasGallery() {
           <Image src="/images/logofinal.png" alt="Crímenes Argentinos" width={600} height={400} priority className="w-48 sm:w-56 h-auto" />
           <h1 className="text-base sm:text-xl leading-relaxed">Pantalla de sospechosos</h1>
           <p className="max-w-2xl font-mono text-base sm:text-lg text-[#FFF3C7]/70">
-            Tres propuestas para mostrar a los sospechosos de cada release (solo foto y nombre). Adentro de cada una, el botón
+            Once propuestas para mostrar a los sospechosos de cada release (solo foto y nombre). Adentro de cada una, el botón
             “SIMULAR RELEASE 2” agrega un release de muestra para ver cómo se destacan los nuevos.
           </p>
         </header>

@@ -1,4 +1,18 @@
 import { API_URL, authHeaders, handleUnauthorized } from "@/lib/api";
+import { defineMessages, translate } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: {
+    sessionExpired: "La sesión venció. Volvé a iniciar sesión.",
+    notAdmin: "No tenés permisos de administrador.",
+    noSession: "No hay una sesión iniciada.",
+  },
+  en: {
+    sessionExpired: "Your session expired. Log in again.",
+    notAdmin: "You don't have admin permissions.",
+    noSession: "You're not logged in.",
+  },
+});
 
 export type AdminRow = Record<string, unknown>;
 
@@ -28,8 +42,8 @@ async function readErrorMessage(response: Response): Promise<string> {
     // respuesta sin cuerpo JSON
   }
 
-  if (response.status === 401) return "La sesión venció. Volvé a iniciar sesión.";
-  if (response.status === 403) return "No tenés permisos de administrador.";
+  if (response.status === 401) return translate(messages, "sessionExpired");
+  if (response.status === 403) return translate(messages, "notAdmin");
   return response.statusText || `Error ${response.status}`;
 }
 
@@ -38,7 +52,7 @@ async function request<T>(method: "GET" | "POST" | "PUT" | "DELETE", path: strin
   try {
     headers = authHeaders();
   } catch {
-    throw new AdminApiError(401, "No hay una sesión iniciada.");
+    throw new AdminApiError(401, translate(messages, "noSession"));
   }
 
   const response = await fetch(`${API_URL}${path}`, {

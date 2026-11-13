@@ -3,21 +3,26 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ReactNode, useMemo } from "react";
-import { adminTables } from "@/lib/adminTables";
+import { adminGroups, adminGroupTitles, adminTables, type AdminGroup } from "@/lib/adminTables";
 import { getUserIdentity } from "@/lib/auth";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
+import { useT } from "@/hooks/useT";
+import { useLocale } from "@/stores/useLocaleStore";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
+import { adminShellMessages } from "./AdminShell.messages";
 import AdminIcon, { AdminIconName } from "./AdminIcon";
 
-const groupIcons: Record<string, AdminIconName> = {
-  Casos: "folder",
-  Mapa: "map",
-  Diálogos: "chat",
-  Sospechosos: "user",
+const groupIcons: Record<AdminGroup, AdminIconName> = {
+  cases: "folder",
+  map: "map",
+  dialogs: "chat",
+  suspects: "user",
 };
 
 // Marco del panel: barra lateral con las tablas agrupadas, barra superior con la ruta y control de acceso por rol
 export default function AdminShell({ children }: { children: ReactNode }) {
+  const t = useT(adminShellMessages);
+  const locale = useLocale();
   const allowed = useAdminGuard();
   const pathname = usePathname();
   const router = useRouter();
@@ -27,12 +32,11 @@ export default function AdminShell({ children }: { children: ReactNode }) {
   if (!allowed) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0a0f18] text-slate-400 text-sm">
-        Verificando permisos...
+        {t("checking")}
       </div>
     );
   }
 
-  const groups = Array.from(new Set(adminTables.map((t) => t.group)));
   const current = adminTables.find((t) => pathname === `/admin/${t.key}`);
 
   const logout = () => {
@@ -54,7 +58,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
           <span className="size-8 rounded-lg bg-[#E1C380] text-[#0a0f18] text-xs font-bold flex items-center justify-center">CA</span>
           <span className="flex flex-col leading-tight">
             <span className="text-sm font-semibold text-slate-100">Crímenes Argentinos</span>
-            <span className="text-[11px] text-slate-500">Administración</span>
+            <span className="text-[11px] text-slate-500">{t("administration")}</span>
           </span>
         </Link>
 
@@ -66,29 +70,29 @@ export default function AdminShell({ children }: { children: ReactNode }) {
             }`}
           >
             <AdminIcon name="home" />
-            Inicio
+            {t("home")}
           </Link>
 
-          {groups.map((group) => (
+          {adminGroups.map((group) => (
             <div key={group} className="flex flex-col gap-0.5">
               <span className="flex items-center gap-2 px-3 mb-1 text-[11px] font-medium uppercase tracking-wider text-slate-500">
-                <AdminIcon name={groupIcons[group] ?? "folder"} className="size-3.5" />
-                {group}
+                <AdminIcon name={groupIcons[group]} className="size-3.5" />
+                {adminGroupTitles[group][locale]}
               </span>
               {adminTables
-                .filter((t) => t.group === group)
-                .map((t) => {
-                  const active = current?.key === t.key;
+                .filter((table) => table.group === group)
+                .map((table) => {
+                  const active = current?.key === table.key;
                   return (
                     <Link
-                      key={t.key}
-                      href={`/admin/${t.key}`}
+                      key={table.key}
+                      href={`/admin/${table.key}`}
                       className={`relative px-3 py-1.5 pl-8 rounded-md text-sm transition-colors ${
                         active ? "bg-[#E1C380]/10 text-[#E1C380] font-medium" : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.03]"
                       }`}
                     >
                       {active && <span className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-0.5 rounded-full bg-[#E1C380]" />}
-                      {t.title}
+                      {table.title[locale]}
                     </Link>
                   );
                 })}
@@ -102,17 +106,17 @@ export default function AdminShell({ children }: { children: ReactNode }) {
               {identity.name.slice(0, 2) || "AD"}
             </span>
             <span className="min-w-0 flex flex-col leading-tight">
-              <span className="text-sm text-slate-200 truncate">{identity.name || "Administrador"}</span>
+              <span className="text-sm text-slate-200 truncate">{identity.name || t("admin")}</span>
               <span className="text-[11px] text-slate-500 truncate">{identity.email}</span>
             </span>
           </div>
           <Link href="/principal" className="flex items-center gap-2.5 px-3 py-1.5 rounded-md text-sm text-slate-400 hover:text-slate-200 hover:bg-white/[0.03]">
             <AdminIcon name="arrowLeft" />
-            Ir al juego
+            {t("toGame")}
           </Link>
           <button onClick={logout} className="flex items-center gap-2.5 px-3 py-1.5 rounded-md text-sm text-slate-400 hover:text-slate-200 hover:bg-white/[0.03] text-left">
             <AdminIcon name="logout" />
-            Cerrar sesión
+            {t("logout")}
           </button>
         </div>
       </aside>
@@ -122,14 +126,14 @@ export default function AdminShell({ children }: { children: ReactNode }) {
         <header className="h-16 shrink-0 border-b border-white/[0.06] bg-[#0a0f18]/80 backdrop-blur sticky top-0 z-20 flex items-center px-8">
           <nav className="flex items-center gap-2 text-sm text-slate-500">
             <Link href="/admin" className="hover:text-slate-300">
-              Panel
+              {t("panel")}
             </Link>
             {current && (
               <>
                 <span>/</span>
-                <span>{current.group}</span>
+                <span>{adminGroupTitles[current.group][locale]}</span>
                 <span>/</span>
-                <span className="text-slate-200">{current.title}</span>
+                <span className="text-slate-200">{current.title[locale]}</span>
               </>
             )}
           </nav>

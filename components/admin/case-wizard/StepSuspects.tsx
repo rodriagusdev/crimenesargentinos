@@ -10,7 +10,7 @@ const messages = defineMessages({
     introA: "Elegí 3 sospechosos (mínimo 2) y marcá al culpable. Conviene que compartan algún rasgo, así las pistas tienen que combinarse para descartar. Para agregar uno nuevo, cargalo en",
     suspects: "Sospechosos",
     introB: "con sus rasgos.",
-    noTraits: t("noTraits"),
+    noTraits: "Sin rasgos cargados",
     isGuilty: "Es el culpable",
   },
   en: {

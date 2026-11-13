@@ -38,7 +38,7 @@ export const pizarraScreenMessages = defineMessages({
     topSecret: "TOP SECRET",
     podiumLink: "LOG IN TO SEE IT →",
     howToPlay: "HOW TO PLAY",
-    case1Title: "STEALING THE STARS",
+    case1Title: "ROBBING THE STARS",
     case1Synopsis: "The World Cup trophy vanished after the celebrations. Look for clues at the Obelisco.",
     case2Title: "THE GREAT ALFAJOR HEIST",
     case2Synopsis: "The truck carrying a whole season's worth of alfajores has vanished.",
@@ -46,7 +46,7 @@ export const pizarraScreenMessages = defineMessages({
     case3Synopsis: "The signed jersey from the '86 World Cup vanished from a traveling exhibit.",
     case4Title: "THE GOLDEN BANDONEON",
     case4Synopsis: "A legendary tango man's golden bandoneon was stolen in the middle of a milonga.",
-    case5Title: "THE VANISHING TICKETS",
+    case5Title: "THE MAÑANEROS VANISH",
     case5Synopsis: "Fans swindled with fake tickets for the national team. The trail leads north.",
   },
 });

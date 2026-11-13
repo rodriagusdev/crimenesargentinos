@@ -3,6 +3,13 @@
 import { useEffect, useState } from "react";
 import AdminIcon from "./AdminIcon";
 import { resolveImageUrl } from "@/lib/imageUrls";
+import { useT } from "@/hooks/useT";
+import { defineMessages } from "@/lib/i18n/messages";
+
+const messages = defineMessages({
+  es: { notFound: "No se encontró la imagen en esa ruta.", close: "Cerrar" },
+  en: { notFound: "No image found at that path.", close: "Close" },
+});
 
 export interface AdminImage {
   label: string;
@@ -18,6 +25,7 @@ interface Props {
 // Una imagen del preview: si la ruta no existe se avisa, así se detectan URLs rotas antes de jugar.
 // Se resuelve igual que en el juego (los .jpg de dialogbackground se sirven como .webp)
 function PreviewImage({ image }: { image: AdminImage }) {
+  const t = useT(messages);
   const [broken, setBroken] = useState(false);
 
   return (
@@ -32,7 +40,7 @@ function PreviewImage({ image }: { image: AdminImage }) {
         {broken ? (
           <div className="flex flex-col items-center gap-2 px-4 py-10 text-center text-sm text-red-200">
             <AdminIcon name="alert" className="size-5 text-red-300" />
-            No se encontró la imagen en esa ruta.
+            {t("notFound")}
           </div>
         ) : (
           // eslint-disable-next-line @next/next/no-img-element -- preview de una URL cualquiera cargada a mano
@@ -45,6 +53,7 @@ function PreviewImage({ image }: { image: AdminImage }) {
 
 // Modal con el preview de las imágenes de un registro (o de un campo del formulario)
 export default function AdminImagePreview({ title, images, onClose }: Props) {
+  const t = useT(messages);
   // Escape cierra el modal
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -61,7 +70,7 @@ export default function AdminImagePreview({ title, images, onClose }: Props) {
           <button
             className="inline-flex items-center justify-center size-8 rounded-md text-slate-400 hover:text-slate-100 hover:bg-white/[0.06]"
             onClick={onClose}
-            aria-label="Cerrar"
+            aria-label={t("close")}
           >
             <AdminIcon name="close" />
           </button>

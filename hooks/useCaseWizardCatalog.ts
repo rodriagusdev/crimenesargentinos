@@ -47,7 +47,7 @@ export type CatalogState =
   | { kind: "ready"; catalog: CaseWizardCatalog };
 
 const messages = defineMessages({
-  es: { loadFailed: translate(messages, "loadFailed") },
+  es: { loadFailed: "No se pudieron cargar los datos." },
   en: { loadFailed: "Couldn't load the data." },
 });
 

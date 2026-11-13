@@ -1,6 +1,14 @@
 "use client";
 
+import { useT } from "@/hooks/useT";
 import { AdminField } from "@/lib/adminTables";
+import { defineMessages } from "@/lib/i18n/messages";
+import { useLocale } from "@/stores/useLocaleStore";
+
+const messages = defineMessages({
+  es: { select: "Seleccionar...", none: "(ninguno)" },
+  en: { select: "Select...", none: "(none)" },
+});
 
 export interface ReferenceOption {
   value: string;
@@ -21,6 +29,8 @@ export const adminInputClass =
 
 // Un campo del formulario según su tipo. Los números y las referencias vacías se guardan como null
 export default function AdminFieldInput({ field, value, disabled, options = [], onChange }: Props) {
+  const t = useT(messages);
+  const locale = useLocale();
   const text = value === null || value === undefined ? "" : String(value);
 
   if (field.type === "boolean") {
@@ -37,7 +47,7 @@ export default function AdminFieldInput({ field, value, disabled, options = [], 
         <span className={`relative h-5 w-9 rounded-full transition-colors ${checked ? "bg-[#E1C380]" : "bg-white/10"}`}>
           <span className={`absolute top-0.5 size-4 rounded-full bg-white shadow transition-all ${checked ? "left-[18px]" : "left-0.5"}`} />
         </span>
-        {field.label}
+        {field.label[locale]}
       </button>
     );
   }
@@ -82,7 +92,7 @@ export default function AdminFieldInput({ field, value, disabled, options = [], 
           onChange(field.reference === "cases" ? Number(selected) : selected);
         }}
       >
-        <option value="">{field.required ? "Seleccionar..." : "(ninguno)"}</option>
+        <option value="">{field.required ? t("select") : t("none")}</option>
         {choices.map((c) => (
           <option key={c.value} value={c.value}>
             {c.label}
