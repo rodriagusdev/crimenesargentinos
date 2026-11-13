@@ -22,70 +22,60 @@ export const TACTICAL_MONITOR_BOUNDS = {
   heightPct: 74.219,
 };
 
-// Coordenadas calibradas por clave normalizada (sin tildes, minúsculas)
+// Coordenadas sacadas de un punto interior de cada provincia (lat/lon) proyectado sobre el dibujo del mapa:
+// top = 4.5 + 2.59 × (−lat − 22), left = 45 + 1.8 × (lon + 65.6), ajustado con La Quiaca, la punta de
+// Misiones y la costa de Buenos Aires. Se usa un punto interior (no la capital) para que el pin no caiga en el agua.
 const PROVINCE_COORDINATES_BY_NAME: Record<string, IProvinceCoordinates> = {
-  // Caso 1
-  "misiones":          { top: "18%", left: "62%" },
-  "cordoba":           { top: "29%", left: "45%" },
-  "buenos aires":      { top: "42%", left: "54%" },
-
-  // Caso 2
-  "chaco":             { top: "14%", left: "47%" },
-  "corrientes":        { top: "24%", left: "57%" },
-  "tierra del fuego":  { top: "86%", left: "43%" },
-
-  // Caso 3
-  "salta":             { top: "13%", left: "43%" },
-  "mendoza":           { top: "34%", left: "37%" },
-  "rio negro":         { top: "52%", left: "44%" },
-
-  // Caso 4
-  "jujuy":             { top: "10%", left: "44%" },
-  "neuquen":           { top: "45%", left: "37%" },
-  "santa cruz":        { top: "73%", left: "39%" },
-
-  // Caso 5
-  "tucuman":           { top: "17%", left: "42%" },
-  "santa fe":          { top: "27%", left: "49%" },
-  "entre rios":        { top: "35%", left: "58%" },
-
-  // Caso 16
-  "san juan":          { top: "27%", left: "39%" },
-  "san luis":          { top: "36%", left: "44%" },
-  "la pampa":          { top: "46%", left: "46%" },
+  "jujuy":               { top: "7.9%",  left: "44.6%" },
+  "salta":               { top: "11%",   left: "46.4%" },
+  "formosa":             { top: "12.3%", left: "55.1%" },
+  "chaco":               { top: "16.2%", left: "53.6%" },
+  "misiones":            { top: "16.9%", left: "64.8%" },
+  "tucuman":             { top: "17.4%", left: "45.5%" },
+  "santiago del estero": { top: "19.5%", left: "49.1%" },
+  "catamarca":           { top: "18.2%", left: "42.5%" },
+  "corrientes":          { top: "21.9%", left: "59%" },
+  "la rioja":            { top: "24.4%", left: "42.1%" },
+  "santa fe":            { top: "27%",   left: "53.5%" },
+  "san juan":            { top: "27%",   left: "41%" },
+  "cordoba":             { top: "29.4%", left: "48.2%" },
+  "entre rios":          { top: "30.4%", left: "56.5%" },
+  "san luis":            { top: "35.1%", left: "44.3%" },
+  "mendoza":             { top: "36.4%", left: "40.7%" },
+  "buenos aires":        { top: "42.1%", left: "55.1%" },
+  "la pampa":            { top: "43.3%", left: "45.2%" },
+  "neuquen":             { top: "47.5%", left: "38.3%" },
+  "rio negro":           { top: "51.1%", left: "43.4%" },
+  "chubut":              { top: "61%",   left: "39.8%" },
+  "santa cruz":          { top: "73.9%", left: "37.4%" },
+  "tierra del fuego":    { top: "88.2%", left: "41.2%" },
 };
 
-// Coordenadas calibradas por ID (GUID) de la base de datos
-const PROVINCE_COORDINATES_BY_ID: Record<string, IProvinceCoordinates> = {
-  // Caso 1
-  "01653342-9355-4d4b-b391-4de7fd955de2": { top: "42%", left: "54%" }, // Buenos Aires
-  "235804f3-f074-4c22-b9d6-3fd616f85500": { top: "29%", left: "45%" }, // Córdoba
-  "6e2e014c-d8f2-49aa-bf12-2474c05210bb": { top: "18%", left: "62%" }, // Misiones
-
-  // Caso 2
-  "f4c6f97c-6985-45eb-8711-ae6aeec6577d": { top: "14%", left: "47%" }, // Chaco
-  "db555128-3ee4-4e5d-bcf2-1a86aec26e31": { top: "24%", left: "57%" }, // Corrientes
-  "eceab6a9-3478-4c0e-b41a-81ed46ff4fa1": { top: "86%", left: "43%" }, // Tierra del Fuego
-
-  // Caso 3
-  "c9daed5d-7052-47f8-bc72-dea33bcbb152": { top: "52%", left: "44%" }, // Río Negro
-  "a36af09c-7bc6-4ad9-9d14-ce0a2c7094f7": { top: "34%", left: "37%" }, // Mendoza
-  "b2438304-f80c-47df-b4c4-dd4c39b6785a": { top: "13%", left: "43%" }, // Salta
-
-  // Caso 4
-  "4ae47acc-9131-4d02-92ec-bc9393fbbe4b": { top: "10%", left: "44%" }, // Jujuy
-  "68526d1a-fc56-4067-8313-0f8fd472ebdd": { top: "73%", left: "39%" }, // Santa Cruz
-  "3cabc223-3475-495d-aa2f-434e6a8b82c4": { top: "45%", left: "37%" }, // Neuquén
-
-  // Caso 5
-  "d6ddfb6d-77cf-4792-a778-c790eed1ec7f": { top: "35%", left: "58%" }, // Entre Ríos
-  "7e8e02c0-d28b-4442-a7a2-5a4f2dfffccd": { top: "17%", left: "42%" }, // Tucumán
-  "279af790-afcb-4db0-96ca-442ac67f786f": { top: "27%", left: "49%" }, // Santa Fe
-
-  // Caso 16
-  "ac889e85-0343-561d-8ee0-9909f8bd2df7": { top: "27%", left: "39%" }, // San Juan
-  "6b4f1a9e-0d65-5a62-916b-2c57ad5adb8c": { top: "36%", left: "44%" }, // San Luis
-  "b99237a6-e55e-54fe-93bf-06e2d8fcde96": { top: "46%", left: "46%" }, // La Pampa
+// Ids de la base → nombre de la tabla de arriba (las coordenadas guardadas en LevelLocations son viejas)
+const PROVINCE_NAME_BY_ID: Record<string, string> = {
+  "01653342-9355-4d4b-b391-4de7fd955de2": "buenos aires",
+  "235804f3-f074-4c22-b9d6-3fd616f85500": "cordoba",
+  "6e2e014c-d8f2-49aa-bf12-2474c05210bb": "misiones",
+  "f4c6f97c-6985-45eb-8711-ae6aeec6577d": "chaco",
+  "db555128-3ee4-4e5d-bcf2-1a86aec26e31": "corrientes",
+  "eceab6a9-3478-4c0e-b41a-81ed46ff4fa1": "tierra del fuego",
+  "c9daed5d-7052-47f8-bc72-dea33bcbb152": "rio negro",
+  "a36af09c-7bc6-4ad9-9d14-ce0a2c7094f7": "mendoza",
+  "b2438304-f80c-47df-b4c4-dd4c39b6785a": "salta",
+  "4ae47acc-9131-4d02-92ec-bc9393fbbe4b": "jujuy",
+  "68526d1a-fc56-4067-8313-0f8fd472ebdd": "santa cruz",
+  "3cabc223-3475-495d-aa2f-434e6a8b82c4": "neuquen",
+  "d6ddfb6d-77cf-4792-a778-c790eed1ec7f": "entre rios",
+  "7e8e02c0-d28b-4442-a7a2-5a4f2dfffccd": "tucuman",
+  "279af790-afcb-4db0-96ca-442ac67f786f": "santa fe",
+  "ac889e85-0343-561d-8ee0-9909f8bd2df7": "san juan",
+  "6b4f1a9e-0d65-5a62-916b-2c57ad5adb8c": "san luis",
+  "b99237a6-e55e-54fe-93bf-06e2d8fcde96": "la pampa",
+  "87678a3d-095a-5d04-bcd7-f4688e1d1835": "santiago del estero",
+  "73649cb7-1a35-5e22-bf18-ec3f0408940a": "catamarca",
+  "d6ae2133-6458-5910-b0ea-ad0c26a35398": "la rioja",
+  "b51b7efb-b5fc-5381-93b9-ecd94af9dfdd": "chubut",
+  "0e42d54b-b0ef-5da5-9f07-b720a116a1d2": "formosa",
 };
 
 /**
@@ -109,15 +99,11 @@ export function getCalibratedProvinceCoordinates(province: {
   top?: string;
   left?: string;
 }): IProvinceCoordinates {
-  if (province.id && PROVINCE_COORDINATES_BY_ID[province.id.toLowerCase()]) {
-    return PROVINCE_COORDINATES_BY_ID[province.id.toLowerCase()];
-  }
-
-  if (province.name) {
-    const key = normalizeProvinceName(province.name);
-    if (PROVINCE_COORDINATES_BY_NAME[key]) {
-      return PROVINCE_COORDINATES_BY_NAME[key];
-    }
+  const key =
+    (province.id && PROVINCE_NAME_BY_ID[province.id.toLowerCase()]) ||
+    (province.name && normalizeProvinceName(province.name));
+  if (key && PROVINCE_COORDINATES_BY_NAME[key]) {
+    return PROVINCE_COORDINATES_BY_NAME[key];
   }
 
   return {
