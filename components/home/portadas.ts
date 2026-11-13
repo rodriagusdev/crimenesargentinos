@@ -41,4 +41,4 @@ export const PORTADAS: Portada[] = [
 ];
 
 /** La portada que hoy se muestra en "/" */
-export const CURRENT_PORTADA = "mesa";
+export const CURRENT_PORTADA = "trailer";

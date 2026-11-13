@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import AdminIcon from "./AdminIcon";
+import { resolveImageUrl } from "@/lib/imageUrls";
 
 export interface AdminImage {
   label: string;
@@ -14,7 +15,8 @@ interface Props {
   onClose: () => void;
 }
 
-// Una imagen del preview: si la ruta no existe se avisa, así se detectan URLs rotas antes de jugar
+// Una imagen del preview: si la ruta no existe se avisa, así se detectan URLs rotas antes de jugar.
+// Se resuelve igual que en el juego (los .jpg de dialogbackground se sirven como .webp)
 function PreviewImage({ image }: { image: AdminImage }) {
   const [broken, setBroken] = useState(false);
 
@@ -34,7 +36,7 @@ function PreviewImage({ image }: { image: AdminImage }) {
           </div>
         ) : (
           // eslint-disable-next-line @next/next/no-img-element -- preview de una URL cualquiera cargada a mano
-          <img src={image.url} alt={image.label} className="max-h-[60vh] w-auto object-contain" onError={() => setBroken(true)} />
+          <img src={resolveImageUrl(image.url)} alt={image.label} className="max-h-[60vh] w-auto object-contain" onError={() => setBroken(true)} />
         )}
       </div>
     </figure>

@@ -1,22 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import HomeNav from "./HomeNav";
 import { CaseFolderItem, MapItem, NewspaperItem, RadioItem, RankingItem, RulesBookItem } from "./DeskItems";
-import { getTokenClaims, isAdmin, isTokenExpired } from "@/lib/auth";
+import { useRedirectIfLoggedIn } from "@/hooks/useRedirectIfLoggedIn";
 
-// Home pública (/): la mesa del detective, donde cada objeto lleva a una sección
+// Portada "La mesa del detective": cada objeto del escritorio lleva a una sección
 export default function HomeScreen({ redirectIfLoggedIn = false }: { redirectIfLoggedIn?: boolean }) {
-  const router = useRouter();
-
-  // En "/" con sesión iniciada no hay nada que mostrar: directo al juego (o al panel si es admin).
-  // En la galería de portadas no redirige, para poder verla logueado.
-  useEffect(() => {
-    if (!redirectIfLoggedIn) return;
-    const claims = getTokenClaims();
-    if (claims && !isTokenExpired(claims)) router.replace(isAdmin(claims) ? "/admin" : "/principal");
-  }, [router, redirectIfLoggedIn]);
+  useRedirectIfLoggedIn(redirectIfLoggedIn);
 
   return (
     <div className="relative min-h-screen flex flex-col text-[#FFF3C7] bg-[#070c16] bg-[radial-gradient(ellipse_70%_60%_at_50%_40%,#3a2414_0%,#1c110a_55%,#070c16_100%)] overflow-x-hidden">

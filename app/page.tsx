@@ -1,5 +1,5 @@
-import HomeScreen from "@/components/home/HomeScreen";
+import TrailerScreen from "@/components/home/trailer/TrailerScreen";
 
 export default function Home() {
-  return <HomeScreen redirectIfLoggedIn />;
+  return <TrailerScreen redirectIfLoggedIn />;
 }

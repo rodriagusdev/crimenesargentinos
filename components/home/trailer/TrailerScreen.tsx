@@ -6,10 +6,12 @@ import { useEffect } from "react";
 import HomeNav from "../HomeNav";
 import TrailerControls from "./TrailerControls";
 import { TRAILER_SCENES } from "./trailerScenes";
+import { useRedirectIfLoggedIn } from "@/hooks/useRedirectIfLoggedIn";
 import { useTrailerTimeline } from "@/hooks/useTrailerTimeline";
 
-// Portada "Tráiler": un tráiler de cine que se reproduce solo (póster con ▶, escenas con franjas negras y placa final)
-export default function TrailerScreen() {
+// Portada "Tráiler" (la de "/"): un tráiler de cine que se reproduce solo (póster con ▶, escenas con franjas negras y placa final)
+export default function TrailerScreen({ redirectIfLoggedIn = false }: { redirectIfLoggedIn?: boolean }) {
+  useRedirectIfLoggedIn(redirectIfLoggedIn);
   const { state, scene, sceneElapsed, elapsed, total, starts, play, pause, skip } = useTrailerTimeline(TRAILER_SCENES);
   const watching = state.phase === "playing" || state.phase === "paused";
 

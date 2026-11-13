@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import { usePathname } from "next/navigation";
 import { useAudioStore } from "@/stores/useAudioStore";
 
 const SoundSettingsModal = dynamic(
@@ -16,6 +17,8 @@ export default function GlobalAudioControl() {
   const isMuted = useAudioStore((state) => state.isMuted);
   const masterVolume = useAudioStore((state) => state.masterVolume);
   const toggleMute = useAudioStore((state) => state.toggleMute);
+  // En el panel de admin, abajo a la izquierda está "Cerrar sesión": ahí el control va a la derecha
+  const isAdmin = usePathname()?.startsWith("/admin") ?? false;
 
   useEffect(() => {
     setMounted(true);
@@ -27,14 +30,14 @@ export default function GlobalAudioControl() {
     <>
       {/* Floating Audio Gadget */}
       <div
-        className="
-          fixed bottom-4 left-4 z-20
+        className={`
+          fixed bottom-4 ${isAdmin ? "right-4" : "left-4"} z-20
           flex items-center gap-1 p-1 rounded-2xl
           bg-[rgba(12,19,31,0.85)] hover:bg-[rgba(16,25,40,0.95)]
           border border-[rgba(255,243,199,0.2)] hover:border-[#E1C380]
           backdrop-blur-md shadow-[0_8px_24px_rgba(0,0,0,0.65)]
           text-[#FFF3C7] transition-all duration-200 select-none
-        "
+        `}
       >
         {/* Quick Mute Toggle */}
         <button

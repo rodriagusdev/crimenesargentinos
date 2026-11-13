@@ -6,6 +6,7 @@ import { API_URL, authHeaders, handleUnauthorized } from "@/lib/api";
 import { resolveSuspectImage } from "@/lib/suspectImages";
 import { getCalibratedProvinceCoordinates } from "@/lib/mapCalibration";
 import { introForScene } from "@/lib/locationIntros";
+import { resolveImageUrl } from "@/lib/imageUrls";
 
 async function fetchFromApi<T>(path: string, notFoundMessage: string, failMessage: string): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {
@@ -161,9 +162,7 @@ export async function getLevelLocations(
       if (data?.locations && Array.isArray(data.locations)) {
         data.locations = data.locations.map((loc) => ({
           ...loc,
-          imageUrl: loc.imageUrl?.includes("/dialogbackground/")
-            ? loc.imageUrl.replace(/\.jpe?g$/i, ".webp")
-            : loc.imageUrl,
+          imageUrl: resolveImageUrl(loc.imageUrl),
         }));
       }
       locationsCache.set(provinceId, data);
@@ -218,11 +217,9 @@ export async function getDialog(
     "Failed to fetch dialog",
   )
     .then((data) => {
-      if (data?.overlayBackgroundUrl?.includes("/dialogbackground/")) {
-        data.overlayBackgroundUrl = data.overlayBackgroundUrl.replace(/\.jpe?g$/i, ".webp");
-      }
-      if (data?.npcCompleteUrl?.includes("/dialogbackground/")) {
-        data.npcCompleteUrl = data.npcCompleteUrl.replace(/\.jpe?g$/i, ".webp");
+      if (data) {
+        data.overlayBackgroundUrl = resolveImageUrl(data.overlayBackgroundUrl);
+        data.npcCompleteUrl = resolveImageUrl(data.npcCompleteUrl);
       }
       const intro = introForScene(data?.npcCompleteUrl);
       if (intro) {
