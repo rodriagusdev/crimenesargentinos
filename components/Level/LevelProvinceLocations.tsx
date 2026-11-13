@@ -1,6 +1,6 @@
 "use client";
 
-import { getLevelLocations } from "@/services/levelService";
+import { getCaseLocations } from "@/services/levelService";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ILevelLocations from "@/models/ILevelLocations";
@@ -65,7 +65,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
       try {
         setLoading(true);
         setError(null);
-        const data = await getLevelLocations(provinceId);
+        const data = await getCaseLocations(levelId, provinceId);
         if (!cancelled) {
           setData(data);
         }
@@ -87,7 +87,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
     return () => {
       cancelled = true;
     };
-  }, [provinceId]);
+  }, [levelId, provinceId]);
 
   // Precargar anticipadamente los recursos de la locación actual en segundo plano
   useEffect(() => {

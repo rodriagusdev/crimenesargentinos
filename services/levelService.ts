@@ -5,6 +5,7 @@ import { IGameData } from "@/models/IGameData";
 import { API_URL, authHeaders, handleUnauthorized } from "@/lib/api";
 import { resolveSuspectImage } from "@/lib/suspectImages";
 import { getCalibratedProvinceCoordinates } from "@/lib/mapCalibration";
+import { introForScene } from "@/lib/locationIntros";
 
 async function fetchFromApi<T>(path: string, notFoundMessage: string, failMessage: string): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {
@@ -176,6 +177,26 @@ export async function getLevelLocations(
   return promise;
 }
 
+// La foto de cada locación viene de la provincia y es compartida entre casos (ej. Buenos Aires
+// en los casos 1 y 18), así que se usa la escena del testigo del caso cuando existe.
+export async function getCaseLocations(
+  levelId: number,
+  provinceId: string,
+): Promise<ILevelLocations> {
+  const data = await getLevelLocations(provinceId);
+  const scenes = await Promise.all(
+    data.locations.map((loc) =>
+      getDialog(levelId, loc.id)
+        .then((dialog) => dialog?.npcCompleteUrl || null)
+        .catch(() => null),
+    ),
+  );
+  return {
+    ...data,
+    locations: data.locations.map((loc, i) => ({ ...loc, imageUrl: scenes[i] ?? loc.imageUrl })),
+  };
+}
+
 export async function getDialog(
   levelId: number,
   locationId: string,
@@ -202,6 +223,10 @@ export async function getDialog(
       }
       if (data?.npcCompleteUrl?.includes("/dialogbackground/")) {
         data.npcCompleteUrl = data.npcCompleteUrl.replace(/\.jpe?g$/i, ".webp");
+      }
+      const intro = introForScene(data?.npcCompleteUrl);
+      if (intro) {
+        data.overlayBackgroundUrl = intro;
       }
       dialogCache.set(cacheKey, data);
       return data;
