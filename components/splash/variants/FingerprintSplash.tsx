@@ -2,22 +2,24 @@
 
 import MugshotFrame from "../MugshotFrame";
 import SplashLogo from "../SplashLogo";
+import SuspectSilhouette from "../SuspectSilhouette";
 import type { SplashSceneProps, SplashVariant } from "./types";
 
-const S = "/images/suspects";
+// Ojo: acá NO van sospechosos. Cada sospechoso es culpable en algún caso, así que mostrar su cara como
+// "coincidencia" sería un spoiler. La ruleta usa testigos/NPCs y el resultado queda clasificado.
+const P = "/images/portraits";
 const ROULETTE = [
-  `${S}/level2/Cara_Pedro_Lanza_Sospechoso.webp`,
-  `${S}/level3/suspect_level_3_mirtha.webp`,
-  `${S}/level1/suspect_level_1_rulo_sosa.webp`,
-  `${S}/level4/suspect_level_4_bolitas.webp`,
-  `${S}/level5/suspect_level_5_susana.webp`,
-  `${S}/level1/Cara_Gordo_Tragassi_Sospechoso.webp`,
-  `${S}/level3/suspect_level_3_robertito.webp`,
-  `${S}/level2/Cara_Enano_Orejon_Sospechoso.webp`,
-  `${S}/level5/suspect_level_5_mora.webp`,
-  `${S}/level1/suspect_level_1_tanguito_perez.webp`,
+  `${P}/level1/portrait_curaantonio.webp`,
+  `${P}/level2/cara_gaucho.webp`,
+  `${P}/level3/cara_borracho.webp`,
+  `${P}/level1/portrait_meserotiziano.webp`,
+  `${P}/level2/cara_grafitero.webp`,
+  `${P}/level3/cara_chileno.webp`,
+  `${P}/level1/portrait_pescadordonjuan.webp`,
+  `${P}/level2/cara_preso.webp`,
+  `${P}/level1/portrait_jardinerocarlitos.webp`,
+  `${P}/level2/cara_mapuche.webp`,
 ];
-const MATCH = `${S}/level1/suspect_level_1_gardelito.webp`;
 
 // Crestas de la huella: elipses concéntricas cortadas a distintos ritmos para que parezcan naturales
 const RIDGES = Array.from({ length: 14 }, (_, k) => ({
@@ -27,7 +29,7 @@ const RIDGES = Array.from({ length: 14 }, (_, k) => ({
   rot: (k % 4) * 23,
 }));
 
-// Pasos: 0 escaneo de la huella · 1 ruleta de sospechosos · 2 coincidencia · 3 aparece el logo
+// Pasos: 0 escaneo de la huella · 1 ruleta de registros · 2 coincidencia · 3 aparece el logo
 function FingerprintScene({ progress }: SplashSceneProps) {
   const scanning = progress === 0;
   const searching = progress === 1;
@@ -78,7 +80,7 @@ function FingerprintScene({ progress }: SplashSceneProps) {
           <div className="flex flex-col gap-2">
             <div className={`relative aspect-square overflow-hidden rounded-md border-2 ${matched ? "border-red-500 splash-match" : "border-[#62ffa8]/30"}`}>
               {matched ? (
-                <MugshotFrame src={MATCH} />
+                <SuspectSilhouette variant="fedora" />
               ) : (
                 <div className={progress >= 1 ? "splash-roulette" : ""}>
                   {ROULETTE.map((src) => (
@@ -93,8 +95,8 @@ function FingerprintScene({ progress }: SplashSceneProps) {
               {matched ? (
                 <>
                   <p className="text-red-400 [text-shadow:0_0_8px_rgba(255,60,60,0.7)]">■ COINCIDENCIA 100%</p>
-                  <p>ALIAS: GARDELITO</p>
-                  <p>ÚLTIMA ZONA: SAN TELMO</p>
+                  <p>IDENTIDAD: CLASIFICADA</p>
+                  <p>ESTADO: PRÓFUGO</p>
                 </>
               ) : (
                 <>

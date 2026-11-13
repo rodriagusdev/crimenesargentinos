@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ReactNode, useEffect, useState } from "react";
+import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import SeamlessBackgroundVideo from "@/components/login/SeamlessBackgroundVideo";
 import { useAudioStore } from "@/stores/useAudioStore";
 
@@ -196,6 +196,37 @@ function VintageCallout({
       <div className="text-xs sm:text-[13px] leading-relaxed font-serif">
         {children}
       </div>
+    </div>
+  );
+}
+
+// A dónde vuelve el manual: al login (se ve sin sesión) o a los casos si se abrió desde /principal
+export type RulesReturnPath = "/login" | "/principal";
+const RulesReturnContext = createContext<RulesReturnPath>("/login");
+
+// Caja final del manual: invita a ingresar o, si ya está jugando, a volver a sus casos
+function ReturnDispatchBox() {
+  const returnTo = useContext(RulesReturnContext);
+  const inGame = returnTo === "/principal";
+
+  return (
+    <div className="mt-2 rounded border-2 border-[#9e835c] bg-gradient-to-r from-[#f0e6cf] via-[#f7f1e1] to-[#ede2ca] p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <div className="font-serif font-bold text-xs sm:text-sm uppercase tracking-wider text-[#3d2e1c]">
+          EXPEDIENTE LISTO PARA COMENZAR
+        </div>
+        <div className="text-xs sm:text-[13px] text-[#52412e] font-serif mt-1">
+          {inGame
+            ? "Volvé a la central y elegí tu próximo caso."
+            : "Iniciá sesión o registrá tu credencial de detective para asumir tu primer caso."}
+        </div>
+      </div>
+      <Link
+        href={returnTo}
+        className="shrink-0 whitespace-nowrap rounded border-2 border-[#52412d] bg-[#3a2d1e] px-6 py-2.5 text-xs sm:text-sm font-serif font-bold tracking-wider text-[#f5ebd7] shadow-md hover:bg-[#271d12] hover:scale-105 active:scale-95 transition-all"
+      >
+        {inGame ? "VOLVER A LOS CASOS →" : "INGRESAR AL ACCESO →"}
+      </Link>
     </div>
   );
 }
@@ -502,29 +533,13 @@ const SECTIONS: SectionData[] = [
           </BookletCard>
         </div>
 
-        {/* Vintage Access Dispatch Box */}
-        <div className="mt-2 rounded border-2 border-[#9e835c] bg-gradient-to-r from-[#f0e6cf] via-[#f7f1e1] to-[#ede2ca] p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div>
-            <div className="font-serif font-bold text-xs sm:text-sm uppercase tracking-wider text-[#3d2e1c]">
-              EXPEDIENTE LISTO PARA COMENZAR
-            </div>
-            <div className="text-xs sm:text-[13px] text-[#52412e] font-serif mt-1">
-              Iniciá sesión o registrá tu credencial de detective para asumir tu primer caso.
-            </div>
-          </div>
-          <Link
-            href="/login"
-            className="shrink-0 whitespace-nowrap rounded border-2 border-[#52412d] bg-[#3a2d1e] px-6 py-2.5 text-xs sm:text-sm font-serif font-bold tracking-wider text-[#f5ebd7] shadow-md hover:bg-[#271d12] hover:scale-105 active:scale-95 transition-all"
-          >
-            INGRESAR AL ACCESO →
-          </Link>
-        </div>
+        <ReturnDispatchBox />
       </div>
     ),
   },
 ];
 
-export default function RulesBook() {
+export default function RulesBook({ returnTo = "/login" }: { returnTo?: RulesReturnPath }) {
   const router = useRouter();
   const playSfx = useAudioStore((state) => state.playSfx);
   const [currentPage, setCurrentPage] = useState<number>(0);
@@ -549,7 +564,7 @@ export default function RulesBook() {
       try {
         playSfx("click");
       } catch {}
-      router.push("/login");
+      router.push(returnTo);
     }
   };
 
@@ -574,15 +589,16 @@ export default function RulesBook() {
           handleSelectPage(currentPage - 1);
         }
       } else if (e.key === "Escape") {
-        router.push("/login");
+        router.push(returnTo);
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentPage]);
+  }, [currentPage, returnTo]);
 
   return (
+    <RulesReturnContext.Provider value={returnTo}>
     <div className="relative h-screen w-screen overflow-hidden flex items-center justify-center p-2 sm:p-4 bg-[#0a0705] select-none font-sans">
       {/* Background Seamless Looping Video */}
       <SeamlessBackgroundVideo
@@ -630,7 +646,7 @@ export default function RulesBook() {
 
                 <div className="flex items-center gap-2">
                   <Link
-                    href="/login"
+                    href={returnTo}
                     onClick={() => {
                       try {
                         playSfx("click");
@@ -734,5 +750,6 @@ export default function RulesBook() {
         </div>
       </main>
     </div>
+    </RulesReturnContext.Provider>
   );
 }

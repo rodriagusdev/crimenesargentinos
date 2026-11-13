@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import UserInfo from "./UserInfo";
 import { useAuth } from "@/hooks/useAuth";
 import { useAudioStore } from "@/stores/useAudioStore";
@@ -21,7 +22,29 @@ export default function PlayerPanel() {
         <UserInfo />
       </div>
 
-      {/* 2. BOTON SALIR / CERRAR SESION */}
+      {/* 2. REGLAS DEL JUEGO (el mismo manual que se ve desde el login) */}
+      <div>
+        <Link
+          href="/reglas?desde=principal"
+          onClick={() => playSfx("click")}
+          onMouseEnter={() => playSfx("typewriter")}
+          className="
+            w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl
+            border-2 border-[#1c2c3e] bg-[#0c1421]
+            hover:border-amber-400/60 hover:bg-amber-950/20
+            text-slate-300 hover:text-amber-200
+            font-mono font-bold text-xs tracking-wider uppercase
+            shadow-[0_12px_32px_rgba(0,0,0,0.65)]
+            hover:shadow-[0_16px_36px_rgba(0,0,0,0.8),0_0_15px_rgba(245,158,11,0.2)]
+            hover:-translate-y-0.5
+            transition-all duration-200 cursor-pointer select-none
+          "
+        >
+          <span>¿CÓMO SE JUEGA?</span>
+        </Link>
+      </div>
+
+      {/* 3. BOTON SALIR / CERRAR SESION */}
       <div>
         <button
           type="button"
@@ -43,7 +66,7 @@ export default function PlayerPanel() {
         </button>
       </div>
 
-      {/* 3. LOGO DEL JUEGO */}
+      {/* 4. LOGO DEL JUEGO */}
       <div className="flex justify-center items-center p-2">
         <Image
           src="/images/logofinal.png"
