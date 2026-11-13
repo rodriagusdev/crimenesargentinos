@@ -83,10 +83,144 @@ body {
   to { transform: scaleY(1.2); }
 }
 
+/* Portada "Tráiler": ruta del avión, sello y aviso de scroll */
+.home-route {
+  stroke-dasharray: 0.02 0.015;
+  stroke-dashoffset: 1;
+  opacity: 0;
+}
+
+.home-route--draw {
+  opacity: 1;
+  animation: homeRoute 2s ease-in-out forwards;
+}
+
+@keyframes homeRoute {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+
+.home-plane {
+  animation: homePlane 2s ease-in-out forwards;
+}
+
+@keyframes homePlane {
+  from { left: var(--x1); top: var(--y1); }
+  to { left: var(--x2); top: var(--y2); }
+}
+
+.home-stamp {
+  animation: homeStamp 0.3s cubic-bezier(0.3, 1.6, 0.6, 1) 0.7s both;
+}
+
+@keyframes homeStamp {
+  from { opacity: 0; transform: rotate(-10deg) scale(2.6); }
+  to { opacity: 1; transform: rotate(-10deg) scale(1); }
+}
+
+.home-scroll-hint {
+  animation: homeBounce 1.4s ease-in-out infinite;
+}
+
+@keyframes homeBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+}
+
+/* Portada "Tráiler" (modo video): corte entre escenas, zoom lento, carteles y subtítulos */
+.home-cut {
+  animation: homeCut 0.35s ease-out both;
+}
+
+@keyframes homeCut {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.home-kenburns {
+  animation: homeKenBurns 5s ease-out both;
+}
+
+@keyframes homeKenBurns {
+  from { transform: scale(1); }
+  to { transform: scale(1.08); }
+}
+
+.home-titlecard {
+  animation-name: homeTitleCard;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: both;
+}
+
+@keyframes homeTitleCard {
+  0% { opacity: 0; letter-spacing: 0.35em; }
+  25%, 75% { opacity: 1; }
+  100% { opacity: 0; letter-spacing: 0.2em; }
+}
+
+.home-caption {
+  animation: homeCaption 0.6s ease-out 0.5s both;
+}
+
+@keyframes homeCaption {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Portada "Diario": la tapa entra girando, marquesina y sello EXTRA */
+.home-paper-in {
+  animation: homePaperIn 1.1s cubic-bezier(0.2, 0.75, 0.3, 1.05) both;
+}
+
+@keyframes homePaperIn {
+  from { opacity: 0; transform: scale(0.1) rotate(-720deg); }
+  60% { opacity: 1; }
+  to { opacity: 1; transform: scale(1) rotate(-0.6deg); }
+}
+
+.home-ticker {
+  animation: homeTicker 40s linear infinite;
+}
+
+@keyframes homeTicker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.home-extra {
+  animation: homeExtra 0.4s cubic-bezier(0.3, 1.8, 0.6, 1) 1.1s both;
+}
+
+@keyframes homeExtra {
+  from { opacity: 0; transform: rotate(12deg) scale(3); }
+  to { opacity: 1; transform: rotate(12deg) scale(1); }
+}
+
+/* Portada "Pizarra": hilo rojo que se tiende entre las fichas */
+.home-string {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: homeRoute 1.6s ease-in-out 0.6s forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .home-drop,
-  .home-radio-wave {
+  .home-radio-wave,
+  .home-route--draw,
+  .home-stamp,
+  .home-scroll-hint,
+  .home-paper-in,
+  .home-ticker,
+  .home-extra,
+  .home-kenburns {
     animation: none;
+  }
+  .home-string {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+  .home-plane {
+    animation-duration: 0.01s;
   }
 }
 
