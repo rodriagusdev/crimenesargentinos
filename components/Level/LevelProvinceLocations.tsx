@@ -151,7 +151,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
       )}
 
       {/* Alerta si el sospechoso podría estar en esta provincia */}
-      <SuspectProvinceWarning levelId={levelId} provinceName={data.name} provinceId={provinceId} />
+      <SuspectProvinceWarning key={provinceId} provinceName={data.name} provinceId={provinceId} />
 
       {/* En celular la barra baja por debajo del menú de investigación (igual que DialogBox) */}
       <div className="shrink-0 pt-[68px] md:pt-0">

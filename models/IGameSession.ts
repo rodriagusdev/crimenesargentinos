@@ -28,6 +28,7 @@ export interface IGameSession {
   warrantSuspectId: string | null; // sospechoso de la orden emitida (null si no se emitió)
   canIssueWarrant: boolean; // tiene las pistas necesarias y todavía no la emitió
   facingCriminal: boolean; // llegó al escondite sin orden: lo único que puede hacer es emitirla
+  suspectInProvince: boolean; // está en la provincia del escondite (aviso "el sospechoso podría estar aquí"); no dice cuál es
   requiredCluesForWarrant: number;
   // Horas de viaje según la distancia desde donde está el jugador: id de provincia o locación → horas.
   // Vacío si el caso no tiene coordenadas (se usan los costos fijos de game-data)
