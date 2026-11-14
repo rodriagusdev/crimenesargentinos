@@ -16,10 +16,10 @@ export default function VideotecaHero({ story, number, seconds, onPlay }: Props)
     <section
       key={story.id}
       aria-label={`Caso destacado: ${story.title}`}
-      className={`relative overflow-hidden rounded-2xl border border-[rgba(255,243,199,0.14)] bg-black shadow-[0_30px_60px_rgba(0,0,0,0.75)] ${styles.fadeUp}`}
+      className={`relative lg:h-full overflow-hidden rounded-2xl border border-[rgba(255,243,199,0.14)] bg-black shadow-[0_30px_60px_rgba(0,0,0,0.75)] ${styles.fadeUp}`}
     >
       {/* Imagen del caso con zoom lento */}
-      <div className="relative sm:aspect-video">
+      <div className="relative sm:aspect-video lg:aspect-auto lg:h-full">
         {/* Imagen: en celular es un bloque 16:9 arriba de la ficha; desde sm ocupa todo el destacado */}
         <div className="relative aspect-video overflow-hidden sm:absolute sm:inset-0 sm:aspect-auto">
           <Image src={art} alt="" fill unoptimized priority className={`object-cover ${styles.kenBurns}`} />

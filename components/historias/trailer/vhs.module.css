@@ -107,7 +107,25 @@
   from { opacity: 0.3; transform: translateY(-28%); }
 }
 
+/* Columnas de los costados: las escenas se desplazan lento (la lista está duplicada, se mueve media altura) */
+.driftUp {
+  animation: driftUp 90s linear infinite;
+}
+.driftDown {
+  animation: driftDown 90s linear infinite;
+}
+@keyframes driftUp {
+  from { transform: translateY(0); }
+  to { transform: translateY(-50%); }
+}
+@keyframes driftDown {
+  from { transform: translateY(-50%); }
+  to { transform: translateY(0); }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .driftUp,
+  .driftDown,
   .tape,
   .reel {
     transition: none;

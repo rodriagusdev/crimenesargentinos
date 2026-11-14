@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import VhsShelf, { SHELF_VISIBLE } from "./VhsShelf";
 import VhsTelevision from "./VhsTelevision";
 import VideotecaHero from "./VideotecaHero";
+import VideotecaSideDecor from "./VideotecaSideDecor";
 import { CASE_SCENES } from "./caseTrailer";
 import GameBackdrop, { CautionBar, GAME_BG } from "@/components/galeria/GameBackdrop";
 import { audioManager } from "@/lib/audioManager";
@@ -92,15 +93,18 @@ export default function TrailerHistoriasScreen() {
 
   return (
     <div className={`relative ${GAME_BG} min-h-svh px-3 sm:px-6 py-6 sm:py-12 pb-16 text-[#FFF3C7]`}>
-      <GameBackdrop glow="120,170,255" />
-      <CautionBar className="max-w-6xl" />
-      <div className="relative max-w-6xl mx-auto flex flex-col gap-5">
+      <GameBackdrop glow="120,170,255" bright />
+      <VideotecaSideDecor />
+      <CautionBar className="max-w-[85rem]" />
+      {/* Ancho: el reproductor (~68rem) queda en 16:9 con el mismo alto que el estante (~616px); el alto lo iguala el grid */}
+      <div className="relative max-w-[85rem] mx-auto flex flex-col gap-5">
         <header className="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
           <h1 className="text-base sm:text-xl leading-relaxed">UN TRÁILER POR CASO</h1>
           <p className="font-mono text-sm text-[#FFF3C7]/60">{CASE_STORIES.length} cintas · elegí una del estante</p>
         </header>
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start">
+        {/* En escritorio el reproductor se estira hasta donde termina el estante (con su paginador) */}
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-stretch">
           <VideotecaHero
             story={CASE_STORIES[featured]}
             number={featured + 1}

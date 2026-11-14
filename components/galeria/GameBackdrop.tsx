@@ -9,13 +9,30 @@ const TAPE = `absolute -left-[15%] -right-[15%] h-6 sm:h-8 shadow-[0_6px_16px_rg
 /** Color de fondo de la página (va en el contenedor, junto con `relative`) */
 export const GAME_BG = "bg-[#070c16]";
 
-export default function GameBackdrop({ glow = "245,158,11" }: { glow?: string }) {
+/**
+ * `bright`: fondo más iluminado (viñeta más suave, resplandor más fuerte y más alto, y una luz difusa al centro)
+ */
+export default function GameBackdrop({ glow = "245,158,11", bright = false }: { glow?: string; bright?: boolean }) {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(8,14,24,0.4)_0%,#03060c_90%)]" />
       <div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 max-w-4xl h-52 blur-3xl"
-        style={{ background: `linear-gradient(180deg, rgba(${glow},0.16), rgba(${glow},0.05), transparent)` }}
+        className={`absolute inset-0 ${
+          bright
+            ? "bg-[radial-gradient(ellipse_at_center,rgba(30,44,70,0.55)_0%,rgba(10,16,28,0.9)_70%,#05080f_100%)]"
+            : "bg-[radial-gradient(ellipse_at_center,rgba(8,14,24,0.4)_0%,#03060c_90%)]"
+        }`}
+      />
+      {bright && (
+        <div
+          className="absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 h-[70%] w-[80%] rounded-full blur-3xl"
+          style={{ background: `radial-gradient(ellipse at center, rgba(${glow},0.12), transparent 70%)` }}
+        />
+      )}
+      <div
+        className={`absolute top-0 left-1/2 -translate-x-1/2 w-3/4 max-w-4xl blur-3xl ${bright ? "h-80" : "h-52"}`}
+        style={{
+          background: `linear-gradient(180deg, rgba(${glow},${bright ? 0.28 : 0.16}), rgba(${glow},${bright ? 0.1 : 0.05}), transparent)`,
+        }}
       />
       <div className={`${TAPE} top-16 -rotate-[8deg] opacity-80`} />
       <div className={`${TAPE} bottom-24 rotate-[6deg] opacity-60`} />
