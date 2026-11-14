@@ -83,7 +83,8 @@ export default function Levels() {
           .sort((a, b) => a.id - b.id);
 
         // Mapear cada nivel según el estado devuelto por el backend.
-        const mappedLevels: ICardLevelPreview[] = mergedDefinitions.map((def) => {
+        // displayLevel: numeración correlativa para mostrar (los niveles 16-18 se ven como 6, 7 y 8)
+        const mappedLevels: ICardLevelPreview[] = mergedDefinitions.map((def, index) => {
           const apiLevel = apiLevels.find((l) => l.level === def.id);
           const isCompleted = apiLevel?.status === "completed";
           const isCurrent = apiLevel?.status === "current";
@@ -92,6 +93,7 @@ export default function Levels() {
 
           return {
             id: def.id,
+            displayLevel: index + 1,
             title: apiLevel?.title ? apiLevel.title.toUpperCase() : def.title,
             description: apiLevel?.description || def.description,
             imageURL: def.imageURL,

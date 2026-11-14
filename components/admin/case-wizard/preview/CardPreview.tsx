@@ -15,6 +15,7 @@ export default function CardPreview({ draft }: { draft: CaseDraft }) {
         <LevelCard
           preview={{
             id: draft.groupLevel,
+            displayLevel: draft.groupLevel,
             title: (draft.title || t("titlePlaceholder")).toUpperCase(),
             description: draft.description || t("descriptionPlaceholder"),
             imageURL: previewImage(draft.imageUrl, "/images/levelcardspreview/level_1_preview.jpg"),

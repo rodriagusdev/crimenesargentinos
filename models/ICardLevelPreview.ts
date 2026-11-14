@@ -1,5 +1,6 @@
 export interface ICardLevelPreview {
-  id: number;
+  id: number; // nivel real del juego (1-5, 16-18…): se usa para jugar
+  displayLevel: number; // número que ve el jugador: correlativo (1, 2, 3… sin saltos)
   title: string;
   description: string;
   imageURL: string;

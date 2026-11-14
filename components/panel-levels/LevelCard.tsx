@@ -97,7 +97,7 @@ export default function LevelCard({ preview }: LevelCardProps) {
       role="button"
       tabIndex={preview.canPlay ? 0 : -1}
       aria-disabled={!playable}
-      aria-label={t("ariaLabel", { n: preview.id, title })}
+      aria-label={t("ariaLabel", { n: preview.displayLevel, title })}
       onClick={open}
       onKeyDown={onKeyDown}
       onMouseEnter={() => preview.canPlay && audioManager.play("opencasefile", { volume: 0.4 })}

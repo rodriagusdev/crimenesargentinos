@@ -995,3 +995,11 @@ body {
     height: calc(100svh - 1px);
   }
 }
+
+/* Página sin barra de scroll visible (galerías de bocetos): se sigue pudiendo desplazar */
+html.hide-scrollbar {
+  scrollbar-width: none;
+}
+html.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}

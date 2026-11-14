@@ -177,7 +177,7 @@ export default function LevelsCarousel({ levels }: Props) {
       <nav aria-label={t("nav")} className="flex justify-center mt-4">
         <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 p-1.5 sm:p-2 max-w-full rounded-2xl bg-[#0c1421] border-2 border-[#1c2c3e] shadow-[0_12px_32px_rgba(0,0,0,0.85)]">
           {levels.map((level, i) => (
-            <CarouselDot key={level.id} number={level.id} state={dotState(level)} active={active === i} onClick={() => jump(i)} />
+            <CarouselDot key={level.id} number={level.displayLevel} state={dotState(level)} active={active === i} onClick={() => jump(i)} />
           ))}
         </div>
       </nav>
