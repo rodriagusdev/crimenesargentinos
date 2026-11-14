@@ -26,7 +26,9 @@ export default function GlobalAudioControl() {
   const masterVolume = useAudioStore((state) => state.masterVolume);
   const toggleMute = useAudioStore((state) => state.toggleMute);
   // En el panel de admin, abajo a la izquierda está "Cerrar sesión": ahí el control va a la derecha
-  const isAdmin = usePathname()?.startsWith("/admin") ?? false;
+  const pathname = usePathname() ?? "";
+  // A la derecha en el panel de admin (tapaba el logout) y en /principal (tapaba la ficha del jugador)
+  const onRight = pathname.startsWith("/admin") || pathname === "/principal";
 
   useEffect(() => {
     setMounted(true);
@@ -39,7 +41,7 @@ export default function GlobalAudioControl() {
       {/* Floating Audio Gadget */}
       <div
         className={`
-          fixed bottom-[max(1rem,env(safe-area-inset-bottom))] ${isAdmin ? "right-4" : "left-4"} z-20
+          fixed bottom-[max(1rem,env(safe-area-inset-bottom))] ${onRight ? "right-4" : "left-4"} z-20
           flex items-center gap-1 p-1 rounded-2xl
           bg-[rgba(12,19,31,0.85)] hover:bg-[rgba(16,25,40,0.95)]
           border border-[rgba(255,243,199,0.2)] hover:border-[#E1C380]

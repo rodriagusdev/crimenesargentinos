@@ -42,7 +42,7 @@ export function ProvinceMapFrame({
           <span className="text-[10px] font-mono tracking-widest text-[#E1C380]/80 uppercase font-semibold truncate">
             {t("cartography", { name: provinceName.toUpperCase() })}
           </span>
-          <span className="text-xs font-mono text-[#FFF3C7]/90 font-bold truncate">
+          <span className="text-xs lg:text-[10px] font-mono text-[#FFF3C7]/90 font-bold truncate">
             {t("sector", { id: provinceId.slice(0, 8).toUpperCase() })}
           </span>
         </div>

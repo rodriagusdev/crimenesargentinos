@@ -112,7 +112,7 @@ export default function CaseDossierModal({
       <div
         className={`
           relative w-[95vw] max-w-[95vw]
-          max-h-[96svh] sm:max-h-[94vh]
+          max-h-[96svh] sm:max-h-[94vh] lg:h-[94vh]
           flex flex-col
           rounded-2xl
           bg-[#0a111a]
@@ -166,7 +166,7 @@ export default function CaseDossierModal({
         {/* ========================================================================= */}
         {/* 2. BODY CONTENT: EL TABLERO UNIFICADO DE INVESTIGACIÓN                    */}
         {/* ========================================================================= */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden p-2 sm:p-6 bg-[#0f1a28] custom-scrollbar flex flex-col gap-4">
+        <div className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden overflow-x-hidden p-2 sm:p-6 lg:p-4 bg-[#0f1a28] custom-scrollbar flex flex-col gap-4">
           {/* Facing Criminal Critical Notice */}
           {isFacingCriminal && (
             <div className="flex items-start sm:items-center gap-3 p-3.5 sm:p-4 rounded-xl bg-gradient-to-r from-red-950/90 via-red-900/80 to-red-950/90 border border-red-500/70 shadow-[0_0_20px_rgba(239,68,68,0.3)] animate-pulse shrink-0">

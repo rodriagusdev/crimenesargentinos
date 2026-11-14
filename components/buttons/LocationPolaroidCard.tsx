@@ -78,7 +78,7 @@ export function LocationPolaroidCard({
 
       {/* Faldón blanco clásico de Polaroid con tipografía mecanografiada */}
       <div className="flex flex-col items-center mt-2.5 w-full">
-        <h3 className="font-mono font-black text-xs sm:text-sm text-zinc-900 tracking-tight text-center truncate w-full">
+        <h3 className="font-mono font-black text-xs sm:text-sm lg:text-xs text-zinc-900 tracking-tight text-center truncate w-full">
           {location.name}
         </h3>
 

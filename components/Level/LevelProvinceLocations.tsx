@@ -135,9 +135,10 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
   const fromCoord = PATROL_WAYPOINTS[fromIndex >= 0 ? fromIndex % PATROL_WAYPOINTS.length : 0];
   const toCoord = PATROL_WAYPOINTS[toIndex >= 0 ? toIndex % PATROL_WAYPOINTS.length : 1];
 
-  // En celular vertical la pantalla scrollea entera: con paneles de alto fijo la lista de locaciones quedaba sin lugar
+  // En celular vertical la pantalla scrollea entera: con paneles de alto fijo la lista de locaciones quedaba sin lugar.
+  // no-desktop-zoom: en escritorio se ve a tamaño completo (ya estaba ajustada antes del achique global)
   return (
-    <div className="relative w-full sm:w-screen min-h-dvh sm:h-dvh flex flex-col bg-[#080e18] select-none overflow-x-hidden sm:overflow-hidden [@media(max-height:500px)_and_(pointer:coarse)]:h-dvh [@media(max-height:500px)_and_(pointer:coarse)]:overflow-hidden">
+    <div className="no-desktop-zoom relative w-full sm:w-screen min-h-dvh sm:h-dvh flex flex-col bg-[#080e18] select-none overflow-x-hidden sm:overflow-hidden [@media(max-height:500px)_and_(pointer:coarse)]:h-dvh [@media(max-height:500px)_and_(pointer:coarse)]:overflow-hidden">
       {/* Animación táctica de patrullero policial entre locaciones */}
       {travel.travelingTo && (
         <TravelAnimationOverlay
@@ -195,7 +196,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
             />
 
             {/* Encabezado de la lista de puntos */}
-            <div className="flex items-center justify-between gap-2 text-[10px] sm:text-xs uppercase tracking-wider text-[#FFF3C7]/70 mb-2 sm:mb-3 font-mono font-semibold">
+            <div className="flex items-center justify-between gap-2 text-[10px] sm:text-xs lg:text-[10px] uppercase tracking-wider text-[#FFF3C7]/70 mb-2 sm:mb-3 font-mono font-semibold">
               <span>{t("availablePoints")}</span>
               <span className="text-[10px] text-[#E1C380]/70 shrink-0">
                 {t("destinations", { n: data.locations.length })}
@@ -203,7 +204,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
             </div>
 
             {/* Cuadrícula de fotos Polaroid de locaciones (idéntico estilo a sospechosos) */}
-            <div className="sm:flex-1 sm:min-h-0 sm:overflow-y-auto overflow-x-hidden px-1.5 sm:px-3.5 py-3 [@media(max-height:500px)_and_(pointer:coarse)]:flex-1 [@media(max-height:500px)_and_(pointer:coarse)]:min-h-0 [@media(max-height:500px)_and_(pointer:coarse)]:overflow-y-auto">
+            <div className="sm:flex-1 sm:min-h-0 sm:overflow-y-auto overflow-x-hidden px-1.5 sm:px-3.5 pt-2.5 pb-3 [@media(max-height:500px)_and_(pointer:coarse)]:flex-1 [@media(max-height:500px)_and_(pointer:coarse)]:min-h-0 [@media(max-height:500px)_and_(pointer:coarse)]:overflow-y-auto">
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 {data.locations.map((loc, idx) => {
                   const isCurrent = loc.id === currentLocationId;

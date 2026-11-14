@@ -1,0 +1,127 @@
+/* Videoteca: cintas VHS en el estante y tráiler de cada caso en un televisor con estética de VHS */
+
+/* Cinta que se asoma del estante al pasar el mouse */
+.tape {
+  transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.2), box-shadow 0.25s;
+}
+.tape:hover,
+.tape:focus-visible {
+  transform: translateY(-14px) rotate(-1.5deg);
+  box-shadow: 0 22px 28px rgba(0, 0, 0, 0.7);
+}
+
+/* Carretes que giran en la ventanita de la cinta (al pasar el mouse) */
+.reel {
+  transition: transform 1.6s linear;
+}
+.tape:hover .reel {
+  transform: rotate(720deg);
+}
+
+/* Banda de tracking que baja por la pantalla */
+.tracking {
+  height: 14%;
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.12) 40%, rgba(255, 255, 255, 0.28) 50%, rgba(255, 255, 255, 0.12) 60%, transparent);
+  animation: tracking 5.5s linear infinite;
+}
+@keyframes tracking {
+  from { transform: translateY(-120%); }
+  to { transform: translateY(820%); }
+}
+
+/* Parpadeo del indicador ▶ PLAY y del REC */
+.blink {
+  animation: blink 1s steps(2) infinite;
+}
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* Leve temblor de color de la imagen de VHS */
+.jitter {
+  animation: jitter 3.2s steps(1) infinite;
+}
+@keyframes jitter {
+  0%, 92%, 100% { transform: none; filter: saturate(1.15) contrast(1.05); }
+  93% { transform: translateX(3px); filter: saturate(1.6) hue-rotate(-8deg) contrast(1.2); }
+  95% { transform: translateX(-2px); }
+}
+
+/* Zoom lento sobre la escena */
+.kenBurns {
+  animation: kenBurns 6s ease-out both;
+}
+@keyframes kenBurns {
+  from { transform: scale(1.15); }
+  to { transform: scale(1); }
+}
+
+/* Texto que entra de golpe */
+.slam {
+  animation: slam 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+@keyframes slam {
+  from { opacity: 0; transform: scale(1.6); filter: blur(4px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+
+/* Sello que cae */
+.stamp {
+  animation: stamp 0.4s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+@keyframes stamp {
+  from { opacity: 0; transform: scale(2.4) rotate(-14deg); }
+  to { opacity: 1; transform: scale(1) rotate(-8deg); }
+}
+
+/* Aparición suave */
+.fadeUp {
+  animation: fadeUp 0.6s ease-out both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Encendido del televisor */
+.powerOn {
+  animation: powerOn 0.5s ease-out both;
+}
+@keyframes powerOn {
+  0% { transform: scaleY(0.02); filter: brightness(3); }
+  60% { transform: scaleY(1.03); }
+  100% { transform: none; filter: none; }
+}
+
+/* Estante vertical: los casetes suben o bajan al mover el carrusel */
+.shelfDown {
+  animation: shelfDown 0.3s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+.shelfUp {
+  animation: shelfUp 0.3s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+@keyframes shelfDown {
+  from { opacity: 0.3; transform: translateY(28%); }
+}
+@keyframes shelfUp {
+  from { opacity: 0.3; transform: translateY(-28%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tape,
+  .reel {
+    transition: none;
+  }
+  .shelfDown,
+  .shelfUp,
+  .tracking,
+  .blink,
+  .jitter,
+  .kenBurns,
+  .slam,
+  .stamp,
+  .fadeUp,
+  .powerOn {
+    animation: none;
+  }
+}

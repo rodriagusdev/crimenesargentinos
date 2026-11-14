@@ -13,6 +13,9 @@ const messages = defineMessages({
   en: { backgroundAlt: "Police Investigations Headquarters", loading: "Accessing Investigations HQ..." },
 });
 
+// Columna en escritorio: ocupa el alto disponible y, si su contenido no entra, se desplaza por dentro sin barra visible
+const COLUMN = "xl:min-h-0 xl:overflow-y-auto xl:overflow-x-hidden xl:py-2 xl:[scrollbar-width:none] xl:[&::-webkit-scrollbar]:hidden";
+
 export default function Principal() {
   const { isAuthenticated, loading } = useAuth();
   const t = useT(messages);
@@ -47,7 +50,7 @@ export default function Principal() {
   }
 
   return (
-    <div className="relative min-h-svh w-full overflow-x-hidden select-none bg-[#070c16]">
+    <div className="relative min-h-svh xl:h-svh w-full overflow-x-hidden xl:overflow-hidden select-none bg-[#070c16]">
       {/* ========================================================================= */}
       {/* FONDO AMBIENTAL: SALA CENTRAL DE INVESTIGACIÓN POLICIAL (z-0)              */}
       {/* Ilustración dedicada de la comisaría porteña con tratamiento táctico retro */}
@@ -78,20 +81,21 @@ export default function Principal() {
       {/* ========================================================================= */}
       {/* CONTENIDO PRINCIPAL: DISTRIBUCIÓN DE PANELES DE INVESTIGACIÓN (z-10)       */}
       {/* ========================================================================= */}
-      <div className="relative z-10 min-h-svh p-4 pb-20 md:p-6 md:pb-6 xl:p-8 xl:pb-8">
-        <div className="mx-auto grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-[300px_minmax(0,1fr)_320px]">
+      {/* En escritorio todo entra en el alto de la ventana (el 6% más chico es global, en globals.css): sin scroll de página; si una columna no entrara, se desplaza por dentro */}
+      <div className="relative z-10 min-h-svh xl:h-svh p-4 pb-20 md:p-6 md:pb-6 xl:p-6">
+        <div className="mx-auto grid gap-6 grid-cols-1 md:grid-cols-2 xl:h-full xl:grid-cols-[300px_minmax(0,1fr)_320px]">
           {/* PANEL IZQUIERDO / COLUMNA 1 TABLET: FICHA POLICIAL Y CERRAR SESIÓN */}
-          <aside className="order-1 md:order-1 xl:order-1 md:col-span-1 xl:col-span-1">
+          <aside className={`order-1 md:order-1 xl:order-1 md:col-span-1 xl:col-span-1 ${COLUMN}`}>
             <PlayerPanel />
           </aside>
 
           {/* PANEL DERECHO / COLUMNA 2 TABLET: RANKING DE AGENTES */}
-          <aside className="order-3 md:order-2 xl:order-3 md:col-span-1 xl:col-span-1">
+          <aside className={`order-3 md:order-2 xl:order-3 md:col-span-1 xl:col-span-1 ${COLUMN}`}>
             <Leaderboard />
           </aside>
 
           {/* NIVELES / ANCHO COMPLETO EN TABLET: EXPEDIENTES DISPONIBLES */}
-          <main className="order-2 md:order-3 xl:order-2 md:col-span-2 xl:col-span-1">
+          <main className={`order-2 md:order-3 xl:order-2 md:col-span-2 xl:col-span-1 ${COLUMN}`}>
             <Levels />
           </main>
         </div>

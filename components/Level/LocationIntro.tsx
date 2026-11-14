@@ -31,8 +31,9 @@ export default function LocationIntro({
     rawImageUrl || "/images/slate_board.webp"
   );
 
+  // no-desktop-zoom: la imagen previa al diálogo se ve a tamaño completo (con el achique global se cortaba)
   return (
-    <div className="relative w-screen h-dvh flex flex-col justify-between overflow-hidden bg-[#080e18] select-none">
+    <div className="no-desktop-zoom relative w-screen h-dvh flex flex-col justify-between overflow-hidden bg-[#080e18] select-none">
       {/* ── Background full-screen image ── */}
       <div className="absolute inset-0 z-0">
         <Image

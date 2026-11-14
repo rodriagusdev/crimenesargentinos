@@ -22,6 +22,8 @@ export type CaseStory = {
   /** Arte del nivel (escena, sin personajes) */
   image: string;
   emoji: string;
+  /** Arte propio del tráiler (pixel art sin texto): el lugar del hecho y lo que se busca. Si falta, se usa `image` */
+  trailerArt?: { place?: string; wanted?: string; /** Fondo de la placa final ("el resto del expediente se abre al jugar") */ finale?: string };
 };
 
 export const CASE_STORIES: CaseStory[] = [
@@ -38,6 +40,7 @@ export const CASE_STORIES: CaseStory[] = [
     province: "Ciudad de Buenos Aires",
     image: "/images/levelcardspreview/level_1_preview.jpg",
     emoji: "🏆",
+    trailerArt: { place: "/images/historias/estrellas-lugar.webp", wanted: "/images/historias/estrellas-objeto.webp", finale: "/images/historias/estrellas-final.webp" },
   },
   {
     id: "mananeros",
@@ -52,6 +55,7 @@ export const CASE_STORIES: CaseStory[] = [
     province: "Tierra del Fuego",
     image: "/images/levelcardspreview/level_2_preview.jpg",
     emoji: "🎟️",
+    trailerArt: { place: "/images/historias/mananeros-lugar.webp", wanted: "/images/historias/mananeros-objeto.webp" },
   },
   {
     id: "patagonia",
@@ -66,6 +70,7 @@ export const CASE_STORIES: CaseStory[] = [
     province: "Río Negro",
     image: "/images/levelcardspreview/level_3_preview.jpg",
     emoji: "❄️",
+    trailerArt: { place: "/images/historias/patagonia-lugar.webp", wanted: "/images/historias/patagonia-objeto.webp" },
   },
   {
     id: "ruta40",
@@ -80,6 +85,7 @@ export const CASE_STORIES: CaseStory[] = [
     province: "Jujuy",
     image: "/images/levelcardspreview/level_4_preview.jpg",
     emoji: "🛣️",
+    trailerArt: { place: "/images/historias/ruta40-lugar.webp", wanted: "/images/historias/ruta40-objeto.webp" },
   },
   {
     id: "provincias",
@@ -94,6 +100,7 @@ export const CASE_STORIES: CaseStory[] = [
     province: "Entre Ríos",
     image: "/images/levelcardspreview/level_5_preview.jpg",
     emoji: "💎",
+    trailerArt: { place: "/images/historias/provincias-lugar.webp", wanted: "/images/historias/provincias-objeto.webp" },
   },
   {
     id: "alfajor",
@@ -108,6 +115,7 @@ export const CASE_STORIES: CaseStory[] = [
     province: "La Pampa",
     image: "/images/levelcardspreview/alfajor.webp",
     emoji: "🍫",
+    trailerArt: { place: "/images/historias/alfajor-lugar.webp", wanted: "/images/historias/alfajor-objeto.webp" },
   },
   {
     id: "camiseta",
@@ -122,6 +130,7 @@ export const CASE_STORIES: CaseStory[] = [
     province: "Santiago del Estero",
     image: "/images/levelcardspreview/camiseta86.webp",
     emoji: "👕",
+    trailerArt: { place: "/images/historias/camiseta-lugar.webp", wanted: "/images/historias/camiseta-objeto.webp" },
   },
   {
     id: "bandoneon",
@@ -136,5 +145,6 @@ export const CASE_STORIES: CaseStory[] = [
     province: "Ciudad de Buenos Aires",
     image: "/images/levelcardspreview/bandoneon.webp",
     emoji: "🪗",
+    trailerArt: { place: "/images/historias/bandoneon-lugar.webp", wanted: "/images/historias/bandoneon-objeto.webp" },
   },
 ];

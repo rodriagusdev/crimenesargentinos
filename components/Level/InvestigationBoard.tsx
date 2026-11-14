@@ -63,7 +63,7 @@ export default function InvestigationBoard({
   };
 
   return (
-    <div className="w-full flex flex-col gap-4 animate-fade-in select-none">
+    <div className="w-full flex flex-col gap-4 lg:gap-3 lg:flex-1 lg:min-h-0 animate-fade-in select-none">
       {/* Header de Evidencias e Hipótesis */}
       <div>
         <h3 className="text-sm sm:text-base font-bold font-mono text-[#E1C380] uppercase tracking-wider">
@@ -74,7 +74,8 @@ export default function InvestigationBoard({
       {/* 2. Pizarra Táctica / Pizarra Negra de Investigación */}
       <div
         className="
-          relative w-full rounded-2xl p-3 sm:p-6 md:p-8
+          relative w-full rounded-2xl p-3 sm:p-6 md:p-8 lg:p-5
+          lg:flex-1 lg:min-h-0
           border-[6px] sm:border-[12px] border-[#1e2430]
           ring-1 ring-[#334155]/80
           shadow-[inset_0_0_80px_rgba(0,0,0,0.95),0_25px_60px_rgba(0,0,0,0.85)]
@@ -104,11 +105,11 @@ export default function InvestigationBoard({
         <span className="absolute bottom-2.5 right-2.5 size-3.5 rounded-full bg-gradient-to-br from-slate-300 via-slate-600 to-slate-900 border border-slate-400 shadow-md flex items-center justify-center text-[7px] text-slate-950 font-bold z-10 select-none">✕</span>
 
         {/* Layout de 2 Secciones: Fichas de Pistas (Izquierda) y Fotos Polaroid de Sospechosos con Rasgos (Derecha) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 lg:h-full relative z-10">
           {/* ========================================================= */}
           {/* COLUMNA IZQUIERDA (5 de 12): INFORME Y PISTAS CLAVADAS    */}
           {/* ========================================================= */}
-          <div className="lg:col-span-5 flex flex-col gap-4">
+          <div className="lg:col-span-5 flex flex-col gap-4 lg:min-h-0 lg:overflow-y-auto lg:overflow-x-hidden lg:px-1 lg:pt-3 lg:pb-2 lg:[scrollbar-width:none] lg:[&::-webkit-scrollbar]:hidden">
             {/* INFORME INICIAL DEL CASO (Manila Paper Pinned) */}
             {briefing && (
               <div
@@ -217,7 +218,7 @@ export default function InvestigationBoard({
           {/* ========================================================= */}
           {/* COLUMNA DERECHA (7 de 12): POLAROIDS Y RASGOS DE SOSPECHOSOS */}
           {/* ========================================================= */}
-          <div className="lg:col-span-7 flex flex-col gap-3.5">
+          <div className="lg:col-span-7 flex flex-col gap-3.5 lg:min-h-0 lg:overflow-y-auto lg:overflow-x-hidden lg:px-1 lg:pt-1 lg:pb-2 lg:[scrollbar-width:none] lg:[&::-webkit-scrollbar]:hidden">
             <div className="flex items-center justify-between pb-1.5 px-3 py-1.5 rounded-lg bg-[rgba(15,23,42,0.8)] backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-sm">
               <h4 className="font-mono font-bold text-xs uppercase tracking-wider text-[#E1C380]">
                 {t("suspectsHeader")}
@@ -266,7 +267,7 @@ export default function InvestigationBoard({
                       </div>
 
                       {/* Foto Polaroid cuadrada con 2 iconos de acción en las esquinas */}
-                      <div className="relative aspect-square w-full rounded-xs overflow-hidden bg-zinc-900 border border-zinc-300">
+                      <div className="relative aspect-square lg:aspect-[5/4] w-full rounded-xs overflow-hidden bg-zinc-900 border border-zinc-300">
                         {/* BOTÓN 1: PRINCIPAL (★) - Esquina superior izquierda */}
                         <button
                           type="button"

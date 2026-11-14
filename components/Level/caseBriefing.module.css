@@ -1,0 +1,90 @@
+/* Informe inicial del caso (estilo tablero de investigación): marco que entra, informe que se clava y etiqueta que cae */
+
+.folderIn {
+  animation: folderIn 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.15) both;
+}
+@keyframes folderIn {
+  from { opacity: 0; transform: translateY(30px) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+
+.sheetOut {
+  animation: sheetOut 0.6s 0.25s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+@keyframes sheetOut {
+  from { opacity: 0; transform: translateY(-30px) rotate(-3deg); }
+  to { opacity: 1; transform: rotate(-0.5deg); }
+}
+
+.stamp {
+  animation: stamp 0.45s 0.8s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+@keyframes stamp {
+  from { opacity: 0; transform: scale(2.2) rotate(-4deg); }
+  to { opacity: 0.85; transform: rotate(-10deg); }
+}
+
+/* Texto de máquina de escribir: tipografía de máquina real, más legible que la pixelada */
+.typewriter {
+  font-family: "Courier New", Courier, "Nimbus Mono PS", monospace;
+}
+
+.hint {
+  animation: hint 1.4s ease-in-out infinite;
+}
+@keyframes hint {
+  50% { opacity: 0.35; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .folderIn,
+  .sheetOut,
+  .stamp,
+  .hint {
+    animation: none;
+  }
+  .stamp {
+    opacity: 0.85;
+    transform: rotate(-10deg);
+  }
+
+}
+
+/* Fichas y notas que se clavan en la pizarra */
+.pinIn {
+  animation: pinIn 0.45s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+}
+@keyframes pinIn {
+  from { opacity: 0; transform: translateY(-18px) scale(1.08); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pinIn {
+    animation: none;
+  }
+}
+
+/* Sello "TOMAR EL CASO": se hunde al apretarlo */
+.stampPress {
+  animation: stampPress 0.3s ease-out both;
+}
+@keyframes stampPress {
+  40% { transform: scale(0.88) rotate(0deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+/* "RECIBIDO" que cae sobre el informe al tomar el caso */
+.received {
+  animation: received 0.35s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+@keyframes received {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(2.6) rotate(-4deg); }
+  to { opacity: 0.9; transform: translate(-50%, -50%) rotate(-14deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stampPress,
+  .received {
+    animation-duration: 0.01s;
+  }
+}

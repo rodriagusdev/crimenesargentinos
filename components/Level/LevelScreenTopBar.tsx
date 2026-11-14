@@ -46,7 +46,7 @@ export function LevelScreenTopBar({
         </div>
 
         <div className="hidden sm:flex [@media(max-height:500px)_and_(pointer:coarse)]:hidden items-center gap-2 px-3 md:px-4 py-2 rounded-2xl backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] text-[#FFF3C7]">
-          <span className="text-xs uppercase tracking-widest text-[#E1C380] font-semibold font-mono">
+          <span className="text-xs lg:text-[10px] uppercase tracking-widest text-[#E1C380] font-semibold font-mono">
             {badgeText}
           </span>
         </div>

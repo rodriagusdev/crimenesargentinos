@@ -19,8 +19,9 @@ export default function Login() {
 	const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
 	const t = useT(messages);
 
+	// no-desktop-zoom: el login se ve a tamaño completo (con el achique global de escritorio, el fondo se cortaba)
 	return (
-		<div className="relative min-h-svh w-screen overflow-hidden flex items-center justify-center font-sans bg-black">
+		<div className="no-desktop-zoom relative min-h-svh w-screen overflow-hidden flex items-center justify-center font-sans bg-black">
 			{/* Seamless Looping Video Background */}
 			<SeamlessBackgroundVideo
 				src="/videos/introvid.mp4"

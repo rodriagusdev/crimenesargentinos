@@ -2,17 +2,11 @@
 
 import { createPortal } from "react-dom";
 import { useEffect, useState, useCallback, useRef } from "react";
-import GameButton from "../buttons/GameButton";
+import CaseBriefingSheet from "./CaseBriefingSheet";
 import { getGameData } from "@/services/levelService";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { audioManager } from "@/lib/audioManager";
-import { useT } from "@/hooks/useT";
-import { defineMessages } from "@/lib/i18n/messages";
 
-const messages = defineMessages({
-  es: { policeFile: "Expediente Policial", caseReport: "CASO #{n} — INFORME", confidential: "Confidencial", understood: "ENTENDIDO" },
-  en: { policeFile: "Police File", caseReport: "CASE #{n} — REPORT", confidential: "Confidential", understood: "UNDERSTOOD" },
-});
 
 interface CaseBriefingModalProps {
   levelId: number;
@@ -31,11 +25,13 @@ export default function CaseBriefingModal({
   const [displayedText, setDisplayedText] = useState<string>("");
   const [isTyping, setIsTyping] = useState<boolean>(true);
   const soundPlayedRef = useRef<boolean>(false);
-  const t = useT(messages);
 
   const session = useGameSessionStore((state) => state.session);
   const storeBriefing = useGameSessionStore((state) => state.briefing);
   const markBriefingSeen = useGameSessionStore((state) => state.markBriefingSeen);
+  const initialClues = useGameSessionStore((state) => state.initialClues);
+  const initialTime = useGameSessionStore((state) => state.initialTime);
+  const initialPI = useGameSessionStore((state) => state.initialPI);
 
   useEffect(() => {
     setMounted(true);
@@ -133,64 +129,21 @@ export default function CaseBriefingModal({
   if (!shouldShow || typeof window === "undefined") return null;
 
   return createPortal(
+    // Fondo: la oficina a oscuras; tocar afuera (o la hoja) completa el tipeo
     <div
-      className="fixed inset-0 z-40 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-md animate-fade-in select-none"
+      className="fixed inset-0 z-40 flex items-center justify-center p-3 pt-10 sm:p-6 sm:pt-12 bg-black/75 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.6)_100%)] backdrop-blur-sm select-none"
       onClick={handleSkipTyping}
     >
-      <div
-        className="
-          relative w-full max-w-lg sm:max-w-xl
-          max-h-[90svh] overflow-y-auto
-          p-4 sm:p-8 rounded-2xl
-          backdrop-blur-xs
-          border border-[rgba(255,243,199,0.18)]
-          shadow-[0_20px_50px_rgba(0,0,0,0.6)]
-          text-[#FFF3C7]
-          flex flex-col gap-4 sm:gap-5
-          cursor-default
-        "
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Cabecera / Sello de Caso */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[rgba(255,243,199,0.12)] pb-4">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">📁</span>
-            <div>
-              <span className="text-[10px] uppercase tracking-widest text-[#E1C380]/80 font-mono">
-                {t("policeFile")}
-              </span>
-              <h2 className="text-base sm:text-lg font-bold text-[#E1C380] tracking-wider font-mono">
-                {t("caseReport", { n: levelId.toString().padStart(2, "0") })}
-              </h2>
-            </div>
-          </div>
-
-          <div className="px-3 py-1 rounded-xl border border-red-500/40 bg-red-950/40 text-red-400 font-mono text-[10px] tracking-widest uppercase">
-            {t("confidential")}
-          </div>
-        </div>
-
-        {/* Cuerpo con texto de máquina de escribir */}
-        <div className="min-h-[120px] sm:min-h-[140px] overflow-y-auto p-4 sm:p-5 rounded-xl bg-[rgba(10,15,25,0.5)] border border-[rgba(255,243,199,0.12)] shadow-inner flex flex-col justify-between">
-          <p className="text-xs sm:text-sm text-[#FFF3C7]/95 font-mono leading-relaxed whitespace-pre-line">
-            {displayedText}
-            {isTyping && (
-              <span className="inline-block w-2 h-4 ml-1 bg-[#E1C380] animate-pulse align-middle" />
-            )}
-          </p>
-        </div>
-
-        {/* Botón de acción */}
-        <div className="w-full pt-2">
-          <GameButton
-            icon="✓"
-            label={t("understood")}
-            onClick={handleClose}
-            disabled={isTyping}
-            variant="primary"
-          />
-        </div>
-      </div>
+      <CaseBriefingSheet
+        caseNumber={levelId.toString().padStart(2, "0")}
+        hours={initialTime}
+        pi={initialPI}
+        clues={initialClues}
+        text={displayedText}
+        typing={isTyping}
+        onSkip={handleSkipTyping}
+        onClose={handleClose}
+      />
     </div>,
     document.body
   );

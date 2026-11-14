@@ -1,72 +1,147 @@
 "use client";
 
-import { useEffect } from "react";
-import { HISTORIAS_TRAILER_SCENES } from "./historiasTrailerScenes";
-import TrailerPoster from "./TrailerPoster";
-import TrailerControls from "@/components/home/trailer/TrailerControls";
+import { useEffect, useState } from "react";
+import VhsShelf, { SHELF_VISIBLE } from "./VhsShelf";
+import VhsTelevision from "./VhsTelevision";
+import VideotecaHero from "./VideotecaHero";
+import { CASE_SCENES } from "./caseTrailer";
+import GameBackdrop, { CautionBar, GAME_BG } from "@/components/galeria/GameBackdrop";
+import { audioManager } from "@/lib/audioManager";
+import { CASE_STORIES } from "@/lib/caseStories";
 import { useTrailerTimeline } from "@/hooks/useTrailerTimeline";
 
-// "Tráiler de los casos": un tráiler de cine que presenta los ocho casos uno por uno (póster con ▶, escenas con
-// franjas negras, grano y cortes, y placa final con los botones). El sonido arranca solo cuando el visitante da play.
+// Propuesta "Tráiler de los casos" (distinta al tráiler de la home): la videoteca de la Central.
+// Un destacado con el caso elegido y un estante con una cinta VHS por caso; "VER TRÁILER" pasa a pantalla completa
+// el tráiler de ESE caso: el lugar, el hecho, lo que se busca, la frase gancho y el título. Nada de pistas ni sospechosos.
 export default function TrailerHistoriasScreen() {
-  const { state, scene, sceneElapsed, elapsed, total, starts, play, pause, skip } = useTrailerTimeline(HISTORIAS_TRAILER_SCENES);
-  const watching = state.phase === "playing" || state.phase === "paused";
+  // Cinta en la videocasetera (índice en CASE_STORIES; null: ninguna)
+  const [tape, setTape] = useState<number | null>(null);
+  const { state, scene, sceneElapsed, elapsed, total, starts, play, pause, skip } = useTrailerTimeline(CASE_SCENES);
+  const story = tape === null ? null : CASE_STORIES[tape];
+  // Caso destacado (el del casete elegido en el estante)
+  const [featured, setFeatured] = useState(0);
+  // Carrusel del estante: primer casete visible y último movimiento
+  const [shelf, setShelf] = useState({ start: 0, dir: "down" as "up" | "down", n: 0 });
+  const maxStart = CASE_STORIES.length - SHELF_VISIBLE;
+  const moveShelf = (dir: "up" | "down") =>
+    setShelf((s) => ({ start: Math.min(maxStart, Math.max(0, s.start + (dir === "down" ? 1 : -1))), dir, n: s.n + 1 }));
+  // Paginador: deja ese casete arriba (o lo más arriba posible)
+  const jumpShelf = (index: number) =>
+    setShelf((s) => {
+      const start = Math.min(maxStart, Math.max(0, index));
+      return start === s.start ? s : { start, dir: start > s.start ? "down" : "up", n: s.n + 1 };
+    });
 
-  // Espacio pausa/sigue, Escape salta al final (solo mientras se ve el tráiler)
+  const insert = (index: number) => {
+    audioManager.play("slide");
+    setTape(index);
+    setFeatured(index);
+    play();
+    // El estante sigue a la cinta puesta (por ejemplo, con "siguiente cinta")
+    setShelf((s) =>
+      index >= s.start && index < s.start + SHELF_VISIBLE
+        ? s
+        : { start: Math.min(maxStart, Math.max(0, index - 1)), dir: index > s.start ? "down" : "up", n: s.n + 1 },
+    );
+    // Pantalla completa (si el navegador lo permite; si no, el reproductor igual ocupa toda la ventana)
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {});
+  };
+  const close = () => {
+    skip();
+    setTape(null);
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  };
+  const eject = () => {
+    audioManager.play("click");
+    close();
+  };
+  const toggle = () => (state.phase === "playing" ? pause() : play());
+
+  // Espacio pausa/sigue y Escape saca la cinta
   useEffect(() => {
-    if (!watching) return;
+    if (tape === null) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.code === "Space") {
         e.preventDefault();
         if (state.phase === "playing") pause();
-        else play();
-      } else if (e.key === "Escape") skip();
+        else if (state.phase === "paused") play();
+      } else if (e.key === "Escape") {
+        skip();
+        setTape(null);
+      }
+    };
+    // Si se sale de la pantalla completa del navegador (Esc), también se saca la cinta
+    const onFullscreen = () => {
+      if (!document.fullscreenElement) {
+        skip();
+        setTape(null);
+      }
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [watching, state.phase, play, pause, skip]);
+    document.addEventListener("fullscreenchange", onFullscreen);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.removeEventListener("fullscreenchange", onFullscreen);
+    };
+  }, [tape, state.phase, play, pause, skip]);
 
-  if (!watching) {
-    return <TrailerPoster ended={state.phase === "ended"} seconds={Math.round(total / 1000)} onPlay={play} />;
-  }
-
-  const current = HISTORIAS_TRAILER_SCENES[scene];
-  const paused = state.phase === "paused";
+  const feature = (index: number) => {
+    audioManager.play("opencasefile");
+    setFeatured(index);
+  };
 
   return (
-    <div className="relative h-svh bg-black text-[#FFF3C7] overflow-hidden select-none">
-      {/* En pausa también se congelan las animaciones de la escena */}
-      <div key={scene} className={`home-cut absolute inset-0 ${paused ? "[&_*]:[animation-play-state:paused]" : ""}`}>
-        {current.render(sceneElapsed)}
+    <div className={`relative ${GAME_BG} min-h-svh px-3 sm:px-6 py-6 sm:py-12 pb-16 text-[#FFF3C7]`}>
+      <GameBackdrop glow="120,170,255" />
+      <CautionBar className="max-w-6xl" />
+      <div className="relative max-w-6xl mx-auto flex flex-col gap-5">
+        <header className="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
+          <h1 className="text-base sm:text-xl leading-relaxed">UN TRÁILER POR CASO</h1>
+          <p className="font-mono text-sm text-[#FFF3C7]/60">{CASE_STORIES.length} cintas · elegí una del estante</p>
+        </header>
+
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start">
+          <VideotecaHero
+            story={CASE_STORIES[featured]}
+            number={featured + 1}
+            seconds={Math.round(total / 1000)}
+            onPlay={() => insert(featured)}
+          />
+
+          {/* Estante vertical con los casetes: elegir uno lo pone en el destacado */}
+          <VhsShelf
+            start={shelf.start}
+            move={{ dir: shelf.dir, n: shelf.n }}
+            onMove={moveShelf}
+            onJump={jumpShelf}
+            watching={featured}
+            onPick={feature}
+          />
+        </div>
       </div>
 
-      {/* Textura de película y franjas de cine */}
-      <div className="pointer-events-none absolute inset-0 z-10" aria-hidden>
-        <div className="splash-grain absolute -inset-[50%]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_50%,rgba(0,0,0,0.8)_100%)]" />
-        <div className="absolute top-0 inset-x-0 h-[9vh] bg-black" />
-        <div className="absolute bottom-0 inset-x-0 h-[9vh] bg-black" />
-      </div>
-
-      {/* En pausa la imagen se congela: aviso centrado, clic para seguir */}
-      {paused && (
-        <button
-          type="button"
-          onClick={play}
-          className="absolute inset-x-0 top-[9vh] bottom-[9vh] z-10 flex items-center justify-center bg-black/45 cursor-pointer"
-        >
-          <span className="px-5 py-3 border-2 border-[#FFF3C7]/70 text-[10px] sm:text-xs tracking-[0.3em]">❚❚ EN PAUSA</span>
-        </button>
+      {/* Reproductor a pantalla completa: solo mientras hay una cinta puesta */}
+      {tape !== null && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black">
+          <VhsTelevision
+            fullscreen
+            story={story}
+            number={tape + 1}
+            state={state}
+            scene={scene}
+            sceneElapsed={sceneElapsed}
+            elapsed={elapsed}
+            onToggle={toggle}
+            onSkip={skip}
+            duration={total}
+            starts={starts}
+            tapes={CASE_STORIES.length}
+            onPrev={() => insert((tape - 1 + CASE_STORIES.length) % CASE_STORIES.length)}
+            onNext={() => insert((tape + 1) % CASE_STORIES.length)}
+            onEject={eject}
+          />
+        </div>
       )}
-
-      <TrailerControls
-        playing={state.phase === "playing"}
-        elapsed={elapsed}
-        total={total}
-        starts={starts}
-        onToggle={state.phase === "playing" ? pause : play}
-        onSkip={skip}
-      />
     </div>
   );
 }

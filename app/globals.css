@@ -957,3 +957,41 @@ body {
     animation: none;
   }
 }
+
+/* ===== Escritorio: todo el juego un 6% más chico =====
+   Con zoom al 100% en pantallas de escritorio las pantallas quedaban grandes (scroll, cosas tapadas).
+   El zoom también achica las alturas de pantalla completa, así que se compensan para que sigan ocupando
+   toda la ventana (con 1px menos: el redondeo del zoom si no deja un scroll vertical). Va fuera de las capas
+   de Tailwind para ganarle a sus utilidades. */
+@media (min-width: 1280px) {
+  html {
+    zoom: 0.94;
+  }
+  .h-screen,
+  .h-svh,
+  .h-dvh,
+  .sm\:h-dvh,
+  .xl\:h-svh {
+    height: calc((100svh - 1px) / 0.94);
+  }
+  .min-h-screen,
+  .min-h-svh,
+  .min-h-dvh {
+    min-height: calc((100svh - 1px) / 0.94);
+  }
+  /* Pantallas que se ven a tamaño completo (login/registro, el mapa general, el mapa provincial con las locaciones, la locación y el retrato del detective): deshacen el achique y miden la ventana tal cual */
+  .no-desktop-zoom {
+    zoom: calc(1 / 0.94);
+  }
+  .no-desktop-zoom.min-h-svh,
+  .no-desktop-zoom.min-h-dvh,
+  .no-desktop-zoom.min-h-screen {
+    min-height: calc(100svh - 1px);
+  }
+  .no-desktop-zoom.h-dvh,
+  .no-desktop-zoom.h-svh,
+  .no-desktop-zoom.h-screen,
+  .no-desktop-zoom.sm\:h-dvh {
+    height: calc(100svh - 1px);
+  }
+}

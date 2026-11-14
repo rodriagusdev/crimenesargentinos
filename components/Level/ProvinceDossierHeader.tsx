@@ -42,7 +42,7 @@ export function ProvinceDossierHeader({
         </div>
       </div>
 
-      <h1 className="text-base sm:text-2xl md:text-3xl [@media(max-height:500px)_and_(pointer:coarse)]:text-base leading-snug font-black font-mono tracking-tight break-words text-[#FFF3C7] mt-1.5 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+      <h1 className="text-base sm:text-2xl md:text-3xl lg:text-[28px] [@media(max-height:500px)_and_(pointer:coarse)]:text-base leading-snug font-black font-mono tracking-tight break-words text-[#FFF3C7] mt-1.5 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
         {provinceName}
       </h1>
       <p className="text-[10px] text-[#E1C380]/70 font-mono tracking-wider mt-0.5">
@@ -67,7 +67,7 @@ export function ProvinceDossierHeader({
                 {t("currentPost")}
               </span>
             </div>
-            <span className="text-xs sm:text-sm font-bold text-[#FFF3C7] truncate font-mono mt-0.5">
+            <span className="text-xs sm:text-sm lg:text-xs font-bold text-[#FFF3C7] truncate font-mono mt-0.5">
               {currentLocation.name}
             </span>
             <span className="text-[10px] text-[#E1C380]/80 font-mono">

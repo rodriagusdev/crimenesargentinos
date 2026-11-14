@@ -32,18 +32,19 @@ export default function AgentPortraitHUD() {
   const segments = pathname.split("/").filter(Boolean);
   const isInsideLocation = segments.length >= 4;
 
-  // Solo se muestra en el mapa general y mapa provincial en la esquina inferior derecha
+  // Solo se muestra en el mapa general y mapa provincial en la esquina inferior derecha.
+  // En escritorio su tamaño depende del alto de la ventana, para no tapar las locaciones con zoom al 100%
   if (isInsideLocation) return null;
 
   return (
     <aside
       aria-label={t("portrait")}
       className="
-        fixed bottom-3 right-3 sm:bottom-8 sm:right-8 z-30 pointer-events-none select-none
-        w-20 h-24 sm:w-44 sm:h-56 md:w-56 md:h-56
-        p-1 sm:p-2.5
+        no-desktop-zoom fixed bottom-0 right-[7px] sm:bottom-[7px] sm:right-[15px] z-30 pointer-events-none select-none
+        w-[72px] h-[88px] sm:w-24 sm:h-32 lg:w-[min(8.5rem,15vh)] lg:h-[min(10.5rem,19vh)]
+        p-1 sm:p-2
         bg-[#0c131d]
-        border-[3px] sm:border-[6px] border-[#1a2332]
+        border-[3px] sm:border-[5px] border-[#1a2332]
         [@media(max-height:500px)_and_(pointer:coarse)]:bottom-3 [@media(max-height:500px)_and_(pointer:coarse)]:right-3 [@media(max-height:500px)_and_(pointer:coarse)]:w-20 [@media(max-height:500px)_and_(pointer:coarse)]:h-24 [@media(max-height:500px)_and_(pointer:coarse)]:p-1 [@media(max-height:500px)_and_(pointer:coarse)]:border-[3px]
         rounded-xl
         shadow-[0_20px_50px_rgba(0,0,0,0.9),inset_0_2px_4px_rgba(255,255,255,0.05),0_0_0_1px_rgba(0,0,0,0.8)]
@@ -57,7 +58,7 @@ export default function AgentPortraitHUD() {
             alt={t("portrait")}
             fill
             priority
-            sizes="(max-width: 640px) 80px, (max-width: 768px) 176px, 224px"
+            sizes="(max-width: 640px) 80px, 160px"
             className="object-cover object-top"
           />
         </div>

@@ -128,7 +128,7 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
     dialog.npcCompleteUrl ?? "/images/slate_board.webp";
 
   return (
-    <div className="relative w-screen h-dvh flex flex-col bg-[#080e18] select-none overflow-hidden">
+    <div className="no-desktop-zoom relative w-screen h-dvh flex flex-col bg-[#080e18] select-none overflow-hidden">
       {/* Toast de Feedback de Costo y Pista Desbloqueada */}
       <CostFeedbackToast cost={costToast} unlockedClue={clueToast} />
       {/* ── Top Bar ── (en celular baja por debajo de la barra del menú de investigación) */}
