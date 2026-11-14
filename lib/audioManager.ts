@@ -264,27 +264,19 @@ class AudioManager {
 
     const currentUrl = this.musicPlaylist[this.currentTrackIndex] || "/sounds/songdefault.mp3";
 
-    if (!this.musicAudio) {
-      this.musicAudio = new Audio(currentUrl);
-      this.musicAudio.loop = false; // Alternates tracks via "ended" listener
-      this.musicAudio.preload = "auto";
-
-      this.musicAudio.addEventListener("timeupdate", () => {
-        this.maybePreloadNextTrack();
-      });
-
-      this.musicAudio.addEventListener("ended", () => {
-        this.playNextTrack();
-      });
-
-      this.musicAudio.addEventListener("error", () => {
-        console.warn(`[AudioManager] Error playing track: ${this.musicAudio?.src}, skipping to next`);
-        setTimeout(() => {
-          if (this.isMusicDesired) {
-            this.playNextTrack();
-          }
-        }, 1500);
-      });
+    // Si el tema que toca ya se precargó, se usa ese elemento (antes se descartaba y se volvía a descargar)
+    const preloaded = this.nextTrackPreload;
+    if (preloaded && this.nextTrackPreloadUrl === currentUrl) {
+      this.nextTrackPreload = null;
+      this.nextTrackPreloadUrl = null;
+      if (this.musicAudio) {
+        this.musicAudio.pause();
+        this.musicAudio.removeAttribute("src");
+        this.musicAudio.load(); // libera el buffer del tema anterior
+      }
+      this.musicAudio = this.setupMusicElement(preloaded);
+    } else if (!this.musicAudio) {
+      this.musicAudio = this.setupMusicElement(new Audio(currentUrl));
     } else {
       if (!this.musicAudio.src.endsWith(currentUrl)) {
         this.musicAudio.src = currentUrl;
@@ -301,6 +293,32 @@ class AudioManager {
       });
     }
 
+  }
+
+  /** Listeners del elemento de música; los eventos de un elemento que ya no es el actual se ignoran. */
+  private setupMusicElement(audio: HTMLAudioElement): HTMLAudioElement {
+    audio.loop = false; // Alternates tracks via "ended" listener
+    audio.preload = "auto";
+    const isCurrent = () => audio === this.musicAudio;
+
+    audio.addEventListener("timeupdate", () => {
+      if (isCurrent()) this.maybePreloadNextTrack();
+    });
+
+    audio.addEventListener("ended", () => {
+      if (isCurrent()) this.playNextTrack();
+    });
+
+    audio.addEventListener("error", () => {
+      if (!isCurrent()) return;
+      console.warn(`[AudioManager] Error playing track: ${audio.src}, skipping to next`);
+      setTimeout(() => {
+        if (this.isMusicDesired && isCurrent()) {
+          this.playNextTrack();
+        }
+      }, 1500);
+    });
+    return audio;
   }
 
   /** Warm up the next track only when the current one has less than ~10 s left. */
@@ -694,16 +712,19 @@ class AudioManager {
     const ctx = this.initContext();
     if (!ctx) return;
 
-    const urls = [
-      ...Object.values(this.soundUrls).filter(Boolean),
+    // Primero los SFX que se disparan con la interacción (hover / botones), después el resto en paralelo
+    const priority = ["typewriter", "opencasefile"]
+      .map((type) => this.soundUrls[type as SfxType])
+      .filter(Boolean) as string[];
+    await Promise.all(priority.map((url) => this.loadBuffer(url)));
+
+    // Set: varios SFX comparten archivo (defeat/losing, winning/victory)
+    const rest = new Set([
+      ...(Object.values(this.soundUrls).filter(Boolean) as string[]),
       "/sounds/raindrops.ogg",
       ...this.ambientEvents,
-    ] as string[];
-    for (const url of urls) {
-      if (!this.bufferCache.has(url)) {
-        await this.loadBuffer(url);
-      }
-    }
+    ]);
+    await Promise.all([...rest].map((url) => this.loadBuffer(url)));
   }
 
   private async loadBuffer(url: string): Promise<AudioBuffer | null> {
@@ -771,14 +792,13 @@ class AudioManager {
         return;
       }
 
-      // If not yet cached, attempt to load it in background
+      // Sin buffer todavía: un único pedido (fetch + decode) y se reproduce al llegar.
+      // Antes se pedía además el mismo archivo con un <audio> de fallback (doble descarga).
+      // El typewriter de hover no se reproduce tarde: solo queda cargado para la próxima vez.
       this.loadBuffer(url).then((b) => {
         if (!b) this.playSynthesized(type, options);
+        else if (type !== "typewriter") this.playBuffer(b, type, options);
       });
-      // Do not use HTML audio fallback for typewriter hover sounds
-      if (type !== "typewriter") {
-        this.playHtmlAudioFallback(type);
-      }
       return;
     }
 

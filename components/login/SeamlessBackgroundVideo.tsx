@@ -31,6 +31,12 @@ export default function SeamlessBackgroundVideo({
   const [transitionEnabled, setTransitionEnabled] = useState<boolean>(true);
 
   const isFadingRef = useRef<boolean>(false);
+  const fadeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // El timeout del fundido no debe dispararse con el componente ya desmontado
+  useEffect(() => () => {
+    if (fadeTimeoutRef.current) clearTimeout(fadeTimeoutRef.current);
+  }, []);
 
   const triggerFade = (currentIdx: 0 | 1) => {
     if (isFadingRef.current) return;
@@ -57,7 +63,7 @@ export default function SeamlessBackgroundVideo({
     }
 
     // Once crossfade duration finishes
-    setTimeout(() => {
+    fadeTimeoutRef.current = setTimeout(() => {
       current.pause();
       current.currentTime = 0;
 
@@ -93,30 +99,31 @@ export default function SeamlessBackgroundVideo({
     // Start initial video
     v0.play().catch(() => {});
 
-    let animId: number;
+    // Antes era un bucle de requestAnimationFrame a 60 fps durante todo el login.
+    // timeupdate llega cada ~250 ms: se adelanta ese margen para que el fundido no empiece tarde.
+    const TIMEUPDATE_MARGIN = 0.3;
+    const onTimeUpdate = (e: Event) => {
+      const idx = activeRef.current;
+      const current = idx === 0 ? v0 : v1;
+      if (e.currentTarget !== current || !current.duration || isFadingRef.current || current.currentTime <= 0.5) return;
 
-    const checkTime = () => {
-      const current = activeRef.current === 0 ? v0 : v1;
-
-      if (
-        current &&
-        current.duration &&
-        !isFadingRef.current &&
-        current.currentTime > 0.5
-      ) {
-        const remaining = current.duration - current.currentTime;
-        if (remaining <= fadeDuration) {
-          triggerFade(activeRef.current);
-        }
+      const remaining = current.duration - current.currentTime;
+      // El segundo video empieza a cargarse recién cerca del primer fundido (antes se bajaban dos copias de entrada)
+      const incoming = idx === 0 ? v1 : v0;
+      if (remaining <= fadeDuration + 3 && incoming.preload !== "auto") {
+        incoming.preload = "auto";
+        incoming.load();
       }
-
-      animId = requestAnimationFrame(checkTime);
+      if (remaining <= fadeDuration + TIMEUPDATE_MARGIN) {
+        triggerFade(idx);
+      }
     };
 
-    animId = requestAnimationFrame(checkTime);
-
+    v0.addEventListener("timeupdate", onTimeUpdate);
+    v1.addEventListener("timeupdate", onTimeUpdate);
     return () => {
-      cancelAnimationFrame(animId);
+      v0.removeEventListener("timeupdate", onTimeUpdate);
+      v1.removeEventListener("timeupdate", onTimeUpdate);
     };
   }, [fadeDuration, src]);
 
@@ -150,7 +157,7 @@ export default function SeamlessBackgroundVideo({
         src={src}
         muted
         playsInline
-        preload="auto"
+        preload="none"
         onEnded={() => triggerFade(1)}
         className={className}
         style={{
