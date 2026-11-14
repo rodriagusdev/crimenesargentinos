@@ -22,7 +22,7 @@ export default function VideotecaHero({ story, number, seconds, onPlay }: Props)
       <div className="relative sm:aspect-video lg:aspect-auto lg:h-full">
         {/* Imagen: en celular es un bloque 16:9 arriba de la ficha; desde sm ocupa todo el destacado */}
         <div className="relative aspect-video overflow-hidden sm:absolute sm:inset-0 sm:aspect-auto">
-          <Image src={art} alt="" fill unoptimized priority className={`object-cover ${styles.kenBurns}`} />
+          <Image src={art} alt="" fill priority sizes="(max-width: 1024px) 100vw, 1100px" className={`object-cover ${styles.kenBurns}`} />
         </div>
         {/* Degradés para leer el texto y líneas de VHS suaves */}
         <div className="pointer-events-none absolute inset-x-0 top-0 aspect-video bg-gradient-to-t from-black via-transparent to-transparent sm:inset-0 sm:aspect-auto sm:bg-gradient-to-r sm:from-black/95 sm:via-black/60" aria-hidden />

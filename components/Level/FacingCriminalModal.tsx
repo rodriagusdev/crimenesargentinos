@@ -1,10 +1,13 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
-import CaseDossierModal from "./CaseDossierModal";
 import { useT } from "@/hooks/useT";
 import { defineMessages } from "@/lib/i18n/messages";
+
+// El tablero de investigación (pesado) se descarga recién cuando hay que mostrarlo
+const CaseDossierModal = dynamic(() => import("./CaseDossierModal"), { ssr: false });
 
 const messages = defineMessages({
   es: { issueWarrant: "EMITIR ORDEN DE ARRESTO" },
@@ -30,15 +33,17 @@ export default function FacingCriminalModal() {
 
   return (
     <>
-      <CaseDossierModal
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        levelId={levelId}
-        briefing={briefing}
-        initialClues={initialClues}
-        suspects={suspects}
-        isFacingCriminal={true}
-      />
+      {isOpen && (
+        <CaseDossierModal
+          isOpen={isOpen}
+          onClose={() => setIsOpen(false)}
+          levelId={levelId}
+          briefing={briefing}
+          initialClues={initialClues}
+          suspects={suspects}
+          isFacingCriminal={true}
+        />
+      )}
 
       {/* Si el jugador cierra el modal para revisar la pantalla, botón flotante de emergencia para reabrirlo */}
       {!isOpen && (

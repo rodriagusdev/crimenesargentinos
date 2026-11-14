@@ -48,14 +48,36 @@ function getInitialSettings(): AudioSettings {
   return { masterVolume: 0.8, sfxVolume: 0.8, musicVolume: 0.3, isMuted: false };
 }
 
-function saveSettings(settings: AudioSettings) {
-  if (typeof window !== "undefined") {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-    } catch {
-      // ignore
-    }
+const SAVE_DEBOUNCE_MS = 250;
+let pendingSettings: AudioSettings | null = null;
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
+
+function flushSettings() {
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
   }
+  if (!pendingSettings) return;
+  const settings = pendingSettings;
+  pendingSettings = null;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+  } catch {
+    // ignore
+  }
+}
+
+// Debounced: slider `input` events fire continuously, so only persist once the value settles
+function saveSettings(settings: AudioSettings) {
+  if (typeof window === "undefined") return;
+  pendingSettings = settings;
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(flushSettings, SAVE_DEBOUNCE_MS);
+}
+
+if (typeof window !== "undefined") {
+  // Don't lose a pending write if the tab is closed/hidden within the debounce window
+  window.addEventListener("pagehide", flushSettings);
 }
 
 // Initialize audioManager with initial persisted settings

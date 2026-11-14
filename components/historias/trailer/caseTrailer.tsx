@@ -15,7 +15,7 @@ const artOf = (story: CaseStory, art: Art) => story.trailerArt?.[art] ?? story.i
 const Scene = ({ story, art = "place", children, dim = 0.55 }: { story: CaseStory; art?: Art; children: ReactNode; dim?: number }) => (
   <div className="absolute inset-0">
     {/* Se sirve tal cual (1920 de ancho), sin la optimización que la achica y le saca calidad */}
-    <Image src={artOf(story, art)} alt="" fill unoptimized className={`object-cover ${styles.kenBurns}`} />
+    <Image src={artOf(story, art)} alt="" fill sizes="100vw" quality={90} className={`object-cover ${styles.kenBurns}`} />
     <div className="absolute inset-0 bg-black" style={{ opacity: dim }} />
     {children}
   </div>

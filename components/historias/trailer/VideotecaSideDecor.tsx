@@ -18,7 +18,7 @@ function Column({ images, side }: { images: string[]; side: "left" | "right" }) 
       <div className={`flex flex-col ${side === "left" ? styles.driftUp : styles.driftDown}`}>
         {loop.map((src, i) => (
           <div key={i} className="relative mb-4 aspect-video w-full shrink-0 overflow-hidden rounded-lg border border-white/10 shadow-[0_10px_24px_rgba(0,0,0,0.6)]">
-            <Image src={src} alt="" fill unoptimized className="object-cover blur-[1px] saturate-90 brightness-110" />
+            <Image src={src} alt="" fill sizes="224px" className="object-cover blur-[1px] saturate-90 brightness-110" />
           </div>
         ))}
       </div>

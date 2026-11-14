@@ -27,7 +27,9 @@ const nextConfig: NextConfig = {
   images: {
     // En desarrollo servimos directamente las imágenes estáticas para evitar bloqueos de CPU con Sharp
     unoptimized: isDev,
-    formats: ["image/webp"],
+    formats: ["image/avif", "image/webp"],
+    // Calidad 90 para las escenas fullscreen del tráiler
+    qualities: [75, 90],
     remotePatterns: apiUploadsPattern(),
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],

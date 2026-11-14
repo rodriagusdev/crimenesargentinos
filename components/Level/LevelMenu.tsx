@@ -16,10 +16,11 @@ import { useT } from "@/hooks/useT";
 import { levelMenuMessages } from "./LevelMenu.messages";
 
 import dynamic from "next/dynamic";
-import GameButton from "../buttons/GameButton";
-import CaseDossierModal from "./CaseDossierModal";
 
 import { useShallow } from "zustand/react/shallow";
+
+// El tablero de investigación (pesado) se descarga recién al abrirlo
+const CaseDossierModal = dynamic(() => import("./CaseDossierModal"), { ssr: false });
 
 interface LevelMenuProps {
   levelId: number;
@@ -317,14 +318,16 @@ export default function LevelMenu({ levelId }: LevelMenuProps) {
       </aside>
 
       {/* Modal unificado del Tablero de Investigación */}
-      <CaseDossierModal
-        isOpen={dossierOpen}
-        onClose={() => setDossierOpen(false)}
-        levelId={levelId}
-        briefing={displayBriefing}
-        initialClues={displayInitialClues}
-        suspects={displaySuspects}
-      />
+      {dossierOpen && (
+        <CaseDossierModal
+          isOpen={dossierOpen}
+          onClose={() => setDossierOpen(false)}
+          levelId={levelId}
+          briefing={displayBriefing}
+          initialClues={displayInitialClues}
+          suspects={displaySuspects}
+        />
+      )}
 
       {/* Modal de confirmación para volver al menú principal */}
       {showRestartConfirm && typeof window !== "undefined" && createPortal(

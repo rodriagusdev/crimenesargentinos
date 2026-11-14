@@ -52,6 +52,12 @@ class AudioManager {
     "/sounds/songdefault3.mp3",
   ];
   private currentTrackIndex: number = 0;
+  // The music <audio> element is only created after the first user gesture (autoplay is blocked before that anyway),
+  // so no MP3 is downloaded on page load.
+  private hasUserGesture: boolean = false;
+  // Next track is warmed up only when the current one is close to its end
+  private nextTrackPreload: HTMLAudioElement | null = null;
+  private nextTrackPreloadUrl: string | null = null;
 
   // Ambient Soundscape Layer (Rain & Distant Police Dispatch)
   // Both rain and atmospheric events run on Web Audio API for 100% gapless looping and reliable autoplay
@@ -87,6 +93,8 @@ class AudioManager {
 
   constructor() {
     if (typeof window !== "undefined") {
+      const activation = (navigator as Navigator & { userActivation?: { hasBeenActive: boolean } }).userActivation;
+      this.hasUserGesture = Boolean(activation?.hasBeenActive);
       this.initUserGestureResume();
     }
   }
@@ -126,11 +134,16 @@ class AudioManager {
 
   private initUserGestureResume(): void {
     const resumeOnInteraction = () => {
+      this.hasUserGesture = true;
       if (this.ctx && this.ctx.state === "suspended") {
         this.ctx.resume().catch(() => {});
       }
-      if (this.isMusicDesired && this.musicAudio && this.musicAudio.paused) {
-        this.musicAudio.play().catch(() => {});
+      if (this.isMusicDesired) {
+        if (!this.musicAudio) {
+          this.playCurrentTrack();
+        } else if (this.musicAudio.paused) {
+          this.musicAudio.play().catch(() => {});
+        }
       }
       if (this.isAmbientDesired && !this.rainSource) {
         this.startAmbient();
@@ -146,10 +159,12 @@ class AudioManager {
       }
       window.removeEventListener("pointerdown", resumeOnInteraction);
       window.removeEventListener("keydown", resumeOnInteraction);
+      window.removeEventListener("touchstart", resumeOnInteraction);
     };
 
     window.addEventListener("pointerdown", resumeOnInteraction, { passive: true });
     window.addEventListener("keydown", resumeOnInteraction, { passive: true });
+    window.addEventListener("touchstart", resumeOnInteraction, { passive: true });
   }
 
   private applyGains(): void {
@@ -244,6 +259,8 @@ class AudioManager {
 
   private playCurrentTrack(): void {
     if (typeof window === "undefined" || !this.isMusicDesired) return;
+    // Defer creating/downloading the music until the first user gesture (handled in initUserGestureResume)
+    if (!this.hasUserGesture) return;
 
     const currentUrl = this.musicPlaylist[this.currentTrackIndex] || "/sounds/songdefault.mp3";
 
@@ -251,6 +268,10 @@ class AudioManager {
       this.musicAudio = new Audio(currentUrl);
       this.musicAudio.loop = false; // Alternates tracks via "ended" listener
       this.musicAudio.preload = "auto";
+
+      this.musicAudio.addEventListener("timeupdate", () => {
+        this.maybePreloadNextTrack();
+      });
 
       this.musicAudio.addEventListener("ended", () => {
         this.playNextTrack();
@@ -280,14 +301,24 @@ class AudioManager {
       });
     }
 
-    // Preload next track in background for seamless transition
-    if (this.musicPlaylist.length > 1) {
-      const nextIndex = (this.currentTrackIndex + 1) % this.musicPlaylist.length;
-      const nextUrl = this.musicPlaylist[nextIndex];
-      const preloadAudio = new Audio();
-      preloadAudio.src = nextUrl;
-      preloadAudio.preload = "auto";
-    }
+  }
+
+  /** Warm up the next track only when the current one has less than ~10 s left. */
+  private maybePreloadNextTrack(): void {
+    const audio = this.musicAudio;
+    if (!audio || this.musicPlaylist.length < 2) return;
+    const { duration, currentTime } = audio;
+    if (!Number.isFinite(duration) || duration - currentTime > 10) return;
+
+    const nextIndex = (this.currentTrackIndex + 1) % this.musicPlaylist.length;
+    const nextUrl = this.musicPlaylist[nextIndex];
+    if (this.nextTrackPreloadUrl === nextUrl) return;
+
+    this.nextTrackPreloadUrl = nextUrl;
+    const preloadAudio = new Audio();
+    preloadAudio.preload = "auto";
+    preloadAudio.src = nextUrl;
+    this.nextTrackPreload = preloadAudio;
   }
 
   public playNextTrack(): void {

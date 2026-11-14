@@ -1,59 +1,83 @@
 // Centralized Hierarchical Asset Preloader for Crímenes Argentinos
 // Implements Case-level and City/Province-level asset staging (Hierarchical Preloading Pattern)
 
-import { getGameData, getLevelLocations, getLevelProvinces, getDialog } from "@/services/levelService";
+import { getImageProps } from "next/image";
+import { getGameData, getCaseLocations, getLevelProvinces, getDialog } from "@/services/levelService";
 import { resolveSuspectImage } from "./suspectImages";
 import { ISuspect } from "@/models/ISuspect";
 
-const preloadedUrls = new Set<string>();
+// `sizes` de los <Image fill> que muestran cada asset: el preload tiene que pedir exactamente
+// la misma URL que next/image (/_next/image?url=…&w=… en producción, la URL cruda en desarrollo)
+export const IMAGE_SIZES = {
+  /** LocationIntro: escena a pantalla completa */
+  fullscreen: "100vw",
+  /** ProvinceMapFrame y DialogBox: cuadro enmarcado de la escena / mapa */
+  sceneFrame: "(max-width: 1200px) 100vw, 60vw",
+  /** LocationPolaroidCard */
+  polaroid: "(max-width: 640px) 50vw, (max-width: 768px) 100vw, (max-width: 1200px) 50vw, 240px",
+  /** InvestigationBoard: retratos de sospechosos */
+  suspect: "(max-width: 640px) 45vw, 200px",
+  /** LevelMenu: íconos de acciones */
+  menuIcon: "48px",
+  /** CaseDossierModal: ícono de orden de arresto */
+  dossierIcon: "80px",
+} as const;
+
+// URL ya pedida (o en curso) → promesa de su descarga. Evita pedir dos veces lo mismo.
+const preloads = new Map<string, Promise<void>>();
 
 /**
- * Preload a single image into the browser's disk / HTTP memory cache.
- * Resolves safely on load or error without blocking execution.
+ * Precarga una imagen tal como la va a pedir next/image con `fill` y el `sizes` dado.
+ * Se usa un <img> desconectado con el mismo srcset/sizes: el navegador elige el mismo candidato
+ * que el <Image> real, y no deja avisos de "preload sin usar" en consola.
  */
-export function preloadImage(url: string | null | undefined): Promise<void> {
-  if (!url || typeof window === "undefined") {
-    return Promise.resolve();
-  }
-
+export function preloadImage(url: string | null | undefined, sizes: string): Promise<void> {
+  if (!url || typeof window === "undefined") return Promise.resolve();
   const cleanUrl = url.trim();
-  if (!cleanUrl || preloadedUrls.has(cleanUrl)) {
-    return Promise.resolve();
+  if (!cleanUrl) return Promise.resolve();
+
+  const key = `${cleanUrl}|${sizes}`;
+  const existing = preloads.get(key);
+  if (existing) return existing;
+
+  let src = cleanUrl;
+  let srcSet: string | undefined;
+  try {
+    const { props } = getImageProps({ src: cleanUrl, alt: "", fill: true, sizes });
+    src = props.src;
+    srcSet = props.srcSet;
+  } catch {
+    // Host no permitido u otra URL que next/image no sabe optimizar: se usa la cruda
   }
 
-  return new Promise((resolve) => {
+  const promise = new Promise<void>((resolve) => {
     const img = new window.Image();
-    img.decoding = "async";
-    img.onload = () => {
-      preloadedUrls.add(cleanUrl);
-      if ("decode" in img && typeof img.decode === "function") {
-        img.decode().then(resolve).catch(resolve);
-      } else {
-        resolve();
-      }
-    };
-    img.onerror = () => {
-      // Don't fail the preloader if an image is missing
-      preloadedUrls.add(cleanUrl);
-      resolve();
-    };
-    img.src = cleanUrl;
+    img.onload = () => resolve();
+    // Una imagen faltante no debe romper la precarga
+    img.onerror = () => resolve();
+    if (srcSet) {
+      img.sizes = sizes;
+      img.srcset = srcSet;
+    }
+    img.src = src;
   });
+  preloads.set(key, promise);
+  return promise;
 }
 
-/**
- * Preload an array of image URLs concurrently.
- */
-export function preloadImages(urls: (string | null | undefined)[]): Promise<void[]> {
-  const filtered = urls.filter(Boolean) as string[];
-  return Promise.all(filtered.map(preloadImage));
+function preloadImages(urls: (string | null | undefined)[], sizes: string): Promise<void[]> {
+  return Promise.all(urls.filter(Boolean).map((url) => preloadImage(url, sizes)));
+}
+
+export interface PreloadOptions {
+  /** false: solo se traen los datos (JSON), sin imágenes. Ej.: hover. */
+  images?: boolean;
 }
 
 /**
  * 1. CASE LEVEL PRELOAD
  * When a player starts or resumes a case:
- * - Preload suspect portraits
- * - Preload national base map
+ * - Preload suspect portraits and the investigation menu icons
  * - Preload case briefing & game data
  * - Preload level provinces list
  */
@@ -62,25 +86,15 @@ export async function preloadCasePackage(levelId: number, suspects?: ISuspect[])
 
   try {
     const promises: Promise<unknown>[] = [
-      // 1. National map base
-      preloadImage("/images/maps/level1/Mapa_buenos_aires.jpg"),
-      // 2. Core UI icons
-      preloadImages([
-        "/images/icons/icon_clues.jpg",
-        "/images/icons/icon_suspects.jpg",
-        "/images/icons/icon_arrestorder.jpg",
-      ]),
-      // 3. Game data & provinces
+      preloadImage("/images/icons/icon_clues.jpg", IMAGE_SIZES.menuIcon),
+      preloadImage("/images/icons/icon_arrestorder.jpg", IMAGE_SIZES.dossierIcon),
       getGameData(levelId).catch(() => null),
       getLevelProvinces(levelId).catch(() => null),
     ];
 
-    // 4. Suspect portraits
     if (suspects && suspects.length > 0) {
-      const suspectImages = suspects
-        .map((s) => resolveSuspectImage(s.name, s.image))
-        .filter(Boolean) as string[];
-      promises.push(preloadImages(suspectImages));
+      const suspectImages = suspects.map((s) => resolveSuspectImage(s.name, s.image));
+      promises.push(preloadImages(suspectImages, IMAGE_SIZES.suspect));
     }
 
     await Promise.all(promises);
@@ -91,71 +105,60 @@ export async function preloadCasePackage(levelId: number, suspects?: ISuspect[])
 
 /**
  * 2. PROVINCE / CITY LEVEL PRELOAD ("El Truco del Avión")
- * Executed during the 1.6s flight cutscene or on province hover:
- * - Preload destination province map background (data.backgroundUrl)
- * - Fetch province locations data (stored in levelService in-memory cache)
- * - Preload all location icons of that province
+ * Executed during the flight cutscene (images) or on province hover (data only):
+ * - Fetch the province locations + the case scene of each one (same data the province screen uses, cached)
+ * - Preload the province map frame and each location polaroid (the case scene image)
  */
 export async function preloadProvincePackage(
+  levelId: number,
   provinceId: string,
-  extraMapUrl?: string,
+  { images = true }: PreloadOptions = {},
 ): Promise<void> {
   if (typeof window === "undefined" || !provinceId) return;
 
   try {
-    const promises: Promise<unknown>[] = [];
+    const data = await getCaseLocations(levelId, provinceId);
+    if (!images || !data) return;
 
-    if (extraMapUrl) {
-      promises.push(preloadImage(extraMapUrl));
-    }
-
-    // Fetch locations for destination province (caches in memory)
-    const locationsPromise = getLevelLocations(provinceId)
-      .then(async (data) => {
-        const nested: Promise<unknown>[] = [];
-        if (data?.backgroundUrl) {
-          nested.push(preloadImage(data.backgroundUrl));
-        }
-        if (data?.locations && Array.isArray(data.locations)) {
-          const locationImages = data.locations
-            .map((loc) => loc.imageUrl)
-            .filter(Boolean);
-          nested.push(preloadImages(locationImages));
-        }
-        await Promise.all(nested);
-      })
-      .catch(() => null);
-
-    promises.push(locationsPromise);
-    await Promise.all(promises);
+    await Promise.all([
+      preloadImage(data.backgroundUrl, IMAGE_SIZES.sceneFrame),
+      preloadImages(data.locations?.map((loc) => loc.imageUrl) ?? [], IMAGE_SIZES.polaroid),
+    ]);
   } catch (err) {
     console.warn(`[AssetPreloader] Error in preloadProvincePackage (${provinceId}):`, err);
   }
 }
 
+export interface LocationPreloadOptions extends PreloadOptions {
+  /** Intro ya vista: se va directo al interrogatorio (DialogBox) en vez de LocationIntro */
+  introSeen?: boolean;
+}
+
 /**
  * 3. LOCATION / SCENE LEVEL PRELOAD ("El Truco del Patrullero")
- * Executed during the 1.4s car cutscene or on location button hover:
+ * Executed during the car cutscene (images) or on location hover (data only):
  * - Fetch dialog for that specific location (cached in memory)
- * - Preload the witness / crime scene background image (dialog.overlayBackgroundUrl)
+ * - Preload the first image the location screen shows: the intro scene (LocationIntro)
+ *   or, if the intro was already seen, the framed scene of the interrogation (DialogBox)
  */
 export async function preloadLocationPackage(
   levelId: number,
   provinceId: string,
   locationId: string,
+  { images = true, introSeen = false }: LocationPreloadOptions = {},
 ): Promise<void> {
   if (typeof window === "undefined" || !locationId) return;
 
   try {
-    // Fetch dialog data ahead of arrival
-    await getDialog(levelId, locationId)
-      .then((dialog) => {
-        if (dialog?.overlayBackgroundUrl) {
-          return preloadImage(dialog.overlayBackgroundUrl);
-        }
-      })
-      .catch(() => null);
+    const dialog = await getDialog(levelId, locationId);
+    if (!images || !dialog) return;
+
+    if (introSeen) {
+      await preloadImage(dialog.npcCompleteUrl, IMAGE_SIZES.sceneFrame);
+    } else {
+      await preloadImage(dialog.overlayBackgroundUrl || dialog.npcCompleteUrl, IMAGE_SIZES.fullscreen);
+    }
   } catch (err) {
-    console.warn(`[AssetPreloader] Error in preloadLocationPackage (${locationId}):`, err);
+    console.warn(`[AssetPreloader] Error in preloadLocationPackage (${provinceId}/${locationId}):`, err);
   }
 }

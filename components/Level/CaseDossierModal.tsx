@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { ISuspect } from "@/models/ISuspect";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { useAudioStore } from "@/stores/useAudioStore";
-import GameButton from "../buttons/GameButton";
 import InvestigationBoard from "./InvestigationBoard";
 import { useT } from "@/hooks/useT";
 import { caseDossierModalMessages } from "./CaseDossierModal.messages";

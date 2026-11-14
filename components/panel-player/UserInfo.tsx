@@ -1,15 +1,17 @@
 "use client";
 
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import InfoItem from "./UserInfoItem";
 import { getPlayerStats } from "@/services/gameSessionService";
 import { useAvatarStore } from "@/stores/useAvatarStore";
 import { audioManager } from "@/lib/audioManager";
-import AvatarPickerModal from "./AvatarPickerModal";
 import { useT } from "@/hooks/useT";
 import { useLocale } from "@/stores/useLocaleStore";
 import { userInfoMessages } from "./UserInfo.messages";
+
+const AvatarPickerModal = dynamic(() => import("./AvatarPickerModal"), { ssr: false });
 
 interface UserData {
   username: string | null; // null: cargando; "": sin nombre en el token
@@ -157,10 +159,12 @@ export default function UserInfo() {
         </h3>
       </div>
 
-      <AvatarPickerModal
-        isOpen={isPickerOpen}
-        onClose={() => setIsPickerOpen(false)}
-      />
+      {isPickerOpen && (
+        <AvatarPickerModal
+          isOpen={isPickerOpen}
+          onClose={() => setIsPickerOpen(false)}
+        />
+      )}
 
       {/* 3. Estadísticas del jugador */}
       <div className="p-3 bg-[#080d15]/60 border-t border-[#1c2c3e]/80">
