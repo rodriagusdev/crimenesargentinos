@@ -5,8 +5,7 @@ import GameButton from "../buttons/GameButton";
 import { LevelScreenTopBar } from "../Level/LevelScreenTopBar";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { useGameSessionStore } from "@/stores/useGameSessionStore";
-import { getDialogLog } from "@/services/gameSessionService";
+import { dialogLogKey, IDialogLogLine, useGameSessionStore } from "@/stores/useGameSessionStore";
 import { useHintSound } from "@/hooks/useHintSound";
 import CostFeedbackToast from "../Level/CostFeedbackToast";
 import { useAvatarStore } from "@/stores/useAvatarStore";
@@ -21,9 +20,9 @@ interface DialogProps {
 // Tiempo en pantalla de los avisos: costo (5s) y pista (8s)
 const COST_TOAST_MS = 5000;
 const CLUE_TOAST_MS = 8000;
+const EMPTY_LOG: IDialogLogLine[] = [];
 
 export default function DialogBox({ dialog, onClose }: DialogProps) {
-  const [log, setLog] = useState<{ question: string; answer: string }[]>([]);
   const [costToast, setCostToast] = useState<{ time: number; pi: number } | null>(null);
   const [clueToast, setClueToast] = useState<string | null>(null);
   const [askingQuestionId, setAskingQuestionId] = useState<string | null>(null);
@@ -41,6 +40,11 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
   const askedQuestions = useGameSessionStore((state) => state.askedQuestions);
   const sessionId = useGameSessionStore((state) => state.session?.sessionId);
   const askQuestion = useGameSessionStore((state) => state.askQuestion);
+  const loadDialogLog = useGameSessionStore((state) => state.loadDialogLog);
+  // Chat de esta locación: lo guarda el store (LevelLocation ya lo pidió en paralelo con el diálogo)
+  const log = useGameSessionStore((state) =>
+    sessionId ? state.dialogLogs[dialogLogKey(sessionId, dialog.locationId)] ?? EMPTY_LOG : EMPTY_LOG,
+  );
 
   const currentAvatar = useAvatarStore((state) => state.currentAvatar);
   const initAvatar = useAvatarStore((state) => state.initAvatar);
@@ -54,22 +58,11 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
   }, [initAvatar]);
 
   // La conversación guardada de esta locación: se retoma donde había quedado
+  // (si ya se trajo o está en camino, no se vuelve a pedir)
   useEffect(() => {
     if (!sessionId) return;
-    let cancelled = false;
-
-    getDialogLog(sessionId, dialog.locationId)
-      .then((entries) => {
-        if (cancelled) return;
-        const saved = entries.map((entry) => ({ question: entry.question, answer: entry.answer }));
-        setLog((prev) => [...saved, ...prev]);
-      })
-      .catch((err) => console.error("No se pudo cargar la conversación guardada:", err));
-
-    return () => {
-      cancelled = true;
-    };
-  }, [sessionId, dialog.locationId]);
+    void loadDialogLog(dialog.locationId);
+  }, [sessionId, dialog.locationId, loadDialogLog]);
 
   // Filtra las preguntas: solo muestra las que no tienen requiredFlag o si todos los flags requeridos ya fueron desbloqueados
   const availableQuestions = dialog.questions.filter((q) => {
@@ -87,7 +80,8 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
     useGameSessionStore.getState().closeInvestigationMenu();
 
     try {
-      const result = await askQuestion(q.id);
+      // La respuesta se agrega al chat de la locación en el store
+      const result = await askQuestion(q.id, { locationId: dialog.locationId, question: q.text });
 
       // Mostrar feedback visual de costo solo cuando se descuenta
       if (result.costCharged && result.cost) {
@@ -110,7 +104,6 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
         }, CLUE_TOAST_MS);
       }
 
-      setLog((prev) => [...prev, { question: q.text, answer: result.answer }]);
     } catch (err) {
       console.error("No se pudo hacer la pregunta:", err);
     } finally {

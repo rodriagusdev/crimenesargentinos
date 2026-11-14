@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import BoardHardware from "./BoardHardware";
 import BriefingSidebar from "./BriefingSidebar";
 import TakeCaseStamp from "./TakeCaseStamp";
+import TypedText from "./TypedText";
 import { audioManager } from "@/lib/audioManager";
 import { useT } from "@/hooks/useT";
 import { defineMessages } from "@/lib/i18n/messages";
@@ -55,8 +56,11 @@ type Props = {
   pi: number;
   /** Pistas del informe inicial */
   clues: string[];
+  /** Texto completo del informe (mientras `typing`, se escribe a máquina) */
   text: string;
   typing: boolean;
+  /** Terminó de escribirse */
+  onTyped: () => void;
   onSkip: () => void;
   onClose: () => void;
 };
@@ -64,7 +68,7 @@ type Props = {
 // Informe inicial con el estilo del tablero de investigación: la pizarra misma es el modal, con una placa de bronce
 // arriba, el informe en papel manila clavado (sello de goma "CONFIDENCIAL"), los recursos y las pistas al costado,
 // y el botón para empezar debajo del informe
-export default function CaseBriefingSheet({ caseNumber, hours, pi, clues, text, typing, onSkip, onClose }: Props) {
+export default function CaseBriefingSheet({ caseNumber, hours, pi, clues, text, typing, onTyped, onSkip, onClose }: Props) {
   const t = useT(messages);
   // Al tomar el caso cae el sello "RECIBIDO" sobre el informe y, un instante después, se cierra
   const [taken, setTaken] = useState(false);
@@ -75,6 +79,9 @@ export default function CaseBriefingSheet({ caseNumber, hours, pi, clues, text, 
     setTaken(true);
     closeTimer.current = setTimeout(onClose, 750);
   };
+  useEffect(() => () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+  }, []);
 
   return (
     <div
@@ -122,8 +129,7 @@ export default function CaseBriefingSheet({ caseNumber, hours, pi, clues, text, 
 
               {/* Texto a máquina */}
               <p className={`mt-4 min-h-[8rem] lg:min-h-[6rem] whitespace-pre-line text-base sm:text-lg lg:text-xl leading-7 lg:leading-8 text-zinc-800 ${styles.typewriter}`}>
-                {text}
-                {typing && <span className="ml-0.5 inline-block h-5 w-2.5 bg-zinc-800 align-middle animate-pulse" />}
+                {typing ? <TypedText key={text} text={text} onDone={onTyped} /> : text}
               </p>
 
               <p className={`mt-4 text-right font-serif italic text-lg lg:text-xl text-[#1d3f8a] transition-opacity duration-500 ${typing ? "opacity-0" : "opacity-100"}`}>

@@ -2,15 +2,14 @@
 
 import { useEffect, useState } from "react";
 import type { CaseStory } from "@/lib/caseStories";
+import { useTimelineElapsed, type TrailerState } from "@/hooks/useTrailerTimeline";
 
 type Props = {
   story: CaseStory;
   number: number;
   /** Total de cintas (para "1 / 8") */
   tapes: number;
-  playing: boolean;
-  ended: boolean;
-  elapsed: number;
+  state: TrailerState;
   duration: number;
   /** Inicio de cada escena, para las marcas de la barra */
   starts: number[];
@@ -33,8 +32,10 @@ const control =
 
 // Controles del reproductor a pantalla completa: arriba qué caso es y CERRAR; abajo la barra de progreso con una
 // marca por escena, el tiempo y los botones. Se esconden solos si no se mueve el mouse mientras se reproduce.
-export default function PlayerChrome({ story, number, tapes, playing, ended, elapsed, duration, starts, onToggle, onPrev, onNext, onClose }: Props) {
+export default function PlayerChrome({ story, number, tapes, state, duration, starts, onToggle, onPrev, onNext, onClose }: Props) {
   const [active, setActive] = useState(true);
+  const playing = state.phase === "playing";
+  const ended = state.phase === "ended";
 
   useEffect(() => {
     let timer = setTimeout(() => setActive(false), IDLE_MS);
@@ -54,7 +55,6 @@ export default function PlayerChrome({ story, number, tapes, playing, ended, ela
 
   const shown = active || !playing;
   const fade = `transition-opacity duration-300 ${shown ? "opacity-100" : "opacity-0 pointer-events-none"}`;
-  const progress = duration ? Math.min(1, elapsed / duration) : 0;
 
   return (
     <>
@@ -74,12 +74,7 @@ export default function PlayerChrome({ story, number, tapes, playing, ended, ela
       {/* Abajo: progreso y botones */}
       {!ended && (
         <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-3 pt-5 pb-1.5 sm:px-6 sm:pt-10 sm:pb-4 ${fade}`}>
-          <div className="relative h-1.5 rounded-full bg-white/20" aria-hidden>
-            <div className="absolute inset-y-0 left-0 rounded-full bg-[#E1C380]" style={{ width: `${progress * 100}%` }} />
-            {starts.slice(1).map((s) => (
-              <span key={s} className="absolute top-1/2 h-3 w-0.5 -translate-y-1/2 bg-black/70" style={{ left: `${(s / duration) * 100}%` }} />
-            ))}
-          </div>
+          <ProgressBar state={state} duration={duration} starts={starts} />
           <div className="mt-1 sm:mt-2 flex items-center justify-between gap-2">
             <div className="flex items-center gap-1">
               <button type="button" onClick={onPrev} className={control} aria-label="Cinta anterior">
@@ -93,12 +88,33 @@ export default function PlayerChrome({ story, number, tapes, playing, ended, ela
                 <span className="hidden md:inline">SIGUIENTE</span> ▶▶
               </button>
             </div>
-            <span className="font-mono text-xs sm:text-sm text-white/80 tabular-nums">
-              {clock(elapsed)} / {clock(duration)}
-            </span>
+            <Clock state={state} duration={duration} />
           </div>
         </div>
       )}
     </>
+  );
+}
+
+// Barra de progreso con una marca por escena (se refresca en cada tick; el resto de los controles no)
+function ProgressBar({ state, duration, starts }: { state: TrailerState; duration: number; starts: number[] }) {
+  const elapsed = useTimelineElapsed(state, duration);
+  const progress = duration ? Math.min(1, elapsed / duration) : 0;
+  return (
+    <div className="relative h-1.5 rounded-full bg-white/20" aria-hidden>
+      <div className="absolute inset-y-0 left-0 rounded-full bg-[#E1C380]" style={{ width: `${progress * 100}%` }} />
+      {starts.slice(1).map((s) => (
+        <span key={s} className="absolute top-1/2 h-3 w-0.5 -translate-y-1/2 bg-black/70" style={{ left: `${(s / duration) * 100}%` }} />
+      ))}
+    </div>
+  );
+}
+
+function Clock({ state, duration }: { state: TrailerState; duration: number }) {
+  const elapsed = useTimelineElapsed(state, duration);
+  return (
+    <span className="font-mono text-xs sm:text-sm text-white/80 tabular-nums">
+      {clock(elapsed)} / {clock(duration)}
+    </span>
   );
 }

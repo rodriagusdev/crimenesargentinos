@@ -16,6 +16,7 @@ import { LocationPolaroidCard } from "../buttons/LocationPolaroidCard";
 import { ProvinceDossierHeader } from "./ProvinceDossierHeader";
 import { ProvinceMapFrame } from "./ProvinceMapFrame";
 import { useTravelFlow } from "@/hooks/useTravelFlow";
+import { useHoverIntent } from "@/hooks/useHoverIntent";
 import { useT } from "@/hooks/useT";
 import { levelProvinceLocationsMessages } from "./LevelProvinceLocations.messages";
 
@@ -92,12 +93,17 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
     };
   }, [levelId, provinceId, t]);
 
-  // Precargar anticipadamente los recursos de la locación actual en segundo plano
+  // Precargar anticipadamente el diálogo de la locación actual (las imágenes las precarga la sesión)
   useEffect(() => {
     if (currentLocationId) {
-      preloadLocationPackage(levelId, provinceId, currentLocationId);
+      preloadLocationPackage(levelId, provinceId, currentLocationId, { images: false });
     }
   }, [levelId, provinceId, currentLocationId]);
+
+  // Hover sostenido sobre una polaroid: se adelanta solo el diálogo (las imágenes las precarga travelLocation)
+  const hoverPreload = useHoverIntent((locationId: string) =>
+    preloadLocationPackage(levelId, provinceId, locationId, { images: false })
+  );
 
   const currentLocation = data?.locations.find((l) => l.id === currentLocationId);
 
@@ -105,7 +111,6 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
     current: currentLocation,
     currentId: currentLocationId,
     onTravel: (loc) => travelLocation(loc.id),
-    onPreload: (loc) => preloadLocationPackage(levelId, provinceId, loc.id),
     getRoute: (loc) => `/level/${levelId}/${provinceId}/${loc.id}`,
     durationMs: 1400,
     errorMessageFallback: t("travelError"),
@@ -205,7 +210,12 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
 
             {/* Cuadrícula de fotos Polaroid de locaciones (idéntico estilo a sospechosos) */}
             <div className="sm:flex-1 sm:min-h-0 sm:overflow-y-auto overflow-x-hidden px-1.5 sm:px-3.5 pt-2.5 pb-3 [@media(max-height:500px)_and_(pointer:coarse)]:flex-1 [@media(max-height:500px)_and_(pointer:coarse)]:min-h-0 [@media(max-height:500px)_and_(pointer:coarse)]:overflow-y-auto">
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+              <div
+                className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"
+                // Las polaroids no exponen mouseleave: salir de una al hueco de la grilla (o de la grilla) cancela el hover
+                onMouseOver={(e) => e.target === e.currentTarget && hoverPreload.cancel()}
+                onMouseLeave={hoverPreload.cancel}
+              >
                 {data.locations.map((loc, idx) => {
                   const isCurrent = loc.id === currentLocationId;
                   const hours = travelHours?.[loc.id] ?? locationCost?.time ?? 1;
@@ -219,7 +229,7 @@ export default function LevelProvinceLocations({ levelId, provinceId }: LevelDat
                       hours={hours}
                       rotation={rotation}
                       disabled={travel.isTraveling}
-                      onMouseEnter={() => preloadLocationPackage(levelId, provinceId, loc.id)}
+                      onMouseEnter={() => hoverPreload.start(loc.id)}
                       onClick={() => travel.select(loc)}
                     />
                   );

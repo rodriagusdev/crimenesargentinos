@@ -1,4 +1,4 @@
-import { KeyboardEvent } from "react";
+import { KeyboardEvent, memo } from "react";
 import Image from "next/image";
 import { ICardLevelPreview } from "@/models/ICardLevelPreview";
 import { usePreviewVideoHandler } from "@/hooks/usePreviewVideoHandler";
@@ -54,15 +54,12 @@ const theme: Record<
   },
 };
 
-// Esquinas de visor que aparecen al apuntar un nivel jugable
-const corner = "absolute size-5 border-amber-300/90 opacity-0 transition-all duration-300 group-hover:opacity-100 pointer-events-none";
-
 // Tarjeta de un nivel en /principal, con estética de expediente: estado, sello de caso cerrado y acción
-export default function LevelCard({ preview }: LevelCardProps) {
+function LevelCard({ preview }: LevelCardProps) {
   const t = useT(levelCardMessages);
   // Cada tarjeta pide su nivel: retoma la partida en curso o sortea el caso
   const { handleShowVideo, goToLevel, loadingLevel, pendingAbandon, abandoning, confirmAbandon, cancelAbandon } =
-    usePreviewVideoHandler(preview.videoURL, preview.id);
+    usePreviewVideoHandler(preview.videoURL, preview.id, preview.caseId);
 
   const variantsTotal = preview.variantsTotal ?? 0;
   const variantsWon = preview.variantsWon ?? 0;
@@ -216,3 +213,6 @@ export default function LevelCard({ preview }: LevelCardProps) {
     </div>
   );
 }
+
+// Memo: el carrusel re-renderiza al desplazarse; la tarjeta solo cambia si cambia su nivel
+export default memo(LevelCard);

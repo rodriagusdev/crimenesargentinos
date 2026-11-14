@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useAudioStore } from "@/stores/useAudioStore";
+import { useTravelPathAnimation } from "@/hooks/useTravelPathAnimation";
 import { useT } from "@/hooks/useT";
 import { travelAnimationOverlayMessages } from "./TravelAnimationOverlay.messages";
 
@@ -41,11 +40,6 @@ export default function TravelAnimationOverlay({
   fromProvince,
   toProvince,
 }: TravelAnimationOverlayProps) {
-  const [progress, setProgress] = useState(0);
-  const [pathLength, setPathLength] = useState(1000);
-  const pathRef = useRef<SVGPathElement>(null);
-  const playSfx = useAudioStore((state) => state.playSfx);
-  // "t" ya es el progreso de la animación
   const tr = useT(travelAnimationOverlayMessages);
 
   // Normalize inputs between new generic API and legacy province API
@@ -74,63 +68,15 @@ export default function TravelAnimationOverlay({
   const ctrlX = midX + perpX;
   const ctrlY = midY + perpY;
 
-  // Measure path length once mounted for smooth SVG stroke-dashoffset animation
-  useEffect(() => {
-    if (pathRef.current) {
-      try {
-        const len = pathRef.current.getTotalLength();
-        if (len > 0) setPathLength(len);
-      } catch {}
-    }
-  }, [startX, startY, endX, endY, ctrlX, ctrlY]);
-
-  // Audio & Animation loop
-  useEffect(() => {
-    if (mode === "plane") {
-      playSfx("plane");
-    } else {
-      playSfx("swoosh");
-    }
-
-    const startTime = performance.now();
-    const duration = mode === "plane" ? 1750 : 1400;
-
-    let animationFrame: number;
-
-    const tick = (now: number) => {
-      const elapsed = now - startTime;
-      const t = Math.min(1, elapsed / duration);
-      // Smooth easeInOutCubic
-      const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-      setProgress(eased);
-
-      if (t < 1) {
-        animationFrame = requestAnimationFrame(tick);
-      }
-    };
-
-    animationFrame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(animationFrame);
-  }, [mode, playSfx]);
-
-  // Quadratic Bezier interpolation at current progress t
-  const t = progress;
-  const currentX =
-    (1 - t) * (1 - t) * startX + 2 * (1 - t) * t * ctrlX + t * t * endX;
-  const currentY =
-    (1 - t) * (1 - t) * startY + 2 * (1 - t) * t * ctrlY + t * t * endY;
-
-  // Tangent vector for natural vehicle heading rotation
-  const vx = 2 * (1 - t) * (ctrlX - startX) + 2 * t * (endX - ctrlX);
-  const vy = 2 * (1 - t) * (ctrlY - startY) + 2 * t * (endY - ctrlY);
-  const angleDeg = (Math.atan2(vy, vx) * 180) / Math.PI + 90;
+  // Vehículo, estela y barra se animan por refs (sin re-render por frame); solo cambia la fase
+  const { pathRef, vehicleRef, barRef, phase } = useTravelPathAnimation({ mode, startX, startY, ctrlX, ctrlY, endX, endY });
 
   // Estimated tactical mileage
   const estimatedKm = Math.round(dist * 24) + 120;
   const flightStatus =
-    t < 0.25
+    phase === "takeoff"
       ? tr("statusTakeoff")
-      : t < 0.8
+      : phase === "transit"
       ? tr("statusTransit")
       : tr("statusApproach");
 
@@ -168,8 +114,8 @@ export default function TravelAnimationOverlay({
         {/* Progress Bar */}
         <div className="w-full bg-black/70 rounded-full h-1.5 overflow-hidden border border-[#E1C380]/20 mt-1">
           <div
+            ref={barRef}
             className="h-full bg-gradient-to-r from-[#C29B38] via-[#E1C380] to-[#FFF3C7] transition-all duration-75 shadow-[0_0_12px_rgba(225,195,128,0.8)]"
-            style={{ width: `${Math.round(progress * 100)}%` }}
           />
         </div>
       </div>
@@ -207,8 +153,6 @@ export default function TravelAnimationOverlay({
           fill="none"
           stroke="url(#travelPathGrad)"
           strokeWidth="0.8"
-          strokeDasharray={pathLength}
-          strokeDashoffset={pathLength * (1 - progress)}
           filter="url(#glowEffect)"
         />
 
@@ -256,14 +200,7 @@ export default function TravelAnimationOverlay({
       </svg>
 
       {/* Animated Vehicle Sprite (Vector silhouette with no emojis) */}
-      <div
-        className="absolute z-20 pointer-events-none transition-transform"
-        style={{
-          left: `${currentX}%`,
-          top: `${currentY}%`,
-          transform: `translate(-50%, -50%) rotate(${angleDeg}deg)`,
-        }}
-      >
+      <div ref={vehicleRef} className="absolute z-20 pointer-events-none transition-transform">
         {mode === "plane" ? (
           /* Sleek Tactical Police Transport Aircraft */
           <div className="relative flex items-center justify-center filter drop-shadow-[0_0_12px_rgba(225,195,128,0.85)]">

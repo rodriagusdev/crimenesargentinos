@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import Image from "next/image";
+import { useCallback, useMemo } from "react";
 import { ISuspect } from "@/models/ISuspect";
 import { resolveSuspectImage } from "@/lib/suspectImages";
 import { useAudioStore } from "@/stores/useAudioStore";
 import { useInvestigationBoardStore } from "@/stores/useInvestigationBoardStore";
 import { useT } from "@/hooks/useT";
 import { investigationBoardMessages } from "./InvestigationBoard.messages";
+import BoardClueCard from "./BoardClueCard";
+import BoardSuspectCard from "./BoardSuspectCard";
 
 interface InvestigationBoardProps {
   briefing?: string;
@@ -18,6 +19,9 @@ interface InvestigationBoardProps {
   warrantSuspectId: string | null;
   onEmitArrest: (suspect: ISuspect) => void;
 }
+
+// Lista vacía estable para que las tarjetas memoizadas no se re-rendericen sin rasgos marcados
+const NO_MARKS: number[] = [];
 
 export default function InvestigationBoard({
   briefing,
@@ -37,11 +41,6 @@ export default function InvestigationBoard({
   const toggleTrait = useInvestigationBoardStore((state) => state.toggleTrait);
   const setSpecificStatus = useInvestigationBoardStore((state) => state.setSpecificStatus);
 
-  // Estados interactivos de hover
-  const [activeHoverSuspect, setActiveHoverSuspect] = useState<string | null>(null);
-  const [activeHoverClue, setActiveHoverClue] = useState<number | null>(null);
-  const [showStrings, setShowStrings] = useState<boolean>(true);
-
   const allClues = useMemo(() => {
     return [
       ...initialClues.map((text, idx) => ({ id: `init-${idx}`, text, source: t("sourceInitial"), isTestimony: false })),
@@ -49,19 +48,40 @@ export default function InvestigationBoard({
     ];
   }, [initialClues, discoveredClues, t]);
 
-  // Manejadores específicos para Marcar como Principal y Descartar
-  const handleTogglePrincipal = (e: React.MouseEvent, suspectId: string) => {
-    e.stopPropagation();
-    playSfx("typewriter");
-    setSpecificStatus(suspectId, "suspect");
-  };
+  // Foto de cada sospechoso, resuelta una vez por lista de sospechosos
+  const suspectImages = useMemo(
+    () => suspects.map((suspect) => resolveSuspectImage(suspect.name, suspect.image)),
+    [suspects]
+  );
 
-  const handleToggleDiscarded = (e: React.MouseEvent, suspectId: string) => {
-    e.stopPropagation();
-    playSfx("typewriter");
-    setSpecificStatus(suspectId, "discarded");
-  };
+  // Sonidos al apuntar (sin estado: el resaltado es CSS)
+  const playHoverSfx = useCallback(() => playSfx("opencasefile"), [playSfx]);
+  const playTypeSfx = useCallback(() => playSfx("typewriter"), [playSfx]);
 
+  // Manejadores específicos para Marcar como Principal, Descartar y marcar rasgos
+  const handleTogglePrincipal = useCallback(
+    (suspectId: string) => {
+      playSfx("typewriter");
+      setSpecificStatus(suspectId, "suspect");
+    },
+    [playSfx, setSpecificStatus]
+  );
+
+  const handleToggleDiscarded = useCallback(
+    (suspectId: string) => {
+      playSfx("typewriter");
+      setSpecificStatus(suspectId, "discarded");
+    },
+    [playSfx, setSpecificStatus]
+  );
+
+  const handleToggleTrait = useCallback(
+    (suspectId: string, traitIdx: number) => {
+      playSfx("typewriter");
+      toggleTrait(suspectId, traitIdx);
+    },
+    [playSfx, toggleTrait]
+  );
   return (
     <div className="w-full flex flex-col gap-4 lg:gap-3 lg:flex-1 lg:min-h-0 animate-fade-in select-none">
       {/* Header de Evidencias e Hipótesis */}
@@ -113,7 +133,7 @@ export default function InvestigationBoard({
             {/* INFORME INICIAL DEL CASO (Manila Paper Pinned) */}
             {briefing && (
               <div
-                onMouseEnter={() => playSfx("opencasefile")}
+                onMouseEnter={playHoverSfx}
                 className="relative p-4 rounded-xl bg-[#f0e8d5] text-zinc-900 border-2 border-[#cbb793] shadow-lg font-mono text-xs rotate-[-0.5deg]"
               >
                 {/* Chincheta dorada */}
@@ -147,66 +167,16 @@ export default function InvestigationBoard({
 
             {allClues.length > 0 ? (
               <div className="flex flex-col gap-3">
-                {allClues.map((clue, idx) => {
-                  const isHovered = activeHoverClue === idx;
-
-                  return (
-                    <div
-                      key={clue.id}
-                      onMouseEnter={() => {
-                        setActiveHoverClue(idx);
-                        playSfx("opencasefile");
-                      }}
-                      onMouseLeave={() => setActiveHoverClue(null)}
-                      className={`
-                        relative p-3.5 rounded-lg border shadow-md font-mono text-xs transition-all duration-200 cursor-pointer
-                        ${idx % 2 === 0 ? "rotate-[-1deg]" : "rotate-[1deg]"}
-                        ${isHovered
-                          ? "bg-[#fef9c3] text-zinc-900 border-amber-400 scale-[1.02] z-20"
-                          : "bg-[#f5eee0] text-zinc-900/90 border-[#d4c3a3] hover:scale-[1.01]"
-                        }
-                      `}
-                    >
-                      {/* Chincheta roja clavada */}
-                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 size-4 rounded-full bg-red-600 border border-red-300 shadow-[0_2px_5px_rgba(0,0,0,0.5)] flex items-center justify-center text-[7px] text-white">
-                        📍
-                      </span>
-
-                      {/* Origen de la pista: las testimoniales (las que cuentan para la orden de arresto) van en azul tinta */}
-                      <div
-                        className={`flex items-center justify-between pb-1.5 mb-1.5 border-b text-[10px] font-bold uppercase tracking-wider ${clue.isTestimony
-                          ? "-mx-3.5 -mt-3.5 px-3.5 pt-2.5 rounded-t-lg bg-[#1e3a5f] border-[#14294a] text-[#dbeafe]"
-                          : "border-zinc-300/80 text-zinc-600"
-                          }`}
-                      >
-                        <span>{t("clueNumber", { n: idx + 1 })}</span>
-                        <span
-                          className={`px-2 py-0.5 rounded text-[10px] sm:text-[9px] ${clue.isTestimony
-                            ? "bg-[#dbeafe] text-[#1e3a5f]"
-                            : "bg-zinc-200/80 text-zinc-700"
-                            }`}
-                        >
-                          {clue.source}
-                        </span>
-                      </div>
-
-                      {/* Texto de la pista */}
-                      <p className="text-zinc-800 font-medium leading-relaxed">
-                        &ldquo;{clue.text}&rdquo;
-                      </p>
-
-                      {/* Indicador de hilos que conectan */}
-                      {showStrings && (
-                        <div className="pt-2 mt-2 border-t border-dashed border-zinc-300/70 flex items-center justify-between text-[10px] sm:text-[9px] text-red-700 font-bold">
-                          <span className="flex items-center gap-1">
-                            <span className="size-1.5 rounded-full bg-red-600 animate-pulse" />
-                            {t("stringTraced")}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                {allClues.map((clue, idx) => (
+                  <BoardClueCard
+                    key={clue.id}
+                    index={idx}
+                    text={clue.text}
+                    source={clue.source}
+                    isTestimony={clue.isTestimony}
+                    onHover={playHoverSfx}
+                  />
+                ))}
               </div>
             ) : (
               <div className="p-6 rounded-xl bg-[rgba(15,23,42,0.7)] backdrop-blur-xs border border-dashed border-slate-600/50 text-center text-xs font-mono text-[#E1C380]/70 italic">
@@ -226,227 +196,28 @@ export default function InvestigationBoard({
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-              {suspects.map((suspect, idx) => {
-                const status = suspectStatuses[suspect.id] || "neutral";
-                const isWarrantIssued = warrantSuspectId === suspect.id;
-                const suspectImage = resolveSuspectImage(suspect.name, suspect.image);
-                const markedList = markedTraits[suspect.id] || [];
-                const markedCount = markedList.length;
-                const isHovered = activeHoverSuspect === suspect.id;
-
-                // Rotación orgánica de polaroid
-                const rotation = idx === 0 ? "rotate-[-1.5deg]" : idx === 1 ? "rotate-[1deg]" : "rotate-[-1deg]";
-
-                return (
-                  <div
-                    key={suspect.id || idx}
-                    onMouseEnter={() => {
-                      setActiveHoverSuspect(suspect.id);
-                      playSfx("opencasefile");
-                    }}
-                    onMouseLeave={() => setActiveHoverSuspect(null)}
-                    className={`
-                      relative min-w-0 flex flex-col justify-between p-2 sm:p-3 rounded-sm bg-[#faf8f5] text-zinc-900
-                      shadow-[0_12px_28px_rgba(0,0,0,0.6)] transition-all duration-200 select-none
-                      hover:scale-[1.02] hover:z-30 hover:shadow-[0_18px_36px_rgba(0,0,0,0.8)]
-                      ${rotation}
-                      ${status === "suspect"
-                        ? "ring-4 ring-amber-400 shadow-[0_0_25px_rgba(245,158,11,0.45)]"
-                        : status === "discarded"
-                          ? "opacity-75 ring-2 ring-red-500/70"
-                          : isHovered
-                            ? "ring-2 ring-amber-400/60 shadow-[0_0_20px_rgba(245,158,11,0.3)]"
-                            : ""
-                      }
-                    `}
-                  >
-                    <div>
-                      {/* Chincheta superior */}
-                      <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 size-5 rounded-full bg-red-600 border-2 border-red-200 shadow-md flex items-center justify-center text-[8px] text-white z-20">
-                        📍
-                      </div>
-
-                      {/* Foto Polaroid cuadrada con 2 iconos de acción en las esquinas */}
-                      <div className="relative aspect-square lg:aspect-[5/4] w-full rounded-xs overflow-hidden bg-zinc-900 border border-zinc-300">
-                        {/* BOTÓN 1: PRINCIPAL (★) - Esquina superior izquierda */}
-                        <button
-                          type="button"
-                          onClick={(e) => handleTogglePrincipal(e, suspect.id)}
-                          onMouseEnter={() => playSfx("typewriter")}
-                          className={`
-                            absolute top-1.5 left-1.5 sm:top-2 sm:left-2 z-20 size-8 sm:size-7 rounded-full flex items-center justify-center text-xs font-bold transition-all shadow-md cursor-pointer
-                            ${status === "suspect"
-                              ? "bg-amber-400 text-black ring-2 ring-amber-200 shadow-[0_0_12px_rgba(245,158,11,0.8)]"
-                              : "bg-black hover:bg-black/90 text-amber-300/80 hover:text-amber-100 border border-amber-400/50 hover:scale-105"
-                            }
-                          `}
-                          title={status === "suspect" ? t("unmarkPrime") : t("markPrime")}
-                        >
-                          ★
-                        </button>
-
-                        {/* BOTÓN 2: DESCARTADO (✕) - Esquina superior derecha */}
-                        <button
-                          type="button"
-                          onClick={(e) => handleToggleDiscarded(e, suspect.id)}
-                          onMouseEnter={() => playSfx("typewriter")}
-                          className={`
-                            absolute top-1.5 right-1.5 sm:top-2 sm:right-2 z-20 size-8 sm:size-7 rounded-full flex items-center justify-center text-xs font-bold transition-all shadow-md cursor-pointer
-                            ${status === "discarded"
-                              ? "bg-red-600 text-white ring-2 ring-red-300 scale-110 shadow-[0_0_12px_rgba(239,68,68,0.8)]"
-                              : "bg-black hover:bg-black/90 text-red-300/80 hover:text-red-100 border border-red-500/50 hover:scale-105"
-                            }
-                          `}
-                          title={status === "discarded" ? t("undiscard") : t("discard")}
-                        >
-                          ✕
-                        </button>
-
-                        {suspectImage ? (
-                          <Image
-                            src={suspectImage}
-                            alt={suspect.name}
-                            fill
-                            sizes="(max-width: 640px) 45vw, 200px"
-                            className={`object-cover contrast-105 transition-all duration-200 ${status === "discarded" ? "grayscale opacity-50 contrast-90" : ""
-                              }`}
-                          />
-                        ) : (
-                          <div className="size-full flex items-center justify-center text-3xl text-zinc-600 bg-zinc-200">
-                            👤
-                          </div>
-                        )}
-
-                        {/* Sello de estado visual sobre la foto cuando está descartado */}
-                        {status === "discarded" && (
-                          <div className="absolute inset-0 flex items-center justify-center bg-red-950/40 backdrop-blur-[1px] pointer-events-none">
-                            <span className="font-mono font-black text-[10px] sm:text-xs uppercase px-1.5 sm:px-2.5 py-1 border-2 border-red-600 text-red-600 bg-white/95 rounded rotate-[-15deg] shadow-lg tracking-wider sm:tracking-widest whitespace-nowrap">
-                              {t("discardedStamp")}
-                            </span>
-                          </div>
-                        )}
-
-                        {/* Badge de principal cuando está marcado */}
-                        {status === "suspect" && (
-                          <div className="absolute bottom-1.5 left-1.5 sm:bottom-2 sm:left-2 z-10 pointer-events-none">
-                            <span className="font-mono font-black text-[10px] sm:text-[9px] uppercase px-1.5 sm:px-2 py-0.5 border border-amber-500 text-amber-950 bg-amber-300 rounded shadow-md tracking-wider flex items-center gap-1">
-                              <span>★</span>
-                              <span className="hidden sm:inline">{t("prime")}</span>
-                            </span>
-                          </div>
-                        )}
-
-                        {isWarrantIssued && (
-                          <div className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2 z-10 pointer-events-none">
-                            <span className="font-mono font-black text-[10px] sm:text-[9px] uppercase px-1.5 py-0.5 border border-red-600 text-white bg-red-600 rounded shadow-md tracking-wider">
-                              {t("warrantBadge")}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Pie de foto manuscrito / máquina de escribir */}
-                      <div className="pt-2 text-center flex flex-col gap-0.5">
-                        <h5 className="font-mono font-bold text-xs tracking-tight text-zinc-900 uppercase truncate">
-                          {suspect.name}
-                        </h5>
-                      </div>
-
-                      {/* LISTA COMPLETA DE RASGOS — MARCACIÓN MANUAL POR EL USUARIO */}
-                      {suspect.description && suspect.description.length > 0 && (
-                        <div className="mt-2.5 pt-2 border-t border-zinc-300/80 flex flex-col gap-1 text-left">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] sm:text-[9px] font-mono font-bold uppercase tracking-wider text-zinc-500">
-                              {t("traits")}
-                            </span>
-                          </div>
-
-                          <div className="flex flex-col gap-1">
-                            {suspect.description.map((trait, tIdx) => {
-                              const isManuallyMarked = markedList.includes(tIdx);
-
-                              return (
-                                <button
-                                  key={tIdx}
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    playSfx("typewriter");
-                                    toggleTrait(suspect.id, tIdx);
-                                  }}
-                                  onMouseEnter={() => playSfx("typewriter")}
-                                  className={`
-                                    w-full min-h-9 sm:min-h-0 flex items-center justify-between gap-1.5 px-1.5 sm:px-2 py-1.5 rounded text-[10px] font-mono leading-tight transition-all cursor-pointer text-left
-                                    ${isManuallyMarked
-                                      ? "bg-emerald-100 hover:bg-emerald-200/90 border border-emerald-500 text-emerald-950 font-bold shadow-xs ring-1 ring-emerald-400/50"
-                                      : "bg-zinc-100/90 hover:bg-zinc-200/80 border border-zinc-300/80 text-zinc-700 font-medium"
-                                    }
-                                  `}
-                                  title={
-                                    isManuallyMarked
-                                      ? t("unmarkTrait")
-                                      : t("markTrait")
-                                  }
-                                >
-                                  <div className="flex items-center gap-1.5 min-w-0 sm:truncate">
-                                    <span
-                                      className={`shrink-0 text-xs font-black ${isManuallyMarked ? "text-emerald-700" : "text-zinc-400"
-                                        }`}
-                                    >
-                                      {isManuallyMarked ? "✓" : "•"}
-                                    </span>
-                                    <span className="break-words sm:truncate">{trait}</span>
-                                  </div>
-
-                                  <span
-                                    className={`hidden sm:inline text-[8px] uppercase tracking-wider font-mono ${isManuallyMarked
-                                      ? "text-emerald-800 font-bold"
-                                      : "text-zinc-400 opacity-60"
-                                      }`}
-                                  >
-                                    {isManuallyMarked ? t("traitDone") : t("traitMark")}
-                                  </span>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Botón rápido para emitir orden directo desde la tarjeta */}
-                    <div className="mt-3 pt-2.5 border-t border-zinc-300 flex flex-col gap-1">
-                      <button
-                        type="button"
-                        disabled={!canIssueWarrant || isWarrantIssued}
-                        onClick={() => onEmitArrest(suspect)}
-                        onMouseEnter={() => {
-                          if (canIssueWarrant && !isWarrantIssued) {
-                            playSfx("typewriter");
-                          }
-                        }}
-                        className={`
-                          w-full min-h-9 sm:min-h-0 py-2 px-2 rounded-lg font-mono text-[10px] font-bold uppercase tracking-wider transition-all
-                          ${isWarrantIssued
-                            ? "bg-red-700 text-white cursor-default"
-                            : canIssueWarrant
-                              ? "bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white shadow-md hover:scale-[1.02] cursor-pointer"
-                              : "bg-zinc-200 text-zinc-500 cursor-not-allowed"
-                          }
-                        `}
-                      >
-                        {isWarrantIssued ? t("warrantActive") : t("issueWarrant")}
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
+              {suspects.map((suspect, idx) => (
+                <BoardSuspectCard
+                  key={suspect.id || idx}
+                  suspect={suspect}
+                  index={idx}
+                  image={suspectImages[idx] ?? null}
+                  status={suspectStatuses[suspect.id] || "neutral"}
+                  markedList={markedTraits[suspect.id] || NO_MARKS}
+                  isWarrantIssued={warrantSuspectId === suspect.id}
+                  canIssueWarrant={canIssueWarrant}
+                  onHover={playHoverSfx}
+                  onTypeHover={playTypeSfx}
+                  onTogglePrincipal={handleTogglePrincipal}
+                  onToggleDiscarded={handleToggleDiscarded}
+                  onToggleTrait={handleToggleTrait}
+                  onEmitArrest={onEmitArrest}
+                />
+              ))}
             </div>
           </div>
         </div>
       </div>
     </div>
-
-
   );
 }

@@ -75,9 +75,15 @@ export function useTravelFlow<T extends { id: string }>({
       const route = getRoute(target);
       router.prefetch(route);
 
+      // La precarga no frena el viaje: se dispara en segundo plano y sus errores se ignoran
+      if (onPreload) {
+        Promise.resolve()
+          .then(() => onPreload(target))
+          .catch(() => {});
+      }
+
       await Promise.all([
         onTravel(target),
-        onPreload ? onPreload(target) : Promise.resolve(),
         new Promise((resolve) => setTimeout(resolve, durationMs)),
       ]);
 

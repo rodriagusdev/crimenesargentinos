@@ -17,6 +17,7 @@ interface Props {
   isCurrent?: boolean;
   onClick: () => void;
   onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }
 
 // Inclinación orgánica sutil para cada polaroid en el corcho
@@ -34,6 +35,7 @@ export function ProvinceButton({
   isCurrent = false,
   onClick,
   onMouseEnter,
+  onMouseLeave,
 }: Props) {
   const rotation = getRotation(label);
   const t = useT(messages);
@@ -42,6 +44,7 @@ export function ProvinceButton({
     <div
       style={{ top, left }}
       onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       onClick={onClick}
       className="
         absolute

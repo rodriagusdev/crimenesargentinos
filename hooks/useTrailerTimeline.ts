@@ -14,40 +14,57 @@ export type TrailerState =
 
 const TICK_MS = 50;
 
-export function useTrailerTimeline(scenes: TimelineScene[]) {
-  const [state, setState] = useState<TrailerState>({ phase: "poster" });
-  const [now, setNow] = useState(0);
+/** Duración total de una secuencia de escenas */
+export const timelineTotal = (scenes: TimelineScene[]) => scenes.reduce((sum, s) => sum + s.ms, 0);
+
+/** ms vistos del tráiler en el instante `now` (performance.now()) */
+export function elapsedAt(state: TrailerState, now: number, total: number): number {
+  switch (state.phase) {
+    case "playing":
+      return Math.min(total, state.offset + Math.max(0, now - state.startedAt));
+    case "paused":
+      return state.elapsed;
+    case "ended":
+      return total;
+    default:
+      return 0;
+  }
+}
+
+const startPlaying = (): TrailerState => ({ phase: "playing", startedAt: performance.now(), offset: 0 });
+
+/**
+ * Línea de tiempo del tráiler. Solo vuelve a renderizar al cambiar de escena o de fase (no en cada tick):
+ * lo que necesita el tiempo fino (barra de progreso, contador) se suscribe con `useTimelineElapsed`.
+ * Con `autoplay` arranca reproduciendo desde el montaje.
+ */
+export function useTrailerTimeline(scenes: TimelineScene[], { autoplay = false }: { autoplay?: boolean } = {}) {
+  const [state, setState] = useState<TrailerState>(() => (autoplay ? startPlaying() : { phase: "poster" }));
+  // Último instante muestreado: se actualiza solo en los cortes de escena
+  const [now, setNow] = useState(() => (state.phase === "playing" ? state.startedAt : 0));
 
   const starts = useMemo(() => {
     const acc: number[] = [];
     scenes.reduce((sum, s) => (acc.push(sum), sum + s.ms), 0);
     return acc;
   }, [scenes]);
-  const total = useMemo(() => scenes.reduce((sum, s) => sum + s.ms, 0), [scenes]);
+  const total = useMemo(() => timelineTotal(scenes), [scenes]);
 
-  const elapsed =
-    state.phase === "playing"
-      ? Math.min(total, state.offset + Math.max(0, now - state.startedAt))
-      : state.phase === "paused"
-        ? state.elapsed
-        : state.phase === "ended"
-          ? total
-          : 0;
-
+  const elapsed = elapsedAt(state, now, total);
   let scene = starts.findIndex((start, i) => elapsed >= start && elapsed < start + scenes[i].ms);
   if (scene === -1) scene = scenes.length - 1;
-  const sceneElapsed = elapsed - starts[scene];
 
-  // Reloj mientras se reproduce; al llegar al final, termina
+  // Mientras se reproduce, despierta en el próximo corte de escena (o al final, donde termina)
   useEffect(() => {
     if (state.phase !== "playing") return;
-    const timer = setInterval(() => {
+    const nextCut = scene + 1 < starts.length ? starts[scene + 1] : total;
+    const timer = setTimeout(() => {
       const t = performance.now();
       setNow(t);
       if (state.offset + (t - state.startedAt) >= total) setState({ phase: "ended" });
-    }, TICK_MS);
-    return () => clearInterval(timer);
-  }, [state, total]);
+    }, Math.max(0, nextCut - elapsed));
+    return () => clearTimeout(timer);
+  }, [state, scene, starts, total, elapsed]);
 
   // Sonido de cada escena al empezar
   const playing = state.phase === "playing";
@@ -69,5 +86,21 @@ export function useTrailerTimeline(scenes: TimelineScene[]) {
 
   const skip = useCallback(() => setState({ phase: "ended" }), []);
 
-  return { state, scene, sceneElapsed, elapsed, total, starts, play, pause, skip };
+  return { state, scene, total, starts, play, pause, skip };
+}
+
+/**
+ * Tiempo visto, refrescado cada 50 ms mientras se reproduce. Usarlo solo en los componentes chicos que lo muestran
+ * (barra de progreso, contador) para que el resto del reproductor no se vuelva a renderizar en cada tick.
+ */
+export function useTimelineElapsed(state: TrailerState, total: number): number {
+  const [now, setNow] = useState(0);
+
+  useEffect(() => {
+    if (state.phase !== "playing") return;
+    const timer = setInterval(() => setNow(performance.now()), TICK_MS);
+    return () => clearInterval(timer);
+  }, [state]);
+
+  return elapsedAt(state, now, total);
 }

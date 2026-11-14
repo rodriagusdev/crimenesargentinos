@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 import HomeNav from "../HomeNav";
 import TrailerControls from "./TrailerControls";
+import TrailerSceneView from "./TrailerSceneView";
 import { trailerScreenMessages } from "./TrailerScreen.messages";
 import { TRAILER_SCENES } from "./trailerScenes";
 import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
@@ -16,7 +17,7 @@ import { useTrailerTimeline } from "@/hooks/useTrailerTimeline";
 export default function TrailerScreen({ redirectIfLoggedIn = false }: { redirectIfLoggedIn?: boolean }) {
   useRedirectIfLoggedIn(redirectIfLoggedIn);
   const t = useT(trailerScreenMessages);
-  const { state, scene, sceneElapsed, elapsed, total, starts, play, pause, skip } = useTrailerTimeline(TRAILER_SCENES);
+  const { state, scene, total, starts, play, pause, skip } = useTrailerTimeline(TRAILER_SCENES);
   const watching = state.phase === "playing" || state.phase === "paused";
 
   // Espacio pausa/sigue, Escape salta al final (solo mientras se ve el tráiler)
@@ -34,11 +35,12 @@ export default function TrailerScreen({ redirectIfLoggedIn = false }: { redirect
   }, [watching, state.phase, play, pause, skip]);
 
   if (watching) {
-    const current = TRAILER_SCENES[scene];
+    // En pausa se congelan las animaciones CSS de la escena
+    const frozen = state.phase === "paused" ? "[animation-play-state:paused] [&_*]:[animation-play-state:paused]" : "";
     return (
       <div className="relative h-svh bg-black text-[#FFF3C7] overflow-hidden select-none">
-        <div key={scene} className="home-cut absolute inset-0">
-          {current.render(sceneElapsed, t)}
+        <div key={scene} className={`home-cut absolute inset-0 ${frozen}`}>
+          <TrailerSceneView scene={scene} />
         </div>
 
         {/* Textura de película y franjas de cine */}
@@ -50,8 +52,7 @@ export default function TrailerScreen({ redirectIfLoggedIn = false }: { redirect
         </div>
 
         <TrailerControls
-          playing={state.phase === "playing"}
-          elapsed={elapsed}
+          state={state}
           total={total}
           starts={starts}
           onToggle={state.phase === "playing" ? pause : play}

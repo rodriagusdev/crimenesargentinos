@@ -1,8 +1,9 @@
 import { create } from "zustand";
-import { getGameData } from "@/services/levelService";
+import { getGameData, prefetchCaseLocations } from "@/services/levelService";
 import {
   askQuestion as askQuestionApi,
   GameSessionApiError,
+  getDialogLog,
   getSession,
   issueWarrant,
   markBriefingSeen as markBriefingSeenApi,
@@ -31,6 +32,15 @@ const messages = defineMessages({
 });
 
 // El progreso lo guarda el backend (/api/GameSessions): este store es solo la copia del último estado recibido
+// Una línea del chat de una locación (pregunta del jugador y respuesta del testigo)
+export interface IDialogLogLine {
+  question: string;
+  answer: string;
+}
+
+// Clave del chat guardado de una locación en una partida
+export const dialogLogKey = (sessionId: string, locationId: string) => `${sessionId}:${locationId}`;
+
 interface GameSessionState {
   levelId: number | null;
   session: IGameSession | null;
@@ -53,15 +63,22 @@ interface GameSessionState {
   flags: string[];
   initialRoute: string | null; // pantalla donde quedó el jugador
   isInvestigationMenuOpen: boolean;
+  // Chat de cada locación (clave dialogLogKey): lo guardado en el servidor más lo preguntado en esta visita
+  dialogLogs: Record<string, IDialogLogLine[]>;
 
   // Métodos
   initSession: (levelId: number) => Promise<IGameSession>;
-  play: (level?: number) => Promise<IGameSession>; // retoma o sortea el caso del nivel habilitado; con nivel, rejuega uno completado
+  // Retoma o sortea el caso del nivel habilitado; con nivel, rejuega uno completado.
+  // caseIdHint: caso en curso que ya conoce la tarjeta, para pedir sus datos en paralelo con play
+  play: (level?: number, caseIdHint?: number | null) => Promise<IGameSession>;
   travelProvince: (provinceId: string) => Promise<IGameSession>;
   travelLocation: (locationId: string) => Promise<IGameSession>;
   markIntroSeen: (locationId: string) => Promise<IGameSession>;
   markBriefingSeen: () => Promise<IGameSession | null>;
-  askQuestion: (questionCode: string) => Promise<IAskQuestionResult>;
+  // log: si se pasa, la respuesta se agrega al chat guardado de esa locación
+  askQuestion: (questionCode: string, log?: { locationId: string; question: string }) => Promise<IAskQuestionResult>;
+  // Pide (una sola vez por partida, locación e idioma) el chat guardado de una locación
+  loadDialogLog: (locationId: string) => Promise<void>;
   issueArrestWarrant: (suspectId: string) => Promise<IGameSession>;
   restartLevel: (levelId: number) => Promise<void>;
   resetSession: () => void;
@@ -89,6 +106,7 @@ const emptySession = {
   flags: [],
   initialRoute: null,
   isInvestigationMenuOpen: false,
+  dialogLogs: {},
 };
 
 const fromSession = (session: IGameSession) => ({
@@ -109,6 +127,11 @@ const fromSession = (session: IGameSession) => ({
 
 // Varios componentes de la misma pantalla inician la partida a la vez: se comparte la misma request
 let pendingInit: { levelId: number; promise: Promise<IGameSession> } | null = null;
+
+// Chats ya traídos del servidor (o en camino) por clave dialogLogKey, y en qué idioma
+const loadedDialogLogs = new Set<string>();
+const inFlightDialogLogs = new Map<string, Promise<void>>();
+let dialogLogLocale = readLocaleCookie();
 
 // Idioma en que llegaron informe, pistas iniciales y sospechosos: si el jugador lo cambia, se vuelven a pedir
 let contentLocale = readLocaleCookie();
@@ -169,9 +192,12 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
           // Preload automático en background fuera del ciclo de vida de React
           preloadCasePackage(newSession.caseId, gameData.suspects);
           if (newSession.currentProvinceId) {
-            preloadProvincePackage(newSession.currentProvinceId);
+            preloadProvincePackage(newSession.caseId, newSession.currentProvinceId);
             if (newSession.currentLocationId) {
-              preloadLocationPackage(newSession.caseId, newSession.currentProvinceId, newSession.currentLocationId);
+              const locationId = newSession.currentLocationId;
+              preloadLocationPackage(newSession.caseId, newSession.currentProvinceId, locationId, {
+                introSeen: newSession.visitedLocations.some((l) => l.locationId === locationId && l.introSeen),
+              });
             }
           }
 
@@ -187,15 +213,22 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
 
     travelProvince: (provinceId: string) => {
       // Disparar precarga del paquete de provincia antes de que termine el viaje
-      preloadProvincePackage(provinceId);
-      return act((sessionId) => travelToProvince(sessionId, provinceId), (session) => session);
+      const caseId = get().session?.caseId;
+      if (caseId != null) preloadProvincePackage(caseId, provinceId);
+      return act((sessionId) => travelToProvince(sessionId, provinceId), (session) => session).then((session) => {
+        // Con la provincia confirmada por el servidor, los datos de su pantalla quedan pedidos (o ya en caché)
+        if (session.currentProvinceId) prefetchCaseLocations(session.caseId, session.currentProvinceId);
+        return session;
+      });
     },
 
     travelLocation: (locationId: string) => {
       const { session } = get();
       if (session?.currentProvinceId) {
         // Disparar precarga del diálogo y fondo de la locación
-        preloadLocationPackage(session.caseId, session.currentProvinceId, locationId);
+        preloadLocationPackage(session.caseId, session.currentProvinceId, locationId, {
+          introSeen: session.visitedLocations.some((l) => l.locationId === locationId && l.introSeen),
+        });
       }
       return act((sessionId) => travelToLocation(sessionId, locationId), (session) => session);
     },
@@ -209,15 +242,64 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
       return act((sessionId) => markBriefingSeenApi(sessionId), (session) => session);
     },
 
-    askQuestion: (questionCode: string) =>
-      act((sessionId) => askQuestionApi(sessionId, questionCode), (result) => result.state),
+    askQuestion: async (questionCode: string, log?: { locationId: string; question: string }) => {
+      const sessionId = get().session?.sessionId;
+      const result = await act((id) => askQuestionApi(id, questionCode), (result) => result.state);
+      if (log && sessionId) {
+        const key = dialogLogKey(sessionId, log.locationId);
+        const line = { question: log.question, answer: result.answer };
+        set((state) => ({ dialogLogs: { ...state.dialogLogs, [key]: [...(state.dialogLogs[key] ?? []), line] } }));
+      }
+      return result;
+    },
+
+    loadDialogLog: (locationId: string) => {
+      const sessionId = get().session?.sessionId;
+      if (!sessionId) return Promise.resolve();
+
+      // Las preguntas y respuestas llegan en el idioma del jugador: si lo cambia se vuelven a pedir
+      const locale = readLocaleCookie();
+      if (locale !== dialogLogLocale) {
+        dialogLogLocale = locale;
+        loadedDialogLogs.clear();
+        inFlightDialogLogs.clear();
+        set({ dialogLogs: {} });
+      }
+
+      const key = dialogLogKey(sessionId, locationId);
+      if (loadedDialogLogs.has(key)) return Promise.resolve();
+      const inFlight = inFlightDialogLogs.get(key);
+      if (inFlight) return inFlight;
+
+      const promise = getDialogLog(sessionId, locationId)
+        .then((entries) => {
+          if (inFlightDialogLogs.get(key) !== promise) return; // se reinició la sesión o cambió el idioma
+          loadedDialogLogs.add(key);
+          const saved = entries.map((entry) => ({ question: entry.question, answer: entry.answer }));
+          // Lo preguntado mientras llegaba la respuesta va después de lo guardado (sin repetir lo que ya trae el servidor)
+          set((state) => {
+            const pending = (state.dialogLogs[key] ?? []).filter((line) => !saved.some((s) => s.question === line.question));
+            return { dialogLogs: { ...state.dialogLogs, [key]: [...saved, ...pending] } };
+          });
+        })
+        .catch((err) => console.error("No se pudo cargar la conversación guardada:", err))
+        .finally(() => {
+          if (inFlightDialogLogs.get(key) === promise) inFlightDialogLogs.delete(key);
+        });
+
+      inFlightDialogLogs.set(key, promise);
+      return promise;
+    },
 
     // El backend valida las pistas y, si el jugador ya está en el escondite, resuelve si ganó o perdió
     issueArrestWarrant: (suspectId: string) =>
       act((sessionId) => issueWarrant(sessionId, suspectId), (session) => session),
 
-    play: async (level?: number) => {
+    play: async (level?: number, caseIdHint?: number | null) => {
       contentLocale = readLocaleCookie();
+      // game-data depende del caso que devuelve play; si la tarjeta ya lo conoce (partida en curso)
+      // se pide a la vez y el getGameData de abajo reusa la misma request (caché de levelService)
+      if (caseIdHint != null) getGameData(caseIdHint).catch(() => {});
       const newSession = await playLevel(level);
       const gameData = await getGameData(newSession.caseId);
 
@@ -235,7 +317,7 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
       // Preload automático
       preloadCasePackage(newSession.caseId, gameData.suspects);
       if (newSession.currentProvinceId) {
-        preloadProvincePackage(newSession.currentProvinceId);
+        preloadProvincePackage(newSession.caseId, newSession.currentProvinceId);
       }
 
       return newSession;
@@ -249,6 +331,8 @@ export const useGameSessionStore = create<GameSessionState>()((set, get) => {
     // Solo limpia la copia local: la partida sigue guardada en el servidor para continuarla
     resetSession: () => {
       pendingInit = null;
+      loadedDialogLogs.clear();
+      inFlightDialogLogs.clear();
       useInvestigationBoardStore.getState().resetBoard();
       set(emptySession);
     },

@@ -18,6 +18,7 @@ interface LocationPolaroidCardProps {
   rotation: string;
   disabled?: boolean;
   onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
   onClick?: () => void;
 }
 
@@ -28,6 +29,7 @@ export function LocationPolaroidCard({
   rotation,
   disabled = false,
   onMouseEnter,
+  onMouseLeave,
   onClick,
 }: LocationPolaroidCardProps) {
   const t = useT(messages);
@@ -39,6 +41,7 @@ export function LocationPolaroidCard({
         audioManager.play("opencasefile");
         onMouseEnter?.();
       }}
+      onMouseLeave={onMouseLeave}
       onClick={onClick}
       className={`
         group relative flex flex-col justify-between p-2 sm:p-3 rounded-sm bg-[#faf8f5] text-zinc-900

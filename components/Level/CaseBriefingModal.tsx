@@ -1,7 +1,7 @@
 "use client";
 
 import { createPortal } from "react-dom";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useSyncExternalStore } from "react";
 import CaseBriefingSheet from "./CaseBriefingSheet";
 import { getGameData } from "@/services/levelService";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
@@ -14,16 +14,21 @@ interface CaseBriefingModalProps {
   onClose?: () => void;
 }
 
+// Solo del lado del cliente (el portal necesita document.body)
+const noopSubscribe = () => () => {};
+const useIsClient = () => useSyncExternalStore(noopSubscribe, () => true, () => false);
+
 export default function CaseBriefingModal({
   levelId,
   initialInfo,
   onClose,
 }: CaseBriefingModalProps) {
-  const [mounted, setMounted] = useState<boolean>(false);
+  const isClient = useIsClient();
   const [closedLocally, setClosedLocally] = useState<boolean>(false);
-  const [fullText, setFullText] = useState<string>(initialInfo ?? "");
-  const [displayedText, setDisplayedText] = useState<string>("");
-  const [isTyping, setIsTyping] = useState<boolean>(true);
+  // Info traída del servicio (solo si no vino por props ni está en el store)
+  const [fetched, setFetched] = useState<{ levelId: number; info: string } | null>(null);
+  // Texto que ya terminó de escribirse (o se salteó): mientras no coincida con el actual, se está tipeando
+  const [typedText, setTypedText] = useState<string | null>(null);
   const soundPlayedRef = useRef<boolean>(false);
 
   const session = useGameSessionStore((state) => state.session);
@@ -33,12 +38,11 @@ export default function CaseBriefingModal({
   const initialTime = useGameSessionStore((state) => state.initialTime);
   const initialPI = useGameSessionStore((state) => state.initialPI);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   // Se muestra únicamente cuando la sesión de la partida indica que el briefing NO ha sido visto todavía
-  const shouldShow = mounted && Boolean(session && !session.briefingSeen && !closedLocally);
+  const shouldShow = isClient && Boolean(session && !session.briefingSeen && !closedLocally);
+
+  const fullText = initialInfo || storeBriefing || (fetched?.levelId === levelId ? fetched.info : "");
+  const typing = typedText !== fullText;
 
   // Reproducir sonido de expediente abierto al mostrarse
   useEffect(() => {
@@ -48,26 +52,17 @@ export default function CaseBriefingModal({
     }
   }, [shouldShow]);
 
-  // Cargar info del nivel desde el store o vía servicio
+  // Sin info en props ni en el store: se trae vía servicio
+  const needsFetch = shouldShow && !initialInfo && !storeBriefing;
   useEffect(() => {
-    if (!shouldShow) return;
-
-    if (initialInfo) {
-      setFullText(initialInfo);
-      return;
-    }
-
-    if (storeBriefing) {
-      setFullText(storeBriefing);
-      return;
-    }
+    if (!needsFetch) return;
 
     let cancelled = false;
     async function loadInfo() {
       try {
         const data = await getGameData(levelId);
         if (!cancelled && data?.info) {
-          setFullText(data.info);
+          setFetched({ levelId, info: data.info });
         }
       } catch (err) {
         console.error("Error al cargar gameData:", err);
@@ -78,36 +73,7 @@ export default function CaseBriefingModal({
     return () => {
       cancelled = true;
     };
-  }, [levelId, initialInfo, storeBriefing, shouldShow]);
-
-  // Efecto máquina de escribir (letra por letra con audioManager)
-  useEffect(() => {
-    if (!shouldShow || !fullText) return;
-
-    setDisplayedText("");
-    setIsTyping(true);
-
-    let currentIndex = 0;
-    const typingSpeed = 25; // ms por letra
-
-    const interval = setInterval(() => {
-      if (currentIndex < fullText.length) {
-        const nextChar = fullText.charAt(currentIndex);
-        setDisplayedText((prev) => prev + nextChar);
-
-        if (currentIndex % 3 === 0) {
-          audioManager.play("typewriter", { volume: 0.3 });
-        }
-
-        currentIndex++;
-      } else {
-        setIsTyping(false);
-        clearInterval(interval);
-      }
-    }, typingSpeed);
-
-    return () => clearInterval(interval);
-  }, [fullText, shouldShow]);
+  }, [levelId, needsFetch]);
 
   const handleClose = useCallback(async () => {
     setClosedLocally(true);
@@ -119,29 +85,26 @@ export default function CaseBriefingModal({
     onClose?.();
   }, [markBriefingSeen, onClose]);
 
-  const handleSkipTyping = () => {
-    if (isTyping) {
-      setDisplayedText(fullText);
-      setIsTyping(false);
-    }
-  };
+  // Fin del tipeo (o salteo con un toque): se muestra el texto completo
+  const handleTyped = useCallback(() => setTypedText(fullText), [fullText]);
 
-  if (!shouldShow || typeof window === "undefined") return null;
+  if (!shouldShow) return null;
 
   return createPortal(
     // Fondo: la oficina a oscuras; tocar afuera (o la hoja) completa el tipeo
     <div
       className="fixed inset-0 z-40 flex items-center justify-center p-3 pt-10 sm:p-6 sm:pt-12 bg-black/75 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.6)_100%)] backdrop-blur-sm select-none"
-      onClick={handleSkipTyping}
+      onClick={handleTyped}
     >
       <CaseBriefingSheet
         caseNumber={levelId.toString().padStart(2, "0")}
         hours={initialTime}
         pi={initialPI}
         clues={initialClues}
-        text={displayedText}
-        typing={isTyping}
-        onSkip={handleSkipTyping}
+        text={fullText}
+        typing={typing}
+        onTyped={handleTyped}
+        onSkip={handleTyped}
         onClose={handleClose}
       />
     </div>,

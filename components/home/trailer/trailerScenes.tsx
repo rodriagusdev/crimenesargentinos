@@ -8,12 +8,13 @@ import SeamlessBackgroundVideo from "@/components/login/SeamlessBackgroundVideo"
 import SplashLogo from "@/components/splash/SplashLogo";
 import type { TimelineScene } from "@/hooks/useTrailerTimeline";
 
-// Cada escena recibe `t`: los ms que lleva en pantalla. Las animaciones arrancan con t > 0 para que el montaje y el arranque no coincidan.
+// Cada escena recibe `active`: pasa a true un instante después de montarse (ACTIVE_AFTER_MS), para que el montaje y el
+// arranque de las transiciones no coincidan. El resto del movimiento es CSS que arranca al montar la escena.
 // `tr` traduce los textos (placas y subtítulos) al idioma del jugador; las duraciones no dependen del largo del texto.
 export type TrailerTranslate = (key: TrailerMessageKey) => string;
-export type TrailerScene = TimelineScene & { render: (t: number, tr: TrailerTranslate) => ReactNode };
+export type TrailerScene = TimelineScene & { render: (active: boolean, tr: TrailerTranslate) => ReactNode };
 
-const ACTIVE_AFTER_MS = 60;
+export const ACTIVE_AFTER_MS = 60;
 
 // Toma con zoom lento (efecto Ken Burns) y subtítulo abajo
 function Shot({ caption, className = "", children }: { caption?: string; className?: string; children: ReactNode }) {
@@ -31,14 +32,14 @@ function Shot({ caption, className = "", children }: { caption?: string; classNa
 
 const title = (key: TrailerMessageKey, ms: number, accent = false): TrailerScene => ({
   ms,
-  render: (_t, tr) => <TrailerTitleCard text={tr(key)} ms={ms} accent={accent} />,
+  render: (_active, tr) => <TrailerTitleCard text={tr(key)} ms={ms} accent={accent} />,
 });
 
 export const TRAILER_SCENES: TrailerScene[] = [
   { ...title("cardClock", 2600), sfx: "radio" },
   {
     ms: 3800,
-    render: (_t, tr) => (
+    render: (_active, tr) => (
       <Shot caption={tr("captionHeist")}>
         <SeamlessBackgroundVideo src="/videos/introvid.mp4" poster="/images/principal_background.webp" fadeDuration={0.8} />
       </Shot>
@@ -48,29 +49,29 @@ export const TRAILER_SCENES: TrailerScene[] = [
   {
     ms: 3600,
     sfx: "opencasefile",
-    render: (t) => (
+    render: (active) => (
       <Shot className="bg-[#120b06]">
-        <ClueVisual active={t > ACTIVE_AFTER_MS} />
+        <ClueVisual active={active} />
       </Shot>
     ),
   },
   title("cardAlmost", 1800),
   {
     ms: 4000,
-    render: (t, tr) => (
+    render: (active, tr) => (
       <Shot caption={tr("captionMap")} className="bg-[#0b1426]">
         <div className="w-[min(92vw,900px)]">
-          <MapVisual active={t > ACTIVE_AFTER_MS} />
+          <MapVisual active={active} />
         </div>
       </Shot>
     ),
   },
   {
     ms: 3600,
-    render: (t, tr) => (
+    render: (active, tr) => (
       <Shot caption={tr("captionQuestions")} className="bg-[#070c16]">
         <div className="w-[min(92vw,560px)]">
-          <InterrogationVisual active={t > ACTIVE_AFTER_MS} />
+          <InterrogationVisual active={active} />
         </div>
       </Shot>
     ),
@@ -78,19 +79,19 @@ export const TRAILER_SCENES: TrailerScene[] = [
   title("cardWarrant", 2400),
   {
     ms: 2800,
-    render: (t) => (
+    render: (active) => (
       <Shot className="bg-[#1a0d0d]">
-        <WarrantVisual active={t > ACTIVE_AFTER_MS} />
+        <WarrantVisual active={active} />
       </Shot>
     ),
   },
   {
     ms: 4400,
     sfx: "opencasefile",
-    render: (t, tr) => (
+    render: (active, tr) => (
       <Shot className="bg-black">
         <div className="flex flex-col items-center gap-6">
-          <SplashLogo visible={t > ACTIVE_AFTER_MS} className="w-[min(80vw,560px)]" />
+          <SplashLogo visible={active} className="w-[min(80vw,560px)]" />
           <p className="home-caption text-[10px] sm:text-sm tracking-[0.3em] text-[#E1C380]">{tr("tagline")}</p>
         </div>
       </Shot>

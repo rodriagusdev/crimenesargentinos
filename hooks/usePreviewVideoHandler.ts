@@ -2,12 +2,12 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { abandonSession, GameSessionApiError, IPlayConflict, playConflictOf, sessionRoute } from "@/services/gameSessionService";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
-import { preloadCasePackage } from "@/lib/assetPreloader";
 
 // Entrada a un nivel desde su tarjeta: retoma la partida en curso o sortea el caso,
 // muestra el video de intro del caso (si tiene) y va a donde quedó el jugador.
 // level: nivel de la tarjeta (el habilitado o uno completado para rejugar); sin él se retoma lo que esté en curso
-export function usePreviewVideoHandler(previewVideoURL?: string, level?: number) {
+// caseId: caso en curso que informa la tarjeta; play() pide sus datos en paralelo con la partida
+export function usePreviewVideoHandler(previewVideoURL?: string, level?: number, caseId?: number | null) {
   const router = useRouter();
   const play = useGameSessionStore((state) => state.play);
   const resetSession = useGameSessionStore((state) => state.resetSession);
@@ -24,7 +24,7 @@ export function usePreviewVideoHandler(previewVideoURL?: string, level?: number)
     if (loadingLevel) return;
     try {
       setLoadingLevel(true);
-      const session = await play(level);
+      const session = await play(level, caseId);
 
       // Caso recién sorteado con video: se muestra antes de entrar
       const caseVideo = useGameSessionStore.getState().videoUrl;
@@ -36,10 +36,9 @@ export function usePreviewVideoHandler(previewVideoURL?: string, level?: number)
         return;
       }
 
-      // Precargar recursos del caso y prefetch de la ruta de destino
+      // Prefetch de la ruta de destino (los recursos del caso ya los precarga play() en el store)
       const targetRoute = sessionRoute(session);
       router.prefetch(targetRoute);
-      preloadCasePackage(session.caseId);
 
       router.push(targetRoute);
     } catch (err) {

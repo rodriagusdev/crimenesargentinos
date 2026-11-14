@@ -33,6 +33,9 @@ export default function LevelLocation({
   // Si el jugador no está en esta locación, se lo redirige a donde quedó
   const { session, ready, error: sessionError } = useGameSession(levelId, { provinceId, locationId });
   const markIntroSeen = useGameSessionStore((state) => state.markIntroSeen);
+  const loadDialogLog = useGameSessionStore((state) => state.loadDialogLog);
+  const sessionId = session?.sessionId;
+  const atLocation = session?.caseId === levelId && session.currentLocationId === locationId;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showDialog, setShowDialog] = useState(false);
@@ -44,8 +47,8 @@ export default function LevelLocation({
     router.push(`/level/${levelId}/${provinceId}`);
   };
 
+  // El diálogo depende solo de la URL: se pide en paralelo con initSession (la pantalla igual espera a `ready`)
   useEffect(() => {
-    if (!ready) return;
     let cancelled = false;
 
     async function loadLevel() {
@@ -83,7 +86,13 @@ export default function LevelLocation({
     return () => {
       cancelled = true;
     };
-  }, [ready, levelId, locationId, provinceId, t]);
+  }, [levelId, locationId, provinceId, t]);
+
+  // El chat guardado se pide apenas se conoce la partida (si el jugador está acá), en paralelo con el diálogo;
+  // DialogBox lo toma del store sin volver a pedirlo
+  useEffect(() => {
+    if (sessionId && atLocation) void loadDialogLog(locationId);
+  }, [sessionId, atLocation, locationId, loadDialogLog]);
 
   // Escena de intro ya vista en esta partida: se va directo al interrogatorio
   const introSeen = Boolean(

@@ -5,7 +5,7 @@ import Link from "next/link";
 import PlayerChrome from "./PlayerChrome";
 import { CASE_SCENES } from "./caseTrailer";
 import type { CaseStory } from "@/lib/caseStories";
-import type { TrailerState } from "@/hooks/useTrailerTimeline";
+import { useTimelineElapsed, type TrailerState } from "@/hooks/useTrailerTimeline";
 import styles from "./vhs.module.css";
 
 type Props = {
@@ -15,8 +15,6 @@ type Props = {
   number: number;
   state: TrailerState;
   scene: number;
-  sceneElapsed: number;
-  elapsed: number;
   /** Duración del tráiler e inicio de cada escena (barra de progreso a pantalla completa) */
   duration: number;
   starts: number[];
@@ -37,7 +35,7 @@ const counter = (ms: number) => {
 // Televisor de tubo con videocasetera (reproduciendo a pantalla completa, solo el video): muestra el tráiler del caso elegido con la estética de VHS
 // (indicador ▶ PLAY, contador de cinta, banda de tracking) y, al terminar, la placa para tomar el caso
 export default function VhsTelevision(props: Props) {
-  const { fullscreen, story, number, state, scene, sceneElapsed, elapsed, onToggle, onSkip, onNext, onEject } = props;
+  const { fullscreen, story, number, state, scene, onToggle, onSkip, onNext, onEject } = props;
   const showing = story && (state.phase === "playing" || state.phase === "paused");
   const ended = story && state.phase === "ended";
 
@@ -103,10 +101,7 @@ export default function VhsTelevision(props: Props) {
           {/* Indicadores de la videocasetera en pantalla (a pantalla completa los reemplazan los controles) */}
           {showing && !fullscreen && (
             <div className="pointer-events-none absolute inset-0 font-mono text-white [text-shadow:0_0_4px_rgba(0,0,0,0.9)]">
-              <span className={`absolute top-3 left-4 text-sm sm:text-lg ${state.phase === "playing" && sceneElapsed < 2500 && scene === 0 ? styles.blink : ""}`}>
-                {state.phase === "playing" ? "▶ PLAY" : "❚❚ PAUSA"}
-              </span>
-              <span className="absolute bottom-3 right-4 text-sm sm:text-lg">{counter(elapsed)}</span>
+              <VcrOsd state={state} scene={scene} duration={props.duration} starts={props.starts} />
               <span className="absolute bottom-3 left-4 text-xs sm:text-sm">SP</span>
             </div>
           )}
@@ -120,9 +115,7 @@ export default function VhsTelevision(props: Props) {
               story={story}
               number={number}
               tapes={props.tapes}
-              playing={state.phase === "playing"}
-              ended={state.phase === "ended"}
-              elapsed={elapsed}
+              state={state}
               duration={props.duration}
               starts={props.starts}
               onToggle={onToggle}
@@ -163,5 +156,19 @@ export default function VhsTelevision(props: Props) {
         )}
       </div>
     </div>
+  );
+}
+
+// Indicador ▶ PLAY / ❚❚ PAUSA y contador de cinta (lo único de la tele que se refresca en cada tick)
+function VcrOsd({ state, scene, duration, starts }: { state: TrailerState; scene: number; duration: number; starts: number[] }) {
+  const elapsed = useTimelineElapsed(state, duration);
+  const sceneElapsed = elapsed - starts[scene];
+  return (
+    <>
+      <span className={`absolute top-3 left-4 text-sm sm:text-lg ${state.phase === "playing" && sceneElapsed < 2500 && scene === 0 ? styles.blink : ""}`}>
+        {state.phase === "playing" ? "▶ PLAY" : "❚❚ PAUSA"}
+      </span>
+      <span className="absolute bottom-3 right-4 text-sm sm:text-lg">{counter(elapsed)}</span>
+    </>
   );
 }

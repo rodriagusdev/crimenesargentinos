@@ -12,6 +12,7 @@ import dynamic from "next/dynamic";
 import { preloadProvincePackage } from "@/lib/assetPreloader";
 import { useShallow } from "zustand/react/shallow";
 import { useTravelFlow } from "@/hooks/useTravelFlow";
+import { useHoverIntent } from "@/hooks/useHoverIntent";
 import { getCalibratedProvinceCoordinates, monitorCoordToScreen } from "@/lib/mapCalibration";
 import { useT } from "@/hooks/useT";
 import { defineMessages } from "@/lib/i18n/messages";
@@ -93,11 +94,15 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
     current: currentProvince,
     currentId: currentProvinceId,
     onTravel: (prov) => travelProvince(prov.id),
-    onPreload: (prov) => preloadProvincePackage(prov.id),
     getRoute: (prov) => `/level/${levelId}/${prov.id}`,
     durationMs: 1600,
     errorMessageFallback: t("travelError"),
   });
+
+  // Hover sostenido sobre un pin: se adelantan solo los datos (las imágenes las precarga travelProvince)
+  const hoverPreload = useHoverIntent((provinceId: string) =>
+    preloadProvincePackage(levelId, provinceId, { images: false })
+  );
 
   if (loading) {
     return (
@@ -129,7 +134,12 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
 
 
       {/* En celular los pines se achican (ProvinceButton es compartido con el admin, se ajusta desde acá) */}
-      <div className="absolute inset-0 z-10 max-sm:[&>div>div]:w-14">
+      <div
+        className="absolute inset-0 z-10 max-sm:[&>div>div]:w-14"
+        // Los pines no exponen mouseleave: salir de un pin al fondo (o de la capa) cancela el hover
+        onMouseOver={(e) => e.target === e.currentTarget && hoverPreload.cancel()}
+        onMouseLeave={hoverPreload.cancel}
+      >
         {data.provinces.map((province) => {
           const isCurrent = province.id === currentProvinceId;
           const coords = getCalibratedProvinceCoordinates(province);
@@ -141,7 +151,7 @@ export default function LevelProvinces({ levelId }: LevelDataProps) {
               left={coords.left}
               icon={province.icon}
               isCurrent={isCurrent}
-              onMouseEnter={() => preloadProvincePackage(province.id)}
+              onMouseEnter={() => hoverPreload.start(province.id)}
               onClick={() => travel.select(province)}
             />
           );

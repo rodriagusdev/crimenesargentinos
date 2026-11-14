@@ -64,6 +64,10 @@ const inFlightLocations = new Map<string, Promise<ILevelLocations>>();
 const dialogCache = new Map<string, IDialog>();
 const inFlightDialog = new Map<string, Promise<IDialog>>();
 
+// Locaciones de la provincia con la escena del caso ya resuelta (clave `${levelId}_${provinceId}`):
+// la pantalla de provincia, el preloader y travelProvince comparten la misma request
+const inFlightCaseLocations = new Map<string, Promise<ILevelLocations>>();
+
 // La API devuelve los textos en el idioma del jugador: si lo cambia, lo cacheado ya no sirve
 let cacheLocale = readLocaleCookie();
 function ensureCacheLocale(): void {
@@ -82,6 +86,9 @@ export function clearLevelCache(levelId?: number): void {
     inFlightGameData.delete(levelId);
     provincesCache.delete(levelId);
     inFlightProvinces.delete(levelId);
+    for (const key of inFlightCaseLocations.keys()) {
+      if (key.startsWith(`${levelId}_`)) inFlightCaseLocations.delete(key);
+    }
     for (const key of dialogCache.keys()) {
       if (key.startsWith(`${levelId}_`)) {
         dialogCache.delete(key);
@@ -93,6 +100,7 @@ export function clearLevelCache(levelId?: number): void {
     inFlightGameData.clear();
     provincesCache.clear();
     inFlightProvinces.clear();
+    inFlightCaseLocations.clear();
     locationsCache.clear();
     inFlightLocations.clear();
     dialogCache.clear();
@@ -215,22 +223,45 @@ export async function getLevelLocations(
 
 // La foto de cada locación viene de la provincia y es compartida entre casos (ej. Buenos Aires
 // en los casos 1 y 18), así que se usa la escena del testigo del caso cuando existe.
-export async function getCaseLocations(
+export function getCaseLocations(
   levelId: number,
   provinceId: string,
 ): Promise<ILevelLocations> {
-  const data = await getLevelLocations(provinceId);
-  const scenes = await Promise.all(
-    data.locations.map((loc) =>
-      getDialog(levelId, loc.id)
-        .then((dialog) => dialog?.npcCompleteUrl || null)
-        .catch(() => null),
-    ),
-  );
-  return {
-    ...data,
-    locations: data.locations.map((loc, i) => ({ ...loc, imageUrl: scenes[i] ?? loc.imageUrl })),
-  };
+  ensureCacheLocale();
+  const key = `${levelId}_${provinceId}`;
+  const inFlight = inFlightCaseLocations.get(key);
+  if (inFlight) return inFlight;
+
+  // Apenas se conocen los ids de las locaciones se piden todos los diálogos en paralelo
+  // (getDialog cachea y deduplica, así que lo que ya precargó el viaje no se vuelve a pedir)
+  const promise = getLevelLocations(provinceId)
+    .then(async (data) => {
+      const scenes = await Promise.all(
+        data.locations.map((loc) =>
+          getDialog(levelId, loc.id)
+            .then((dialog) => dialog?.npcCompleteUrl || null)
+            .catch(() => null),
+        ),
+      );
+      return {
+        ...data,
+        locations: data.locations.map((loc, i) => ({ ...loc, imageUrl: scenes[i] ?? loc.imageUrl })),
+      };
+    })
+    .finally(() => {
+      inFlightCaseLocations.delete(key);
+    });
+
+  inFlightCaseLocations.set(key, promise);
+  return promise;
+}
+
+// Calienta en segundo plano los datos de la pantalla de provincia (locaciones + un diálogo por locación)
+export function prefetchCaseLocations(levelId: number, provinceId: string): void {
+  if (!provinceId) return;
+  getCaseLocations(levelId, provinceId).catch(() => {
+    // la pantalla de provincia vuelve a pedirlo y muestra el error
+  });
 }
 
 export async function getDialog(

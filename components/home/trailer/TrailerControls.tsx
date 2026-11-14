@@ -2,10 +2,10 @@
 
 import { trailerScreenMessages } from "./TrailerScreen.messages";
 import { useT } from "@/hooks/useT";
+import { useTimelineElapsed, type TrailerState } from "@/hooks/useTrailerTimeline";
 
 type TrailerControlsProps = {
-  playing: boolean;
-  elapsed: number;
+  state: TrailerState;
   total: number;
   starts: number[];
   onToggle: () => void;
@@ -18,8 +18,9 @@ const fmt = (ms: number) => {
 };
 
 // Barra de reproductor: pausa, progreso con marcas por escena, tiempo y saltar
-export default function TrailerControls({ playing, elapsed, total, starts, onToggle, onSkip }: TrailerControlsProps) {
+export default function TrailerControls({ state, total, starts, onToggle, onSkip }: TrailerControlsProps) {
   const t = useT(trailerScreenMessages);
+  const playing = state.phase === "playing";
   return (
     <div className="absolute bottom-0 inset-x-0 z-20 flex items-center gap-3 sm:gap-4 px-3 sm:px-6 h-[9vh] min-h-14 text-[#FFF3C7]">
       <button
@@ -33,10 +34,24 @@ export default function TrailerControls({ playing, elapsed, total, starts, onTog
         </svg>
       </button>
 
+      <TrailerProgress state={state} total={total} starts={starts} label={t("progress")} />
+
+      <button type="button" onClick={onSkip} className="shrink-0 px-3 py-3 text-[10px] sm:text-[9px] text-[#FFF3C7]/70 hover:text-[#E1C380] cursor-pointer">
+        {t("skip")}
+      </button>
+    </div>
+  );
+}
+
+// Progreso y tiempo: lo único que se refresca en cada tick del reloj
+function TrailerProgress({ state, total, starts, label }: { state: TrailerState; total: number; starts: number[]; label: string }) {
+  const elapsed = useTimelineElapsed(state, total);
+  return (
+    <>
       <div
         className="relative flex-1 h-1.5 rounded-full bg-[#FFF3C7]/20 overflow-hidden"
         role="progressbar"
-        aria-label={t("progress")}
+        aria-label={label}
         aria-valuemin={0}
         aria-valuemax={Math.round(total / 1000)}
         aria-valuenow={Math.round(elapsed / 1000)}
@@ -50,10 +65,6 @@ export default function TrailerControls({ playing, elapsed, total, starts, onTog
       <span className="shrink-0 font-mono text-xs sm:text-sm tabular-nums text-[#FFF3C7]/70">
         {fmt(elapsed)} / {fmt(total)}
       </span>
-
-      <button type="button" onClick={onSkip} className="shrink-0 px-3 py-3 text-[10px] sm:text-[9px] text-[#FFF3C7]/70 hover:text-[#E1C380] cursor-pointer">
-        {t("skip")}
-      </button>
-    </div>
+    </>
   );
 }

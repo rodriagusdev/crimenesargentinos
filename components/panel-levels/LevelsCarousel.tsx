@@ -36,6 +36,16 @@ const arrowClass =
 
 const fadeClass = "hidden min-[600px]:max-[1921px]:block pointer-events-none absolute top-0 bottom-0 w-12 z-10 transition-opacity duration-300";
 
+function samePosition(a: CarouselPosition, b: CarouselPosition): boolean {
+  return (
+    a.active === b.active &&
+    a.atStart === b.atStart &&
+    a.atEnd === b.atEnd &&
+    a.visible.length === b.visible.length &&
+    a.visible.every((v, i) => v === b.visible[i])
+  );
+}
+
 function dotState(level: ICardLevelPreview): CarouselDotState {
   if (level.completed) return "completed";
   return level.canPlay ? "current" : "locked";
@@ -48,7 +58,6 @@ function dotState(level: ICardLevelPreview): CarouselDotState {
 export default function LevelsCarousel({ levels }: Props) {
   const trackRef = useRef<HTMLDivElement>(null);
   const t = useT(messages);
-  const isCarousel = true;
 
   const initialIndex = useMemo(() => {
     const idx = levels.findIndex((l) => l.canPlay && !l.completed);
@@ -82,13 +91,32 @@ export default function LevelsCarousel({ levels }: Props) {
       .filter(({ start, end }) => start >= viewStart - 4 && end <= viewEnd + 4)
       .map(({ i }) => i);
 
-    setPosition({
+    const next: CarouselPosition = {
       active: nearest,
       visible: fullyVisible.length > 0 ? fullyVisible : [nearest],
       atStart: viewStart <= 4,
       atEnd: track.scrollLeft + track.clientWidth >= track.scrollWidth - 4,
-    });
+    };
+    // Sin cambios no hay render: se conserva el mismo objeto
+    setPosition((prev) => (samePosition(prev, next) ? prev : next));
   }, []);
+
+  // Un cálculo por frame como máximo mientras se desplaza
+  const frameRef = useRef<number | null>(null);
+  const scheduleUpdate = useCallback(() => {
+    if (frameRef.current !== null) return;
+    frameRef.current = requestAnimationFrame(() => {
+      frameRef.current = null;
+      updatePosition();
+    });
+  }, [updatePosition]);
+
+  useEffect(
+    () => () => {
+      if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
+    },
+    []
+  );
 
   const goTo = useCallback((index: number, smooth = true) => {
     const track = trackRef.current;
@@ -152,7 +180,7 @@ export default function LevelsCarousel({ levels }: Props) {
 
         <div
           ref={trackRef}
-          onScroll={updatePosition}
+          onScroll={scheduleUpdate}
           onKeyDown={onKeyDown}
           tabIndex={0}
           role="region"

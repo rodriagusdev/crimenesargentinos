@@ -9,4 +9,5 @@ export interface ICardLevelPreview {
   completed?: boolean; // ganó alguna variante del nivel en la vuelta: se puede volver a jugar
   variantsTotal?: number; // variantes (casos) del nivel
   variantsWon?: number; // variantes que ganó alguna vez
+  caseId?: number | null; // caso en curso del nivel habilitado (de GET /levels): se precargan sus datos al jugar
 }

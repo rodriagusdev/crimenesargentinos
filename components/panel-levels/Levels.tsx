@@ -102,6 +102,8 @@ export default function Levels() {
             completed: isCompleted,
             variantsTotal: apiLevel?.variantsTotal ?? 0,
             variantsWon: apiLevel?.variantsWon ?? 0,
+            // Solo el habilitado: al rejugar uno completado el backend sortea otro caso ganado
+            caseId: isCurrent ? apiLevel?.caseId ?? null : null,
           };
         });
 
