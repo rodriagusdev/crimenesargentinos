@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { useAppPathname } from "@/hooks/useAppPathname";
 import { isPublicPath, msUntilTokenExpires, redirectToLogin } from "@/lib/auth";
 
 // Límite de setTimeout (~24 días): más allá, el navegador lo dispara de inmediato
@@ -9,7 +9,7 @@ const MAX_TIMEOUT = 2 ** 31 - 1;
 
 // En las pantallas que requieren sesión, manda al login cuando vence el token (aunque no se haga nada)
 export default function SessionExpiryWatcher() {
-  const pathname = usePathname();
+  const pathname = useAppPathname();
 
   useEffect(() => {
     if (isPublicPath(pathname)) return;

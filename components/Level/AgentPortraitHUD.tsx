@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { useAppPathname } from "@/hooks/useAppPathname";
 import { useEffect, useState } from "react";
 import { useAvatarStore } from "@/stores/useAvatarStore";
 import { useIsFullscreen } from "@/hooks/useIsFullscreen";
@@ -22,7 +22,7 @@ const SIZE_FULLSCREEN =
 
 export default function AgentPortraitHUD() {
   const fullscreen = useIsFullscreen();
-  const pathname = usePathname();
+  const pathname = useAppPathname();
   const currentAvatar = useAvatarStore((state) => state.currentAvatar);
   const initAvatar = useAvatarStore((state) => state.initAvatar);
   const [mounted, setMounted] = useState(false);

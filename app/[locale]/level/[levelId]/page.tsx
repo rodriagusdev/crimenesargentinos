@@ -1,7 +1,6 @@
 import LevelProvinces from "@/components/Level/LevelProvinces";
 import Image from "next/image";
-import { cookies } from "next/headers";
-import { DEFAULT_LOCALE, isLocale, LOCALE_COOKIE } from "@/lib/i18n/locale";
+import { localeFromParam } from "@/lib/i18n/locale";
 import { defineMessages } from "@/lib/i18n/messages";
 
 const messages = defineMessages({
@@ -9,11 +8,10 @@ const messages = defineMessages({
   en: { roomAlt: "Police Investigation Command Center" },
 });
 
-export default async function Level({ params }: PageProps<"/level/[levelId]">) {
-  const { levelId } = await params;
+export default async function Level({ params }: PageProps<"/[locale]/level/[levelId]">) {
+  const { levelId, locale: localeParam } = await params;
   const id = Number(levelId);
-  const cookieLocale = (await cookies()).get(LOCALE_COOKIE)?.value;
-  const locale = isLocale(cookieLocale) ? cookieLocale : DEFAULT_LOCALE;
+  const locale = localeFromParam(localeParam);
 
   return (
     <div className="no-desktop-zoom relative w-screen h-dvh overflow-hidden select-none bg-[#05070a]">

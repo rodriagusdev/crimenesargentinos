@@ -5,7 +5,7 @@ import AgentPortraitHUD from "@/components/Level/AgentPortraitHUD";
 
 // Marco compartido por mapa, provincia y locación: el menú de investigación,
 // el informe del caso inicial y los modales de fin de partida quedan montados mientras se navega dentro del caso
-export default async function LevelLayout({ children, params }: LayoutProps<"/level/[levelId]">) {
+export default async function LevelLayout({ children, params }: LayoutProps<"/[locale]/level/[levelId]">) {
   const { levelId } = await params;
   const id = Number(levelId);
 

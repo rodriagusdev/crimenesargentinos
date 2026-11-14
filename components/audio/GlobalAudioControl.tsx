@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { usePathname } from "next/navigation";
+import { useAppPathname } from "@/hooks/useAppPathname";
 import { useAudioStore } from "@/stores/useAudioStore";
 import { useT } from "@/hooks/useT";
 import { defineMessages } from "@/lib/i18n/messages";
@@ -26,7 +26,7 @@ export default function GlobalAudioControl() {
   const masterVolume = useAudioStore((state) => state.masterVolume);
   const toggleMute = useAudioStore((state) => state.toggleMute);
   // En el panel de admin, abajo a la izquierda está "Cerrar sesión": ahí el control va a la derecha
-  const pathname = usePathname() ?? "";
+  const pathname = useAppPathname();
   // A la derecha en el panel de admin (tapaba el logout) y en /principal (tapaba la ficha del jugador)
   const onRight = pathname.startsWith("/admin") || pathname === "/principal";
 

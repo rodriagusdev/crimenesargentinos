@@ -1,22 +1,21 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
-import "./globals.css";
+import "../globals.css";
 import { Press_Start_2P } from "next/font/google";
 import SessionExpiryWatcher from "@/components/SessionExpiryWatcher";
 import SoundtrackPlayer from "@/components/audio/SoundtrackPlayer";
 import GlobalAudioControl from "@/components/audio/GlobalAudioControl";
 import { LocaleProvider } from "@/stores/useLocaleStore";
-import { DEFAULT_LOCALE, isLocale, LOCALE_COOKIE, type Locale } from "@/lib/i18n/locale";
+import { LOCALES, localeFromParam, type Locale } from "@/lib/i18n/locale";
 
 const pressStart = Press_Start_2P({
   weight: "400",
   subsets: ["latin"],
 });
 
-// La cookie la fija proxy.ts en la primera visita (país / navegador) y la cambia el selector ES / EN
-async function requestLocale(): Promise<Locale> {
-  const value = (await cookies()).get(LOCALE_COOKIE)?.value;
-  return isLocale(value) ? value : DEFAULT_LOCALE;
+// El idioma llega por la ruta: proxy.ts reescribe /x → /{cookie}/x (la cookie la fija en la primera visita
+// según país / navegador, y la cambia el selector ES / EN). Sin cookies() acá, las páginas se pueden prerenderizar.
+export function generateStaticParams() {
+  return LOCALES.map((locale) => ({ locale }));
 }
 
 const DESCRIPTIONS: Record<Locale, string> = {
@@ -24,16 +23,13 @@ const DESCRIPTIONS: Record<Locale, string> = {
   en: "Detective game: track down fugitives across every province of Argentina.",
 };
 
-export async function generateMetadata(): Promise<Metadata> {
-  return { title: "Crímenes Argentinos", description: DESCRIPTIONS[await requestLocale()] };
+export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Promise<Metadata> {
+  const locale = localeFromParam((await params).locale);
+  return { title: "Crímenes Argentinos", description: DESCRIPTIONS[locale] };
 }
 
-export default async function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  const locale = await requestLocale();
+export default async function RootLayout({ children, params }: LayoutProps<"/[locale]">) {
+  const locale = localeFromParam((await params).locale);
 
   return (
     <html lang={locale} className={`h-full antialiased`}>

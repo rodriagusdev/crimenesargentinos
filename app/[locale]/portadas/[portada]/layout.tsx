@@ -1,12 +1,10 @@
 import Link from "next/link";
-import { cookies } from "next/headers";
 import { portadasGalleryMessages } from "@/components/home/PortadasGallery.messages";
-import { DEFAULT_LOCALE, isLocale, LOCALE_COOKIE } from "@/lib/i18n/locale";
+import { localeFromParam } from "@/lib/i18n/locale";
 
 // Botón persistente para volver a la galería desde cualquier portada
-export default async function PortadaLayout({ children }: { children: React.ReactNode }) {
-  const cookieLocale = (await cookies()).get(LOCALE_COOKIE)?.value;
-  const locale = isLocale(cookieLocale) ? cookieLocale : DEFAULT_LOCALE;
+export default async function PortadaLayout({ children, params }: LayoutProps<"/[locale]/portadas/[portada]">) {
+  const locale = localeFromParam((await params).locale);
 
   return (
     <>

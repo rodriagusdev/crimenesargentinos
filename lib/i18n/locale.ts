@@ -29,3 +29,17 @@ export function detectLocale(country: string | null, acceptLanguage: string | nu
   if (!first) return DEFAULT_LOCALE;
   return first.startsWith("es") ? "es" : "en";
 }
+
+/**
+ * Las rutas viven en app/[locale]/: proxy.ts reescribe /principal → /es/principal según la cookie,
+ * así el HTML de cada idioma se puede prerenderizar y cachear (sin cookies() en el layout).
+ */
+export function localeFromParam(value: string): Locale {
+  return isLocale(value) ? value : DEFAULT_LOCALE;
+}
+
+/** Ruta visible para el usuario: sin el prefijo interno de idioma (/es/principal → /principal). */
+export function stripLocalePrefix(pathname: string): string {
+  const match = pathname.match(/^\/(es|en)(?=\/|$)/);
+  return match ? pathname.slice(match[0].length) || "/" : pathname;
+}

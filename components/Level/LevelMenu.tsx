@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useAppPathname } from "@/hooks/useAppPathname";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTypewriterSound } from "@/hooks/useTypewriterSound";
@@ -28,7 +29,7 @@ interface LevelMenuProps {
 
 export default function LevelMenu({ levelId }: LevelMenuProps) {
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = useAppPathname();
   const playTypewriter = useTypewriterSound();
   const t = useT(levelMenuMessages);
   const [dossierOpen, setDossierOpen] = useState(false);

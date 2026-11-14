@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import RulesBook from "@/components/rules/RulesBook";
-import { DEFAULT_LOCALE, isLocale, LOCALE_COOKIE, type Locale } from "@/lib/i18n/locale";
+import { localeFromParam, type Locale } from "@/lib/i18n/locale";
 
 const METADATA: Record<Locale, Metadata> = {
   es: {
@@ -15,13 +14,12 @@ const METADATA: Record<Locale, Metadata> = {
   },
 };
 
-export async function generateMetadata(): Promise<Metadata> {
-  const value = (await cookies()).get(LOCALE_COOKIE)?.value;
-  return METADATA[isLocale(value) ? value : DEFAULT_LOCALE];
+export async function generateMetadata({ params }: PageProps<"/[locale]/reglas">): Promise<Metadata> {
+  return METADATA[localeFromParam((await params).locale)];
 }
 
 // ?desde=principal: se abrió desde la pantalla de casos, así que al cerrar vuelve ahí (si no, al login)
-export default async function RulesPage({ searchParams }: PageProps<"/reglas">) {
+export default async function RulesPage({ searchParams }: PageProps<"/[locale]/reglas">) {
   const { desde } = await searchParams;
   return <RulesBook returnTo={desde === "principal" ? "/principal" : "/login"} />;
 }
