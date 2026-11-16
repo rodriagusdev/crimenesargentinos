@@ -1,7 +1,7 @@
 "use client";
 
 import { createPortal } from "react-dom";
-import { useEffect, useState } from "react";
+import { useMounted } from "@/hooks/useMounted";
 import Image from "next/image";
 import GameButton from "../buttons/GameButton";
 import { useT } from "@/hooks/useT";
@@ -61,12 +61,8 @@ export default function TravelConfirmModal({
   onConfirm,
   onCancel,
 }: TravelConfirmModalProps) {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
   const t = useT(messages);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   if (!mounted || !isOpen || typeof window === "undefined") {
     return null;

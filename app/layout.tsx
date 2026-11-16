@@ -11,6 +11,8 @@ import { DEFAULT_LOCALE, isLocale, LOCALE_COOKIE, type Locale } from "@/lib/i18n
 const pressStart = Press_Start_2P({
   weight: "400",
   subsets: ["latin"],
+  // Lo usan --font-sans y --font-mono en globals.css: toda la UI va en la tipografía pixel
+  variable: "--font-press",
 });
 
 // La cookie la fija proxy.ts en la primera visita (país / navegador) y la cambia el selector ES / EN
@@ -37,7 +39,7 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} className={`h-full antialiased`}>
-      <body className={pressStart.className}>
+      <body className={`${pressStart.className} ${pressStart.variable}`}>
         <LocaleProvider initialLocale={locale}>
           <SessionExpiryWatcher />
           <SoundtrackPlayer />

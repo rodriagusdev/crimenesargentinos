@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import type { CaseStory } from "@/lib/caseStories";
 import { useTimelineElapsed, type TrailerState } from "@/hooks/useTrailerTimeline";
+import { useT } from "@/hooks/useT";
+import { videotecaMessages, fileNumber } from "./videoteca.messages";
 
 type Props = {
   story: CaseStory;
@@ -34,6 +36,7 @@ const control =
 // marca por escena, el tiempo y los botones. Se esconden solos si no se mueve el mouse mientras se reproduce.
 export default function PlayerChrome({ story, number, tapes, state, duration, starts, onToggle, onPrev, onNext, onClose }: Props) {
   const [active, setActive] = useState(true);
+  const t = useT(videotecaMessages);
   const playing = state.phase === "playing";
   const ended = state.phase === "ended";
 
@@ -62,12 +65,12 @@ export default function PlayerChrome({ story, number, tapes, state, duration, st
       <div className={`absolute inset-x-0 top-0 flex items-start justify-between gap-3 bg-gradient-to-b from-black/80 to-transparent px-3 pt-2 pb-5 sm:px-6 sm:pt-3 sm:pb-10 ${fade}`}>
         <div className="min-w-0">
           <p className="hidden sm:block text-[10px] tracking-[0.3em] text-[#7fd1ff]">
-            EXPEDIENTE {String(number).padStart(2, "0")} · CINTA {number} / {tapes}
+            {t("tapeOf", { n: fileNumber(number), i: number, total: tapes })}
           </p>
           <p className="mt-1 truncate font-serif text-sm sm:text-2xl font-black uppercase text-white [text-shadow:0_2px_0_#000]">{story.title}</p>
         </div>
-        <button type="button" onClick={onClose} className={`${control} border border-[#FFF3C7]/30 bg-black/40`} aria-label="Cerrar el tráiler">
-          ✕ <span className="hidden sm:inline">CERRAR</span>
+        <button type="button" onClick={onClose} className={`${control} border border-[#FFF3C7]/30 bg-black/40`} aria-label={t("closeTrailer")}>
+          ✕ <span className="hidden sm:inline">{t("close")}</span>
         </button>
       </div>
 
@@ -77,15 +80,15 @@ export default function PlayerChrome({ story, number, tapes, state, duration, st
           <ProgressBar state={state} duration={duration} starts={starts} />
           <div className="mt-1 sm:mt-2 flex items-center justify-between gap-2">
             <div className="flex items-center gap-1">
-              <button type="button" onClick={onPrev} className={control} aria-label="Cinta anterior">
-                ◀◀ <span className="hidden md:inline">ANTERIOR</span>
+              <button type="button" onClick={onPrev} className={control} aria-label={t("prevTape")}>
+                ◀◀ <span className="hidden md:inline">{t("prevShort")}</span>
               </button>
-              <button type="button" onClick={onToggle} className={`${control} sm:min-w-20 border border-[#E1C380]/60`} aria-label={playing ? "Pausar" : "Reproducir"}>
+              <button type="button" onClick={onToggle} className={`${control} sm:min-w-20 border border-[#E1C380]/60`} aria-label={playing ? t("pause") : t("play")}>
                 {playing ? "❚❚" : "▶"}
-                <span className="hidden sm:inline">{playing ? "PAUSA" : "PLAY"}</span>
+                <span className="hidden sm:inline">{playing ? t("pauseShort") : "PLAY"}</span>
               </button>
-              <button type="button" onClick={onNext} className={control} aria-label="Cinta siguiente">
-                <span className="hidden md:inline">SIGUIENTE</span> ▶▶
+              <button type="button" onClick={onNext} className={control} aria-label={t("nextTape")}>
+                <span className="hidden md:inline">{t("nextShort")}</span> ▶▶
               </button>
             </div>
             <Clock state={state} duration={duration} />

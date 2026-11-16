@@ -13,10 +13,11 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  // scripts/ son utilidades de Node en CommonJS (require)
   {
+    files: ["scripts/**/*.js"],
     rules: {
-      "react-hooks/rules-of-hooks": "error",
-      "react-hooks/exhaustive-deps": "warn",
+      "@typescript-eslint/no-require-imports": "off",
     },
   },
 ]);

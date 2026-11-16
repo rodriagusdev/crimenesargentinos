@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { getLevelProvinces } from "@/services/levelService";
 import ILevelDataProvinces from "@/models/ILevelDataProvinces";
 import { ProvinceButton } from "../buttons/ProvinceButton";
@@ -42,7 +41,6 @@ interface LevelDataProps {
 }
 
 export default function LevelProvinces({ levelId }: LevelDataProps) {
-  const router = useRouter();
   const t = useT(messages);
   useGameSession(levelId);
 

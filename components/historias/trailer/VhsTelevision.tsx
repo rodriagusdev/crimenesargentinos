@@ -7,6 +7,8 @@ import { CASE_SCENES } from "./caseTrailer";
 import type { CaseStory } from "@/lib/caseStories";
 import { useTimelineElapsed, type TrailerState } from "@/hooks/useTrailerTimeline";
 import styles from "./vhs.module.css";
+import { useT } from "@/hooks/useT";
+import { videotecaMessages } from "./videoteca.messages";
 
 type Props = {
   /** Ocupa toda la pantalla: la tele se agranda lo más posible sin salirse a lo alto */
@@ -38,6 +40,7 @@ export default function VhsTelevision(props: Props) {
   const { fullscreen, story, number, state, scene, onToggle, onSkip, onNext, onEject } = props;
   const showing = story && (state.phase === "playing" || state.phase === "paused");
   const ended = story && state.phase === "ended";
+  const t = useT(videotecaMessages);
 
   return (
     <div
@@ -60,14 +63,14 @@ export default function VhsTelevision(props: Props) {
         >
           {showing && (
             <div key={`${story.id}-${scene}`} className={`absolute inset-0 ${scene === 0 ? styles.powerOn : ""}`}>
-              <div className={`absolute inset-0 ${styles.jitter}`}>{CASE_SCENES[scene].render(story, number)}</div>
+              <div className={`absolute inset-0 ${styles.jitter}`}>{CASE_SCENES[scene].render(story, number, t)}</div>
             </div>
           )}
 
           {!story && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center text-[#7fd1ff]/80">
-              <span className={`text-xs sm:text-sm ${styles.blink}`}>SIN SEÑAL</span>
-              <span className="font-mono text-sm text-white/60">Elegí una cinta del estante</span>
+              <span className={`text-xs sm:text-sm ${styles.blink}`}>{t("noSignal")}</span>
+              <span className="font-mono text-sm text-white/60">{t("pickFromShelf")}</span>
             </div>
           )}
 
@@ -80,13 +83,13 @@ export default function VhsTelevision(props: Props) {
               <div className={`absolute inset-0 ${story.trailerArt?.finale ? "bg-black/55" : "bg-black/85"}`} aria-hidden />
               <div className="relative flex size-full flex-col items-center justify-center gap-2 sm:gap-4 px-4 text-center">
                 <p className="font-serif text-base sm:text-3xl font-black uppercase text-white [text-shadow:0_3px_0_#000]">{story.title}</p>
-                <p className="font-mono text-[11px] sm:text-sm text-white/80 [text-shadow:0_2px_0_#000]">El resto del expediente se abre al jugar.</p>
+                <p className="font-mono text-[11px] sm:text-sm text-white/80 [text-shadow:0_2px_0_#000]">{t("restOfFile")}</p>
                 <div className="flex flex-wrap justify-center gap-2">
                   <Link href="/login?registro" className="px-3 py-2 sm:px-4 sm:py-3 rounded-lg bg-[#c81e1e] hover:bg-[#a51818] text-white text-[10px]">
-                    TOMAR ESTE CASO
+                    {t("takeThisCase")}
                   </Link>
                   <button type="button" onClick={onNext} className="px-3 py-2 sm:px-4 sm:py-3 rounded-lg border-2 border-[#E1C380] bg-black/40 text-[#FFF3C7] text-[10px] cursor-pointer hover:bg-[#E1C380]/10">
-                    SIGUIENTE CINTA ▶
+                    {t("nextTapeButton")}
                   </button>
                 </div>
               </div>
@@ -95,7 +98,7 @@ export default function VhsTelevision(props: Props) {
 
           {/* A pantalla completa, tocar el video pausa o sigue */}
           {fullscreen && showing && (
-            <button type="button" onClick={onToggle} className="absolute inset-0 cursor-pointer" aria-label={state.phase === "playing" ? "Pausar" : "Reproducir"} />
+            <button type="button" onClick={onToggle} className="absolute inset-0 cursor-pointer" aria-label={state.phase === "playing" ? t("pause") : t("play")} />
           )}
 
           {/* Indicadores de la videocasetera en pantalla (a pantalla completa los reemplazan los controles) */}
@@ -135,9 +138,9 @@ export default function VhsTelevision(props: Props) {
           </div>
           <div className="flex sm:flex-col gap-2">
             {[
-              { label: state.phase === "playing" ? "❚❚" : "▶", aria: state.phase === "playing" ? "Pausar" : "Reproducir", onClick: onToggle, disabled: !story || state.phase === "ended" },
-              { label: "⏭", aria: "Saltar al final", onClick: onSkip, disabled: !showing },
-              { label: "⏏", aria: "Sacar la cinta", onClick: onEject, disabled: !story },
+              { label: state.phase === "playing" ? "❚❚" : "▶", aria: state.phase === "playing" ? t("pause") : t("play"), onClick: onToggle, disabled: !story || state.phase === "ended" },
+              { label: "⏭", aria: t("skipToEnd"), onClick: onSkip, disabled: !showing },
+              { label: "⏏", aria: t("eject"), onClick: onEject, disabled: !story },
             ].map((b) => (
               <button
                 key={b.aria}
@@ -161,12 +164,13 @@ export default function VhsTelevision(props: Props) {
 
 // Indicador ▶ PLAY / ❚❚ PAUSA y contador de cinta (lo único de la tele que se refresca en cada tick)
 function VcrOsd({ state, scene, duration, starts }: { state: TrailerState; scene: number; duration: number; starts: number[] }) {
+  const t = useT(videotecaMessages);
   const elapsed = useTimelineElapsed(state, duration);
   const sceneElapsed = elapsed - starts[scene];
   return (
     <>
       <span className={`absolute top-3 left-4 text-sm sm:text-lg ${state.phase === "playing" && sceneElapsed < 2500 && scene === 0 ? styles.blink : ""}`}>
-        {state.phase === "playing" ? "▶ PLAY" : "❚❚ PAUSA"}
+        {state.phase === "playing" ? "▶ PLAY" : t("osdPause")}
       </span>
       <span className="absolute bottom-3 right-4 text-sm sm:text-lg">{counter(elapsed)}</span>
     </>

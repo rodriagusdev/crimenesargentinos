@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useMounted } from "@/hooks/useMounted";
 import { useAvatarStore } from "@/stores/useAvatarStore";
 import { useIsFullscreen } from "@/hooks/useIsFullscreen";
 import { useT } from "@/hooks/useT";
@@ -25,11 +26,10 @@ export default function AgentPortraitHUD() {
   const pathname = usePathname();
   const currentAvatar = useAvatarStore((state) => state.currentAvatar);
   const initAvatar = useAvatarStore((state) => state.initAvatar);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
   const t = useT(messages);
 
   useEffect(() => {
-    setMounted(true);
     void initAvatar();
   }, [initAvatar]);
 

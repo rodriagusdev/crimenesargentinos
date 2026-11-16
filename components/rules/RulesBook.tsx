@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import SeamlessBackgroundVideo from "@/components/login/SeamlessBackgroundVideo";
 import { useAudioStore } from "@/stores/useAudioStore";
 import { useT } from "@/hooks/useT";
@@ -30,13 +30,16 @@ export default function RulesBook({ returnTo = "/login" }: { returnTo?: RulesRet
       ?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
   }, [currentPage]);
 
-  const handleSelectPage = (idx: number) => {
-    if (idx === currentPage) return;
-    try {
-      playSfx("opencasefile");
-    } catch {}
-    setCurrentPage(idx);
-  };
+  const handleSelectPage = useCallback(
+    (idx: number) => {
+      if (idx === currentPage) return;
+      try {
+        playSfx("opencasefile");
+      } catch {}
+      setCurrentPage(idx);
+    },
+    [currentPage, playSfx],
+  );
 
   const handleNext = () => {
     if (currentPage < SECTIONS.length - 1) {
@@ -79,7 +82,7 @@ export default function RulesBook({ returnTo = "/login" }: { returnTo?: RulesRet
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentPage, returnTo]);
+  }, [currentPage, returnTo, router, handleSelectPage]);
 
   return (
     <RulesReturnContext.Provider value={returnTo}>

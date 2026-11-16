@@ -1,7 +1,7 @@
 "use client";
 
 import { createPortal } from "react-dom";
-import { useEffect, useState } from "react";
+import { useMounted } from "@/hooks/useMounted";
 import { useAudioStore } from "@/stores/useAudioStore";
 import GameButton from "../buttons/GameButton";
 import { useT } from "@/hooks/useT";
@@ -13,7 +13,7 @@ interface SoundSettingsModalProps {
 }
 
 export default function SoundSettingsModal({ isOpen, onClose }: SoundSettingsModalProps) {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
   const t = useT(soundSettingsMessages);
   const masterVolume = useAudioStore((state) => state.masterVolume);
   const sfxVolume = useAudioStore((state) => state.sfxVolume);
@@ -24,10 +24,6 @@ export default function SoundSettingsModal({ isOpen, onClose }: SoundSettingsMod
   const setMusicVolume = useAudioStore((state) => state.setMusicVolume);
   const toggleMute = useAudioStore((state) => state.toggleMute);
   const playSfx = useAudioStore((state) => state.playSfx);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   if (!mounted || !isOpen || typeof window === "undefined") {
     return null;

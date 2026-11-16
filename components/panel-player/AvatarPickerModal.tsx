@@ -2,7 +2,7 @@
 
 import { createPortal } from "react-dom";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useMounted } from "@/hooks/useMounted";
 import { AVAILABLE_AVATARS, useAvatarStore } from "@/stores/useAvatarStore";
 import { audioManager } from "@/lib/audioManager";
 import GameButton from "../buttons/GameButton";
@@ -15,16 +15,12 @@ interface AvatarPickerModalProps {
 }
 
 export default function AvatarPickerModal({ isOpen, onClose }: AvatarPickerModalProps) {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
   const t = useT(avatarPickerMessages);
   const currentAvatar = useAvatarStore((state) => state.currentAvatar);
   const setAvatar = useAvatarStore((state) => state.setAvatar);
   const saving = useAvatarStore((state) => state.saving);
   const error = useAvatarStore((state) => state.error);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   if (!mounted || !isOpen || typeof window === "undefined") return null;
 

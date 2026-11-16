@@ -6,10 +6,9 @@
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* La UI entera usa Press Start 2P (next/font, variable en <body>); font-sans y font-mono también */
+  --font-sans: var(--font-press);
+  --font-mono: var(--font-press);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,19 +21,6 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-.icon-hover {
-  opacity: 0;
-  transform: translateX(-4px);
-  transition: all 180ms ease;
-  display: inline-block;
-}
-
-.btn-hover-group:hover .icon-hover {
-  opacity: 1;
-  transform: translateX(2px);
 }
 
 .icon-float {
@@ -118,15 +104,6 @@ body {
   to { opacity: 1; transform: rotate(-10deg) scale(1); }
 }
 
-.home-scroll-hint {
-  animation: homeBounce 1.4s ease-in-out infinite;
-}
-
-@keyframes homeBounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(6px); }
-}
-
 /* Portada "Tráiler" (modo video): corte entre escenas, zoom lento, carteles y subtítulos */
 .home-cut {
   animation: homeCut 0.35s ease-out both;
@@ -208,7 +185,6 @@ body {
   .home-radio-wave,
   .home-route--draw,
   .home-stamp,
-  .home-scroll-hint,
   .home-paper-in,
   .home-ticker,
   .home-extra,
@@ -898,28 +874,9 @@ body {
 @keyframes galeriaBlink {
   50% { opacity: 0.25; }
 }
-/* Monitor CRT que se enciende */
-.galeria-crt-on {
-  animation: galeriaCrtOn 0.6s ease-out both;
-}
-@keyframes galeriaCrtOn {
-  0% { transform: scaleY(0.02); filter: brightness(3); }
-  60% { transform: scaleY(1.05); }
-  100% { transform: none; filter: none; }
-}
-/* Naipes repartidos */
-.galeria-deal {
-  animation: galeriaDeal 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
-}
-@keyframes galeriaDeal {
-  from { opacity: 0; transform: translate(-60px, -120px) rotate(-25deg); }
-  to { opacity: 1; transform: none; }
-}
 @media (prefers-reduced-motion: reduce) {
   .galeria-flap,
-  .galeria-blink,
-  .galeria-crt-on,
-  .galeria-deal {
+  .galeria-blink {
     animation: none;
   }
 }

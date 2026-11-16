@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface SeamlessBackgroundVideoProps {
   src: string;
@@ -23,8 +23,8 @@ export default function SeamlessBackgroundVideo({
   const v1Ref = useRef<HTMLVideoElement>(null);
 
   const [active, setActive] = useState<0 | 1>(0);
+  // Espejo de `active` para el loop de requestAnimationFrame; se actualiza junto con setActive
   const activeRef = useRef<0 | 1>(0);
-  activeRef.current = active;
 
   const [v0Opacity, setV0Opacity] = useState<number>(1);
   const [v1Opacity, setV1Opacity] = useState<number>(0);
@@ -32,7 +32,7 @@ export default function SeamlessBackgroundVideo({
 
   const isFadingRef = useRef<boolean>(false);
 
-  const triggerFade = (currentIdx: 0 | 1) => {
+  const triggerFade = useCallback((currentIdx: 0 | 1) => {
     if (isFadingRef.current) return;
     isFadingRef.current = true;
 
@@ -66,9 +66,11 @@ export default function SeamlessBackgroundVideo({
 
       if (currentIdx === 0) {
         setV0Opacity(0);
+        activeRef.current = 1;
         setActive(1);
       } else {
         setV1Opacity(0);
+        activeRef.current = 0;
         setActive(0);
       }
 
@@ -80,7 +82,7 @@ export default function SeamlessBackgroundVideo({
         });
       });
     }, fadeDuration * 1000);
-  };
+  }, [fadeDuration]);
 
   useEffect(() => {
     const v0 = v0Ref.current;
@@ -118,7 +120,7 @@ export default function SeamlessBackgroundVideo({
     return () => {
       cancelAnimationFrame(animId);
     };
-  }, [fadeDuration, src]);
+  }, [fadeDuration, src, triggerFade]);
 
   // Video on top during fade
   const v0ZIndex = active === 0 ? 1 : 2;

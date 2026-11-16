@@ -1,12 +1,11 @@
 "use client";
 
-import PrincipalMenu from "@/components/login/PrincipalMenu";
 import RegisterAndLogin from "@/components/login/RegisterAndLogin";
 import SeamlessBackgroundVideo from "@/components/login/SeamlessBackgroundVideo";
 import Link from "next/link";
 import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
 import { audioManager } from "@/lib/audioManager";
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
 import { useT } from "@/hooks/useT";
 import { defineMessages } from "@/lib/i18n/messages";
 
@@ -16,7 +15,6 @@ const messages = defineMessages({
 });
 
 export default function Login() {
-	const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
 	const t = useT(messages);
 
 	// no-desktop-zoom: el login se ve a tamaño completo (con el achique global de escritorio, el fondo se cortaba)
@@ -52,16 +50,12 @@ export default function Login() {
 				{t("howToPlay")}
 			</Link>
 
-			{/* Elegir que menu mostrar */}
+			{/* Login / registro */}
 			<div className="relative z-10 w-full max-w-3xl flex flex-col items-center justify-center px-4 pt-20 pb-16 sm:px-8 sm:py-16 md:px-12 md:py-20 xl:px-16 xl:py-32">
-				{isMenuOpen ? (
-					<PrincipalMenu />
-				) : (
-					// Suspense: RegisterAndLogin lee ?registro con useSearchParams
-					<Suspense fallback={null}>
-						<RegisterAndLogin setIsMenuOpen={setIsMenuOpen} />
-					</Suspense>
-				)}
+				{/* Suspense: RegisterAndLogin lee ?registro con useSearchParams */}
+				<Suspense fallback={null}>
+					<RegisterAndLogin />
+				</Suspense>
 			</div>
 		</div>
 	);

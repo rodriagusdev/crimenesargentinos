@@ -3,6 +3,8 @@
 // sospechosos (ni rasgos: tampoco "una ladrona", "el chofer", "un petiso"…). Los textos de las seeds del
 // backend NO se copian: varios traen pistas (dirección de la fuga, rasgos del culpable).
 
+import type { Locale } from "@/lib/i18n/locale";
+
 export type CaseStory = {
   id: string;
   /** Nivel del juego */
@@ -24,7 +26,16 @@ export type CaseStory = {
   emoji: string;
   /** Arte propio del tráiler (pixel art sin texto): el lugar del hecho y lo que se busca. Si falta, se usa `image` */
   trailerArt?: { place?: string; wanted?: string; /** Fondo de la placa final ("el resto del expediente se abre al jugar") */ finale?: string };
+  /** Versión en inglés de los textos (el título igual al que usa el juego). Lugar y provincia quedan en castellano */
+  en: StoryText;
 };
+
+type StoryText = Pick<CaseStory, "title" | "headline" | "synopsis" | "tagline" | "wanted">;
+
+/** Historias con los textos en el idioma pedido */
+export function localizeStories(locale: Locale): CaseStory[] {
+  return locale === "en" ? CASE_STORIES.map((s) => ({ ...s, ...s.en })) : CASE_STORIES;
+}
 
 export const CASE_STORIES: CaseStory[] = [
   {
@@ -40,6 +51,13 @@ export const CASE_STORIES: CaseStory[] = [
     province: "Ciudad de Buenos Aires",
     image: "/images/levelcardspreview/level_1_preview.jpg",
     emoji: "🏆",
+    en: {
+      title: "Robbing the Stars",
+      headline: "The Cup stolen mid-celebration!",
+      synopsis: "The city was still singing when someone used the chaos to walk off with the trophy. By dawn, at the foot of the Obelisco, only the empty display case was left.",
+      tagline: "We won it all. And lost it in one night.",
+      wanted: "The trophy",
+    },
     trailerArt: { place: "/images/historias/estrellas-lugar.webp", wanted: "/images/historias/estrellas-objeto.webp", finale: "/images/historias/estrellas-final.webp" },
   },
   {
@@ -55,6 +73,13 @@ export const CASE_STORIES: CaseStory[] = [
     province: "Tierra del Fuego",
     image: "/images/levelcardspreview/level_2_preview.jpg",
     emoji: "🎟️",
+    en: {
+      title: "The Mañaneros Vanish",
+      headline: "They won the raffle… and never came back",
+      synopsis: "A group of fans won a dream trip. They were last seen taking photos at the old prison at the end of the world. Since then, silence.",
+      tagline: "The grand prize was disappearing.",
+      wanted: "The winning fans",
+    },
     trailerArt: { place: "/images/historias/mananeros-lugar.webp", wanted: "/images/historias/mananeros-objeto.webp" },
   },
   {
@@ -70,6 +95,13 @@ export const CASE_STORIES: CaseStory[] = [
     province: "Río Negro",
     image: "/images/levelcardspreview/level_3_preview.jpg",
     emoji: "❄️",
+    en: {
+      title: "The Patagonia Case",
+      headline: "A death nobody can explain",
+      synopsis: "What looked like a natural death started to smell wrong. In the snow on the mountain, the Central opened a file nobody wants to sign.",
+      tagline: "In the snow, everything leaves a trace.",
+      wanted: "The truth",
+    },
     trailerArt: { place: "/images/historias/patagonia-lugar.webp", wanted: "/images/historias/patagonia-objeto.webp" },
   },
   {
@@ -85,6 +117,13 @@ export const CASE_STORIES: CaseStory[] = [
     province: "Jujuy",
     image: "/images/levelcardspreview/level_4_preview.jpg",
     emoji: "🛣️",
+    en: {
+      title: "What Happened on Ruta Nacional 40?",
+      headline: "Robertito is missing",
+      synopsis: "Robertito went out one morning and never came back. All that was left of him was a blurry picture in front of a seven-colored hill. The country's longest road holds the rest.",
+      tagline: "5,000 kilometers. One single question.",
+      wanted: "Robertito",
+    },
     trailerArt: { place: "/images/historias/ruta40-lugar.webp", wanted: "/images/historias/ruta40-objeto.webp" },
   },
   {
@@ -100,6 +139,13 @@ export const CASE_STORIES: CaseStory[] = [
     province: "Entre Ríos",
     image: "/images/levelcardspreview/level_5_preview.jpg",
     emoji: "💎",
+    en: {
+      title: "The Provinces Killer",
+      headline: "Diamond heist in the middle of carnival",
+      synopsis: "Amid feathers, drums and sequins, the dancers' diamonds vanished in the middle of the parade. They demand them back before the next corso.",
+      tagline: "Carnival covers everything. Even a robbery.",
+      wanted: "The carnival diamonds",
+    },
     trailerArt: { place: "/images/historias/provincias-lugar.webp", wanted: "/images/historias/provincias-objeto.webp" },
   },
   {
@@ -115,6 +161,13 @@ export const CASE_STORIES: CaseStory[] = [
     province: "La Pampa",
     image: "/images/levelcardspreview/alfajor.webp",
     emoji: "🍫",
+    en: {
+      title: "The Great Alfajor Heist",
+      headline: "The alfajor truck has disappeared",
+      synopsis: "The whole season's production was riding in a single truck. Near the reserve, the truck stopped sending signals. If it doesn't turn up soon, there won't be a crumb left.",
+      tagline: "Dulce de leche, chocolate… and a crime.",
+      wanted: "The alfajor truck",
+    },
     trailerArt: { place: "/images/historias/alfajor-lugar.webp", wanted: "/images/historias/alfajor-objeto.webp" },
   },
   {
@@ -130,6 +183,13 @@ export const CASE_STORIES: CaseStory[] = [
     province: "Santiago del Estero",
     image: "/images/levelcardspreview/camiseta86.webp",
     emoji: "👕",
+    en: {
+      title: "The '86 Jersey",
+      headline: "They took the '86 jersey",
+      synopsis: "The signed jersey from the '86 World Cup was touring the country. At an exhibition by the hot springs, someone took it off the wall and strolled out like nothing happened.",
+      tagline: "Some goals you never forget. Some robberies neither.",
+      wanted: "The signed '86 jersey",
+    },
     trailerArt: { place: "/images/historias/camiseta-lugar.webp", wanted: "/images/historias/camiseta-objeto.webp" },
   },
   {
@@ -145,6 +205,13 @@ export const CASE_STORIES: CaseStory[] = [
     province: "Ciudad de Buenos Aires",
     image: "/images/levelcardspreview/bandoneon.webp",
     emoji: "🪗",
+    en: {
+      title: "The Golden Bandoneon",
+      headline: "Silence at the milonga: the golden bandoneon is stolen",
+      synopsis: "A legendary tango player set down his golden bandoneon for one second to say hello. When he came back, the case was empty and the milonga lost its beat.",
+      tagline: "A tango without a bandoneon is barely a whisper.",
+      wanted: "The golden bandoneon",
+    },
     trailerArt: { place: "/images/historias/bandoneon-lugar.webp", wanted: "/images/historias/bandoneon-objeto.webp" },
   },
 ];

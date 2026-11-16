@@ -2,7 +2,7 @@
 
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useMounted } from "@/hooks/useMounted";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import CronicaDefeatNewspaper from "./CronicaDefeatNewspaper";
 import { clearAllBriefingSeenFlags } from "@/lib/briefingStorage";
@@ -13,16 +13,12 @@ interface GameOverModalProps {
 
 export default function GameOverModal({ levelId }: GameOverModalProps) {
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
 
   const isGameOver = useGameSessionStore((state) => state.isGameOver);
   const gameOverReason = useGameSessionStore((state) => state.gameOverReason);
   const restartLevel = useGameSessionStore((state) => state.restartLevel);
   const session = useGameSessionStore((state) => state.session);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   if (!mounted || !isGameOver || typeof window === "undefined") {
     return null;

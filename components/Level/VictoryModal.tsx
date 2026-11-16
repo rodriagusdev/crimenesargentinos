@@ -3,6 +3,7 @@
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useMounted } from "@/hooks/useMounted";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { getLevelProvinces } from "@/services/levelService";
 import CronicaVictoryNewspaper from "./CronicaVictoryNewspaper";
@@ -43,17 +44,13 @@ function getDetectiveRank(
 
 export default function VictoryModal({ levelId }: VictoryModalProps) {
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
   const [provinceName, setProvinceName] = useState<string>("BUENOS AIRES");
 
   const isVictory = useGameSessionStore((state) => state.isVictory);
   const session = useGameSessionStore((state) => state.session);
   const warrantSuspectId = session?.warrantSuspectId ?? null;
   const suspects = useGameSessionStore((state) => state.suspects);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Fetch province name for the headline: ¡ATRAPADO EN [PROVINCIA]!
   useEffect(() => {

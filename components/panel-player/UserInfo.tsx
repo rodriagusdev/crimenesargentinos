@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import InfoItem from "./UserInfoItem";
 import { getPlayerStats } from "@/services/gameSessionService";
+import type { IPlayerStats } from "@/models/IGameSession";
 import { useAvatarStore } from "@/stores/useAvatarStore";
 import { audioManager } from "@/lib/audioManager";
 import { useT } from "@/hooks/useT";
@@ -13,12 +14,45 @@ import { userInfoMessages } from "./UserInfo.messages";
 
 const AvatarPickerModal = dynamic(() => import("./AvatarPickerModal"), { ssr: false });
 
-interface UserData {
-  username: string | null; // null: cargando; "": sin nombre en el token
-  level: number;
-  points: number;
-  gamesPlayed: number;
-  highScore: number;
+const NAME_CLAIM = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name";
+const noopSubscribe = () => () => {};
+
+// Cache por token: getSnapshot se llama en cada render y debe devolver un valor estable
+let cachedToken: string | null = null;
+let cachedUsername: string | null = null;
+
+/** Username del JWT guardado. null: sin token (cargando); "": sin nombre en el token o token inválido. */
+function readUsername(): string | null {
+  const token = localStorage.getItem("auth_token");
+  if (token === cachedToken) return cachedUsername;
+  cachedToken = token;
+  cachedUsername = token ? decodeUsername(token) : null;
+  return cachedUsername;
+}
+
+function decodeUsername(token: string): string {
+  try {
+    // El JWT tiene formato: header.payload.signature
+    const parts = token.split(".");
+    if (parts.length !== 3) {
+      throw new Error("Token JWT inválido");
+    }
+
+    // Agregar padding si es necesario para base64
+    let payloadBase64 = parts[1];
+    const padding = 4 - (payloadBase64.length % 4);
+    if (padding !== 4) {
+      payloadBase64 += "=".repeat(padding);
+    }
+
+    const decodedPayload = JSON.parse(atob(payloadBase64));
+
+    // El username está en el claim ClaimTypes.Name de .NET
+    return decodedPayload[NAME_CLAIM] || decodedPayload.unique_name || decodedPayload.sub || "";
+  } catch (error) {
+    console.error("Error decodificando token:", error);
+    return "";
+  }
 }
 
 export default function UserInfo() {
@@ -28,61 +62,25 @@ export default function UserInfo() {
   const t = useT(userInfoMessages);
   const numberLocale = useLocale() === "en" ? "en-US" : "es-AR";
 
-  const [user, setUser] = useState<UserData>({
-    username: null,
+  const username = useSyncExternalStore(noopSubscribe, readUsername, () => null);
+  const [stats, setStats] = useState<IPlayerStats>({
     level: 0,
     points: 0,
     gamesPlayed: 0,
     highScore: 0,
   });
+  const user = { username, ...stats };
 
   useEffect(() => {
     void initAvatar();
+  }, [initAvatar]);
 
-    // Decodificar JWT para obtener el username
-    const token = localStorage.getItem("auth_token");
-    if (token) {
-      try {
-        // El JWT tiene formato: header.payload.signature
-        const parts = token.split(".");
-        if (parts.length !== 3) {
-          throw new Error("Token JWT inválido");
-        }
-
-        // Agregar padding si es necesario para base64
-        let payloadBase64 = parts[1];
-        const padding = 4 - (payloadBase64.length % 4);
-        if (padding !== 4) {
-          payloadBase64 += "=".repeat(padding);
-        }
-
-        const decodedPayload = JSON.parse(atob(payloadBase64));
-
-        // El username está en el claim ClaimTypes.Name de .NET
-        const username =
-          decodedPayload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] ||
-          decodedPayload.unique_name ||
-          decodedPayload.sub ||
-          "";
-
-        setUser((prevUser) => ({
-          ...prevUser,
-          username: username,
-        }));
-      } catch (error) {
-        console.error("Error decodificando token:", error);
-        setUser((prevUser) => ({
-          ...prevUser,
-          username: "",
-        }));
-      }
-    }
-
+  useEffect(() => {
     // Nivel, puntos y partidas salen del progreso guardado en el servidor
     let cancelled = false;
     getPlayerStats()
-      .then((stats) => {
-        if (!cancelled) setUser((prevUser) => ({ ...prevUser, ...stats }));
+      .then((playerStats) => {
+        if (!cancelled) setStats(playerStats);
       })
       .catch((error) => console.error("Error al obtener las estadísticas del jugador:", error));
 
@@ -90,6 +88,7 @@ export default function UserInfo() {
       cancelled = true;
     };
   }, []);
+
   return (
     <div className="group relative flex flex-col rounded-2xl overflow-hidden border-2 border-[#1c2c3e] bg-[#0c1421] shadow-[0_12px_32px_rgba(0,0,0,0.65)] transition-all duration-300 hover:border-amber-400/40">
       {/* 1. Header con estilo táctico matching LevelCard */}

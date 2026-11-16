@@ -3,10 +3,11 @@ import type { ReactNode } from "react";
 import type { TimelineScene } from "@/hooks/useTrailerTimeline";
 import type { CaseStory } from "@/lib/caseStories";
 import styles from "./vhs.module.css";
+import { fileNumber, type VideotecaT } from "./videoteca.messages";
 
 // Tráiler de UN caso (unos 35 s), armado solo con los datos públicos del caso:
 // expediente → el lugar → el hecho → lo que se busca → la frase gancho → el título
-export type CaseScene = TimelineScene & { render: (story: CaseStory, number: number) => ReactNode };
+export type CaseScene = TimelineScene & { render: (story: CaseStory, number: number, t: VideotecaT) => ReactNode };
 
 // Fondo de escena: el arte propio del tráiler (lugar u objeto) o, si no hay, el arte del nivel
 type Art = "place" | "wanted";
@@ -29,10 +30,10 @@ export const CASE_SCENES: CaseScene[] = [
   {
     ms: 3800,
     sfx: "mechanickey",
-    render: (_story, number) => (
+    render: (_story, number, t) => (
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[#1838c8] text-white">
-        <span className="text-[10px] tracking-[0.3em]">ARCHIVO DE LA CENTRAL</span>
-        <span className={`text-lg sm:text-4xl ${styles.slam}`}>EXPEDIENTE {String(number).padStart(2, "0")}</span>
+        <span className="text-[10px] tracking-[0.3em]">{t("archive")}</span>
+        <span className={`text-lg sm:text-4xl ${styles.slam}`}>{t("caseFile", { n: fileNumber(number) })}</span>
       </div>
     ),
   },
@@ -40,10 +41,10 @@ export const CASE_SCENES: CaseScene[] = [
   {
     ms: 5200,
     sfx: "radio",
-    render: (story) => (
+    render: (story, _number, t) => (
       <Scene story={story} dim={0.25}>
         <div className={`absolute left-4 bottom-8 sm:left-8 sm:bottom-16 max-w-[85%] ${styles.fadeUp}`}>
-          <p className="font-mono text-xs sm:text-sm text-[#ffd447]">LUGAR DEL HECHO</p>
+          <p className="font-mono text-xs sm:text-sm text-[#ffd447]">{t("crimeScene")}</p>
           <p className="mt-1 font-mono text-base sm:text-4xl font-black text-white [text-shadow:0_3px_0_#000]">{story.place}</p>
           <p className="font-mono text-xs sm:text-lg text-white/85 [text-shadow:0_2px_0_#000]">{story.province}</p>
         </div>
@@ -86,11 +87,11 @@ export const CASE_SCENES: CaseScene[] = [
   {
     ms: 4600,
     sfx: "warning",
-    render: (story) => (
+    render: (story, _number, t) => (
       <Scene story={story} art="wanted" dim={story.trailerArt?.wanted ? 0.35 : 0.6}>
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 px-6 text-center">
           <span className={`border-4 border-[#e33] px-3 py-1.5 sm:px-4 sm:py-2 text-[#ff5a5a] text-xs sm:text-2xl bg-black/50 ${styles.stamp}`}>
-            SE BUSCA: {story.wanted.toUpperCase()}
+            {t("wanted", { what: story.wanted.toUpperCase() })}
           </span>
         </div>
       </Scene>
@@ -110,7 +111,7 @@ export const CASE_SCENES: CaseScene[] = [
   {
     ms: 5200,
     sfx: "opencasefile",
-    render: (story) => (
+    render: (story, _number, t) => (
       <Scene story={story} dim={0.65}>
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-6 text-center">
           {/* Logo del juego + "PRESENTA" */}
@@ -121,11 +122,11 @@ export const CASE_SCENES: CaseScene[] = [
             height={400}
             className={`h-auto w-[min(24%,220px)] sm:w-[min(38%,220px)] drop-shadow-[0_6px_10px_rgba(0,0,0,0.8)] ${styles.fadeUp}`}
           />
-          <span className="text-[10px] sm:text-xs tracking-[0.4em] text-[#ffd447] [text-shadow:0_2px_0_#000]">PRESENTA</span>
+          <span className="text-[10px] sm:text-xs tracking-[0.4em] text-[#ffd447] [text-shadow:0_2px_0_#000]">{t("presents")}</span>
           <h3 className={`font-serif text-xl sm:text-6xl font-black uppercase leading-none text-white [text-shadow:0_4px_0_#000] ${styles.slam}`}>
             {story.title}
           </h3>
-          <span className="mt-1 sm:mt-2 text-[10px] sm:text-xs text-white/80">NIVEL {story.level}</span>
+          <span className="mt-1 sm:mt-2 text-[10px] sm:text-xs text-white/80">{t("level", { n: story.level })}</span>
         </div>
       </Scene>
     ),

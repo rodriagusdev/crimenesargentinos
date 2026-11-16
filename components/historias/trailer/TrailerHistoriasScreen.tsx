@@ -8,7 +8,9 @@ import VideotecaSideDecor from "./VideotecaSideDecor";
 import { CASE_SCENES } from "./caseTrailer";
 import GameBackdrop, { CautionBar, GAME_BG } from "@/components/galeria/GameBackdrop";
 import { audioManager } from "@/lib/audioManager";
-import { CASE_STORIES } from "@/lib/caseStories";
+import { useCaseStories } from "@/hooks/useCaseStories";
+import { useT } from "@/hooks/useT";
+import { videotecaMessages } from "./videoteca.messages";
 import { timelineTotal } from "@/hooks/useTrailerTimeline";
 
 const TRAILER_MS = timelineTotal(CASE_SCENES);
@@ -17,13 +19,15 @@ const TRAILER_MS = timelineTotal(CASE_SCENES);
 // Un destacado con el caso elegido y un estante con una cinta VHS por caso; "VER TRÁILER" pasa a pantalla completa
 // el tráiler de ESE caso: el lugar, el hecho, lo que se busca, la frase gancho y el título. Nada de pistas ni sospechosos.
 export default function TrailerHistoriasScreen() {
+  const stories = useCaseStories();
+  const t = useT(videotecaMessages);
   // Cinta en la videocasetera (índice en CASE_STORIES; null: ninguna)
   const [tape, setTape] = useState<number | null>(null);
   // Caso destacado (el del casete elegido en el estante)
   const [featured, setFeatured] = useState(0);
   // Carrusel del estante: primer casete visible y último movimiento
   const [shelf, setShelf] = useState({ start: 0, dir: "down" as "up" | "down", n: 0 });
-  const maxStart = CASE_STORIES.length - SHELF_VISIBLE;
+  const maxStart = stories.length - SHELF_VISIBLE;
   const moveShelf = (dir: "up" | "down") =>
     setShelf((s) => ({ start: Math.min(maxStart, Math.max(0, s.start + (dir === "down" ? 1 : -1))), dir, n: s.n + 1 }));
   // Paginador: deja ese casete arriba (o lo más arriba posible)
@@ -67,14 +71,14 @@ export default function TrailerHistoriasScreen() {
       {/* Ancho: el reproductor (~68rem) queda en 16:9 con el mismo alto que el estante (~616px); el alto lo iguala el grid */}
       <div className="relative max-w-[85rem] mx-auto flex flex-col gap-5">
         <header className="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
-          <h1 className="text-base sm:text-xl leading-relaxed">UN TRÁILER POR CASO</h1>
-          <p className="font-mono text-sm text-[#FFF3C7]/60">{CASE_STORIES.length} cintas · elegí una del estante</p>
+          <h1 className="text-base sm:text-xl leading-relaxed">{t("heading")}</h1>
+          <p className="font-mono text-sm text-[#FFF3C7]/60">{t("tapesCount", { n: stories.length })}</p>
         </header>
 
         {/* En escritorio el reproductor se estira hasta donde termina el estante (con su paginador) */}
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-stretch">
           <VideotecaHero
-            story={CASE_STORIES[featured]}
+            story={stories[featured]}
             number={featured + 1}
             seconds={Math.round(TRAILER_MS / 1000)}
             onPlay={() => insert(featured)}

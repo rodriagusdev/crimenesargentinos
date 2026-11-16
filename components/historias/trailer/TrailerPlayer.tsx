@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import VhsTelevision from "./VhsTelevision";
 import { CASE_SCENES } from "./caseTrailer";
-import { CASE_STORIES } from "@/lib/caseStories";
+import { useCaseStories } from "@/hooks/useCaseStories";
 import { useTrailerTimeline } from "@/hooks/useTrailerTimeline";
 
 type Props = {
@@ -20,6 +20,7 @@ type Props = {
 // Reproductor a pantalla completa con su propia línea de tiempo: solo él (y su barra de progreso) se vuelve a
 // renderizar mientras corre el tráiler; la videoteca de atrás queda quieta
 export default function TrailerPlayer({ tape, onInsert, onClose, onEject }: Props) {
+  const stories = useCaseStories();
   const { state, scene, total, starts, play, pause, skip } = useTrailerTimeline(CASE_SCENES, { autoplay: true });
   const toggle = () => (state.phase === "playing" ? pause() : play());
 
@@ -50,7 +51,7 @@ export default function TrailerPlayer({ tape, onInsert, onClose, onEject }: Prop
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-black">
       <VhsTelevision
         fullscreen
-        story={CASE_STORIES[tape]}
+        story={stories[tape]}
         number={tape + 1}
         state={state}
         scene={scene}
@@ -58,9 +59,9 @@ export default function TrailerPlayer({ tape, onInsert, onClose, onEject }: Prop
         onSkip={skip}
         duration={total}
         starts={starts}
-        tapes={CASE_STORIES.length}
-        onPrev={() => onInsert((tape - 1 + CASE_STORIES.length) % CASE_STORIES.length)}
-        onNext={() => onInsert((tape + 1) % CASE_STORIES.length)}
+        tapes={stories.length}
+        onPrev={() => onInsert((tape - 1 + stories.length) % stories.length)}
+        onNext={() => onInsert((tape + 1) % stories.length)}
         onEject={onEject}
       />
     </div>

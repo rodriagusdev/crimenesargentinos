@@ -1,45 +1,32 @@
 "use client";
 
-import IDialog, { IDialogQuestion } from "@/models/IDialog";
+import IDialog from "@/models/IDialog";
 import GameButton from "../buttons/GameButton";
 import { LevelScreenTopBar } from "../Level/LevelScreenTopBar";
-import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import { dialogLogKey, IDialogLogLine, useGameSessionStore } from "@/stores/useGameSessionStore";
-import { useHintSound } from "@/hooks/useHintSound";
 import CostFeedbackToast from "../Level/CostFeedbackToast";
 import { useAvatarStore } from "@/stores/useAvatarStore";
 import { useT } from "@/hooks/useT";
+import { useDialogQuestions } from "@/hooks/useDialogQuestions";
 import { dialogBoxMessages } from "./DialogBox.messages";
+import DialogPortraitColumn from "./DialogPortraitColumn";
+import DialogConversationLog from "./DialogConversationLog";
+import DialogSceneBackdrop from "./DialogSceneBackdrop";
 
 interface DialogProps {
   dialog: IDialog;
   onClose?: () => void;
 }
 
-// Tiempo en pantalla de los avisos: costo (5s) y pista (8s)
-const COST_TOAST_MS = 5000;
-const CLUE_TOAST_MS = 8000;
 const EMPTY_LOG: IDialogLogLine[] = [];
 
 export default function DialogBox({ dialog, onClose }: DialogProps) {
-  const [costToast, setCostToast] = useState<{ time: number; pi: number } | null>(null);
-  const [clueToast, setClueToast] = useState<string | null>(null);
-  const [askingQuestionId, setAskingQuestionId] = useState<string | null>(null);
-  const logEndRef = useRef<HTMLDivElement>(null);
-  const costTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const clueTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const askingRef = useRef(false);
-
-  const playHintSound = useHintSound();
   const t = useT(dialogBoxMessages);
+  const { costToast, clueToast, askingQuestionId, askedQuestions, availableQuestions, onQuestionClicked } =
+    useDialogQuestions(dialog);
 
-  const flags = useGameSessionStore((state) => state.flags);
-  // Preguntas ya hechas en esta partida (también en visitas anteriores): quedan deshabilitadas
-  const askedQuestions = useGameSessionStore((state) => state.askedQuestions);
   const sessionId = useGameSessionStore((state) => state.session?.sessionId);
-  const askQuestion = useGameSessionStore((state) => state.askQuestion);
   const loadDialogLog = useGameSessionStore((state) => state.loadDialogLog);
   // Chat de esta locación: lo guarda el store (LevelLocation ya lo pidió en paralelo con el diálogo)
   const log = useGameSessionStore((state) =>
@@ -51,10 +38,6 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
 
   useEffect(() => {
     void initAvatar();
-    return () => {
-      if (costTimeoutRef.current) clearTimeout(costTimeoutRef.current);
-      if (clueTimeoutRef.current) clearTimeout(clueTimeoutRef.current);
-    };
   }, [initAvatar]);
 
   // La conversación guardada de esta locación: se retoma donde había quedado
@@ -63,59 +46,6 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
     if (!sessionId) return;
     void loadDialogLog(dialog.locationId);
   }, [sessionId, dialog.locationId, loadDialogLog]);
-
-  // Filtra las preguntas: solo muestra las que no tienen requiredFlag o si todos los flags requeridos ya fueron desbloqueados
-  const availableQuestions = dialog.questions.filter((q) => {
-    if (!q.requiredFlag) return true;
-    const required = Array.isArray(q.requiredFlag) ? q.requiredFlag : [q.requiredFlag];
-    return required.every((flag) => flags.includes(flag));
-  });
-
-  // El servidor cobra (solo la primera vez), desbloquea pistas y flags y guarda la pregunta en el chat
-  const onQuestionClicked = async (q: IDialogQuestion) => {
-    if (!q.answer || askingRef.current || askedQuestions.includes(q.id)) return;
-    askingRef.current = true;
-    setAskingQuestionId(q.id);
-
-    useGameSessionStore.getState().closeInvestigationMenu();
-
-    try {
-      // La respuesta se agrega al chat de la locación en el store
-      const result = await askQuestion(q.id, { locationId: dialog.locationId, question: q.text });
-
-      // Mostrar feedback visual de costo solo cuando se descuenta
-      if (result.costCharged && result.cost) {
-        if (costTimeoutRef.current) clearTimeout(costTimeoutRef.current);
-        setCostToast(result.cost);
-        costTimeoutRef.current = setTimeout(() => {
-          setCostToast(null);
-          costTimeoutRef.current = null;
-        }, COST_TOAST_MS);
-      }
-
-      // Mostrar feedback visual de pista descubierta
-      if (result.newClue) {
-        if (clueTimeoutRef.current) clearTimeout(clueTimeoutRef.current);
-        setClueToast(result.newClue);
-        playHintSound();
-        clueTimeoutRef.current = setTimeout(() => {
-          setClueToast(null);
-          clueTimeoutRef.current = null;
-        }, CLUE_TOAST_MS);
-      }
-
-    } catch (err) {
-      console.error("No se pudo hacer la pregunta:", err);
-    } finally {
-      askingRef.current = false;
-      setAskingQuestionId(null);
-    }
-  };
-
-  // Auto-scroll log para cuando se agrega a la conversacion
-  useEffect(() => {
-    logEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [log]);
 
   const background =
     dialog.npcCompleteUrl ?? "/images/slate_board.webp";
@@ -155,167 +85,12 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
           >
             {/* Body: portrait + content */}
             <div className="flex flex-col sm:flex-row flex-1 min-h-0">
-              {/* Portrait column */}
-              <div className="w-full sm:w-36 md:w-44 shrink-0 flex flex-row sm:flex-col items-center gap-3 sm:gap-0 py-2 sm:pt-4 md:pt-6 sm:pb-4 px-4 sm:px-3 md:px-4 border-b sm:border-b-0 sm:border-r border-[rgba(255,243,199,0.12)]">
-                <div
-                  className="
-                    relative shrink-0 w-12 h-12 sm:w-24 sm:h-24 md:w-32 md:h-32
-                    rounded-xl sm:rounded-2xl overflow-hidden
-                    border-2 border-[rgba(255,243,199,0.25)]
-                    shadow-[0_12px_30px_rgba(0,0,0,0.7)]
-                    bg-black/40
-                  "
-                >
-                  <Image
-                    src={dialog.portraitUrl}
-                    alt={dialog.npc}
-                    fill
-                    className="object-cover"
-                    sizes="128px"
-                    priority
-                  />
-                </div>
-
-                {/* NPC name */}
-                <p className="min-w-0 sm:mt-3 md:mt-4 text-left sm:text-center tracking-widest text-[#E1C380] font-semibold uppercase text-xs md:text-sm">
-                  {dialog.npc}
-                </p>
-
-                {/* Decorative divider + label */}
-                <div className="hidden sm:block mt-2 md:mt-3 w-8 md:w-10 h-px bg-[rgba(255,243,199,0.18)]" />
-                <div className="ml-auto sm:ml-0 shrink-0 sm:mt-2 px-2.5 md:px-3 py-1 rounded-xl bg-[rgba(255,243,199,0.06)] backdrop-blur-xs border border-[rgba(255,243,199,0.12)] text-[10px] sm:text-[9px] md:text-[10px] text-[#E1C380]/80 uppercase tracking-widest font-mono">
-                  {t("witness")}
-                </div>
-
-                {/* Detective Interrogator Portrait at bottom of sidebar */}
-                <div className="mt-auto pt-4 hidden sm:flex [@media(orientation:landscape)_and_(max-height:500px)]:hidden flex-col items-center w-full border-t border-[rgba(255,243,199,0.12)]">
-                  <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden border-2 border-amber-400/50 shadow-[0_12px_30px_rgba(0,0,0,0.7)] bg-black/40 flex items-center justify-center">
-                    {currentAvatar ? (
-                      <Image
-                        src={currentAvatar}
-                        alt={t("detective")}
-                        fill
-                        sizes="128px"
-                        className="object-cover"
-                      />
-                    ) : (
-                      <span className="text-3xl md:text-4xl text-amber-300/60">👤</span>
-                    )}
-                  </div>
-                  <p className="mt-2 text-center tracking-widest text-[#E1C380] font-semibold uppercase text-xs md:text-sm font-mono">
-                    {t("detective")}
-                  </p>
-                </div>
-              </div>
+              <DialogPortraitColumn npc={dialog.npc} portraitUrl={dialog.portraitUrl} avatar={currentAvatar} />
 
               {/* Right column: log + questions */}
               <div className="flex-1 flex flex-col min-h-0">
                 {/* Conversation log — scrollable, grows to fill space */}
-                <div className="flex-1 overflow-y-auto px-3 sm:px-5 pt-3 sm:pt-5 pb-3 flex flex-col gap-4">
-                  {/* Structured Intro messages */}
-                  {dialog.intro?.map((msg, idx) => {
-                    if (msg.speaker === "narrator") {
-                      return (
-                        <div key={`intro-${idx}`} className="flex justify-center my-1">
-                          <div className="px-3.5 py-1.5 rounded-xl bg-[rgba(225,195,128,0.08)] border border-[rgba(225,195,128,0.18)] backdrop-blur-xs shadow-sm">
-                            <p className="text-[11px] italic text-[#E1C380]/90 tracking-wide text-center">
-                              * {msg.text} *
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    }
-
-                    if (msg.speaker === "player") {
-                      return (
-                        <div key={`intro-${idx}`} className="flex items-start justify-end gap-2.5 sm:gap-3">
-                          <div className="flex flex-col items-end gap-1 max-w-[80%] sm:max-w-[85%]">
-                            <span className="text-[10px] tracking-widest text-[#FFF3C7]/70 font-mono font-semibold">
-                              {t("you")}
-                            </span>
-                            <div className="bg-[rgba(28,42,58,0.7)] backdrop-blur-xs border border-[rgba(255,243,199,0.22)] shadow-[0_10px_30px_rgba(0,0,0,0.4)] rounded-2xl rounded-tr-none px-4 py-2.5">
-                              <p className="text-[#E1C380]/90 text-xs leading-relaxed">
-                                {msg.text}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-xl overflow-hidden border-2 border-amber-400/60 bg-gradient-to-b from-[#1b2536] to-[#0e1724] shadow-md flex items-center justify-center shrink-0 mt-2">
-                            {currentAvatar ? (
-                              <Image
-                                src={currentAvatar}
-                                alt={t("you")}
-                                fill
-                                sizes="48px"
-                                className="object-cover"
-                              />
-                            ) : (
-                              <span className="text-xl text-amber-300/70">👤</span>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    }
-
-                    return (
-                      <div key={`intro-${idx}`} className="flex flex-col gap-1">
-                        <span className="text-[10px] tracking-widest text-[#E1C380]/70 font-mono font-semibold">
-                          {dialog.npc}
-                        </span>
-                        <div className="bg-[rgba(20,30,42,0.6)] backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_10px_30px_rgba(0,0,0,0.4)] rounded-2xl rounded-tl-none px-4 py-3 max-w-[90%]">
-                          <p className="text-[#FFF3C7] text-xs leading-relaxed whitespace-pre-line">
-                            {msg.text}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
-
-                  {/* Dynamic log entries */}
-                  {log.map((entry, i) => (
-                    <div key={i} className="flex flex-col gap-3">
-                      {/* Player question — right-aligned */}
-                      <div className="flex items-start justify-end gap-2.5 sm:gap-3">
-                        <div className="flex flex-col items-end gap-1 max-w-[80%] sm:max-w-[85%]">
-                          <span className="text-[10px] tracking-widest text-[#FFF3C7]/70 font-mono font-semibold">
-                            {t("you")}
-                          </span>
-                          <div className="bg-[rgba(28,42,58,0.7)] backdrop-blur-xs border border-[rgba(255,243,199,0.22)] shadow-[0_10px_30px_rgba(0,0,0,0.4)] rounded-2xl rounded-tr-none px-4 py-2.5">
-                            <p className="text-[#E1C380]/90 text-xs leading-relaxed">
-                              {entry.question}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-xl overflow-hidden border-2 border-amber-400/60 bg-gradient-to-b from-[#1b2536] to-[#0e1724] shadow-md flex items-center justify-center shrink-0 mt-2">
-                          {currentAvatar ? (
-                            <Image
-                              src={currentAvatar}
-                              alt={t("you")}
-                              fill
-                              sizes="48px"
-                              className="object-cover"
-                            />
-                          ) : (
-                            <span className="text-xl text-amber-300/70">👤</span>
-                          )}
-                        </div>
-                      </div>
-                      {/* NPC answer — left-aligned */}
-                      <div className="flex flex-col gap-1">
-                        <span className="text-[10px] sm:text-[8px]  tracking-widest text-[#E1C380]/70 font-semibold">
-                          {dialog.npc}
-                        </span>
-                        <div className="bg-[rgba(20,30,42,0.6)] backdrop-blur-xs border border-[rgba(255,243,199,0.18)] shadow-[0_10px_30px_rgba(0,0,0,0.4)] rounded-2xl rounded-tl-none px-4 py-3 max-w-[90%]">
-                          <p className="text-[#FFF3C7] text-xs leading-relaxed whitespace-pre-line">
-                            {entry.answer}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-
-                  {/* Anchor for auto-scroll */}
-                  <div ref={logEndRef} />
-                </div>
+                <DialogConversationLog npc={dialog.npc} intro={dialog.intro} log={log} avatar={currentAvatar} />
 
                 {/* Divider */}
                 <div className="h-px bg-[rgba(255,243,199,0.12)] mx-3 sm:mx-5" />
@@ -345,23 +120,7 @@ export default function DialogBox({ dialog, onClose }: DialogProps) {
         </div>
 
         {/* Left / Top on tablet: Background image box */}
-        <div className="h-28 sm:h-44 md:h-52 xl:h-auto [@media(orientation:landscape)_and_(max-height:500px)]:hidden xl:flex-[2] p-3 md:p-4 xl:p-6 backdrop-blur-xs flex items-center justify-center border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.6)] rounded-2xl shrink-0 xl:shrink">
-          <div className="relative w-full h-full rounded-2xl overflow-hidden border border-[rgba(255,243,199,0.18)] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
-            <Image
-              src={background}
-              alt={t("scene")}
-              fill
-              priority
-              sizes="(max-width: 1200px) 100vw, 60vw"
-              className="object-cover object-center"
-            />
-            {/* subtle inner vignette */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[#080e18]/40 via-transparent to-transparent" />
-            {/* bottom fade for text legibility */}
-            <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-[#080e18]/90 via-[#080e18]/50 to-transparent" />
-
-          </div>
-        </div>
+        <DialogSceneBackdrop src={background} />
       </div>
     </div>
   );

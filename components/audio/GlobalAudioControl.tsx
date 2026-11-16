@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useMounted } from "@/hooks/useMounted";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { useAudioStore } from "@/stores/useAudioStore";
@@ -18,7 +19,7 @@ const SoundSettingsModal = dynamic(
 );
 
 export default function GlobalAudioControl() {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
   const [showSettings, setShowSettings] = useState(false);
   const t = useT(messages);
 
@@ -29,10 +30,6 @@ export default function GlobalAudioControl() {
   const pathname = usePathname() ?? "";
   // A la derecha en el panel de admin (tapaba el logout) y en /principal (tapaba la ficha del jugador)
   const onRight = pathname.startsWith("/admin") || pathname === "/principal";
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   if (!mounted) return null;
 

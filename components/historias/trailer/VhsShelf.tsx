@@ -2,7 +2,9 @@
 
 import VhsTape from "./VhsTape";
 import { audioManager } from "@/lib/audioManager";
-import { CASE_STORIES } from "@/lib/caseStories";
+import { useCaseStories } from "@/hooks/useCaseStories";
+import { useT } from "@/hooks/useT";
+import { videotecaMessages } from "./videoteca.messages";
 import styles from "./vhs.module.css";
 
 /** Cuántos casetes se ven a la vez en el estante */
@@ -37,16 +39,18 @@ const dot = (active: boolean) =>
 
 // Estante vertical de la videoteca: muestra hasta 2 casetes, con flechas ▲ ▼ y paginador al estilo de /principal
 export default function VhsShelf({ start, move, onMove, onJump, watching, onPick }: Props) {
-  const visible = CASE_STORIES.slice(start, start + SHELF_VISIBLE);
-  const last = Math.min(start + SHELF_VISIBLE, CASE_STORIES.length);
+  const stories = useCaseStories();
+  const t = useT(videotecaMessages);
+  const visible = stories.slice(start, start + SHELF_VISIBLE);
+  const last = Math.min(start + SHELF_VISIBLE, stories.length);
   const step = (dir: "up" | "down") => {
     audioManager.play("slide");
     onMove(dir);
   };
 
   return (
-    <section aria-label="Cintas de los casos" className="mx-auto flex w-full max-w-xs flex-col gap-3 lg:max-w-none">
-      <button type="button" className={arrow} onClick={() => step("up")} disabled={start === 0} aria-label="Casetes anteriores">
+    <section aria-label={t("shelfAria")} className="mx-auto flex w-full max-w-xs flex-col gap-3 lg:max-w-none">
+      <button type="button" className={arrow} onClick={() => step("up")} disabled={start === 0} aria-label={t("prevTapes")}>
         ▲
       </button>
 
@@ -63,16 +67,16 @@ export default function VhsShelf({ start, move, onMove, onJump, watching, onPick
         type="button"
         className={arrow}
         onClick={() => step("down")}
-        disabled={last >= CASE_STORIES.length}
-        aria-label="Casetes siguientes"
+        disabled={last >= stories.length}
+        aria-label={t("nextTapes")}
       >
         ▼
       </button>
 
       {/* Paginador: una ficha por casete */}
-      <nav aria-label="Casetes" className="flex justify-center">
+      <nav aria-label={t("pagerAria")} className="flex justify-center">
         <div className="flex flex-wrap justify-center gap-2 rounded-2xl border-2 border-[#1c2c3e] bg-[#0c1421] p-2 shadow-[0_12px_32px_rgba(0,0,0,0.85)]">
-          {CASE_STORIES.map((s, i) => (
+          {stories.map((s, i) => (
             <button
               key={s.id}
               type="button"
@@ -80,7 +84,7 @@ export default function VhsShelf({ start, move, onMove, onJump, watching, onPick
                 audioManager.play("mechanickey");
                 onJump(i);
               }}
-              aria-label={`Ver el casete ${i + 1}: ${s.title}`}
+              aria-label={t("jumpTape", { n: i + 1, title: s.title })}
               aria-current={i >= start && i < last}
               className={dot(i >= start && i < last)}
             >

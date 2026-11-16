@@ -14,18 +14,22 @@ export default function SessionExpiryWatcher() {
   useEffect(() => {
     if (isPublicPath(pathname)) return;
 
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+
+    // Revisa y, si sigue vigente, vuelve a programarse para el vencimiento ACTUAL: si mientras tanto el token se
+    // renovó (partida con actividad), el próximo chequeo queda para el nuevo vencimiento
     const check = () => {
+      clearTimeout(timeout);
       const hasToken = Boolean(localStorage.getItem("auth_token"));
       const remaining = msUntilTokenExpires();
       if (!hasToken || (remaining !== null && remaining <= 0)) {
         redirectToLogin();
-        return null;
+        return;
       }
-      return remaining;
+      if (remaining !== null) timeout = setTimeout(check, Math.min(remaining + 500, MAX_TIMEOUT));
     };
 
-    const remaining = check();
-    const timeout = remaining === null ? undefined : setTimeout(check, Math.min(remaining + 500, MAX_TIMEOUT));
+    check();
 
     // Los temporizadores de pestañas en segundo plano se demoran: se revisa al volver
     const onVisible = () => document.visibilityState === "visible" && check();

@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import Image from "next/image";
 import { ISuspect } from "@/models/ISuspect";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { useAudioStore } from "@/stores/useAudioStore";
 import InvestigationBoard from "./InvestigationBoard";
+import DossierTitleBar from "./DossierTitleBar";
+import ArrestConfirmModal from "./ArrestConfirmModal";
 import { useT } from "@/hooks/useT";
 import { caseDossierModalMessages } from "./CaseDossierModal.messages";
 
@@ -29,7 +30,6 @@ export default function CaseDossierModal({
   suspects = [],
   isFacingCriminal = false,
 }: CaseDossierModalProps) {
-  const [mounted, setMounted] = useState(false);
   const [selectedSuspect, setSelectedSuspect] = useState<ISuspect | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [warrantError, setWarrantError] = useState<string | null>(null);
@@ -52,10 +52,6 @@ export default function CaseDossierModal({
   const warrantSuspectId = session?.warrantSuspectId ?? null;
   const canIssueWarrant = Boolean(session?.canIssueWarrant);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   // Handle ESC key to close modal
   useEffect(() => {
     if (!isOpen) return;
@@ -72,7 +68,8 @@ export default function CaseDossierModal({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, selectedSuspect, onClose]);
 
-  if (!mounted || !isOpen || typeof window === "undefined") {
+  // Solo se monta en el cliente (next/dynamic con ssr:false): el portal se puede crear directamente
+  if (!isOpen) {
     return null;
   }
 
@@ -124,43 +121,7 @@ export default function CaseDossierModal({
         `}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* ========================================================================= */}
-        {/* 1. CHROME / TERMINAL RETRO TITLE BAR (NO TABS)                            */}
-        {/* ========================================================================= */}
-        <div className="w-full bg-[#060b12] border-b border-[rgba(255,243,199,0.14)] py-2 sm:py-3 px-3 sm:px-6 flex items-center justify-between gap-2 sm:gap-3 shrink-0 select-none">
-          {/* Left section: Window Controls & Title */}
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="flex items-center gap-2">
-              <h2 className="font-mono font-bold text-xs sm:text-sm text-amber-200 uppercase tracking-wider">
-                {t("boardTitle")}
-              </h2>
-            </div>
-          </div>
-
-          {/* Right section: Case Badge, Clues Count & Window Close Button */}
-          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
-            {isFacingCriminal ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-mono font-bold tracking-wider uppercase bg-red-950/80 border border-red-500/70 text-red-300 animate-pulse">
-                <span className="size-2 rounded-full bg-red-500 animate-ping" />
-                🚨<span className="hidden sm:inline">{t("facingCriminal")}</span>
-              </span>
-            ) : (
-              <span className="inline-flex px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-mono font-bold tracking-wider uppercase bg-amber-500/15 border border-amber-500/35 text-amber-300">
-                {t("caseNumber", { n: levelId.toString().padStart(2, "0") })}
-              </span>
-            )}
-
-            <button
-              type="button"
-              onClick={onClose}
-              onMouseEnter={() => playSfx("typewriter")}
-              className="size-10 sm:size-9 rounded-xl bg-[rgba(255,243,199,0.06)] hover:bg-red-950/60 border border-[rgba(255,243,199,0.15)] hover:border-red-500/50 flex items-center justify-center text-[#FFF3C7]/70 hover:text-white transition-all duration-150 cursor-pointer shadow-sm active:scale-95"
-              title={t("closeBoard")}
-            >
-              ✕
-            </button>
-          </div>
-        </div>
+        <DossierTitleBar levelId={levelId} isFacingCriminal={isFacingCriminal} onClose={onClose} />
 
         {/* ========================================================================= */}
         {/* 2. BODY CONTENT: EL TABLERO UNIFICADO DE INVESTIGACIÓN                    */}
@@ -199,70 +160,14 @@ export default function CaseDossierModal({
       {/* 4. ARREST CONFIRMATION PORTAL MODAL                                       */}
       {/* ========================================================================= */}
       {selectedSuspect && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in select-none"
-          onClick={handleCancelArrest}
-        >
-          <div
-            className="relative w-full max-w-md max-h-[90svh] overflow-y-auto p-5 sm:p-7 rounded-2xl backdrop-blur-xs border border-red-500/40 bg-[rgba(18,22,32,0.98)] shadow-[0_25px_60px_rgba(0,0,0,0.8)] text-[#FFF3C7] flex flex-col items-center text-center gap-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="relative size-20 rounded-2xl overflow-hidden border-2 border-red-500/60 bg-black/60 shadow-[0_10px_25px_rgba(239,68,68,0.3)] flex items-center justify-center">
-              <Image
-                src="/images/icons/icon_arrestorder.jpg"
-                alt={t("arrestWarrant")}
-                fill
-                sizes="80px"
-                className="object-cover"
-              />
-            </div>
-
-            <div>
-              <span className="text-[10px] font-mono tracking-widest text-red-400 font-semibold px-2.5 py-0.5 rounded-full bg-red-950/60 border border-red-500/30">
-                {t("courtWarrant")}
-              </span>
-              <h3 className="text-lg sm:text-xl font-bold font-mono text-[#FFF3C7] mt-2 break-words">
-                {t("confirmQuestion", { name: selectedSuspect.name })}
-              </h3>
-            </div>
-
-            <p className="text-xs text-[#FFF3C7]/80 font-mono bg-[rgba(10,15,25,0.6)] p-3.5 rounded-xl border border-[rgba(255,243,199,0.12)] leading-relaxed">
-              {isFacingCriminal
-                ? t("finalAtHideout")
-                : t("finalBinding")}
-            </p>
-
-            {warrantError && (
-              <p className="w-full text-xs font-mono text-red-300 bg-red-950/50 p-2.5 rounded-xl border border-red-500/40">
-                {warrantError}
-              </p>
-            )}
-
-            <div className="flex flex-row gap-3 w-full pt-1">
-              <button
-                type="button"
-                onClick={handleConfirmArrest}
-                onMouseEnter={() => playSfx("typewriter")}
-                disabled={submitting}
-                className="flex-1 py-3 px-4 rounded-xl font-mono font-bold text-xs uppercase tracking-wider bg-gradient-to-b from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white border border-red-400/60 shadow-[0_10px_25px_rgba(220,38,38,0.4)] transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 disabled:opacity-50"
-              >
-                <span>✓</span>
-                <span>{submitting ? t("issuing") : t("confirmIssue")}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={handleCancelArrest}
-                onMouseEnter={() => playSfx("typewriter")}
-                disabled={submitting}
-                className="flex-1 py-3 px-4 rounded-xl font-mono font-bold text-xs uppercase tracking-wider bg-[rgba(20,30,42,0.6)] hover:bg-[rgba(255,243,199,0.1)] text-[#FFF3C7]/80 hover:text-[#FFF3C7] border border-[rgba(255,243,199,0.2)] transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 disabled:opacity-50"
-              >
-                <span>✕</span>
-                <span>{t("cancel")}</span>
-              </button>
-            </div>
-          </div>
-        </div>
+        <ArrestConfirmModal
+          suspect={selectedSuspect}
+          isFacingCriminal={isFacingCriminal}
+          submitting={submitting}
+          error={warrantError}
+          onConfirm={handleConfirmArrest}
+          onCancel={handleCancelArrest}
+        />
       )}
     </div>,
     document.body

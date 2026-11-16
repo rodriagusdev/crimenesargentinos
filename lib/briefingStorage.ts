@@ -5,30 +5,12 @@
 
 const BRIEFING_SUFFIX = "_briefing_seen";
 
-export function isBriefingSeen(levelId: number): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    return sessionStorage.getItem(`level_${levelId}${BRIEFING_SUFFIX}`) === "true";
-  } catch {
-    return false;
-  }
-}
-
 export function markBriefingSeen(levelId: number): void {
   if (typeof window === "undefined") return;
   try {
     sessionStorage.setItem(`level_${levelId}${BRIEFING_SUFFIX}`, "true");
   } catch {
     // Ignorar errores en modo incógnito/restringido
-  }
-}
-
-export function clearBriefingSeen(levelId: number): void {
-  if (typeof window === "undefined") return;
-  try {
-    sessionStorage.removeItem(`level_${levelId}${BRIEFING_SUFFIX}`);
-  } catch {
-    // Ignorar errores en SSR
   }
 }
 
