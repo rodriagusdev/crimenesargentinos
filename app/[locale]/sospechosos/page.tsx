@@ -10,9 +10,7 @@ export const metadata: Metadata = {
 // Página pública con los sospechosos de cada release (el fichero de la galería, sin el botón de simulación)
 export default function SospechososPage() {
   return (
-    <>
-      <HomeNav className="bg-[#070c16]" />
-      <FicheroScreen showPreviewToggle={false} />
-    </>
+    // La barra va dentro del fichero, transparente, para que tenga exactamente el mismo fondo que la página
+    <FicheroScreen showPreviewToggle={false} header={<HomeNav transparent />} />
   );
 }

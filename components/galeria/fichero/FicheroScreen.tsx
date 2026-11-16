@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import FileDrawer from "./FileDrawer";
 import IntakeMemo from "./IntakeMemo";
 import LegajoLightbox from "./LegajoLightbox";
@@ -14,8 +14,14 @@ import GameBackdrop, { CautionBar, GAME_BG } from "../GameBackdrop";
 
 // Propuesta "Fichero de prontuarios": oficina en penumbra con una lámpara colgante sobre un mueble metálico,
 // un cajón por release (el más nuevo arriba y abierto). El release nuevo llega con una circular y sellos.
-/** showPreviewToggle: el botón "SIMULAR RELEASE 2" es solo para el boceto de la galería (en /sospechosos no va) */
-export default function FicheroScreen({ showPreviewToggle = true }: { showPreviewToggle?: boolean }) {
+type Props = {
+  /** El botón "SIMULAR RELEASE 2" es solo para el boceto de la galería (en /sospechosos no va) */
+  showPreviewToggle?: boolean;
+  /** Barra de navegación de la página pública: va sobre el mismo fondo que el fichero */
+  header?: ReactNode;
+};
+
+export default function FicheroScreen({ showPreviewToggle = true, header }: Props) {
   const { preview, togglePreview, releases, isNew, firstNumber } = useGalleryReleases();
   // Sin elección, queda abierto el cajón más nuevo
   const [openId, setOpenId] = useState<number | null | "none">(null);
@@ -29,6 +35,7 @@ export default function FicheroScreen({ showPreviewToggle = true }: { showPrevie
   return (
     <div className={`relative ${GAME_BG} min-h-svh overflow-x-clip px-3 sm:px-6 pb-12 text-[#FFF3C7]`}>
       <GameBackdrop glow="245,158,11" />
+      {header && <div className="relative z-20 -mx-3 sm:-mx-6 mb-4">{header}</div>}
       <CautionBar className="max-w-5xl" />
       <div className="relative max-w-5xl mx-auto pt-28 sm:pt-32">
         <PendantLamp />

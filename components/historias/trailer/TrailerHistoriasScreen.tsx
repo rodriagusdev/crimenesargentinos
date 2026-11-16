@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 import VhsShelf, { SHELF_VISIBLE } from "./VhsShelf";
 import TrailerPlayer from "./TrailerPlayer";
 import VideotecaHero from "./VideotecaHero";
@@ -18,7 +18,8 @@ const TRAILER_MS = timelineTotal(CASE_SCENES);
 // Propuesta "Tráiler de los casos" (distinta al tráiler de la home): la videoteca de la Central.
 // Un destacado con el caso elegido y un estante con una cinta VHS por caso; "VER TRÁILER" pasa a pantalla completa
 // el tráiler de ESE caso: el lugar, el hecho, lo que se busca, la frase gancho y el título. Nada de pistas ni sospechosos.
-export default function TrailerHistoriasScreen() {
+/** header: barra de navegación de la página pública /casos, sobre el mismo fondo que la videoteca */
+export default function TrailerHistoriasScreen({ header }: { header?: ReactNode } = {}) {
   const stories = useCaseStories();
   const t = useT(videotecaMessages);
   // Cinta en la videocasetera (índice en CASE_STORIES; null: ninguna)
@@ -67,6 +68,7 @@ export default function TrailerHistoriasScreen() {
     <div className={`relative ${GAME_BG} min-h-svh px-3 sm:px-6 py-6 sm:py-12 pb-16 text-[#FFF3C7]`}>
       <GameBackdrop glow="120,170,255" bright />
       <VideotecaSideDecor />
+      {header && <div className="relative z-20 -mx-3 -mt-6 mb-6 sm:-mx-6 sm:-mt-12">{header}</div>}
       <CautionBar className="max-w-[85rem]" />
       {/* Ancho: el reproductor (~68rem) queda en 16:9 con el mismo alto que el estante (~616px); el alto lo iguala el grid */}
       <div className="relative max-w-[85rem] mx-auto flex flex-col gap-5">

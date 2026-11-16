@@ -23,9 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
 // Página pública de presentación de los casos: la videoteca con un tráiler por caso
 export default function CasosPage() {
   return (
-    <>
-      <HomeNav className="bg-[#070c16]" />
-      <TrailerHistoriasScreen />
-    </>
+    // La barra va dentro de la videoteca, transparente, para que tenga exactamente el mismo fondo que la página
+    <TrailerHistoriasScreen header={<HomeNav transparent />} />
   );
 }

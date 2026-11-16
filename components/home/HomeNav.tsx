@@ -11,11 +11,12 @@ const playKey = () => audioManager.play("typewriter");
 
 // Barra superior de las páginas públicas: logo, tráilers de los casos, sospechosos, reglas, entrar y registrarse.
 // En celular va en una sola fila: logo sin nombre, "▶" para los tráilers, "?" para las reglas y los dos botones (el selector de idioma, desde sm).
-export default function HomeNav({ className = "" }: { className?: string }) {
+/** transparent: sin fondo ni borde propios, para ir sobre el fondo de la página (sospechosos, tráilers) */
+export default function HomeNav({ className = "", transparent = false }: { className?: string; transparent?: boolean }) {
   const t = useT(homeNavMessages);
   return (
     <header
-      className={`relative z-20 flex items-center justify-between gap-2 sm:gap-4 px-3 sm:px-8 py-2.5 sm:py-4 bg-[#070c16]/75 border-b border-[#E1C380]/20 text-[#FFF3C7] ${className}`}
+      className={`relative z-20 flex items-center justify-between gap-2 sm:gap-4 px-3 sm:px-8 py-2.5 sm:py-4 ${transparent ? "" : "bg-[#070c16]/75 border-b border-[#E1C380]/20"} text-[#FFF3C7] ${className}`}
     >
       <Link href="/" className="flex shrink-0 items-center gap-3" aria-label={t("homeAria")}>
         <Image src="/images/logofinal.png" alt="" width={66} height={44} priority className="h-8 sm:h-11 w-auto" />
