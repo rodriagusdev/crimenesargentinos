@@ -65,20 +65,26 @@ export function useQuickCase() {
   const [now, setNow] = useState(() => Date.now());
   const locale = useLocale();
 
-  // Reloj: corre solo mientras se juega; al llegar a cero, el sospechoso se escapa
+  // Reloj: corre solo mientras se juega; al llegar a cero, el sospechoso se escapa.
+  // Se despierta justo cuando cambia el segundo mostrado (1 render por segundo, no 4).
   useEffect(() => {
     if (state.phase !== "playing") return;
     const endsAt = state.endsAt;
     const clue = state.clue;
-    const timer = setInterval(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    const tick = () => {
       const t = Date.now();
       setNow(t);
-      if (t >= endsAt) {
+      const remaining = endsAt - t;
+      if (remaining <= 0) {
         audioManager.play("defeat");
         setState({ phase: "lost", clue, picked: null });
+        return;
       }
-    }, 250);
-    return () => clearInterval(timer);
+      timer = setTimeout(tick, remaining % 1000 || 1000);
+    };
+    timer = setTimeout(tick, (endsAt - Date.now()) % 1000 || 1000);
+    return () => clearTimeout(timer);
   }, [state]);
 
   const pick = useCallback(

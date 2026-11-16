@@ -2,7 +2,10 @@
 
 import { createPortal } from "react-dom";
 import { useEffect, useState, useCallback, useRef, useSyncExternalStore } from "react";
-import CaseBriefingSheet from "./CaseBriefingSheet";
+import dynamic from "next/dynamic";
+
+// La hoja del informe se muestra una sola vez por partida: su JS se descarga recién cuando hace falta
+const CaseBriefingSheet = dynamic(() => import("./CaseBriefingSheet"), { ssr: false });
 import { getGameData } from "@/services/levelService";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
 import { audioManager } from "@/lib/audioManager";

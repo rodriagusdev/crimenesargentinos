@@ -101,7 +101,112 @@ class AudioManager {
   // --- Background Music / Soundtrack Management ---
 
   public startMusic(playlistOrUrl?: string | string[]): void {
+<<<<<<< HEAD
     this.music.start(playlistOrUrl);
+=======
+    if (typeof window === "undefined") return;
+    this.isMusicDesired = true;
+
+    // If music is already playing, keep going without restarting
+    if (this.musicAudio && !this.musicAudio.paused) {
+      return;
+    }
+
+    if (Array.isArray(playlistOrUrl) && playlistOrUrl.length > 0) {
+      this.musicPlaylist = playlistOrUrl;
+      this.currentTrackIndex = 0; // songdefault is always first
+    } else if (typeof playlistOrUrl === "string") {
+      const foundIdx = this.musicPlaylist.indexOf(playlistOrUrl);
+      this.currentTrackIndex = foundIdx !== -1 ? foundIdx : 0;
+    } else if (!this.musicAudio) {
+      // First startup: songdefault is always the first to play
+      this.currentTrackIndex = 0;
+    }
+
+    this.playCurrentTrack();
+  }
+
+  private playCurrentTrack(): void {
+    if (typeof window === "undefined" || !this.isMusicDesired) return;
+    // Defer creating/downloading the music until the first user gesture (handled in initUserGestureResume)
+    if (!this.hasUserGesture) return;
+
+    const currentUrl = this.musicPlaylist[this.currentTrackIndex] || "/sounds/songdefault.mp3";
+
+    // Si el tema que toca ya se precargó, se usa ese elemento (antes se descartaba y se volvía a descargar)
+    const preloaded = this.nextTrackPreload;
+    if (preloaded && this.nextTrackPreloadUrl === currentUrl) {
+      this.nextTrackPreload = null;
+      this.nextTrackPreloadUrl = null;
+      if (this.musicAudio) {
+        this.musicAudio.pause();
+        this.musicAudio.removeAttribute("src");
+        this.musicAudio.load(); // libera el buffer del tema anterior
+      }
+      this.musicAudio = this.setupMusicElement(preloaded);
+    } else if (!this.musicAudio) {
+      this.musicAudio = this.setupMusicElement(new Audio(currentUrl));
+    } else {
+      if (!this.musicAudio.src.endsWith(currentUrl)) {
+        this.musicAudio.src = currentUrl;
+      }
+      this.musicAudio.loop = false;
+    }
+
+    this.applyMusicVolume();
+
+    const playPromise = this.musicAudio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        // Autoplay policy prevented playback until first user gesture; listener is already attached
+      });
+    }
+
+  }
+
+  /** Listeners del elemento de música; los eventos de un elemento que ya no es el actual se ignoran. */
+  private setupMusicElement(audio: HTMLAudioElement): HTMLAudioElement {
+    audio.loop = false; // Alternates tracks via "ended" listener
+    audio.preload = "auto";
+    const isCurrent = () => audio === this.musicAudio;
+
+    audio.addEventListener("timeupdate", () => {
+      if (isCurrent()) this.maybePreloadNextTrack();
+    });
+
+    audio.addEventListener("ended", () => {
+      if (isCurrent()) this.playNextTrack();
+    });
+
+    audio.addEventListener("error", () => {
+      if (!isCurrent()) return;
+      console.warn(`[AudioManager] Error playing track: ${audio.src}, skipping to next`);
+      setTimeout(() => {
+        if (this.isMusicDesired && isCurrent()) {
+          this.playNextTrack();
+        }
+      }, 1500);
+    });
+    return audio;
+  }
+
+  /** Warm up the next track only when the current one has less than ~10 s left. */
+  private maybePreloadNextTrack(): void {
+    const audio = this.musicAudio;
+    if (!audio || this.musicPlaylist.length < 2) return;
+    const { duration, currentTime } = audio;
+    if (!Number.isFinite(duration) || duration - currentTime > 10) return;
+
+    const nextIndex = (this.currentTrackIndex + 1) % this.musicPlaylist.length;
+    const nextUrl = this.musicPlaylist[nextIndex];
+    if (this.nextTrackPreloadUrl === nextUrl) return;
+
+    this.nextTrackPreloadUrl = nextUrl;
+    const preloadAudio = new Audio();
+    preloadAudio.preload = "auto";
+    preloadAudio.src = nextUrl;
+    this.nextTrackPreload = preloadAudio;
+>>>>>>> ae55200a7b6eb941d2f4bf1d16c2087db019adc1
   }
 
   public playNextTrack(): void {
@@ -147,6 +252,7 @@ class AudioManager {
     const ctx = this.engine.initContext();
     if (!ctx) return;
 
+<<<<<<< HEAD
     const urls = [
       ...Object.values(SOUND_URLS).filter(Boolean),
       RAIN_URL,
@@ -157,6 +263,21 @@ class AudioManager {
         await this.engine.loadBuffer(url);
       }
     }
+=======
+    // Primero los SFX que se disparan con la interacción (hover / botones), después el resto en paralelo
+    const priority = ["typewriter", "opencasefile"]
+      .map((type) => this.soundUrls[type as SfxType])
+      .filter(Boolean) as string[];
+    await Promise.all(priority.map((url) => this.loadBuffer(url)));
+
+    // Set: varios SFX comparten archivo (defeat/losing, winning/victory)
+    const rest = new Set([
+      ...(Object.values(this.soundUrls).filter(Boolean) as string[]),
+      "/sounds/raindrops.ogg",
+      ...this.ambientEvents,
+    ]);
+    await Promise.all([...rest].map((url) => this.loadBuffer(url)));
+>>>>>>> ae55200a7b6eb941d2f4bf1d16c2087db019adc1
   }
 
   /**
@@ -193,14 +314,19 @@ class AudioManager {
         return;
       }
 
+<<<<<<< HEAD
       // If not yet cached, attempt to load it in background
       this.engine.loadBuffer(url).then((b) => {
         if (!b) this.synthesize(type, options);
+=======
+      // Sin buffer todavía: un único pedido (fetch + decode) y se reproduce al llegar.
+      // Antes se pedía además el mismo archivo con un <audio> de fallback (doble descarga).
+      // El typewriter de hover no se reproduce tarde: solo queda cargado para la próxima vez.
+      this.loadBuffer(url).then((b) => {
+        if (!b) this.playSynthesized(type, options);
+        else if (type !== "typewriter") this.playBuffer(b, type, options);
+>>>>>>> ae55200a7b6eb941d2f4bf1d16c2087db019adc1
       });
-      // Do not use HTML audio fallback for typewriter hover sounds
-      if (type !== "typewriter") {
-        this.playHtmlAudioFallback(type);
-      }
       return;
     }
 

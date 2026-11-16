@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useAppPathname } from "@/hooks/useAppPathname";
 import { ReactNode, useMemo } from "react";
 import { adminGroups, adminGroupTitles, adminTables, type AdminGroup } from "@/lib/adminTables";
 import { getUserIdentity } from "@/lib/auth";
@@ -24,7 +25,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
   const t = useT(adminShellMessages);
   const locale = useLocale();
   const allowed = useAdminGuard();
-  const pathname = usePathname();
+  const pathname = useAppPathname();
   const router = useRouter();
 
   const identity = useMemo(() => (allowed ? getUserIdentity() : { name: "", email: "" }), [allowed]);
