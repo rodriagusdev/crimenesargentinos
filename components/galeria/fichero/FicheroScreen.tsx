@@ -14,7 +14,8 @@ import GameBackdrop, { CautionBar, GAME_BG } from "../GameBackdrop";
 
 // Propuesta "Fichero de prontuarios": oficina en penumbra con una lámpara colgante sobre un mueble metálico,
 // un cajón por release (el más nuevo arriba y abierto). El release nuevo llega con una circular y sellos.
-export default function FicheroScreen() {
+/** showPreviewToggle: el botón "SIMULAR RELEASE 2" es solo para el boceto de la galería (en /sospechosos no va) */
+export default function FicheroScreen({ showPreviewToggle = true }: { showPreviewToggle?: boolean }) {
   const { preview, togglePreview, releases, isNew, firstNumber } = useGalleryReleases();
   // Sin elección, queda abierto el cajón más nuevo
   const [openId, setOpenId] = useState<number | null | "none">(null);
@@ -81,14 +82,16 @@ export default function FicheroScreen() {
         />
       )}
 
-      <ReleasePreviewToggle
-        preview={preview}
-        onToggle={() => {
-          audioManager.play(preview ? "slide" : "stamp");
-          setOpenId(null);
-          togglePreview();
-        }}
-      />
+      {showPreviewToggle && (
+        <ReleasePreviewToggle
+          preview={preview}
+          onToggle={() => {
+            audioManager.play(preview ? "slide" : "stamp");
+            setOpenId(null);
+            togglePreview();
+          }}
+        />
+      )}
     </div>
   );
 }

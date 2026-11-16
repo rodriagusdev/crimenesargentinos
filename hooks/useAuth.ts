@@ -1,33 +1,4 @@
 import { useRouter } from "next/navigation";
-<<<<<<< HEAD
-import { useState, useSyncExternalStore } from "react";
-import { getTokenClaims, isTokenExpired } from "@/lib/auth";
-import { useGameSessionStore } from "@/stores/useGameSessionStore";
-
-const subscribe = () => () => {};
-
-/** Sesión válida según el token guardado. Un token vencido cuenta como sin sesión. */
-function readAuthenticated(): boolean {
-  try {
-    const token = localStorage.getItem("auth_token");
-    const claims = getTokenClaims();
-    return !!token && !!claims && !isTokenExpired(claims);
-  } catch {
-    return false;
-  }
-}
-
-/** null en el servidor y en la hidratación: todavía no se leyó el storage. */
-const readServerAuthenticated = (): boolean | null => null;
-
-export function useAuth() {
-  const router = useRouter();
-  const stored = useSyncExternalStore<boolean | null>(subscribe, readAuthenticated, readServerAuthenticated);
-  const [loggedOut, setLoggedOut] = useState(false);
-
-  const loading = stored === null;
-  const isAuthenticated = !loggedOut && stored === true;
-=======
 import { useSyncExternalStore } from "react";
 import { getTokenClaims, isTokenExpired } from "@/lib/auth";
 import { useGameSessionStore } from "@/stores/useGameSessionStore";
@@ -59,7 +30,6 @@ export function useAuth() {
   const snapshot = useSyncExternalStore<boolean | null>(subscribe, getSnapshot, getServerSnapshot);
   const loading = snapshot === null;
   const isAuthenticated = snapshot === true;
->>>>>>> ae55200a7b6eb941d2f4bf1d16c2087db019adc1
 
   const logout = () => {
     try {
@@ -69,11 +39,7 @@ export function useAuth() {
       // sin acceso a storage
     }
     useGameSessionStore.getState().resetSession();
-<<<<<<< HEAD
-    setLoggedOut(true);
-=======
     notify();
->>>>>>> ae55200a7b6eb941d2f4bf1d16c2087db019adc1
     router.push("/login");
   };
 

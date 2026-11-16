@@ -1,14 +1,9 @@
 "use client";
 
 import Image from "next/image";
-<<<<<<< HEAD
-import { usePathname } from "next/navigation";
+import { useAppPathname } from "@/hooks/useAppPathname";
 import { useEffect } from "react";
 import { useMounted } from "@/hooks/useMounted";
-=======
-import { useAppPathname } from "@/hooks/useAppPathname";
-import { useEffect, useState } from "react";
->>>>>>> ae55200a7b6eb941d2f4bf1d16c2087db019adc1
 import { useAvatarStore } from "@/stores/useAvatarStore";
 import { useIsFullscreen } from "@/hooks/useIsFullscreen";
 import { useT } from "@/hooks/useT";

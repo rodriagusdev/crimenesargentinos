@@ -9,7 +9,7 @@ import { audioManager } from "@/lib/audioManager";
 
 const playKey = () => audioManager.play("typewriter");
 
-// Barra superior de las páginas públicas: logo, tráilers de los casos, reglas, entrar y registrarse.
+// Barra superior de las páginas públicas: logo, tráilers de los casos, sospechosos, reglas, entrar y registrarse.
 // En celular va en una sola fila: logo sin nombre, "▶" para los tráilers, "?" para las reglas y los dos botones (el selector de idioma, desde sm).
 export default function HomeNav({ className = "" }: { className?: string }) {
   const t = useT(homeNavMessages);
@@ -35,6 +35,14 @@ export default function HomeNav({ className = "" }: { className?: string }) {
             ▶
           </span>
           <span className="hidden sm:inline">{t("cases")}</span>
+        </Link>
+        {/* En celular no entra un botón más en 360px: el link a los sospechosos se ve desde sm */}
+        <Link
+          href="/sospechosos"
+          onMouseEnter={playKey}
+          className="hidden sm:inline-flex items-center text-[10px] px-3 py-3.5 hover:text-[#E1C380]"
+        >
+          {t("suspects")}
         </Link>
         <Link
           href="/reglas"

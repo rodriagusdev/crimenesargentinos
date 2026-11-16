@@ -1,12 +1,7 @@
 "use client";
 
-<<<<<<< HEAD
-import { usePathname, useRouter } from "next/navigation";
-=======
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAppPathname } from "@/hooks/useAppPathname";
->>>>>>> ae55200a7b6eb941d2f4bf1d16c2087db019adc1
 import { useEffect, useState } from "react";
 import { MENU_ACTIONS } from "@/data/menuActions";
 import { abandonSession } from "@/services/gameSessionService";
@@ -33,12 +28,7 @@ interface LevelMenuProps {
 
 export default function LevelMenu({ levelId }: LevelMenuProps) {
   const router = useRouter();
-<<<<<<< HEAD
-  const pathname = usePathname();
-=======
   const pathname = useAppPathname();
-  const playTypewriter = useTypewriterSound();
->>>>>>> ae55200a7b6eb941d2f4bf1d16c2087db019adc1
   const t = useT(levelMenuMessages);
   const [dossierOpen, setDossierOpen] = useState(false);
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
