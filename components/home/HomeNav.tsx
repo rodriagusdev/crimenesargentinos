@@ -9,8 +9,8 @@ import { audioManager } from "@/lib/audioManager";
 
 const playKey = () => audioManager.play("typewriter");
 
-// Barra superior de las páginas públicas: logo, tráilers de los casos, sospechosos, reglas, entrar y registrarse.
-// En celular va en una sola fila: logo sin nombre, "▶" para los tráilers, "?" para las reglas y los dos botones (el selector de idioma, desde sm).
+// Barra superior de las páginas públicas: logo, tráilers de los casos, sospechosos, reglas, acerca de, entrar y registrarse.
+// En celular va en una sola fila: logo sin nombre, iconos para tráilers, reglas y acerca de, más los dos botones.
 /** transparent: sin fondo ni borde propios, para ir sobre el fondo de la página (sospechosos, tráilers) */
 export default function HomeNav({ className = "", transparent = false }: { className?: string; transparent?: boolean }) {
   const t = useT(homeNavMessages);
@@ -22,7 +22,7 @@ export default function HomeNav({ className = "", transparent = false }: { class
         <Image src="/images/logofinal.png" alt="" width={66} height={44} priority className="h-8 sm:h-11 w-auto" />
         <span className="hidden md:inline text-xs tracking-widest text-[#E1C380]">CRÍMENES ARGENTINOS</span>
       </Link>
-      <nav className="flex items-center gap-1 sm:gap-3">
+      <nav className="flex items-center gap-0 sm:gap-3">
         <div className="hidden sm:block">
           <LanguageSwitcher />
         </div>
@@ -49,22 +49,33 @@ export default function HomeNav({ className = "", transparent = false }: { class
           href="/reglas"
           onMouseEnter={playKey}
           aria-label={t("howToPlayAria")}
-          className="flex items-center justify-center size-10 sm:size-auto rounded-xl border border-[#FFF3C7]/25 sm:border-0 text-xs sm:text-[10px] sm:px-3 sm:py-3.5 hover:text-[#E1C380]"
+          className="flex items-center justify-center size-8 sm:size-auto rounded-xl border border-[#FFF3C7]/25 sm:border-0 text-xs sm:text-[10px] sm:px-3 sm:py-3.5 hover:text-[#E1C380]"
         >
           <span className="sm:hidden">?</span>
           <span className="hidden sm:inline">{t("howToPlay")}</span>
         </Link>
         <Link
+          href="/acerda-de?desde=principal"
+          onMouseEnter={playKey}
+          aria-label={t("about")}
+          className="flex items-center justify-center size-8 sm:size-auto rounded-xl border border-[#FFF3C7]/25 sm:border-0 text-xs sm:text-[10px] sm:px-3 sm:py-3.5 hover:text-[#E1C380]"
+        >
+          <span className="sm:hidden" aria-hidden>
+            ℹ
+          </span>
+          <span className="hidden sm:inline">{t("about")}</span>
+        </Link>
+        <Link
           href="/login"
           onMouseEnter={playKey}
-          className="text-[10px] px-2.5 sm:px-4 py-3 sm:py-3.5 border-2 border-[#E1C380] rounded-xl hover:bg-[#E1C380]/10"
+          className="text-[10px] px-2 sm:px-4 py-3 sm:py-3.5 border-2 border-[#E1C380] rounded-xl hover:bg-[#E1C380]/10"
         >
           {t("login")}
         </Link>
         <Link
           href="/login?registro"
           onMouseEnter={playKey}
-          className="text-[10px] px-2.5 sm:px-4 py-3 sm:py-3.5 bg-[#c81e1e] rounded-xl hover:bg-[#a51818]"
+          className="text-[10px] px-2 sm:px-4 py-3 sm:py-3.5 bg-[#c81e1e] rounded-xl hover:bg-[#a51818]"
         >
           <span className="sm:hidden">{t("registerShort")}</span>
           <span className="hidden sm:inline">{t("register")}</span>

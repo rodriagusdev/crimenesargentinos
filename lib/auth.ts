@@ -31,7 +31,7 @@ export function msUntilTokenExpires(claims: TokenClaims | null = getTokenClaims(
 }
 
 // Pantallas que se ven sin sesión
-export const PUBLIC_PATHS = ["/", "/login", "/reglas", "/casos", "/sospechosos"];
+export const PUBLIC_PATHS = ["/", "/login", "/reglas", "/acerda-de", "/casos", "/sospechosos"];
 // Secciones enteras que se ven sin sesión (la galería de portadas y cada una de sus variantes)
 const PUBLIC_PREFIXES = ["/portadas", "/historias"];
 

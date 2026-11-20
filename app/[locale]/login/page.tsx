@@ -10,8 +10,8 @@ import { useT } from "@/hooks/useT";
 import { defineMessages } from "@/lib/i18n/messages";
 
 const messages = defineMessages({
-	es: { home: "← INICIO", howToPlay: "¿CÓMO SE JUEGA?" },
-	en: { home: "← HOME", howToPlay: "HOW TO PLAY?" },
+	es: { home: "← INICIO", howToPlay: "¿CÓMO SE JUEGA?", about: "ACERCA DE" },
+	en: { home: "← HOME", howToPlay: "HOW TO PLAY?", about: "ABOUT US" },
 });
 
 export default function Login() {
@@ -42,13 +42,21 @@ export default function Login() {
 			{/* Idioma */}
 			<LanguageSwitcher className="absolute top-5 right-5 z-20" />
 
-			{/* Reglas del juego (se ven sin sesión) */}
-			<Link
-				href="/reglas"
-				className="absolute bottom-4 right-4 py-2 sm:py-0 sm:bottom-6 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 z-20 text-xs tracking-widest text-[#FFF3C7]/80 hover:text-[#E1C380] [text-shadow:_0_2px_0_#1E2A36]"
-			>
-				{t("howToPlay")}
-			</Link>
+			{/* Información pública, visible sin sesión */}
+			<nav className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-6 sm:gap-8 whitespace-nowrap text-xs tracking-widest [text-shadow:_0_2px_0_#1E2A36]">
+				<Link
+					href="/reglas"
+					className="py-2 text-[#FFF3C7]/80 hover:text-[#E1C380]"
+				>
+					{t("howToPlay")}
+				</Link>
+				<Link
+					href="/acerda-de?desde=principal"
+					className="py-2 text-[#FFF3C7]/80 hover:text-[#E1C380]"
+				>
+					{t("about")}
+				</Link>
+			</nav>
 
 			{/* Login / registro */}
 			<div className="relative z-10 w-full max-w-3xl flex flex-col items-center justify-center px-4 pt-20 pb-16 sm:px-8 sm:py-16 md:px-12 md:py-20 xl:px-16 xl:py-32">

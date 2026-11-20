@@ -3,15 +3,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import UserInfo from "./UserInfo";
-import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
 import { useAuth } from "@/hooks/useAuth";
 import { useAudioStore } from "@/stores/useAudioStore";
 import { useT } from "@/hooks/useT";
 import { defineMessages } from "@/lib/i18n/messages";
 
 const messages = defineMessages({
-  es: { howToPlay: "¿CÓMO SE JUEGA?", logout: "CERRAR SESION", logoAlt: "Crimenes Argentinos" },
-  en: { howToPlay: "HOW TO PLAY?", logout: "LOG OUT", logoAlt: "Crímenes Argentinos" },
+  es: { howToPlay: "¿CÓMO SE JUEGA?", about: "ACERCA DE", logout: "CERRAR SESION", logoAlt: "Crimenes Argentinos" },
+  en: { howToPlay: "HOW TO PLAY?", about: "ABOUT US", logout: "LOG OUT", logoAlt: "Crímenes Argentinos" },
 });
 
 export default function PlayerPanel() {
@@ -53,9 +52,26 @@ export default function PlayerPanel() {
         </Link>
       </div>
 
-      {/* IDIOMA */}
-      <div className="flex justify-center">
-        <LanguageSwitcher />
+      {/* ACERCA DE */}
+      <div>
+        <Link
+          href="/acerda-de?desde=principal"
+          onClick={() => playSfx("click")}
+          onMouseEnter={() => playSfx("typewriter")}
+          className="
+            w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl
+            border-2 border-[#1c2c3e] bg-[#0c1421]
+            hover:border-amber-400/60 hover:bg-amber-950/20
+            text-slate-300 hover:text-amber-200
+            font-mono font-bold text-xs tracking-wider uppercase
+            shadow-[0_12px_32px_rgba(0,0,0,0.65)]
+            hover:shadow-[0_16px_36px_rgba(0,0,0,0.8),0_0_15px_rgba(245,158,11,0.2)]
+            hover:-translate-y-0.5
+            transition-all duration-200 cursor-pointer select-none
+          "
+        >
+          <span>{t("about")}</span>
+        </Link>
       </div>
 
       {/* 3. BOTON SALIR / CERRAR SESION */}
